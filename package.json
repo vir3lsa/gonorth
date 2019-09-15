@@ -12,7 +12,7 @@
     "parser"
   ],
   "author": "Rich Locke",
-  "license": "ISC",
+  "license": "GPL-3.0",
   "devDependencies": {
     "@babel/core": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
