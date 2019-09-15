@@ -1,0 +1,22 @@
+{
+  "name": "gonorth",
+  "version": "0.0.1",
+  "description": "A text adventure game engine",
+  "main": "gonorth.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "text",
+    "adventure",
+    "parser"
+  ],
+  "author": "Rich Locke",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.6.0",
+    "@babel/preset-env": "^7.6.0",
+    "babel-jest": "^24.9.0",
+    "jest": "^24.9.0"
+  }
+}
