@@ -1,4 +1,4 @@
-import gonorth from "../gonorth";
+import gonorth from "./gonorth";
 
 describe('goNORTH', () => {
 
