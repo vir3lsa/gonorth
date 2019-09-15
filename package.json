@@ -4,6 +4,7 @@
   "description": "A text adventure game engine",
   "main": "gonorth.js",
   "scripts": {
+    "build": "babel src --out-dir lib --ignore '**/*.test.js'",
     "test": "jest"
   },
   "keywords": [
@@ -14,9 +15,13 @@
   "author": "Rich Locke",
   "license": "GPL-3.0",
   "devDependencies": {
+    "@babel/cli": "^7.6.0",
     "@babel/core": "^7.6.0",
     "@babel/preset-env": "^7.6.0",
     "babel-jest": "^24.9.0",
     "jest": "^24.9.0"
+  },
+  "dependencies": {
+    "@babel/polyfill": "^7.6.0"
   }
 }
