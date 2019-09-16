@@ -7,10 +7,19 @@ const createGame = title => {
 
 const playGame = game => {
   if (!game) {
-    console.error("No game to play");
+    throw Error("No game to play");
   }
 
   output(formatTitle(game.title || "Untitled"));
+};
+
+const attach = container => {
+  if (!container) {
+    throw Error("No container provided");
+  }
+
+  const component = <div>Game output goes here</div>; // placeholder
+  ReactDOM.render(component, container);
 };
 
 const formatTitle = title =>
@@ -22,5 +31,6 @@ const formatTitle = title =>
 
 export default {
   createGame,
-  playGame
+  playGame,
+  attach
 };

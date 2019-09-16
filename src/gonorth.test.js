@@ -32,4 +32,8 @@ describe("goNORTH", () => {
 
     expect(outputCalled).toBe(true);
   });
+
+  it("Throws an error if no game is provided", () => {
+    expect(gonorth.playGame).toThrow(Error);
+  });
 });
