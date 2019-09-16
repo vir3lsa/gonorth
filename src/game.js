@@ -1,7 +1,5 @@
 export default class Game {
-
-    constructor(title) {
-        this.title = title;
-    }
-
+  constructor(title) {
+    this.title = title;
+  }
 }
