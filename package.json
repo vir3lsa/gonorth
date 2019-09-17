@@ -2,7 +2,7 @@
   "name": "gonorth",
   "version": "0.0.1",
   "description": "A text adventure game engine",
-  "main": "gonorth.js",
+  "main": "./lib/gonorth.js",
   "scripts": {
     "build": "babel src --out-dir lib --ignore '**/*.test.js'",
     "test": "jest"

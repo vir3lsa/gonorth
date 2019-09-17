@@ -1,3 +1,6 @@
+import React from "react"; // Temp - need to import for Webpack to bundle it
+import ReactDOM from "react-dom";
+
 import Game from "./game";
 import { output } from "./output";
 
@@ -5,7 +8,7 @@ const createGame = title => {
   return new Game(title);
 };
 
-const playGame = game => {
+const play = game => {
   if (!game) {
     throw Error("No game to play");
   }
@@ -31,6 +34,6 @@ const formatTitle = title =>
 
 export default {
   createGame,
-  playGame,
+  play,
   attach
 };
