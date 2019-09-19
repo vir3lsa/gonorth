@@ -28,12 +28,7 @@ describe("goNORTH", () => {
       expect(text).toBe("S p a c e   A u c t i o n e e r   2");
     });
 
-    gonorth.playGame(game);
-
+    game.play();
     expect(outputCalled).toBe(true);
-  });
-
-  it("Throws an error if no game is provided", () => {
-    expect(gonorth.playGame).toThrow(Error);
   });
 });

@@ -30,16 +30,17 @@ export default class Game {
 
   play() {
     this.output = formatTitle(this.title || "Untitled");
-
-    if (!this.container || this.debugMode) {
-      output(this.output);
-    }
-
     this.renderTopLevel();
   }
 
   renderTopLevel() {
-    this.component = <IODevice output={this.output} />;
-    ReactDOM.render(this.component, this.container);
+    if (this.container) {
+      this.component = <IODevice output={this.output} />;
+      ReactDOM.render(this.component, this.container);
+    }
+
+    if (!this.container || this.debugMode) {
+      output(this.output);
+    }
   }
 }
