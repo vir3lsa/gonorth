@@ -1,4 +1,5 @@
 import React from "react";
+import { connect } from "react-redux";
 
 const IODevice = props => {
   return (
@@ -8,4 +9,10 @@ const IODevice = props => {
   );
 };
 
-export default IODevice;
+const mapStateToProps = state => {
+  return {
+    output: state.game.output
+  };
+};
+
+export default connect(mapStateToProps)(IODevice);
