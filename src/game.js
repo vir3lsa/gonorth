@@ -6,6 +6,7 @@ import { output } from "./output";
 import IODevice from "./iodevice";
 import { store } from "./redux/store";
 import { changeOutput } from "./redux/gameActions";
+import { LOADING, INTRO, ROOM } from "./gameState";
 
 const formatTitle = title =>
   [...title]
@@ -18,7 +19,10 @@ export default class Game {
   constructor(title, debugMode) {
     this.title = title;
     this.debugMode = debugMode;
+    this.status = LOADING;
     this.container = null;
+    this.author = null;
+    this.intros = [];
   }
 
   attach(container) {
@@ -31,7 +35,17 @@ export default class Game {
   }
 
   play() {
-    const output = formatTitle(this.title || "Untitled");
+    this.status = INTRO;
+    let output = `# ${formatTitle(this.title || "Untitled")}`;
+
+    if (this.author) {
+      output += `\n### By ${this.author}`;
+    }
+
+    if (this.intros && this.intros.length) {
+      output += `\n\n${this.intros[0]}`;
+    }
+
     store.dispatch(changeOutput(output));
     this.renderTopLevel();
   }

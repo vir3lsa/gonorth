@@ -1,10 +1,11 @@
 import React from "react";
+import ReactMarkdown from "react-markdown";
 import { connect } from "react-redux";
 
 const IODevice = props => {
   return (
     <div>
-      <div>{props.output}</div>
+      <ReactMarkdown source={props.output} />
     </div>
   );
 };
