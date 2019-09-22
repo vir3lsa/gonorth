@@ -1,5 +1,5 @@
 import Game from "./game";
-import { store } from "./redux/store";
+import { store } from "../redux/store";
 
 describe("Game class", () => {
   it("Defaults output to Loading", () => {

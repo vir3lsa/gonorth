@@ -1,5 +1,5 @@
 import gonorth from "./gonorth";
-import * as outputDependency from "./output";
+import * as outputDependency from "./utils/output";
 
 const title = "Space Auctioneer 2";
 

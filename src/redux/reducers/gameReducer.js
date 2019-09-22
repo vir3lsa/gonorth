@@ -1,13 +1,18 @@
-import { CHANGE_OUTPUT } from "../gameActionTypes";
+import { NEW_GAME, CHANGE_INTERACTION } from "../gameActionTypes";
+import Interaction from "../../game/interaction";
 
 const initialState = {
-  output: "Loading..."
+  inBrowser: false,
+  debugMode: false,
+  interaction: new Interaction("Loading...", [])
 };
 
 export default function(state = initialState, action) {
   switch (action.type) {
-    case CHANGE_OUTPUT:
-      return { ...state, output: action.payload };
+    case NEW_GAME:
+      return { ...state, ...action.payload };
+    case CHANGE_INTERACTION:
+      return { ...state, interaction: action.payload };
     default:
       return state;
   }

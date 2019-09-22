@@ -1,6 +1,11 @@
-import { CHANGE_OUTPUT } from "./gameActionTypes";
+import { NEW_GAME, CHANGE_INTERACTION } from "./gameActionTypes";
 
-export const changeOutput = output => ({
-  type: CHANGE_OUTPUT,
-  payload: output
+export const newGame = (inBrowser, debugMode) => ({
+  type: NEW_GAME,
+  payload: { inBrowser, debugMode }
+});
+
+export const changeInteraction = interaction => ({
+  type: CHANGE_INTERACTION,
+  payload: interaction
 });
