@@ -12,11 +12,15 @@ export default class Room {
   get interaction() {
     if (this.visits) {
       return new Interaction(
-        this.subsequentVisitsText ? this.subsequentVisitsText : this.description
+        this.subsequentVisitsText
+          ? this.subsequentVisitsText
+          : this.description,
+        this.options
       );
     } else {
       return new Interaction(
-        this.firstVisitText ? this.firstVisitText : this.description
+        this.firstVisitText ? this.firstVisitText : this.description,
+        this.options
       );
     }
   }

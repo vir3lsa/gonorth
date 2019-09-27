@@ -117,12 +117,7 @@ export default class Game {
    */
   set intro(intro) {
     const leaveIntroOption = new Option("Next", () => this.goToStartingRoom());
-
-    if (Array.isArray(intro)) {
-      this._intro = new Interaction(intro, leaveIntroOption);
-    } else {
-      this._intro = new Interaction([intro], leaveIntroOption);
-    }
+    this._intro = new Interaction(intro, leaveIntroOption);
   }
 
   goToStartingRoom() {
