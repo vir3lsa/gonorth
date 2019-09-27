@@ -1,19 +1,17 @@
 import React from "react";
 import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
 
 export const DecisionBar = props => {
   return (
-    <div>
+    <Grid container spacing={1}>
       {props.options.map((option, index) => (
-        <Button
-          key={index}
-          variant="outlined"
-          color="primary"
-          onClick={option.action}
-        >
-          {option.label}
-        </Button>
+        <Grid item key={index}>
+          <Button variant="outlined" color="primary" onClick={option.action}>
+            {option.label}
+          </Button>
+        </Grid>
       ))}
-    </div>
+    </Grid>
   );
 };

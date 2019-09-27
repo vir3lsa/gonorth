@@ -28,6 +28,6 @@ export const promptInput = async options => {
 };
 
 export const showOptions = options => {
-  const choices = options.map(option => option.label).join();
+  const choices = options.map(option => option.label).join(", ");
   console.log(`Choose: ${choices}`);
 };

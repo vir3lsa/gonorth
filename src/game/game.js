@@ -78,7 +78,7 @@ export default class Game {
 
   play() {
     const inBrowser = typeof window !== "undefined";
-    store.dispatch(newGame(inBrowser, this.debugMode));
+    store.dispatch(newGame(this, inBrowser));
     let output = `# ${formatTitle(this.title || "Untitled")}`;
 
     if (this.author) {
@@ -121,8 +121,8 @@ export default class Game {
   }
 
   goToStartingRoom() {
-    this.room = this._startingRoom;
-    store.dispatch(changeInteraction(this.room.interaction));
+    this._room = this._startingRoom;
+    store.dispatch(changeInteraction(this._room.interaction));
   }
 
   /**
@@ -130,5 +130,13 @@ export default class Game {
    */
   set startingRoom(room) {
     this._startingRoom = room;
+  }
+
+  /**
+   * @param {Room} room
+   */
+  set room(room) {
+    this._room = room;
+    store.dispatch(changeInteraction(room.interaction));
   }
 }
