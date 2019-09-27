@@ -2,13 +2,14 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 
-import { output } from "../utils/output";
+import { output, promptInput, showOptions } from "../utils/consoleIO";
 import IODevice from "../web/iodevice";
 import { store } from "../redux/store";
 import { newGame, changeInteraction } from "../redux/gameActions";
-import { LOADING, INTRO, ROOM } from "./gameState";
+import { LOADING, TITLE, INTRO, ROOM } from "./gameState";
 import Interaction from "./interaction";
 import Option from "./option";
+import Room from "./room";
 
 const formatTitle = title =>
   [...title]
@@ -17,8 +18,13 @@ const formatTitle = title =>
     })
     .join("");
 
+const state = store.getState();
 const selectOutput = state => state.game.interaction.currentPage;
-let currentOutput = selectOutput(store.getState());
+const selectOptions = state => state.game.interaction.options;
+const selectInBrowser = state => state.game.inBrowser;
+
+let currentOutput = selectOutput(state);
+let currentOptions = selectOptions(state);
 
 export default class Game {
   constructor(title, debugMode) {
@@ -28,17 +34,37 @@ export default class Game {
     this.container = null;
     this.author = null;
     this._intro = null;
+    this._startingRoom = new Room(
+      "Empty Room",
+      "The room is completely devoid of anything interesting."
+    );
 
-    store.subscribe(() => {
-      if (!this.container || this.debugMode) {
-        let previousOutput = currentOutput;
-        currentOutput = selectOutput(store.getState());
+    store.subscribe(() => this._subscribe());
+  }
 
-        if (previousOutput !== currentOutput) {
-          output(currentOutput);
+  _subscribe() {
+    const state = store.getState();
+    const inBrowser = selectInBrowser(state);
+
+    if (!inBrowser || this.debugMode) {
+      let previousOutput = currentOutput;
+      let previousOptions = currentOptions;
+
+      currentOutput = selectOutput(state);
+      currentOptions = selectOptions(state);
+
+      if (currentOutput !== previousOutput) {
+        output(currentOutput);
+      }
+
+      if (currentOptions && currentOptions !== previousOptions) {
+        if (inBrowser) {
+          showOptions(currentOptions);
+        } else {
+          promptInput(currentOptions);
         }
       }
-    });
+    }
   }
 
   attach(container) {
@@ -51,8 +77,8 @@ export default class Game {
   }
 
   play() {
-    store.dispatch(newGame(this.container, this.debugMode));
-    this.status = INTRO;
+    const inBrowser = typeof window !== "undefined";
+    store.dispatch(newGame(inBrowser, this.debugMode));
     let output = `# ${formatTitle(this.title || "Untitled")}`;
 
     if (this.author) {
@@ -62,11 +88,16 @@ export default class Game {
     const titleScreen = new Interaction(
       output,
       new Option("Play", () => {
-        store.dispatch(changeInteraction(this._intro));
-        // Or go straight to first room if no intro
+        if (this._intro) {
+          this.status = INTRO;
+          store.dispatch(changeInteraction(this._intro));
+        } else {
+          this.goToStartingRoom();
+        }
       })
     );
 
+    this.status = TITLE;
     store.dispatch(changeInteraction(titleScreen));
   }
 
@@ -85,10 +116,24 @@ export default class Game {
    * @param {{ pages: string[]; }} intro
    */
   set intro(intro) {
+    const leaveIntroOption = new Option("Next", () => this.goToStartingRoom());
+
     if (Array.isArray(intro)) {
-      this._intro = new Interaction(intro);
+      this._intro = new Interaction(intro, leaveIntroOption);
     } else {
-      this._intro = new Interaction([intro]);
+      this._intro = new Interaction([intro], leaveIntroOption);
     }
+  }
+
+  goToStartingRoom() {
+    this.room = this._startingRoom;
+    store.dispatch(changeInteraction(this.room.interaction));
+  }
+
+  /**
+   * @param {Room} room
+   */
+  set startingRoom(room) {
+    this._startingRoom = room;
   }
 }
