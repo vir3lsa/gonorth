@@ -26,7 +26,7 @@ describe("goNORTH", () => {
     let outputCalled = false;
     outputSpy.mockImplementation(text => {
       outputCalled = true;
-      expect(text.includes("S p a c e   A u c t i o n e e r   2")).toBeTruthy();
+      expect(text.includes("Space Auctioneer 2")).toBeTruthy();
     });
 
     game.play();
