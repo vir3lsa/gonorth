@@ -1,10 +1,13 @@
 import Game from "./game";
 import { store } from "../redux/store";
+import * as outputDependency from "../utils/consoleIO";
+
+jest.mock("../utils/consoleIO");
 
 describe("Game class", () => {
   it("Defaults output to Loading", () => {
-    const game = new Game("title");
-    expect(store.getState().game.output).toBe("Loading..."); // Should really mock store here
+    new Game("title");
+    expect(store.getState().game.interaction.currentPage).toBe("Loading...");
   });
 
   it("Throws an error if trying to attach with no container", () => {

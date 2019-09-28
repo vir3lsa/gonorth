@@ -13,6 +13,8 @@ export default function(state = initialState, action) {
       return { ...state, ...action.payload };
     case type.CHANGE_INTERACTION:
       return { ...state, interaction: action.payload };
+    case type.RECEIVE_INPUT:
+      return { ...state, playerInput: action.payload };
     default:
       return state;
   }

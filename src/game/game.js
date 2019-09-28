@@ -10,6 +10,7 @@ import { LOADING, TITLE, INTRO, ROOM } from "./gameState";
 import Interaction from "./interaction";
 import Option from "./option";
 import Room from "./room";
+import { parsePlayerInput } from "./parser";
 
 const formatTitle = title =>
   [...title]
@@ -22,9 +23,11 @@ const state = store.getState();
 const selectOutput = state => state.game.interaction.currentPage;
 const selectOptions = state => state.game.interaction.options;
 const selectInBrowser = state => state.game.inBrowser;
+const selectPlayerInput = state => state.game.playerInput;
 
 let currentOutput = selectOutput(state);
 let currentOptions = selectOptions(state);
+let currentInput = selectPlayerInput(state);
 
 export default class Game {
   constructor(title, debugMode) {
@@ -45,6 +48,9 @@ export default class Game {
   _subscribe() {
     const state = store.getState();
     const inBrowser = selectInBrowser(state);
+    let previousInput = currentInput;
+    currentInput = selectPlayerInput(state);
+    const inputChanged = currentInput !== previousInput;
 
     if (!inBrowser || this.debugMode) {
       let previousOutput = currentOutput;
@@ -57,6 +63,10 @@ export default class Game {
         output(currentOutput);
       }
 
+      if (inputChanged) {
+        output(`Received input: ${currentInput}`);
+      }
+
       if (currentOptions && currentOptions !== previousOptions) {
         if (inBrowser) {
           showOptions(currentOptions);
@@ -64,6 +74,10 @@ export default class Game {
           promptInput(currentOptions);
         }
       }
+    }
+
+    if (inputChanged) {
+      parsePlayerInput(currentInput);
     }
   }
 
@@ -133,10 +147,33 @@ export default class Game {
   }
 
   /**
+   * Navigate directly to a new room without showing a message.
    * @param {Room} room
    */
   set room(room) {
     this._room = room;
     store.dispatch(changeInteraction(room.interaction));
+  }
+
+  /**
+   * Navigate to a new room, showing a message.
+   * @param {Room} room
+   */
+  goToRoom(room, message) {
+    this._room = room;
+    store.dispatch(
+      changeInteraction(
+        new Interaction(
+          message,
+          new Option("Next", () =>
+            store.dispatch(changeInteraction(room.interaction))
+          )
+        )
+      )
+    );
+  }
+
+  get room() {
+    return this._room;
   }
 }

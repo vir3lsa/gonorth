@@ -9,3 +9,8 @@ export const changeInteraction = interaction => ({
   type: type.CHANGE_INTERACTION,
   payload: interaction
 });
+
+export const receivePlayerInput = input => ({
+  type: type.RECEIVE_INPUT,
+  payload: input
+});

@@ -10,7 +10,7 @@ export const promptInput = async options => {
     try {
       prompts = require("prompts");
     } catch (e) {
-      console.log(e);
+      output(e);
     }
   }
 
@@ -29,5 +29,5 @@ export const promptInput = async options => {
 
 export const showOptions = options => {
   const choices = options.map(option => option.label).join(", ");
-  console.log(`Choose: ${choices}`);
+  output(`Choose: ${choices}`);
 };

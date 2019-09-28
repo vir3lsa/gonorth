@@ -1,5 +1,5 @@
 import gonorth from "./gonorth";
-import * as outputDependency from "./utils/output";
+import * as outputDependency from "./utils/consoleIO";
 
 const title = "Space Auctioneer 2";
 
@@ -9,7 +9,8 @@ let game;
 describe("goNORTH", () => {
   beforeEach(() => {
     outputSpy = jest.spyOn(outputDependency, "output");
-    game = gonorth.createGame(title);
+    jest.spyOn(outputDependency, "showOptions").mockImplementation(x => x);
+    game = gonorth.createGame(title, true);
   });
 
   afterEach(() => {
@@ -25,10 +26,10 @@ describe("goNORTH", () => {
     let outputCalled = false;
     outputSpy.mockImplementation(text => {
       outputCalled = true;
-      expect(text).toBe("S p a c e   A u c t i o n e e r   2");
+      expect(text.includes("S p a c e   A u c t i o n e e r   2")).toBeTruthy();
     });
 
     game.play();
-    expect(outputCalled).toBe(true);
+    expect(outputCalled).toBeTruthy();
   });
 });

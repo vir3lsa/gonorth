@@ -1,4 +1,8 @@
 import Interaction from "./interaction";
+import { store } from "../redux/store";
+import { changeInteraction } from "../redux/gameActions";
+
+const selectGame = () => store.getState().game.game;
 
 export default class Room {
   constructor(name, description) {
@@ -7,6 +11,7 @@ export default class Room {
     this.firstVisitText = "";
     this.subsequentVisitsText = "";
     this.visits = 0;
+    this.adjacentRooms = {};
   }
 
   get interaction() {
@@ -21,6 +26,75 @@ export default class Room {
       return new Interaction(
         this.firstVisitText ? this.firstVisitText : this.description,
         this.options
+      );
+    }
+  }
+
+  addAdjacentRoom(room, directionName, navigable, lockedMessage) {
+    let test = navigable;
+    let message = lockedMessage;
+
+    if (typeof navigable === "undefined") {
+      test = () => true;
+    } else if (typeof navigable === "boolean") {
+      test = () => navigable;
+    }
+
+    // TODO If navigable's a door, test whether the door's open and set the message from the door
+
+    this.adjacentRooms[directionName.toLowerCase()] = {
+      room,
+      test,
+      message
+    };
+  }
+
+  setNorth(room, navigable, lockedMessage, addInverse = true) {
+    this.addAdjacentRoom(room, "north", navigable, lockedMessage);
+
+    if (addInverse) {
+      // Adjacent rooms are bidirectional by default
+      room.setSouth(this, navigable, lockedMessage, false);
+    }
+  }
+
+  setSouth(room, navigable, lockedMessage, addInverse = true) {
+    this.addAdjacentRoom(room, "south", navigable, lockedMessage);
+
+    if (addInverse) {
+      // Adjacent rooms are bidirectional by default
+      room.setNorth(this, navigable, lockedMessage, false);
+    }
+  }
+
+  setEast(room, navigable, lockedMessage, addInverse = true) {
+    this.addAdjacentRoom(room, "east", navigable, lockedMessage);
+
+    if (addInverse) {
+      // Adjacent rooms are bidirectional by default
+      room.setWest(this, navigable, lockedMessage, false);
+    }
+  }
+
+  setWest(room, navigable, lockedMessage, addInverse = true) {
+    this.addAdjacentRoom(room, "west", navigable, lockedMessage);
+
+    if (addInverse) {
+      // Adjacent rooms are bidirectional by default
+      room.setEast(this, navigable, lockedMessage, false);
+    }
+  }
+
+  go(directionName) {
+    const adjacent = this.adjacentRooms[directionName.toLowerCase()];
+
+    if (adjacent) {
+      if (adjacent.test()) {
+        selectGame().goToRoom(adjacent.room, `Going ${adjacent.directionName}`);
+      }
+    } else {
+      store.dispatch(
+        changeInteraction(new Interaction("There's nowhere to go that way."))
       );
     }
   }
