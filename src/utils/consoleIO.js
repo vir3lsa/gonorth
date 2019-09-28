@@ -2,18 +2,7 @@ export const output = text => {
   console.log(text);
 };
 
-let prompts;
-
 export const promptInput = async options => {
-  if (!prompts) {
-    // Lazily load this module to avoid breaking in browser
-    try {
-      prompts = require("prompts");
-    } catch (e) {
-      output(e);
-    }
-  }
-
   const choices = options.map(option => ({
     title: option.label
   }));

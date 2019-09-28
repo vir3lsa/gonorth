@@ -12,13 +12,6 @@ import Option from "./option";
 import Room from "./room";
 import { parsePlayerInput } from "./parser";
 
-const formatTitle = title =>
-  [...title]
-    .map((c, i) => {
-      return `${c}${i === title.length - 1 ? "" : " "}`;
-    })
-    .join("");
-
 const state = store.getState();
 const selectOutput = state => state.game.interaction.currentPage;
 const selectOptions = state => state.game.interaction.options;
@@ -93,7 +86,7 @@ export default class Game {
   play() {
     const inBrowser = typeof window !== "undefined";
     store.dispatch(newGame(this, inBrowser));
-    let output = `# ${formatTitle(this.title || "Untitled")}`;
+    let output = `# ${this.title || "Untitled"}`;
 
     if (this.author) {
       output += `\n### By ${this.author}`;

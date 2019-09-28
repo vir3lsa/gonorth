@@ -42,10 +42,12 @@ export default class Room {
 
     // TODO If navigable's a door, test whether the door's open and set the message from the door
 
-    this.adjacentRooms[directionName.toLowerCase()] = {
+    const direction = directionName.toLowerCase();
+    this.adjacentRooms[direction] = {
       room,
       test,
-      message
+      message,
+      direction
     };
   }
 
@@ -86,11 +88,12 @@ export default class Room {
   }
 
   go(directionName) {
-    const adjacent = this.adjacentRooms[directionName.toLowerCase()];
+    const direction = directionName.toLowerCase();
+    const adjacent = this.adjacentRooms[direction];
 
     if (adjacent) {
       if (adjacent.test()) {
-        selectGame().goToRoom(adjacent.room, `Going ${adjacent.directionName}`);
+        selectGame().goToRoom(adjacent.room, `Going ${adjacent.direction}.`);
       }
     } else {
       store.dispatch(

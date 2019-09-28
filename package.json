@@ -5,7 +5,9 @@
   "main": "./lib/gonorth.js",
   "scripts": {
     "build": "babel src --out-dir lib --ignore '**/*.test.js' --source-maps 'inline'",
-    "test": "jest"
+    "test": "jest",
+    "play-grotto": "webpack-dev-server --config 'examples/witchs_grotto/webpack.config.web.js'",
+    "play-grotto-server": "webpack --config 'examples/witchs_grotto/webpack.config.server.js' && node examples/witchs_grotto/dist-server/main.js"
   },
   "keywords": [
     "text",
@@ -24,7 +26,10 @@
     "@babel/preset-env": "^7.6.0",
     "@babel/preset-react": "^7.0.0",
     "babel-jest": "^24.9.0",
-    "jest": "^24.9.0"
+    "jest": "^24.9.0",
+    "webpack": "^4.41.0",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.8.1"
   },
   "dependencies": {
     "@babel/polyfill": "^7.6.0",

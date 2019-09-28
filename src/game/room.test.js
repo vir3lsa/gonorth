@@ -72,5 +72,11 @@ describe("Room", () => {
       hall.go("north");
       expect(game.room.name).toBe("Hall");
     });
+
+    it("responds to custom directions", () => {
+      hall.addAdjacentRoom(east, "archway");
+      hall.go("archway");
+      expect(game.room.name).toBe("Scullery");
+    });
   });
 });
