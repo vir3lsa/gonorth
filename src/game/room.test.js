@@ -78,5 +78,18 @@ describe("Room", () => {
       hall.go("archway");
       expect(game.room.name).toBe("Scullery");
     });
+
+    it("informs player when a direction doesn't exist", () => {
+      hall.go("right");
+      expect(store.getState().game.interaction.currentPage).toBe(
+        "There's nowhere to go that way."
+      );
+    });
+
+    it("prints a message when successfully going in a direction", () => {
+      hall.setWest(new Room("Chapel"));
+      hall.go("west");
+      expect(store.getState().game.interaction.currentPage).toBe("Going west.");
+    });
   });
 });

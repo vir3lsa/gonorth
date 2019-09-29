@@ -43,7 +43,7 @@ export default class Game {
     const inBrowser = selectInBrowser(state);
     let previousInput = currentInput;
     currentInput = selectPlayerInput(state);
-    const inputChanged = currentInput !== previousInput;
+    const inputChanged = currentInput && currentInput !== previousInput;
 
     if (!inBrowser || this.debugMode) {
       let previousOutput = currentOutput;
