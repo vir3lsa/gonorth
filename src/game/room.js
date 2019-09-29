@@ -1,6 +1,7 @@
 import Interaction from "./interaction";
 import { store } from "../redux/store";
 import { changeInteraction } from "../redux/gameActions";
+import Door from "./door";
 
 const selectGame = () => store.getState().game.game;
 
@@ -12,6 +13,7 @@ export default class Room {
     this.subsequentVisitsText = "";
     this.visits = 0;
     this.adjacentRooms = {};
+    this.items = {};
   }
 
   get interaction() {
@@ -30,60 +32,77 @@ export default class Room {
     }
   }
 
-  addAdjacentRoom(room, directionName, navigable, lockedMessage) {
+  addAdjacentRoom(room, directionName, navigable, failMessage) {
     let test = navigable;
-    let message = lockedMessage;
 
     if (typeof navigable === "undefined") {
       test = () => true;
     } else if (typeof navigable === "boolean") {
       test = () => navigable;
+    } else if (navigable instanceof Door) {
+      test = () => navigable.open;
     }
-
-    // TODO If navigable's a door, test whether the door's open and set the message from the door
 
     const direction = directionName.toLowerCase();
     this.adjacentRooms[direction] = {
       room,
       test,
-      message,
+      failMessage,
       direction
     };
   }
 
-  setNorth(room, navigable, lockedMessage, addInverse = true) {
-    this.addAdjacentRoom(room, "north", navigable, lockedMessage);
+  setNorth(room, navigable, failMessage, addInverse = true) {
+    this.addAdjacentRoom(room, "north", navigable, failMessage);
 
-    if (addInverse) {
+    if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setSouth(this, navigable, lockedMessage, false);
+      room.setSouth(this, navigable, failMessage, false);
     }
   }
 
-  setSouth(room, navigable, lockedMessage, addInverse = true) {
-    this.addAdjacentRoom(room, "south", navigable, lockedMessage);
+  setSouth(room, navigable, failMessage, addInverse = true) {
+    this.addAdjacentRoom(room, "south", navigable, failMessage);
 
-    if (addInverse) {
+    if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setNorth(this, navigable, lockedMessage, false);
+      room.setNorth(this, navigable, failMessage, false);
     }
   }
 
-  setEast(room, navigable, lockedMessage, addInverse = true) {
-    this.addAdjacentRoom(room, "east", navigable, lockedMessage);
+  setEast(room, navigable, failMessage, addInverse = true) {
+    this.addAdjacentRoom(room, "east", navigable, failMessage);
 
-    if (addInverse) {
+    if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setWest(this, navigable, lockedMessage, false);
+      room.setWest(this, navigable, failMessage, false);
     }
   }
 
-  setWest(room, navigable, lockedMessage, addInverse = true) {
-    this.addAdjacentRoom(room, "west", navigable, lockedMessage);
+  setWest(room, navigable, failMessage, addInverse = true) {
+    this.addAdjacentRoom(room, "west", navigable, failMessage);
 
-    if (addInverse) {
+    if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setEast(this, navigable, lockedMessage, false);
+      room.setEast(this, navigable, failMessage, false);
+    }
+  }
+
+  setUp(room, navigable, failMessage, addInverse = true) {
+    this.addAdjacentRoom(room, "up", navigable, failMessage);
+
+    if (addInverse && room) {
+      // Adjacent rooms are bidirectional by default
+      room.setDown(this, navigable, failMessage, false);
+    }
+  }
+
+  setDown(room, navigable, failMessage, addInverse = true) {
+    this.addAdjacentRoom(room, "down", navigable, failMessage);
+
+    if (addInverse && room) {
+      // Adjacent rooms are bidirectional by default
+      room.setUp(this, navigable, failMessage, false);
     }
   }
 
@@ -94,11 +113,33 @@ export default class Room {
     if (adjacent) {
       if (adjacent.test()) {
         selectGame().goToRoom(adjacent.room, `Going ${adjacent.direction}.`);
+      } else {
+        store.dispatch(
+          changeInteraction(new Interaction(adjacent.failMessage))
+        );
       }
     } else {
       store.dispatch(
         changeInteraction(new Interaction("There's nowhere to go that way."))
       );
     }
+  }
+
+  /**
+   * Adds an item to this room's roster.
+   * @param {Item} item The item to add.
+   */
+  addItem(item) {
+    const name = item.name;
+
+    if (!name) {
+      throw Error("Item does not have a name");
+    }
+
+    if (this.items[name]) {
+      throw Error(`Room '${this.name}' already has an item called '${name}'`);
+    }
+
+    this.items[name] = item;
   }
 }

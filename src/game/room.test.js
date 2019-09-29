@@ -86,6 +86,14 @@ describe("Room", () => {
       );
     });
 
+    it("gives custom messages when a direction doesn't exist", () => {
+      hall.setSouth(null, false, "You can't walk through walls");
+      hall.go("south");
+      expect(store.getState().game.interaction.currentPage).toBe(
+        "You can't walk through walls"
+      );
+    });
+
     it("prints a message when successfully going in a direction", () => {
       hall.setWest(new Room("Chapel"));
       hall.go("west");

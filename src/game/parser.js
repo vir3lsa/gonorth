@@ -6,7 +6,9 @@ const keywords = {
   north: () => selectRoom().go("north"),
   south: () => selectRoom().go("south"),
   east: () => selectRoom().go("east"),
-  west: () => selectRoom().go("west")
+  west: () => selectRoom().go("west"),
+  up: () => selectRoom().go("up"),
+  down: () => selectRoom().go("down")
 };
 
 export const parsePlayerInput = input => {
