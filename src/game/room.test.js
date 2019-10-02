@@ -1,9 +1,12 @@
-import { store } from "../redux/store";
-import Room from "./room";
+import { initStore } from "../redux/store";
+import { getStore } from "../redux/storeRegistry";
+import { Room } from "./room";
 import Game from "./game";
 import { newGame } from "../redux/gameActions";
 
-const hall = new Room("Hall");
+initStore();
+
+const hall = new Room("Hall", "This is not happening");
 const north = new Room("Garden");
 const south = new Room("Kitchen");
 const east = new Room("Scullery");
@@ -57,47 +60,49 @@ describe("Room", () => {
 
     beforeEach(() => {
       game = new Game("The Giant's Castle");
-      store.dispatch(newGame(game, true));
+      getStore().dispatch(newGame(game, true));
       game.room = hall;
     });
 
     it("doesn't change room if not navigable as boolean", () => {
       hall.setNorth(north, false);
-      hall.go("north");
+      hall.try("north");
       expect(game.room.name).toBe("Hall");
     });
 
     it("doesn't change room if not navigable as function", () => {
       hall.setNorth(north, () => false);
-      hall.go("north");
+      hall.try("north");
       expect(game.room.name).toBe("Hall");
     });
 
     it("responds to custom directions", () => {
       hall.addAdjacentRoom(east, "archway");
-      hall.go("archway");
+      hall.try("archway");
       expect(game.room.name).toBe("Scullery");
     });
 
     it("informs player when a direction doesn't exist", () => {
-      hall.go("right");
-      expect(store.getState().game.interaction.currentPage).toBe(
+      hall.try("east");
+      expect(getStore().getState().game.interaction.currentPage).toBe(
         "There's nowhere to go that way."
       );
     });
 
     it("gives custom messages when a direction doesn't exist", () => {
       hall.setSouth(null, false, "You can't walk through walls");
-      hall.go("south");
-      expect(store.getState().game.interaction.currentPage).toBe(
+      hall.try("south");
+      expect(getStore().getState().game.interaction.currentPage).toBe(
         "You can't walk through walls"
       );
     });
 
     it("prints a message when successfully going in a direction", () => {
       hall.setWest(new Room("Chapel"));
-      hall.go("west");
-      expect(store.getState().game.interaction.currentPage).toBe("Going west.");
+      hall.try("west");
+      expect(getStore().getState().game.interaction.currentPage).toBe(
+        "Going west."
+      );
     });
   });
 });

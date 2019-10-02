@@ -1,15 +1,15 @@
 import React, { useEffect, useRef } from "react";
 import TextField from "@material-ui/core/TextField";
-import { store } from "../redux/store";
+import { getStore } from "../redux/storeRegistry";
 import { receivePlayerInput } from "../redux/gameActions";
 
 const captureInput = event => {
   if (event.key === "Enter") {
-    store.dispatch(receivePlayerInput(event.target.value));
+    getStore().dispatch(receivePlayerInput(event.target.value));
 
     // Reset input
     event.target.value = "";
-    store.dispatch(receivePlayerInput(null));
+    getStore().dispatch(receivePlayerInput(null));
   }
 };
 

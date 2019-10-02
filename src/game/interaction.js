@@ -1,8 +1,8 @@
 import Option from "./option";
 import { changeInteraction } from "../redux/gameActions";
-import { store } from "../redux/store";
+import { getStore } from "../redux/storeRegistry";
 
-export default class Interaction {
+export class Interaction {
   constructor(pages, options, page) {
     this.pages = Array.isArray(pages) ? pages : [pages];
     this.page = page || 0;
@@ -22,7 +22,7 @@ export default class Interaction {
     if (this.page < this.pages.length - 1) {
       return [
         new Option("Next", () => {
-          store.dispatch(
+          getStore().dispatch(
             changeInteraction(
               new Interaction(this.pages, this._options, this.page + 1)
             )

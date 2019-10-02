@@ -1,14 +1,21 @@
-import Interaction from "./interaction";
-import { store } from "../redux/store";
-import { changeInteraction } from "../redux/gameActions";
+import { Interaction } from "./interaction";
+import { getStore } from "../redux/storeRegistry";
 import Door from "./door";
+import { GoVerb } from "./verb";
+import Item from "./item";
 
-const selectGame = () => store.getState().game.game;
+const selectGame = () => getStore().getState().game.game;
 
-export default class Room {
+export class Room extends Item {
   constructor(name, description) {
-    this.name = name;
-    this.description = description;
+    super(name, description, false, -1, [
+      new GoVerb("north"),
+      new GoVerb("south"),
+      new GoVerb("east"),
+      new GoVerb("west"),
+      new GoVerb("up"),
+      new GoVerb("down")
+    ]);
     this.firstVisitText = "";
     this.subsequentVisitsText = "";
     this.visits = 0;
@@ -32,7 +39,7 @@ export default class Room {
     }
   }
 
-  addAdjacentRoom(room, directionName, navigable, failMessage) {
+  addAdjacentRoom(room, directionName, navigable, failureText) {
     let test = navigable;
 
     if (typeof navigable === "undefined") {
@@ -47,82 +54,74 @@ export default class Room {
     this.adjacentRooms[direction] = {
       room,
       test,
-      failMessage,
+      failureText,
       direction
     };
-  }
 
-  setNorth(room, navigable, failMessage, addInverse = true) {
-    this.addAdjacentRoom(room, "north", navigable, failMessage);
-
-    if (addInverse && room) {
-      // Adjacent rooms are bidirectional by default
-      room.setSouth(this, navigable, failMessage, false);
+    // Add the verb if we don't already have it
+    if (!this.verbs[directionName]) {
+      this.addVerb(new GoVerb(directionName));
     }
   }
 
-  setSouth(room, navigable, failMessage, addInverse = true) {
-    this.addAdjacentRoom(room, "south", navigable, failMessage);
+  setNorth(room, navigable, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "north", navigable, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setNorth(this, navigable, failMessage, false);
+      room.setSouth(this, navigable, failureText, false);
     }
   }
 
-  setEast(room, navigable, failMessage, addInverse = true) {
-    this.addAdjacentRoom(room, "east", navigable, failMessage);
+  setSouth(room, navigable, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "south", navigable, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setWest(this, navigable, failMessage, false);
+      room.setNorth(this, navigable, failureText, false);
     }
   }
 
-  setWest(room, navigable, failMessage, addInverse = true) {
-    this.addAdjacentRoom(room, "west", navigable, failMessage);
+  setEast(room, navigable, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "east", navigable, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setEast(this, navigable, failMessage, false);
+      room.setWest(this, navigable, failureText, false);
     }
   }
 
-  setUp(room, navigable, failMessage, addInverse = true) {
-    this.addAdjacentRoom(room, "up", navigable, failMessage);
+  setWest(room, navigable, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "west", navigable, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setDown(this, navigable, failMessage, false);
+      room.setEast(this, navigable, failureText, false);
     }
   }
 
-  setDown(room, navigable, failMessage, addInverse = true) {
-    this.addAdjacentRoom(room, "down", navigable, failMessage);
+  setUp(room, navigable, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "up", navigable, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setUp(this, navigable, failMessage, false);
+      room.setDown(this, navigable, failureText, false);
+    }
+  }
+
+  setDown(room, navigable, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "down", navigable, failureText);
+
+    if (addInverse && room) {
+      // Adjacent rooms are bidirectional by default
+      room.setUp(this, navigable, failureText, false);
     }
   }
 
   go(directionName) {
     const direction = directionName.toLowerCase();
     const adjacent = this.adjacentRooms[direction];
-
-    if (adjacent) {
-      if (adjacent.test()) {
-        selectGame().goToRoom(adjacent.room, `Going ${adjacent.direction}.`);
-      } else {
-        store.dispatch(
-          changeInteraction(new Interaction(adjacent.failMessage))
-        );
-      }
-    } else {
-      store.dispatch(
-        changeInteraction(new Interaction("There's nowhere to go that way."))
-      );
-    }
+    selectGame().room = adjacent.room;
   }
 
   /**

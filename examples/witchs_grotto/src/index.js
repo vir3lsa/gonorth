@@ -1,5 +1,5 @@
 import gonorth from "../../../lib/gonorth";
-import Room from "../../../lib/game/room";
+import { Room } from "../../../lib/game/room";
 import Door from "../../../lib/game/door";
 
 const game = gonorth.createGame("The Witch's Grotto");
@@ -15,9 +15,19 @@ const cellarNook = new Room(
   "Cellar Nook",
   "It's extremely dark in here and you can't make out a thing. The roof is so low you have to constantly duck your head and the floor is uneven, daring you to trip. You feel your way along one wall with your hands outstretched. Looking back, you can't even see the archway you came through. The nook continues to the West, but going any further without a light would be unwise."
 );
+const kitchen = new Room("Kitchen", "placeholder");
 
-const trapdoor = new Door("trapdoor", false);
-const coalHatch = new Door("coal hatch", false, true);
+const trapdoor = new Door(
+  "trapdoor",
+  "It's made of thick, heavy oak and opens upwards.",
+  false
+);
+const coalHatch = new Door(
+  "coal hatch",
+  "Double doors that open upwards and outwards to allow coal to be shovelled in.",
+  false,
+  true
+);
 
 cellar.setWest(cellarNook, true);
 cellar.setNorth(
@@ -36,7 +46,7 @@ cellar.setEast(
   "The coal hatch is locked tight from the other side."
 );
 cellar.setUp(
-  null,
+  kitchen,
   trapdoor,
   "The trapdoor's shut but you think you can probably push it open with a bit of strength."
 );

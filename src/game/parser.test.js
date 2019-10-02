@@ -1,8 +1,11 @@
-import { store } from "../redux/store";
-import Room from "./room";
+import { Room } from "./room";
+import { initStore } from "../redux/store";
+import { getStore } from "../redux/storeRegistry";
 import { newGame } from "../redux/gameActions";
 import { parsePlayerInput } from "./parser";
 import Game from "./game";
+
+initStore();
 
 let game;
 const hall = new Room("Hall");
@@ -20,7 +23,7 @@ describe("parser", () => {
   describe("directions", () => {
     beforeEach(() => {
       game = new Game("The Giant's Castle");
-      store.dispatch(newGame(game, true));
+      getStore().dispatch(newGame(game, true));
       game.room = hall;
     });
 

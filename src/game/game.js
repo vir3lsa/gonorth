@@ -4,23 +4,22 @@ import { Provider } from "react-redux";
 
 import { output, promptInput, showOptions } from "../utils/consoleIO";
 import IODevice from "../web/iodevice";
-import { store } from "../redux/store";
+import { getStore } from "../redux/storeRegistry";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { LOADING, TITLE, INTRO, ROOM } from "./gameState";
-import Interaction from "./interaction";
+import { Interaction } from "./interaction";
 import Option from "./option";
-import Room from "./room";
+import { Room } from "./room";
 import { parsePlayerInput } from "./parser";
 
-const state = store.getState();
 const selectOutput = state => state.game.interaction.currentPage;
 const selectOptions = state => state.game.interaction.options;
 const selectInBrowser = state => state.game.inBrowser;
 const selectPlayerInput = state => state.game.playerInput;
 
-let currentOutput = selectOutput(state);
-let currentOptions = selectOptions(state);
-let currentInput = selectPlayerInput(state);
+let currentOutput;
+let currentOptions;
+let currentInput;
 
 export default class Game {
   constructor(title, debugMode) {
@@ -35,11 +34,15 @@ export default class Game {
       "The room is completely devoid of anything interesting."
     );
 
-    store.subscribe(() => this._subscribe());
+    currentOutput = selectOutput(getStore().getState());
+    currentOptions = selectOptions(getStore().getState());
+    currentInput = selectPlayerInput(getStore().getState());
+
+    getStore().subscribe(() => this._subscribe());
   }
 
   _subscribe() {
-    const state = store.getState();
+    const state = getStore().getState();
     const inBrowser = selectInBrowser(state);
     let previousInput = currentInput;
     currentInput = selectPlayerInput(state);
@@ -85,7 +88,7 @@ export default class Game {
 
   play() {
     const inBrowser = typeof window !== "undefined";
-    store.dispatch(newGame(this, inBrowser));
+    getStore().dispatch(newGame(this, inBrowser));
     let output = `# ${this.title || "Untitled"}`;
 
     if (this.author) {
@@ -97,7 +100,7 @@ export default class Game {
       new Option("Play", () => {
         if (this._intro) {
           this.status = INTRO;
-          store.dispatch(changeInteraction(this._intro));
+          getStore().dispatch(changeInteraction(this._intro));
         } else {
           this.goToStartingRoom();
         }
@@ -105,13 +108,13 @@ export default class Game {
     );
 
     this.status = TITLE;
-    store.dispatch(changeInteraction(titleScreen));
+    getStore().dispatch(changeInteraction(titleScreen));
   }
 
   renderTopLevel() {
     if (this.container) {
       this.component = (
-        <Provider store={store}>
+        <Provider store={getStore()}>
           <IODevice />
         </Provider>
       );
@@ -129,7 +132,7 @@ export default class Game {
 
   goToStartingRoom() {
     this._room = this._startingRoom;
-    store.dispatch(changeInteraction(this._room.interaction));
+    getStore().dispatch(changeInteraction(this._room.interaction));
   }
 
   /**
@@ -145,25 +148,7 @@ export default class Game {
    */
   set room(room) {
     this._room = room;
-    store.dispatch(changeInteraction(room.interaction));
-  }
-
-  /**
-   * Navigate to a new room, showing a message.
-   * @param {Room} room
-   */
-  goToRoom(room, message) {
-    this._room = room;
-    store.dispatch(
-      changeInteraction(
-        new Interaction(
-          message,
-          new Option("Next", () =>
-            store.dispatch(changeInteraction(room.interaction))
-          )
-        )
-      )
-    );
+    getStore().dispatch(changeInteraction(room.interaction));
   }
 
   get room() {
