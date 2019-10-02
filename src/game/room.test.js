@@ -9,11 +9,11 @@ initStore();
 let hall, north, south, east, west;
 
 beforeEach(() => {
-  hall = new Room("Hall");
-  north = new Room("Garden");
-  south = new Room("Kitchen");
-  east = new Room("Scullery");
-  west = new Room("Pantry");
+  hall = new Room("Hall", "");
+  north = new Room("Garden", "");
+  south = new Room("Kitchen", "");
+  east = new Room("Scullery", "");
+  west = new Room("Pantry", "");
 });
 
 describe("Room", () => {
@@ -94,7 +94,7 @@ describe("Room", () => {
     });
 
     it("gives custom messages when a direction doesn't exist", () => {
-      hall.setSouth(null, false, "You can't walk through walls");
+      hall.setSouth(null, false, null, "You can't walk through walls");
       hall.try("south");
       expect(getStore().getState().game.interaction.currentPage).toBe(
         "You can't walk through walls"

@@ -7,8 +7,8 @@ export default class Door extends Item {
       new Verb(
         "open",
         door => (door.open = true),
-        "It opens relatively easily",
-        "It's locked",
+        "It opens relatively easily.",
+        "It's locked.",
         door => !door.locked
       ),
       new Verb(

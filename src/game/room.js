@@ -39,7 +39,7 @@ export default class Room extends Item {
     }
   }
 
-  addAdjacentRoom(room, directionName, navigable, failureText) {
+  addAdjacentRoom(room, directionName, navigable, successText, failureText) {
     let test = navigable;
 
     if (typeof navigable === "undefined") {
@@ -54,6 +54,7 @@ export default class Room extends Item {
     this.adjacentRooms[direction] = {
       room,
       test,
+      successText,
       failureText,
       direction
     };
@@ -64,57 +65,57 @@ export default class Room extends Item {
     }
   }
 
-  setNorth(room, navigable, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "north", navigable, failureText);
+  setNorth(room, navigable, successText, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "north", navigable, successText, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setSouth(this, navigable, failureText, false);
+      room.setSouth(this, navigable, successText, failureText, false);
     }
   }
 
-  setSouth(room, navigable, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "south", navigable, failureText);
+  setSouth(room, navigable, successText, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "south", navigable, successText, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setNorth(this, navigable, failureText, false);
+      room.setNorth(this, navigable, successText, failureText, false);
     }
   }
 
-  setEast(room, navigable, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "east", navigable, failureText);
+  setEast(room, navigable, successText, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "east", navigable, successText, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setWest(this, navigable, failureText, false);
+      room.setWest(this, navigable, successText, failureText, false);
     }
   }
 
-  setWest(room, navigable, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "west", navigable, failureText);
+  setWest(room, navigable, successText, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "west", navigable, successText, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setEast(this, navigable, failureText, false);
+      room.setEast(this, navigable, successText, failureText, false);
     }
   }
 
-  setUp(room, navigable, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "up", navigable, failureText);
+  setUp(room, navigable, successText, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "up", navigable, successText, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setDown(this, navigable, failureText, false);
+      room.setDown(this, navigable, successText, failureText, false);
     }
   }
 
-  setDown(room, navigable, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "down", navigable, failureText);
+  setDown(room, navigable, successText, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "down", navigable, successText, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setUp(this, navigable, failureText, false);
+      room.setUp(this, navigable, successText, failureText, false);
     }
   }
 

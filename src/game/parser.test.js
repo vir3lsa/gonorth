@@ -8,11 +8,11 @@ import Game from "./game";
 initStore();
 
 let game;
-const hall = new Room("Hall");
-const north = new Room("Garden");
-const south = new Room("Kitchen");
-const east = new Room("Scullery");
-const west = new Room("Pantry");
+const hall = new Room("Hall", "");
+const north = new Room("Garden", "");
+const south = new Room("Kitchen", "");
+const east = new Room("Scullery", "");
+const west = new Room("Pantry", "");
 
 hall.setNorth(north);
 hall.setSouth(south);

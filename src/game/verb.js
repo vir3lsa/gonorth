@@ -47,16 +47,20 @@ export class GoVerb extends Verb {
     super(
       name,
       room => room.go(name),
-      room =>
-        new Interaction(
-          `Going ${name}.`,
-          new Option("Next", () =>
-            getStore().dispatch(changeInteraction(room.interaction))
-          )
-        ),
       room => {
         const adjacentRoom = room.adjacentRooms[name];
-        return adjacentRoom
+        return new Interaction(
+          `Going ${name}.`,
+          new Option("Next", () =>
+            getStore().dispatch(
+              changeInteraction(adjacentRoom.room.interaction)
+            )
+          )
+        );
+      },
+      room => {
+        const adjacentRoom = room.adjacentRooms[name];
+        return adjacentRoom && adjacentRoom.failureText
           ? new Interaction(adjacentRoom.failureText)
           : new Interaction("There's nowhere to go that way.");
       },
