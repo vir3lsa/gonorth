@@ -1,4 +1,4 @@
-import { Interaction } from "./interaction";
+import Interaction from "./interaction";
 import { getStore } from "../redux/storeRegistry";
 import Door from "./door";
 import { GoVerb } from "./verb";
@@ -6,7 +6,7 @@ import Item from "./item";
 
 const selectGame = () => getStore().getState().game.game;
 
-export class Room extends Item {
+export default class Room extends Item {
   constructor(name, description) {
     super(name, description, false, -1, [
       new GoVerb("north"),

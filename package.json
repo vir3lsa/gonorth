@@ -4,7 +4,7 @@
   "description": "A text adventure game engine",
   "main": "./lib/gonorth.js",
   "scripts": {
-    "build": "babel src --out-dir lib --source-maps 'inline'",
+    "build": "babel src --out-dir lib --ignore '**/*.test.js' --source-maps 'inline'",
     "test": "jest",
     "play-grotto": "webpack-dev-server --config 'examples/witchs_grotto/webpack.config.web.js'",
     "play-grotto-server": "webpack --config 'examples/witchs_grotto/webpack.config.server.js' && node examples/witchs_grotto/dist-server/main.js"
@@ -34,6 +34,7 @@
     "@babel/polyfill": "^7.6.0",
     "@material-ui/core": "^4.4.2",
     "@material-ui/icons": "^4.4.1",
+    "babel-jest": "^24.9.0",
     "prompts": "^2.2.1",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",

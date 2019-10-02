@@ -1,4 +1,4 @@
-import { Interaction } from "./interaction";
+import Interaction from "./interaction";
 
 describe("Interaction", () => {
   it("Turns a single page into an array", () => {

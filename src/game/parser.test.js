@@ -1,4 +1,4 @@
-import { Room } from "./room";
+import Room from "./room";
 import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
 import { newGame } from "../redux/gameActions";

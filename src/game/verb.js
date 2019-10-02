@@ -1,6 +1,6 @@
-import { getStore } from "../../lib/redux/storeRegistry";
-import { changeInteraction } from "../../lib/redux/gameActions";
-import { Interaction } from "./interaction";
+import { getStore } from "../redux/storeRegistry";
+import { changeInteraction } from "../redux/gameActions";
+import Interaction from "./interaction";
 import Option from "./option";
 
 export default class Verb {

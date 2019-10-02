@@ -1,16 +1,20 @@
 import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
-import { Room } from "./room";
+import Room from "./room";
 import Game from "./game";
 import { newGame } from "../redux/gameActions";
 
 initStore();
 
-const hall = new Room("Hall", "This is not happening");
-const north = new Room("Garden");
-const south = new Room("Kitchen");
-const east = new Room("Scullery");
-const west = new Room("Pantry");
+let hall, north, south, east, west;
+
+beforeEach(() => {
+  hall = new Room("Hall");
+  north = new Room("Garden");
+  south = new Room("Kitchen");
+  east = new Room("Scullery");
+  west = new Room("Pantry");
+});
 
 describe("Room", () => {
   describe("adjacent rooms", () => {
@@ -36,22 +40,22 @@ describe("Room", () => {
 
     it("sets North inverse", () => {
       hall.setNorth(north);
-      expect(hall.adjacentRooms.south.room.name).toBe("Kitchen");
+      expect(north.adjacentRooms.south.room.name).toBe("Hall");
     });
 
     it("sets South inverse", () => {
       hall.setSouth(south);
-      expect(hall.adjacentRooms.north.room.name).toBe("Garden");
+      expect(south.adjacentRooms.north.room.name).toBe("Hall");
     });
 
     it("sets East inverse", () => {
       hall.setEast(east);
-      expect(hall.adjacentRooms.west.room.name).toBe("Pantry");
+      expect(east.adjacentRooms.west.room.name).toBe("Hall");
     });
 
     it("sets West inverse", () => {
       hall.setWest(west);
-      expect(hall.adjacentRooms.east.room.name).toBe("Scullery");
+      expect(west.adjacentRooms.east.room.name).toBe("Hall");
     });
   });
 

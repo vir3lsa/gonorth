@@ -7,9 +7,9 @@ import IODevice from "../web/iodevice";
 import { getStore } from "../redux/storeRegistry";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { LOADING, TITLE, INTRO, ROOM } from "./gameState";
-import { Interaction } from "./interaction";
+import Interaction from "./interaction";
 import Option from "./option";
-import { Room } from "./room";
+import Room from "./room";
 import { parsePlayerInput } from "./parser";
 
 const selectOutput = state => state.game.interaction.currentPage;

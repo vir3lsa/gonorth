@@ -1,5 +1,5 @@
 import * as type from "../gameActionTypes";
-import { Interaction } from "../../game/interaction";
+import Interaction from "../../game/interaction";
 
 const initialState = {
   inBrowser: false,
