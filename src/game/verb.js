@@ -6,33 +6,60 @@ import Option from "./option";
 export default class Verb {
   constructor(name, action, successText, failureText, test = true) {
     this.name = name.trim().toLowerCase();
-    this._action = action;
-    this._successText = successText;
-    this._failureText = failureText;
-    this._test = test;
+    this.action = action;
 
-    if (typeof successText === "string") {
-      this._successText = () => new Interaction(successText);
-    } else if (successText instanceof Interaction) {
-      this._successText = () => successText;
-    }
+    // Call test setter
+    this.test = test;
 
-    if (typeof failureText === "string") {
-      this._failureText = () => new Interaction(failureText);
-    } else if (failureText instanceof Interaction) {
-      this._failureText = () => failureText;
-    }
+    // Call the successText setter
+    this.successText = successText;
 
+    // Call the failureText setter
+    this.failureText = failureText;
+  }
+
+  /**
+   * @param {boolean | (() => boolean) | undefined} test
+   */
+  set test(test) {
     if (typeof test === "undefined") {
       this._test = () => true;
     } else if (typeof test === "boolean") {
       this._test = () => test;
+    } else {
+      this._test = test;
+    }
+  }
+
+  /**
+   * @param {string | Interaction | (() => Interaction)} successText
+   */
+  set successText(successText) {
+    if (typeof successText === "string") {
+      this._successText = () => new Interaction(successText);
+    } else if (successText instanceof Interaction) {
+      this._successText = () => successText;
+    } else {
+      this._successText = successText;
+    }
+  }
+
+  /**
+   * @param {string | Interaction | (() => Interaction)} failureText
+   */
+  set failureText(failureText) {
+    if (typeof failureText === "string") {
+      this._failureText = () => new Interaction(failureText);
+    } else if (failureText instanceof Interaction) {
+      this._failureText = () => failureText;
+    } else {
+      this._failureText = failureText;
     }
   }
 
   attempt(...args) {
     if (this._test(...args)) {
-      this._action(...args);
+      this.action(...args);
       if (this._successText) {
         getStore().dispatch(changeInteraction(this._successText(...args)));
       }

@@ -18,6 +18,10 @@ export default class Item {
     return this._verbs;
   }
 
+  getVerb(name) {
+    return this._verbs[name];
+  }
+
   /**
    * @param {Verb[] | Verb} verbs
    */
