@@ -22,18 +22,20 @@ const trapdoor = new Door(
   "It's made of thick, heavy oak and opens upwards.",
   false
 );
+trapdoor.aliases = ["trap door"];
 const openTrapdoor = trapdoor.getVerb("open");
 openTrapdoor.successText =
-  "You crouch at the top of the steep stone steps with your shoulders pressed against the rough boards of the trapdoor. As you heave upwards it lift slowly into the room above, making a loud *thud* as it swings over and hits the floor.";
+  "You crouch at the top of the steep stone steps with your shoulders pressed against the rough boards of the trapdoor. As you heave upwards it lifts slowly into the room above, making a loud *thud* as it swings over and hits the floor.";
 const coalHatch = new Door(
   "coal hatch",
   "Double doors that open upwards and outwards to allow coal to be shovelled in.",
   false,
   true
 );
+coalHatch.aliases = ["hatch"];
 const unlockCoalHatch = coalHatch.getVerb("unlock");
 unlockCoalHatch.test = false;
-unlockCoalHatch.failureText = "It's bolted from the other side.";
+unlockCoalHatch.failureText = "The coal hatch is bolted from the other side.";
 
 cellar.setWest(cellarNook, true);
 cellar.setNorth(

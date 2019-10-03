@@ -9,12 +9,12 @@ const selectGame = () => getStore().getState().game.game;
 export default class Room extends Item {
   constructor(name, description) {
     super(name, description, false, -1, [
-      new GoVerb("north"),
-      new GoVerb("south"),
-      new GoVerb("east"),
-      new GoVerb("west"),
-      new GoVerb("up"),
-      new GoVerb("down")
+      new GoVerb("north", ["forward", "straight on"]),
+      new GoVerb("south", ["back", "backward", "reverse"]),
+      new GoVerb("east", "right"),
+      new GoVerb("west", "left"),
+      new GoVerb("up", ["upward", "upwards"]),
+      new GoVerb("down", ["downward", "downwards"])
     ]);
     this.firstVisitText = "";
     this.subsequentVisitsText = "";
@@ -123,23 +123,5 @@ export default class Room extends Item {
     const direction = directionName.toLowerCase();
     const adjacent = this.adjacentRooms[direction];
     selectGame().room = adjacent.room;
-  }
-
-  /**
-   * Adds an item to this room's roster.
-   * @param {Item} item The item to add.
-   */
-  addItem(item) {
-    const name = item.name;
-
-    if (!name) {
-      throw Error("Item does not have a name");
-    }
-
-    if (this.items[name]) {
-      throw Error(`Room '${this.name}' already has an item called '${name}'`);
-    }
-
-    this.items[name] = item;
   }
 }

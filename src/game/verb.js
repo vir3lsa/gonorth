@@ -4,9 +4,11 @@ import Interaction from "./interaction";
 import Option from "./option";
 
 export default class Verb {
-  constructor(name, action, successText, failureText, test = true) {
+  constructor(name, action, successText, failureText, test = true, aliases) {
     this.name = name.trim().toLowerCase();
     this.action = action;
+    this._aliases = Array.isArray(aliases) ? aliases : [aliases];
+    this._parent = null;
 
     // Call test setter
     this.test = test;
@@ -57,6 +59,31 @@ export default class Verb {
     }
   }
 
+  _addAliasesToParent() {
+    if (this._parent && this._aliases) {
+      this._aliases.forEach(alias => {
+        this._parent.verbs[alias] = this;
+      });
+    }
+  }
+
+  /**
+   * @param {Item} parent
+   */
+  set parent(parent) {
+    this._parent = parent;
+    this._addAliasesToParent();
+  }
+
+  /**
+   * @param {string | string[]} aliases
+   */
+  set aliases(aliases) {
+    const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
+    this._aliases = aliasArray;
+    this._addAliasesToParent();
+  }
+
   attempt(...args) {
     if (this._test(...args)) {
       this.action(...args);
@@ -70,7 +97,7 @@ export default class Verb {
 }
 
 export class GoVerb extends Verb {
-  constructor(name) {
+  constructor(name, aliases) {
     super(
       name,
       room => room.go(name),
@@ -94,7 +121,8 @@ export class GoVerb extends Verb {
       room => {
         const adjacentRoom = room.adjacentRooms[name];
         return adjacentRoom && adjacentRoom.test();
-      }
+      },
+      aliases
     );
   }
 }

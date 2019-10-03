@@ -19,13 +19,13 @@ export const parsePlayerInput = input => {
   }
 
   // Next look for items in the room that support the verb
-  const possibleItems = Object.values(room.items).filter(
-    item => item.verbs[possibleVerb]
-  );
+  const possibleItemNames = Object.entries(room.items)
+    .filter(([, value]) => value.verbs[possibleVerb])
+    .map(([itemName]) => itemName);
 
   // Find the item (if any) that matches what the player has typed
-  const matchingItem = possibleItems.find(item => {
-    const itemNameParts = item.name.toLowerCase().split(/\s+/);
+  const matchingItemName = possibleItemNames.find(itemName => {
+    const itemNameParts = itemName.toLowerCase().split(/\s+/);
     const numNameParts = itemNameParts.length;
 
     for (
@@ -47,7 +47,8 @@ export const parsePlayerInput = input => {
     }
   });
 
-  if (matchingItem) {
+  if (matchingItemName) {
+    const matchingItem = room.items[matchingItemName];
     // We think the player is referring to this item, so do it
     matchingItem.try(possibleVerb);
   }

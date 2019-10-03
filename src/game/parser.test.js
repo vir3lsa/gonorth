@@ -4,6 +4,7 @@ import { getStore } from "../redux/storeRegistry";
 import { newGame } from "../redux/gameActions";
 import { parsePlayerInput } from "./parser";
 import Game from "./game";
+import Door from "./door";
 
 initStore();
 
@@ -13,11 +14,14 @@ const north = new Room("Garden", "");
 const south = new Room("Kitchen", "");
 const east = new Room("Scullery", "");
 const west = new Room("Pantry", "");
+const door = new Door("trapdoor", "", false);
+door.aliases = ["hatch", "trap door"];
 
 hall.setNorth(north);
 hall.setSouth(south);
 hall.setEast(east);
 hall.setWest(west);
+hall.addItem(door);
 
 describe("parser", () => {
   describe("directions", () => {
@@ -50,6 +54,22 @@ describe("parser", () => {
     it("ignores case", () => {
       parsePlayerInput("NORTH");
       expect(game.room.name).toBe("Garden");
+    });
+
+    it("responds to alias", () => {
+      parsePlayerInput("forward");
+      expect(game.room.name).toBe("Garden");
+    });
+
+    it("responds to another alias", () => {
+      parsePlayerInput("left");
+      expect(game.room.name).toBe("Pantry");
+    });
+
+    it("responds to an item alias", () => {
+      door.open = false;
+      parsePlayerInput("open hatch");
+      expect(door.open).toBe(true);
     });
   });
 });
