@@ -16,6 +16,7 @@ const east = new Room("Scullery", "");
 const west = new Room("Pantry", "");
 const door = new Door("trapdoor", "", false);
 door.aliases = ["hatch", "trap door"];
+door.getVerb("open").addAliases("give a shove to");
 
 hall.setNorth(north);
 hall.setSouth(south);
@@ -29,6 +30,7 @@ describe("parser", () => {
       game = new Game("The Giant's Castle");
       getStore().dispatch(newGame(game, true));
       game.room = hall;
+      door.open = false;
     });
 
     it("goes North", () => {
@@ -67,8 +69,27 @@ describe("parser", () => {
     });
 
     it("responds to an item alias", () => {
-      door.open = false;
       parsePlayerInput("open hatch");
+      expect(door.open).toBe(true);
+    });
+
+    it("responds when the direction verb is the second word", () => {
+      parsePlayerInput("go north");
+      expect(game.room.name).toBe("Garden");
+    });
+
+    it("responds when the direction verb is the third word", () => {
+      parsePlayerInput("now go north");
+      expect(game.room.name).toBe("Garden");
+    });
+
+    it("responds when there are words between verb and item", () => {
+      parsePlayerInput("now open the heavy trap door");
+      expect(door.open).toBe(true);
+    });
+
+    it("responds to multi-word verbs", () => {
+      parsePlayerInput("now give a shove to the trapdoor");
       expect(door.open).toBe(true);
     });
   });

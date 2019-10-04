@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 
-import { output, promptInput, showOptions } from "../utils/consoleIO";
 import IODevice from "../web/iodevice";
 import { getStore } from "../redux/storeRegistry";
 import { newGame, changeInteraction } from "../redux/gameActions";
@@ -10,16 +9,6 @@ import { LOADING, TITLE, INTRO, ROOM } from "./gameState";
 import Interaction from "./interaction";
 import Option from "./option";
 import Room from "./room";
-import { parsePlayerInput } from "./parser";
-
-const selectOutput = state => state.game.interaction.currentPage;
-const selectOptions = state => state.game.interaction.options;
-const selectInBrowser = state => state.game.inBrowser;
-const selectPlayerInput = state => state.game.playerInput;
-
-let currentOutput;
-let currentOptions;
-let currentInput;
 
 export default class Game {
   constructor(title, debugMode) {
@@ -33,48 +22,6 @@ export default class Game {
       "Empty Room",
       "The room is completely devoid of anything interesting."
     );
-
-    currentOutput = selectOutput(getStore().getState());
-    currentOptions = selectOptions(getStore().getState());
-    currentInput = selectPlayerInput(getStore().getState());
-
-    getStore().subscribe(() => this._subscribe());
-  }
-
-  _subscribe() {
-    const state = getStore().getState();
-    const inBrowser = selectInBrowser(state);
-    let previousInput = currentInput;
-    currentInput = selectPlayerInput(state);
-    const inputChanged = currentInput && currentInput !== previousInput;
-
-    if (!inBrowser || this.debugMode) {
-      let previousOutput = currentOutput;
-      let previousOptions = currentOptions;
-
-      currentOutput = selectOutput(state);
-      currentOptions = selectOptions(state);
-
-      if (currentOutput !== previousOutput) {
-        output(currentOutput);
-      }
-
-      if (inputChanged) {
-        output(`Received input: ${currentInput}`);
-      }
-
-      if (currentOptions && currentOptions !== previousOptions) {
-        if (inBrowser) {
-          showOptions(currentOptions);
-        } else {
-          promptInput(currentOptions);
-        }
-      }
-    }
-
-    if (inputChanged) {
-      parsePlayerInput(currentInput);
-    }
   }
 
   attach(container) {
@@ -88,7 +35,7 @@ export default class Game {
 
   play() {
     const inBrowser = typeof window !== "undefined";
-    getStore().dispatch(newGame(this, inBrowser));
+    getStore().dispatch(newGame(this, inBrowser, this.debugMode));
     let output = `# ${this.title || "Untitled"}`;
 
     if (this.author) {

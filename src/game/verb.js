@@ -79,8 +79,13 @@ export default class Verb {
    * @param {string | string[]} aliases
    */
   set aliases(aliases) {
+    this._aliases = [];
+    this.addAliases(aliases);
+  }
+
+  addAliases(aliases) {
     const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
-    this._aliases = aliasArray;
+    this._aliases.push(...aliasArray);
     this._addAliasesToParent();
   }
 

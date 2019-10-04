@@ -9,7 +9,6 @@ const captureInput = event => {
 
     // Reset input
     event.target.value = "";
-    getStore().dispatch(receivePlayerInput(null));
   }
 };
 

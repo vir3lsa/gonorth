@@ -2,7 +2,7 @@ import gonorth from "../../../lib/gonorth";
 import Room from "../../../lib/game/room";
 import Door from "../../../lib/game/door";
 
-const game = gonorth.createGame("The Witch's Grotto");
+const game = gonorth.createGame("The Witch's Grotto", true);
 game.author = "Rich Locke";
 game.intro =
   "Now's your chance. Quickly! Make your escape whilst the witch is out.";

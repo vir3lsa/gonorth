@@ -2,6 +2,8 @@ import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
 import Verb from "./verb";
 
+jest.mock("./subscriber");
+
 initStore();
 
 let y;

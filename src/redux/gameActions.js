@@ -1,8 +1,8 @@
 import * as type from "./gameActionTypes";
 
-export const newGame = (game, inBrowser) => ({
+export const newGame = (game, inBrowser, debugMode) => ({
   type: type.NEW_GAME,
-  payload: { game, inBrowser }
+  payload: { game, inBrowser, debugMode }
 });
 
 export const changeInteraction = interaction => ({
