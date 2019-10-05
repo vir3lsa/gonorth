@@ -16,27 +16,13 @@ export default class Room extends Item {
       new GoVerb("up", ["upward", "upwards"]),
       new GoVerb("down", ["downward", "downwards"])
     ]);
-    this.firstVisitText = "";
-    this.subsequentVisitsText = "";
     this.visits = 0;
     this.adjacentRooms = {};
     this.items = {};
   }
 
   get interaction() {
-    if (this.visits) {
-      return new Interaction(
-        this.subsequentVisitsText
-          ? this.subsequentVisitsText
-          : this.description,
-        this.options
-      );
-    } else {
-      return new Interaction(
-        this.firstVisitText ? this.firstVisitText : this.description,
-        this.options
-      );
-    }
+    return new Interaction(this.description, this.options);
   }
 
   addAdjacentRoom(room, directionName, navigable, successText, failureText) {

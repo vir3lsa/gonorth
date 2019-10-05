@@ -12,6 +12,26 @@ export default class Item {
     }
   }
 
+  get description() {
+    return this._description(this);
+  }
+
+  /**
+   * @param {string | function | undefined } description
+   */
+  set description(description) {
+    if (typeof description === "string") {
+      this._description = () => description;
+    } else if (typeof description === "function") {
+      this._description = description;
+    } else if (typeof description === "undefined") {
+      this._description = item =>
+        `There's nothing noteworthy about the ${item}.`;
+    } else {
+      throw Error("Description must be a string or a function");
+    }
+  }
+
   addVerb(verb) {
     this._verbs[verb.name] = verb;
     verb.parent = this;
