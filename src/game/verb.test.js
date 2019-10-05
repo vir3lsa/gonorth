@@ -1,6 +1,7 @@
 import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
 import Verb from "./verb";
+import { newGame } from "../redux/gameActions";
 
 jest.mock("./subscriber");
 
@@ -18,6 +19,9 @@ const verb = new Verb(
 
 const selectCurrentPage = () =>
   getStore().getState().game.interaction.currentPage;
+
+// Prevent console logging
+getStore().dispatch(newGame(null, true, false));
 
 beforeEach(() => (y = 0));
 

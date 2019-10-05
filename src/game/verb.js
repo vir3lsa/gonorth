@@ -105,16 +105,11 @@ export class GoVerb extends Verb {
   constructor(name, aliases) {
     super(
       name,
-      room => room.go(name),
+      () => {},
       room => {
-        const adjacentRoom = room.adjacentRooms[name];
         return new Interaction(
           `Going ${name}.`,
-          new Option("Next", () =>
-            getStore().dispatch(
-              changeInteraction(adjacentRoom.room.interaction)
-            )
-          )
+          new Option("Next", () => room.go(name))
         );
       },
       room => {

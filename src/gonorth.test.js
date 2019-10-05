@@ -1,20 +1,16 @@
 import gonorth from "./gonorth";
-import * as outputDependency from "./utils/consoleIO";
 
 const title = "Space Auctioneer 2";
-
-let outputSpy;
 let game;
+
+jest.mock("./utils/consoleIO");
+const consoleIO = require("./utils/consoleIO");
 
 describe("goNORTH", () => {
   beforeEach(() => {
-    outputSpy = jest.spyOn(outputDependency, "output");
-    jest.spyOn(outputDependency, "showOptions").mockImplementation(x => x);
+    consoleIO.output = jest.fn();
+    consoleIO.showOptions = jest.fn();
     game = gonorth.createGame(title, true);
-  });
-
-  afterEach(() => {
-    outputSpy.mockRestore();
   });
 
   it("Creates a game with the given title", () => {
@@ -23,13 +19,7 @@ describe("goNORTH", () => {
   });
 
   it("Prints the game title", () => {
-    let outputCalled = false;
-    outputSpy.mockImplementation(text => {
-      outputCalled = true;
-      expect(text.includes("Space Auctioneer 2")).toBeTruthy();
-    });
-
     game.play();
-    expect(outputCalled).toBeTruthy();
+    expect(consoleIO.output.mock.calls[0][0]).toBe("# Space Auctioneer 2");
   });
 });

@@ -24,6 +24,20 @@ hall.setEast(east);
 hall.setWest(west);
 hall.addItem(door);
 
+const directionTest = (input, expectedRoom) => {
+  parsePlayerInput(input);
+  // Choose "Next"
+  getStore()
+    .getState()
+    .game.interaction.options[0].action();
+  expect(game.room.name).toBe(expectedRoom);
+};
+
+const openDoorTest = input => {
+  parsePlayerInput(input);
+  expect(door.open).toBe(true);
+};
+
 describe("parser", () => {
   describe("directions", () => {
     beforeEach(() => {
@@ -33,64 +47,21 @@ describe("parser", () => {
       door.open = false;
     });
 
-    it("goes North", () => {
-      parsePlayerInput("North");
-      expect(game.room.name).toBe("Garden");
-    });
-
-    it("goes South", () => {
-      parsePlayerInput("South");
-      expect(game.room.name).toBe("Kitchen");
-    });
-
-    it("goes East", () => {
-      parsePlayerInput("East");
-      expect(game.room.name).toBe("Scullery");
-    });
-
-    it("goes West", () => {
-      parsePlayerInput("West");
-      expect(game.room.name).toBe("Pantry");
-    });
-
-    it("ignores case", () => {
-      parsePlayerInput("NORTH");
-      expect(game.room.name).toBe("Garden");
-    });
-
-    it("responds to alias", () => {
-      parsePlayerInput("forward");
-      expect(game.room.name).toBe("Garden");
-    });
-
-    it("responds to another alias", () => {
-      parsePlayerInput("left");
-      expect(game.room.name).toBe("Pantry");
-    });
-
-    it("responds to an item alias", () => {
-      parsePlayerInput("open hatch");
-      expect(door.open).toBe(true);
-    });
-
-    it("responds when the direction verb is the second word", () => {
-      parsePlayerInput("go north");
-      expect(game.room.name).toBe("Garden");
-    });
-
-    it("responds when the direction verb is the third word", () => {
-      parsePlayerInput("now go north");
-      expect(game.room.name).toBe("Garden");
-    });
-
-    it("responds when there are words between verb and item", () => {
-      parsePlayerInput("now open the heavy trap door");
-      expect(door.open).toBe(true);
-    });
-
-    it("responds to multi-word verbs", () => {
-      parsePlayerInput("now give a shove to the trapdoor");
-      expect(door.open).toBe(true);
-    });
+    it("goes North", () => directionTest("North", "Garden"));
+    it("goes South", () => directionTest("South", "Kitchen"));
+    it("goes East", () => directionTest("East", "Scullery"));
+    it("goes West", () => directionTest("West", "Pantry"));
+    it("ignores case", () => directionTest("NORTH", "Garden"));
+    it("responds to alias", () => directionTest("forward", "Garden"));
+    it("responds to another alias", () => directionTest("left", "Pantry"));
+    it("responds to an item alias", () => openDoorTest("open hatch"));
+    it("responds when the direction verb is the second word", () =>
+      directionTest("go north", "Garden"));
+    it("responds when the direction verb is the third word", () =>
+      directionTest("now go north", "Garden"));
+    it("responds when there are words between verb and item", () =>
+      openDoorTest("now open the heavy trap door"));
+    it("responds to multi-word verbs", () =>
+      openDoorTest("now give a shove to the trapdoor"));
   });
 });

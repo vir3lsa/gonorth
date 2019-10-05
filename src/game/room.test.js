@@ -83,6 +83,9 @@ describe("Room", () => {
     it("responds to custom directions", () => {
       hall.addAdjacentRoom(east, "archway");
       hall.try("archway");
+      getStore()
+        .getState()
+        .game.interaction.options[0].action();
       expect(game.room.name).toBe("Scullery");
     });
 
