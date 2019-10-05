@@ -4,12 +4,6 @@ import { receivePlayerInput } from "../redux/gameActions";
 const selectRoom = () => getStore().getState().game.game.room;
 
 export const parsePlayerInput = input => {
-  parse(input);
-  // Record that processing is finished
-  getStore().dispatch(receivePlayerInput(null));
-};
-
-function parse(input) {
   const tokens = input
     .trim()
     .toLowerCase()
@@ -70,4 +64,4 @@ function parse(input) {
       }
     }
   }
-}
+};

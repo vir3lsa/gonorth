@@ -32,7 +32,8 @@ async function promptFreeText() {
   const response = await prompts({
     type: "text",
     name: "input",
-    message: "What do you want to do?"
+    message: "What do you want to do?",
+    validate: input => (input ? true : "Do something!")
   });
 
   receiveInput(response.input);

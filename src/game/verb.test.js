@@ -3,8 +3,6 @@ import { getStore } from "../redux/storeRegistry";
 import Verb from "./verb";
 import { newGame } from "../redux/gameActions";
 
-jest.mock("./subscriber");
-
 initStore();
 
 let y;
