@@ -62,3 +62,8 @@ export const receivePlayerInput = input => (dispatch, getState) => {
 export const nextTurn = () => ({
   type: type.NEXT_TURN
 });
+
+export const verbCreated = names => ({
+  type: type.VERB_CREATED,
+  payload: names
+});

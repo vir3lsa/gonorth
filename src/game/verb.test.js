@@ -12,11 +12,17 @@ const verb = new Verb(
   x => (y = x + 1),
   "You twirl beautifully",
   "You fall over",
-  x => x > 2
+  x => x > 2,
+  ["spin", "rotate"]
 );
 
 const selectCurrentPage = () =>
   getStore().getState().game.interaction.currentPage;
+
+const storeHasVerb = verbName =>
+  getStore()
+    .getState()
+    .game.verbNames.has(verbName);
 
 // Prevent console logging
 getStore().dispatch(newGame(null, true, false));
@@ -41,4 +47,19 @@ it("does not perform the action if the test fails", () => {
 it("performs the action if the test passes", () => {
   verb.attempt(3);
   expect(y).toBe(4);
+});
+
+it("adds verb names and aliases to the global registry", () => {
+  new Verb("examine", () => {}, "", "", true, ["look at", "inspect"]);
+  expect(storeHasVerb("twirl")).toBeTruthy();
+  expect(storeHasVerb("spin")).toBeTruthy();
+  expect(storeHasVerb("rotate")).toBeTruthy();
+  expect(storeHasVerb("look at")).toBeTruthy();
+  expect(storeHasVerb("inspect")).toBeTruthy();
+});
+
+it("adds new aliases to the global registry", () => {
+  verb.addAliases(["twist", "twizzle"]);
+  expect(storeHasVerb("twist")).toBeTruthy();
+  expect(storeHasVerb("twizzle")).toBeTruthy();
 });

@@ -1,20 +1,77 @@
 import Game from "./game";
 import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
+import Event, { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 
 initStore();
 jest.mock("../utils/consoleIO");
 
+let game, x;
+
+const eventTest = (event, expectation) => {
+  game.addEvent(event);
+  game.handleTurnEnd();
+  expect(expectation()).toBeTruthy();
+  event.cancel();
+};
+
 describe("Game class", () => {
-  it("Defaults output to Loading", () => {
-    new Game("title");
+  beforeEach(() => {
+    game = new Game("title");
+    x = 0;
+  });
+
+  it("defaults output to Loading", () => {
     expect(getStore().getState().game.interaction.currentPage).toBe(
       "Loading..."
     );
   });
 
-  it("Throws an error if trying to attach with no container", () => {
-    const game = new Game("title");
+  it("throws an error if trying to attach with no container", () => {
     expect(game.attach).toThrow(Error);
+  });
+
+  describe("events", () => {
+    it("triggers events with no condition and no timeout immediately", () => {
+      eventTest(new Event(() => x++), () => x === 1);
+    });
+
+    it("triggers events with no timeout when the condition is met", () => {
+      x = 10;
+      eventTest(new Event(() => x++, () => x === 10), () => x === 11);
+    });
+
+    it("does not trigger events when the condition is not met", () => {
+      eventTest(new Event(() => x++, () => x === 10), () => x === 0);
+    });
+
+    it("does not trigger timed events immediately", () => {
+      const event = new Event(() => x++, true, 1000, TIMEOUT_MILLIS);
+      eventTest(event, () => x === 0);
+    });
+
+    it("does not trigger count down events immediately", () => {
+      const event = new Event(() => x++, true, 5, TIMEOUT_TURNS);
+      eventTest(event, () => x === 0);
+    });
+
+    it("triggers timed events after the timeout has passed", () => {
+      game.addEvent(new Event(() => x++, true, 10, TIMEOUT_MILLIS));
+      game.handleTurnEnd();
+      return new Promise(resolve =>
+        setTimeout(() => {
+          expect(x).toBe(1);
+          resolve();
+        }, 11)
+      );
+    });
+
+    it("triggers count down events after the required turns have passed", () => {
+      game.addEvent(new Event(() => x++, true, 2, TIMEOUT_TURNS));
+      game.handleTurnEnd();
+      game.handleTurnEnd();
+      game.handleTurnEnd();
+      expect(x).toBe(1);
+    });
   });
 });

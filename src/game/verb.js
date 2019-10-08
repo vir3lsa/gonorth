@@ -1,5 +1,5 @@
 import { getStore } from "../redux/storeRegistry";
-import { changeInteraction } from "../redux/gameActions";
+import { changeInteraction, verbCreated } from "../redux/gameActions";
 import Interaction from "./interaction";
 import Option from "./option";
 
@@ -7,7 +7,7 @@ export default class Verb {
   constructor(name, action, successText, failureText, test = true, aliases) {
     this.name = name.trim().toLowerCase();
     this.action = action;
-    this._aliases = Array.isArray(aliases) ? aliases : [aliases];
+    this.aliases = aliases || [];
     this._parent = null;
 
     // Call test setter
@@ -83,10 +83,17 @@ export default class Verb {
     this.addAliases(aliases);
   }
 
+  get aliases() {
+    return this._aliases;
+  }
+
   addAliases(aliases) {
-    const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
-    this._aliases.push(...aliasArray);
-    this._addAliasesToParent();
+    if (aliases) {
+      const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
+      this._aliases.push(...aliasArray);
+      this._addAliasesToParent();
+      getStore().dispatch(verbCreated([this.name, ...this.aliases]));
+    }
   }
 
   attempt(...args) {

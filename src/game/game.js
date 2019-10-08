@@ -4,11 +4,12 @@ import { Provider } from "react-redux";
 
 import IODevice from "../web/iodevice";
 import { getStore } from "../redux/storeRegistry";
-import { newGame, changeInteraction } from "../redux/gameActions";
+import { newGame, changeInteraction, nextTurn } from "../redux/gameActions";
 import { LOADING, TITLE, INTRO, ROOM } from "./gameState";
 import Interaction from "./interaction";
 import Option from "./option";
 import Room from "./room";
+import { DORMANT, PENDING, ACTIVE } from "./event";
 
 export default class Game {
   constructor(title, debugMode) {
@@ -18,6 +19,7 @@ export default class Game {
     this.container = null;
     this.author = null;
     this._intro = null;
+    this.events = [];
     this._startingRoom = new Room(
       "Empty Room",
       "The room is completely devoid of anything interesting."
@@ -56,6 +58,24 @@ export default class Game {
 
     this.status = TITLE;
     getStore().dispatch(changeInteraction(titleScreen));
+  }
+
+  handleTurnEnd() {
+    this.events.forEach(event => {
+      if (event.state === DORMANT && event.condition()) {
+        // First look for events to commence
+        event.commence();
+      } else if (event.state === PENDING) {
+        // Then look for events that are counting down
+        event.tick();
+      } else if (event.state === ACTIVE) {
+        // Then trigger active events
+        event.trigger();
+      }
+    });
+
+    // End the turn
+    getStore().dispatch(nextTurn());
   }
 
   renderTopLevel() {
@@ -100,5 +120,9 @@ export default class Game {
 
   get room() {
     return this._room;
+  }
+
+  addEvent(event) {
+    this.events.push(event);
   }
 }

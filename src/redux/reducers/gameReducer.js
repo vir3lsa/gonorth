@@ -5,7 +5,8 @@ const initialState = {
   turn: 1,
   inBrowser: false,
   debugMode: false,
-  interaction: new Interaction("Loading...", [])
+  interaction: new Interaction("Loading...", []),
+  verbNames: new Set()
 };
 
 export default function(state = initialState, action) {
@@ -18,6 +19,11 @@ export default function(state = initialState, action) {
       return { ...state, playerInput: action.payload };
     case type.NEXT_TURN:
       return { ...state, turn: state.turn + 1 };
+    case type.VERB_CREATED:
+      return {
+        ...state,
+        verbNames: new Set([...state.verbNames, ...action.payload])
+      };
     default:
       return state;
   }
