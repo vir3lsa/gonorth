@@ -1,10 +1,11 @@
 export default class Item {
-  constructor(name, description, holdable, size, verbs, aliases) {
+  constructor(name, description, holdable, size, verbs, aliases = []) {
     this.name = name;
     this.description = description;
     this.holdable = holdable;
     this.size = size;
-    this.aliases = Array.isArray(aliases) ? aliases : [aliases];
+    this.visible = true;
+    this.aliases = aliases;
     this.container = null;
 
     if (verbs) {

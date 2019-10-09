@@ -3,6 +3,7 @@ import { getStore } from "../redux/storeRegistry";
 import Door from "./door";
 import { GoVerb } from "./verb";
 import Item from "./item";
+import { itemsRevealed } from "../redux/gameActions";
 
 const selectGame = () => getStore().getState().game.game;
 
@@ -109,5 +110,13 @@ export default class Room extends Item {
     const direction = directionName.toLowerCase();
     const adjacent = this.adjacentRooms[direction];
     selectGame().room = adjacent.room;
+  }
+
+  revealItems() {
+    const itemNames = Object.entries(this.items)
+      .filter(([, item]) => item.visible)
+      .map(([name]) => name);
+
+    getStore().dispatch(itemsRevealed(itemNames));
   }
 }

@@ -67,3 +67,8 @@ export const verbCreated = names => ({
   type: type.VERB_CREATED,
   payload: names
 });
+
+export const itemsRevealed = itemNames => ({
+  type: type.ITEMS_REVEALED,
+  payload: itemNames
+});

@@ -100,6 +100,7 @@ export default class Game {
   goToStartingRoom() {
     this._room = this._startingRoom;
     getStore().dispatch(changeInteraction(this._room.interaction));
+    this._room.revealItems();
   }
 
   /**
@@ -116,6 +117,7 @@ export default class Game {
   set room(room) {
     this._room = room;
     getStore().dispatch(changeInteraction(room.interaction));
+    room.revealItems();
   }
 
   get room() {

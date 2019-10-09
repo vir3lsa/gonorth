@@ -4,6 +4,8 @@ import Interaction from "./interaction";
 
 const selectRoom = () => getStore().getState().game.game.room;
 const selectVerbNames = () => getStore().getState().game.verbNames;
+const selectVerb = verbName => getStore().getState().game.verbNames[verbName];
+const selectItemNames = () => getStore().getState().game.itemNames;
 
 export const parsePlayerInput = input => {
   const tokens = input
@@ -13,10 +15,11 @@ export const parsePlayerInput = input => {
 
   const room = selectRoom();
 
-  // Record if we find a verb that's supported by items in the room
-  let supportedVerb;
-  let supportingItems;
-  let verbEndIndex;
+  // Record the possible matches we find
+  let registeredVerb;
+  let registeredItem;
+  let roomItem;
+  let message;
 
   for (let numWords = 1; numWords <= tokens.length; numWords++) {
     for (
@@ -27,7 +30,11 @@ export const parsePlayerInput = input => {
       const possibleVerbWords = tokens.slice(verbIndex, verbIndex + numWords);
       const possibleVerb = possibleVerbWords.join(" ");
 
-      // First look for verbs available in the current room
+      // Is the verb registered globally?
+      const verbExists = selectVerbNames().has(possibleVerb);
+      registeredVerb = verbExists ? possibleVerb : registeredVerb;
+
+      // Is the verb in the current room?
       const roomVerb = room.verbs[possibleVerb];
 
       if (roomVerb) {
@@ -35,135 +42,64 @@ export const parsePlayerInput = input => {
         return roomVerb.attempt(room);
       }
 
-      // Next look for items in the room that support the verb
-      const possibleItemNames = Object.entries(room.items)
-        .filter(([, item]) => item.verbs[possibleVerb])
-        .map(([itemName]) => itemName);
+      const verbEndIndex = verbIndex + numWords;
 
-      if (possibleItemNames.length) {
-        // The verb is supported by items in the room
-        supportedVerb = possibleVerb;
-        supportingItems = possibleItemNames;
-        verbEndIndex = verbIndex + numWords;
-      }
+      // Look for an item in what the player's typed
+      for (
+        let numItemWords = 1;
+        numItemWords <= tokens.length - verbEndIndex;
+        numItemWords++
+      ) {
+        for (
+          let itemIndex = verbEndIndex;
+          itemIndex < tokens.length;
+          itemIndex++
+        ) {
+          const possibleItemWords = tokens.slice(
+            itemIndex,
+            itemIndex + numItemWords
+          );
+          const possibleItem = possibleItemWords.join(" ");
 
-      // Find the item (if any) that matches what the player has typed
-      const matchingItemName = possibleItemNames.find(itemName => {
-        return doesItemMatch(itemName, tokens, verbIndex + numWords);
-      });
+          // Is the item registered globally?
+          const itemExists = selectItemNames().has(possibleItem);
+          registeredItem = itemExists ? possibleItem : registeredItem;
 
-      if (matchingItemName) {
-        const matchingItem = room.items[matchingItemName];
-        // We think the player is referring to this item, so do it
-        return matchingItem.try(possibleVerb);
+          // Is the item in the room and visible? Does it support the verb?
+          roomItem = room.items[possibleItem];
+
+          if (roomItem && roomItem.visible && roomItem.verbs[possibleVerb]) {
+            // The verb and item match so attempt the action
+            return roomItem.try(possibleVerb);
+          }
+        }
       }
     }
   }
 
-  // No verb/item combination was found. Construct a response.
-  constructFailureResponse(
-    supportedVerb,
-    room,
-    supportingItems,
-    tokens,
-    verbEndIndex
-  );
-};
-
-/**
- * Dispatches a failure response when no matching verb/item combination was found.
- */
-function constructFailureResponse(
-  supportedVerb,
-  room,
-  supportingItems,
-  tokens,
-  verbEndIndex
-) {
-  let message = "";
-  if (supportedVerb) {
-    // Try items that don't support verb to see if player is referring to them
-    const untestedItemNames = Object.keys(room.items).reduce(
-      (acc, itemName) => {
-        if (!supportingItems.includes(itemName)) {
-          acc.push(itemName);
-        }
-        return acc;
-      },
-      []
-    );
-    const matchingItem = untestedItemNames.find(itemName => {
-      return doesItemMatch(itemName, tokens, verbEndIndex);
-    });
-    if (matchingItem) {
-      message = `You fail to ${supportedVerb} the ${matchingItem}.`;
+  if (registeredVerb) {
+    if (roomItem) {
+      // The item's in the room but doesn't support the verb
+      message = `You can't see how to ${registeredVerb} the ${registeredItem}.`;
+    } else if (registeredItem) {
+      // The item exists elsewhere
+      message = `You don't see a ${registeredItem} here.`;
     } else {
-      message = `There's nothing like that to ${supportedVerb}.`;
+      // The item doesn't (yet) exist anywhere
+      message = `You don't seem able to ${registeredVerb} that.`;
     }
   } else {
-    // No verb was found. Is there a match in the global list?
-    let globalVerb;
-    let itemStartIndex = 0;
-
-    for (let numWords = 1; numWords <= tokens.length; numWords++) {
-      for (
-        let verbIndex = 0;
-        verbIndex <= tokens.length - numWords;
-        verbIndex++
-      ) {
-        const possibleVerbWords = tokens.slice(verbIndex, verbIndex + numWords);
-        const possibleVerb = possibleVerbWords.join(" ");
-        const globalMatch = selectVerbNames().has(possibleVerb);
-
-        if (globalMatch) {
-          globalVerb = possibleVerb;
-          itemStartIndex = verbIndex + numWords;
-        }
-      }
-    }
-
-    //Did the player refer to an item in the room?
-    const matchingItem = Object.keys(room.items).find(itemName => {
-      return doesItemMatch(itemName, tokens, itemStartIndex);
-    });
-
-    if (globalVerb) {
-      if (matchingItem) {
-        message = `You can't see how to ${globalVerb} the ${matchingItem}.`;
-      } else {
-        message = `You don't seem able to ${globalVerb} that.`;
-      }
+    if (roomItem) {
+      // The item's in the room but the verb doesn't exist
+      message = `You can't easily do that to the ${registeredItem}.`;
+    } else if (registeredItem) {
+      // The item's elsewhere
+      message = `You don't see a ${registeredItem} here.`;
     } else {
-      if (matchingItem) {
-        message = `You can't easily do that to the ${matchingItem}.`;
-      } else {
-        message = `You shake your head in confusion.`;
-      }
+      // Neither the verb nor the item exists
+      message = `You shake your head in confusion.`;
     }
   }
 
   getStore().dispatch(changeInteraction(new Interaction(message)));
-}
-
-/**
- * Determines whether the item's name matches the user input.
- */
-function doesItemMatch(itemName, tokens, startIndex) {
-  const itemNameParts = itemName.toLowerCase().split(/\s+/);
-  const numNameParts = itemNameParts.length;
-
-  for (
-    let itemIndex = startIndex;
-    itemIndex <= tokens.length - numNameParts;
-    itemIndex++
-  ) {
-    const possibleNameParts = tokens.slice(itemIndex, itemIndex + numNameParts);
-    const matchFound = possibleNameParts.every(
-      (part, i) => part === itemNameParts[i]
-    );
-
-    if (matchFound) {
-      return true;
-    }
-  }
-}
+};

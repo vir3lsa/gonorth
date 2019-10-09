@@ -6,7 +6,8 @@ const initialState = {
   inBrowser: false,
   debugMode: false,
   interaction: new Interaction("Loading...", []),
-  verbNames: new Set()
+  verbNames: new Set(),
+  itemNames: new Set()
 };
 
 export default function(state = initialState, action) {
@@ -23,6 +24,11 @@ export default function(state = initialState, action) {
       return {
         ...state,
         verbNames: new Set([...state.verbNames, ...action.payload])
+      };
+    case type.ITEMS_REVEALED:
+      return {
+        ...state,
+        itemNames: new Set([...state.itemNames, ...action.payload])
       };
     default:
       return state;

@@ -80,9 +80,9 @@ describe("parser", () => {
     it("gives a suitable message if the player types nonsense", () =>
       badInputTest("feed bread to the ducks", "confusion"));
     it("gives message if verb is recognised but not item", () =>
-      badInputTest("open fridge", "nothing like that to open"));
+      badInputTest("open fridge", "don't seem able to open that"));
     it("gives message if item doesn't support verb", () =>
-      badInputTest("sit in door", "fail to sit in the door"));
+      badInputTest("sit in door", "can't see how to sit in the door"));
     it("gives message if item found but no verb", () =>
       badInputTest("set fire to chair", "can't easily do that to the chair"));
     it("gives message if global verb and local item found", () =>
