@@ -80,12 +80,13 @@ describe("Room", () => {
       expect(game.room.name).toBe("Hall");
     });
 
-    it("responds to custom directions", () => {
+    it("responds to custom directions", async () => {
       hall.addAdjacentRoom(east, "archway");
-      hall.try("archway");
+      const actionPromise = hall.try("archway");
       getStore()
         .getState()
         .game.interaction.options[0].action();
+      await actionPromise;
       expect(game.room.name).toBe("Scullery");
     });
 

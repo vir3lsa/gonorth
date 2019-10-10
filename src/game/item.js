@@ -89,7 +89,7 @@ export default class Item {
     const verb = this.verbs[verbName];
 
     if (verb) {
-      verb.attempt(this, ...args);
+      return verb.attempt(this, ...args);
     }
   }
 

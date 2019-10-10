@@ -3,21 +3,65 @@ import { changeInteraction, verbCreated } from "../redux/gameActions";
 import Interaction from "./interaction";
 import Option from "./option";
 
+const toChainableFunction = (action, i, actions) => {
+  const lastAction = i === actions.length - 1;
+
+  if (typeof action === "string") {
+    return () => {
+      if (lastAction) {
+        // No "Next" button if this is the last action
+        getStore().dispatch(changeInteraction(new Interaction(action)));
+      } else {
+        return new Promise(resolve => {
+          getStore().dispatch(
+            changeInteraction(
+              new Interaction(action, new Option("Next", resolve))
+            )
+          );
+        });
+      }
+    };
+  } else if (action instanceof Interaction) {
+    return () => getStore().dispatch(changeInteraction(action));
+  } else {
+    return (...args) => {
+      const result = action(...args);
+
+      if (typeof result === "string") {
+        if (lastAction) {
+          getStore().dispatch(changeInteraction(new Interaction(result)));
+        } else {
+          return new Promise(resolve =>
+            getStore().dispatch(
+              changeInteraction(
+                new Interaction(result, new Option("Next", resolve))
+              )
+            )
+          );
+        }
+      } else if (result instanceof Interaction) {
+        return getStore().dispatch(changeInteraction(result));
+      }
+
+      return result;
+    };
+  }
+};
+
 export default class Verb {
-  constructor(name, action, successText, failureText, test = true, aliases) {
+  constructor(name, test = true, onSuccess = [], onFailure = [], aliases = []) {
     this.name = name.trim().toLowerCase();
-    this.action = action;
     this.aliases = aliases || [];
     this._parent = null;
 
     // Call test setter
     this.test = test;
 
-    // Call the successText setter
-    this.successText = successText;
+    // Call the onSuccess setter
+    this.onSuccess = onSuccess;
 
-    // Call the failureText setter
-    this.failureText = failureText;
+    // Call the onFailure setter
+    this.onFailure = onFailure;
   }
 
   /**
@@ -33,30 +77,22 @@ export default class Verb {
     }
   }
 
-  /**
-   * @param {string | Interaction | (() => Interaction)} successText
-   */
-  set successText(successText) {
-    if (typeof successText === "string") {
-      this._successText = () => new Interaction(successText);
-    } else if (successText instanceof Interaction) {
-      this._successText = () => successText;
-    } else {
-      this._successText = successText;
-    }
+  set onSuccess(onSuccess) {
+    const successActions = Array.isArray(onSuccess) ? onSuccess : [onSuccess];
+    this._onSuccess = successActions.map(toChainableFunction);
   }
 
-  /**
-   * @param {string | Interaction | (() => Interaction)} failureText
-   */
-  set failureText(failureText) {
-    if (typeof failureText === "string") {
-      this._failureText = () => new Interaction(failureText);
-    } else if (failureText instanceof Interaction) {
-      this._failureText = () => failureText;
-    } else {
-      this._failureText = failureText;
-    }
+  set onFailure(onFailure) {
+    const failureActions = Array.isArray(onFailure) ? onFailure : [onFailure];
+    this._onFailure = failureActions.map(toChainableFunction);
+  }
+
+  get onSuccess() {
+    return this._onSuccess;
+  }
+
+  get onFailure() {
+    return this._onFailure;
   }
 
   _addAliasesToParent() {
@@ -96,14 +132,17 @@ export default class Verb {
     }
   }
 
-  attempt(...args) {
+  async attempt(...args) {
     if (this._test(...args)) {
-      this.action(...args);
-      if (this._successText) {
-        getStore().dispatch(changeInteraction(this._successText(...args)));
+      for (let i in this.onSuccess) {
+        const action = this.onSuccess[i];
+        await action(...args);
       }
-    } else if (this._failureText) {
-      getStore().dispatch(changeInteraction(this._failureText(...args)));
+    } else {
+      for (let i in this.onFailure) {
+        const action = this.onFailure[i];
+        await action(...args);
+      }
     }
   }
 }
@@ -112,22 +151,16 @@ export class GoVerb extends Verb {
   constructor(name, aliases) {
     super(
       name,
-      () => {},
       room => {
-        return new Interaction(
-          `Going ${name}.`,
-          new Option("Next", () => room.go(name))
-        );
+        const adjacentRoom = room.adjacentRooms[name];
+        return adjacentRoom && adjacentRoom.test();
       },
+      [`Going ${name}.`, room => room.go(name)],
       room => {
         const adjacentRoom = room.adjacentRooms[name];
         return adjacentRoom && adjacentRoom.failureText
           ? new Interaction(adjacentRoom.failureText)
           : new Interaction("There's nowhere to go that way.");
-      },
-      room => {
-        const adjacentRoom = room.adjacentRooms[name];
-        return adjacentRoom && adjacentRoom.test();
       },
       aliases
     );

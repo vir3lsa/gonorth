@@ -21,24 +21,27 @@ export default class Door extends Item {
       [
         new Verb(
           "open",
-          door => (door.open = true),
-          openSuccessText || `The ${name} opens relatively easily.`,
-          openFailureText || `The ${name} is locked.`,
-          door => !door.locked
+          door => !door.locked,
+          [
+            door => (door.open = true),
+            openSuccessText || `The ${name} opens relatively easily.`
+          ],
+          openFailureText || `The ${name} is locked.`
         ),
         new Verb(
           "close",
-          door => (door.open = false),
-          `You close the ${name}.`,
-          `The ${name} is already closed.`,
-          door => door.open
+          door => door.open,
+          [door => (door.open = false), `You close the ${name}.`],
+          `The ${name} is already closed.`
         ),
         new Verb(
           "unlock",
-          door => (door.locked = false),
-          unlockSuccessText || `The ${name} unlocks with a soft click.`,
-          unlockFailureText || `The ${name} is already unlocked.`,
-          door => door.locked
+          door => door.locked,
+          [
+            door => (door.locked = false),
+            unlockSuccessText || `The ${name} unlocks with a soft click.`
+          ],
+          unlockFailureText || `The ${name} is already unlocked.`
         )
       ],
       aliases

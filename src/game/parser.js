@@ -4,7 +4,6 @@ import Interaction from "./interaction";
 
 const selectRoom = () => getStore().getState().game.game.room;
 const selectVerbNames = () => getStore().getState().game.verbNames;
-const selectVerb = verbName => getStore().getState().game.verbNames[verbName];
 const selectItemNames = () => getStore().getState().game.itemNames;
 
 export const parsePlayerInput = input => {

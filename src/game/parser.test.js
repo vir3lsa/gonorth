@@ -29,12 +29,12 @@ hall.setWest(west);
 hall.addItem(door);
 hall.addItem(chair);
 
-const directionTest = (input, expectedRoom) => {
-  parsePlayerInput(input);
-  // Choose "Next"
+const directionTest = async (input, expectedRoom) => {
+  const actionPromise = parsePlayerInput(input);
   getStore()
     .getState()
     .game.interaction.options[0].action();
+  await actionPromise;
   expect(game.room.name).toBe(expectedRoom);
 };
 

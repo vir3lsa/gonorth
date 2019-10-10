@@ -9,10 +9,9 @@ let y;
 
 const verb = new Verb(
   "twirl",
-  x => (y = x + 1),
-  "You twirl beautifully",
-  "You fall over",
   x => x > 2,
+  [x => (y = x + 1), "You twirl beautifully"],
+  "You fall over",
   ["spin", "rotate"]
 );
 
@@ -34,8 +33,9 @@ it("prints the failure text if the test fails", () => {
   expect(selectCurrentPage()).toBe("You fall over");
 });
 
-it("prints the success text if the test succeeds", () => {
-  verb.attempt(3);
+it("prints the success text if the test succeeds", async () => {
+  const actionPromise = verb.attempt(3);
+  await actionPromise;
   expect(selectCurrentPage()).toBe("You twirl beautifully");
 });
 
@@ -50,7 +50,7 @@ it("performs the action if the test passes", () => {
 });
 
 it("adds verb names and aliases to the global registry", () => {
-  new Verb("examine", () => {}, "", "", true, ["look at", "inspect"]);
+  new Verb("examine", true, [], [], ["look at", "inspect"]);
   expect(storeHasVerb("twirl")).toBeTruthy();
   expect(storeHasVerb("spin")).toBeTruthy();
   expect(storeHasVerb("rotate")).toBeTruthy();
