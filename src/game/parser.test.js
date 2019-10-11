@@ -31,9 +31,11 @@ hall.addItem(chair);
 
 const directionTest = async (input, expectedRoom) => {
   const actionPromise = parsePlayerInput(input);
-  getStore()
-    .getState()
-    .game.interaction.options[0].action();
+  setTimeout(() =>
+    getStore()
+      .getState()
+      .game.interaction.options[0].action()
+  );
   await actionPromise;
   expect(game.room.name).toBe(expectedRoom);
 };

@@ -1,52 +1,7 @@
 import { getStore } from "../redux/storeRegistry";
-import { changeInteraction, verbCreated } from "../redux/gameActions";
+import { verbCreated } from "../redux/gameActions";
 import Interaction from "./interaction";
-import Option from "./option";
-
-const toChainableFunction = (action, i, actions) => {
-  const lastAction = i === actions.length - 1;
-
-  if (typeof action === "string") {
-    return () => {
-      if (lastAction) {
-        // No "Next" button if this is the last action
-        getStore().dispatch(changeInteraction(new Interaction(action)));
-      } else {
-        return new Promise(resolve => {
-          getStore().dispatch(
-            changeInteraction(
-              new Interaction(action, new Option("Next", resolve))
-            )
-          );
-        });
-      }
-    };
-  } else if (action instanceof Interaction) {
-    return () => getStore().dispatch(changeInteraction(action));
-  } else {
-    return (...args) => {
-      const result = action(...args);
-
-      if (typeof result === "string") {
-        if (lastAction) {
-          getStore().dispatch(changeInteraction(new Interaction(result)));
-        } else {
-          return new Promise(resolve =>
-            getStore().dispatch(
-              changeInteraction(
-                new Interaction(result, new Option("Next", resolve))
-              )
-            )
-          );
-        }
-      } else if (result instanceof Interaction) {
-        return getStore().dispatch(changeInteraction(result));
-      }
-
-      return result;
-    };
-  }
-};
+import { toChainableFunction, chainActions } from "../utils/actionChain";
 
 export default class Verb {
   constructor(name, test = true, onSuccess = [], onFailure = [], aliases = []) {
@@ -132,17 +87,11 @@ export default class Verb {
     }
   }
 
-  async attempt(...args) {
+  attempt(...args) {
     if (this._test(...args)) {
-      for (let i in this.onSuccess) {
-        const action = this.onSuccess[i];
-        await action(...args);
-      }
+      return chainActions(this.onSuccess, ...args);
     } else {
-      for (let i in this.onFailure) {
-        const action = this.onFailure[i];
-        await action(...args);
-      }
+      return chainActions(this.onFailure, ...args);
     }
   }
 }

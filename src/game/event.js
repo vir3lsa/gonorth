@@ -1,3 +1,5 @@
+import { toChainableFunction, chainActions } from "../utils/actionChain";
+
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
 export const DORMANT = "DORMANT";
@@ -6,8 +8,8 @@ export const ACTIVE = "ACTIVE";
 export const FINISHED = "FINISHED";
 export const CANCELLED = "CANCELLED";
 
-export default class Event {
-  constructor(action, condition, timeout, timeoutType, repetitions) {
+export class Event {
+  constructor(action = [], condition, timeout, timeoutType, repetitions) {
     this.action = action;
     this.condition = condition;
     this.timeout = timeout || 0;
@@ -16,6 +18,15 @@ export default class Event {
     this.executionCount = 0;
     this.timeoutId = null;
     this.state = DORMANT;
+  }
+
+  set action(action) {
+    const actionArray = Array.isArray(action) ? action : [action];
+    this._action = actionArray.map(toChainableFunction);
+  }
+
+  get action() {
+    return this._action;
   }
 
   get condition() {
@@ -39,7 +50,7 @@ export default class Event {
 
     if (this.timeout) {
       if (this.timeoutType === TIMEOUT_MILLIS) {
-        this.timeoutId = setTimeout(this.action, this.timeout);
+        this.timeoutId = setTimeout(() => this.trigger(), this.timeout);
       } else {
         this.countdown = this.timeout;
       }
@@ -61,12 +72,13 @@ export default class Event {
 
   trigger() {
     this.state = ACTIVE;
-    this.action();
     this.executionCount++;
 
     if (this.executionCount >= this.repetitions) {
       this.state = FINISHED;
     }
+
+    return chainActions(this.action);
   }
 
   cancel() {

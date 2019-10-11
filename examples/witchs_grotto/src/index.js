@@ -1,6 +1,7 @@
 import gonorth from "../../../lib/gonorth";
-import Room from "../../../lib/game/room";
 import { cellar } from "./rooms/cellar";
+import { Event, TIMEOUT_MILLIS } from "../../../lib/game/event";
+import { pantry } from "./rooms/pantry";
 
 const game = gonorth.createGame("The Witch's Grotto", true);
 game.author = "Rich Locke";
@@ -14,4 +15,12 @@ if (typeof document !== "undefined") {
   game.attach(container);
 }
 
+const witchEnterHall = new Event(
+  "A door slams somewhere nearby. The witch is coming!",
+  () => game.room === pantry,
+  10000,
+  TIMEOUT_MILLIS
+);
+
+game.addEvent(witchEnterHall);
 game.play();

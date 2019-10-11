@@ -1,7 +1,7 @@
 import Game from "./game";
 import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
-import Event, { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
+import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 
 initStore();
 jest.mock("../utils/consoleIO");
