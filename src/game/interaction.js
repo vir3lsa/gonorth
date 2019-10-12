@@ -2,6 +2,10 @@ import Option from "./option";
 import { changeInteraction } from "../redux/gameActions";
 import { getStore } from "../redux/storeRegistry";
 
+/**
+ * Replaces the current screen contents and displays text and prompts for user input, whether
+ * free text or a series of options.
+ */
 export class Interaction {
   constructor(pages, options, page) {
     this.pages = Array.isArray(pages) ? pages : [pages];
@@ -35,4 +39,17 @@ export class Interaction {
   }
 }
 
+/**
+ * Adds new text to the output and may present new options, without clearing the
+ * current output.
+ */
 export class Append extends Interaction {}
+
+/**
+ * Appends the most recent user input to the output if in the browser.
+ */
+export class AppendInput extends Append {
+  constructor(input, ...args) {
+    super(`\`>\` ${input}`, ...args);
+  }
+}

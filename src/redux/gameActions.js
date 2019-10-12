@@ -1,6 +1,7 @@
 import * as type from "./gameActionTypes";
 import { output, showOptions, promptInput } from "../utils/consoleIO";
 import { parsePlayerInput } from "../game/parser";
+import { AppendInput } from "../game/interaction";
 
 const selectInBrowser = state => state.game.inBrowser;
 const selectDebugMode = state => state.game.debugMode;
@@ -14,18 +15,13 @@ export const newGame = (game, inBrowser, debugMode) => ({
 });
 
 export const changeInteraction = interaction => (dispatch, getState) => {
-  dispatch({
-    type: type.CHANGE_INTERACTION,
-    payload: interaction
-  });
-
   const state = getState();
   const inBrowser = selectInBrowser(state);
   const debugMode = selectDebugMode(state);
 
-  if (!inBrowser || debugMode) {
-    const currentOutput = selectOutput(state);
-    const currentOptions = selectOptions(state);
+  if ((!inBrowser || debugMode) && !(interaction instanceof AppendInput)) {
+    const currentOutput = interaction.currentPage;
+    const currentOptions = interaction.options;
 
     output(
       `${!inBrowser ? "\n" : ""}${currentOutput}${!inBrowser ? "\n" : ""}`
@@ -37,6 +33,11 @@ export const changeInteraction = interaction => (dispatch, getState) => {
       promptInput(currentOptions);
     }
   }
+
+  dispatch({
+    type: type.CHANGE_INTERACTION,
+    payload: interaction
+  });
 };
 
 export const receivePlayerInput = input => (dispatch, getState) => {
@@ -55,7 +56,8 @@ export const receivePlayerInput = input => (dispatch, getState) => {
       output(`Received input: ${currentInput}`);
     }
 
-    parsePlayerInput(currentInput);
+    // Respond to input and return Promise that resolves when actions are complete
+    return parsePlayerInput(currentInput);
   }
 };
 

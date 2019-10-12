@@ -1,5 +1,8 @@
 import { getStore } from "../redux/storeRegistry";
-import { nextTurn } from "../redux/gameActions";
+import { changeInteraction } from "../redux/gameActions";
+import { AppendInput } from "./interaction";
+import { selectGame } from "../utils/selectors";
+import { toChainableFunction, chainActions } from "../utils/actionChain";
 
 export default class Option {
   constructor(label, action) {
@@ -12,11 +15,16 @@ export default class Option {
   }
 
   set action(action) {
-    this._action = (...args) => {
-      // First perform the player action
-      action(...args);
-      // Increment the turn once the CPU actions have finished
-      getStore().dispatch(nextTurn());
+    const actionArray = Array.isArray(action) ? action : [action];
+    const actionChain = actionArray.map(toChainableFunction);
+
+    this._action = async (...args) => {
+      // Record player decision
+      getStore().dispatch(changeInteraction(new AppendInput(this.label)));
+      // First perform the player actions
+      await chainActions(actionChain, ...args);
+      // Do the end of turn actions
+      selectGame().handleTurnEnd();
     };
   }
 }
