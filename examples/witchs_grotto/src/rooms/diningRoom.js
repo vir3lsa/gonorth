@@ -1,4 +1,4 @@
-import Room from "../../../../lib/game/room";
+import { Room } from "../../../../lib/gonorth";
 
 export const diningRoom = new Room(
   "Dining Room",

@@ -1,5 +1,5 @@
 import * as type from "../gameActionTypes";
-import Interaction from "../../game/interaction";
+import { Interaction, Append } from "../../game/interaction";
 
 const initialState = {
   turn: 1,
@@ -15,7 +15,18 @@ export default function(state = initialState, action) {
     case type.NEW_GAME:
       return { ...state, ...action.payload };
     case type.CHANGE_INTERACTION:
-      return { ...state, interaction: action.payload };
+      const interaction = action.payload;
+
+      if (
+        interaction instanceof Append &&
+        state.interaction.currentPage.length
+      ) {
+        interaction.pages[
+          interaction.page
+        ] = `${state.interaction.currentPage}\n\n${interaction.currentPage}`;
+      }
+
+      return { ...state, interaction };
     case type.RECEIVE_INPUT:
       return { ...state, playerInput: action.payload };
     case type.NEXT_TURN:

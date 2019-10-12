@@ -1,12 +1,11 @@
 import { initStore } from "./redux/store";
-import Game from "./game/game";
 
 initStore();
 
-const createGame = (title, debugMode) => {
-  return new Game(title, debugMode);
-};
-
-export default {
-  createGame
-};
+export { default as Game } from "./game/game";
+export { default as Room } from "./game/room";
+export { Verb, GoVerb } from "./game/verb";
+export { default as Door } from "./game/door";
+export { default as Item } from "./game/item";
+export { Interaction, Append } from "./game/interaction";
+export { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/event";

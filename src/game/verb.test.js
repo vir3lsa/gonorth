@@ -1,7 +1,8 @@
 import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
-import Verb from "./verb";
-import { newGame } from "../redux/gameActions";
+import { Verb } from "./verb";
+import { newGame, changeInteraction } from "../redux/gameActions";
+import { Interaction } from "./interaction";
 
 initStore();
 
@@ -26,7 +27,10 @@ const storeHasVerb = verbName =>
 // Prevent console logging
 getStore().dispatch(newGame(null, true, false));
 
-beforeEach(() => (y = 0));
+beforeEach(() => {
+  y = 0;
+  getStore().dispatch(changeInteraction(new Interaction("")));
+});
 
 it("prints the failure text if the test fails", () => {
   verb.attempt(1);

@@ -1,9 +1,8 @@
-import gonorth from "../../../lib/gonorth";
+import { Game, Event, TIMEOUT_MILLIS } from "../../../lib/gonorth";
 import { cellar } from "./rooms/cellar";
-import { Event, TIMEOUT_MILLIS } from "../../../lib/game/event";
 import { pantry } from "./rooms/pantry";
 
-const game = gonorth.createGame("The Witch's Grotto", true);
+const game = new Game("The Witch's Grotto", true);
 game.author = "Rich Locke";
 game.intro =
   "Now's your chance. Quickly! Make your escape whilst the witch is out.";

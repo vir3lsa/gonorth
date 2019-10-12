@@ -1,6 +1,6 @@
 import { changeInteraction } from "../redux/gameActions";
 import Option from "../game/option";
-import Interaction from "../game/interaction";
+import { Interaction, Append } from "../game/interaction";
 import { getStore } from "../redux/storeRegistry";
 
 export const toChainableFunction = (action, i, actions) => {
@@ -10,13 +10,11 @@ export const toChainableFunction = (action, i, actions) => {
     return () => {
       if (lastAction) {
         // No "Next" button if this is the last action
-        getStore().dispatch(changeInteraction(new Interaction(action)));
+        getStore().dispatch(changeInteraction(new Append(action)));
       } else {
         return new Promise(resolve => {
           getStore().dispatch(
-            changeInteraction(
-              new Interaction(action, new Option("Next", resolve))
-            )
+            changeInteraction(new Append(action, new Option("Next", resolve)))
           );
         });
       }
@@ -29,13 +27,11 @@ export const toChainableFunction = (action, i, actions) => {
 
       if (typeof result === "string") {
         if (lastAction) {
-          getStore().dispatch(changeInteraction(new Interaction(result)));
+          getStore().dispatch(changeInteraction(new Append(result)));
         } else {
           return new Promise(resolve =>
             getStore().dispatch(
-              changeInteraction(
-                new Interaction(result, new Option("Next", resolve))
-              )
+              changeInteraction(new Append(result, new Option("Next", resolve)))
             )
           );
         }

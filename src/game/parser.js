@@ -1,6 +1,6 @@
 import { getStore } from "../redux/storeRegistry";
 import { changeInteraction } from "../redux/gameActions";
-import Interaction from "./interaction";
+import { Interaction } from "./interaction";
 
 const selectRoom = () => getStore().getState().game.game.room;
 const selectVerbNames = () => getStore().getState().game.verbNames;

@@ -1,3 +1,3 @@
-import Room from "../../../../lib/game/room";
+import { Room } from "../../../../lib/gonorth";
 
 export const bedroom = new Room("Bedroom", "placeholder");

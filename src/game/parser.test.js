@@ -6,7 +6,7 @@ import { parsePlayerInput } from "./parser";
 import Game from "./game";
 import Door from "./door";
 import Item from "./item";
-import Verb from "./verb";
+import { Verb } from "./verb";
 
 initStore();
 

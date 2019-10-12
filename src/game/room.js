@@ -1,4 +1,4 @@
-import Interaction from "./interaction";
+import { Interaction } from "./interaction";
 import { getStore } from "../redux/storeRegistry";
 import Door from "./door";
 import { GoVerb } from "./verb";
@@ -10,12 +10,12 @@ const selectGame = () => getStore().getState().game.game;
 export default class Room extends Item {
   constructor(name, description) {
     super(name, description, false, -1, [
-      new GoVerb("north", ["forward", "straight on"]),
-      new GoVerb("south", ["back", "backward", "reverse"]),
-      new GoVerb("east", "right"),
-      new GoVerb("west", "left"),
-      new GoVerb("up", ["upward", "upwards"]),
-      new GoVerb("down", ["downward", "downwards"])
+      new GoVerb("North", ["forward", "straight on"]),
+      new GoVerb("South", ["back", "backward", "reverse"]),
+      new GoVerb("East", "right"),
+      new GoVerb("West", "left"),
+      new GoVerb("Up", ["upward", "upwards"]),
+      new GoVerb("Down", ["downward", "downwards"])
     ]);
     this.visits = 0;
     this.adjacentRooms = {};

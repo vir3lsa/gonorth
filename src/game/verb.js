@@ -1,9 +1,9 @@
 import { getStore } from "../redux/storeRegistry";
 import { verbCreated } from "../redux/gameActions";
-import Interaction from "./interaction";
+import { Interaction, Append } from "./interaction";
 import { toChainableFunction, chainActions } from "../utils/actionChain";
 
-export default class Verb {
+export class Verb {
   constructor(name, test = true, onSuccess = [], onFailure = [], aliases = []) {
     this.name = name.trim().toLowerCase();
     this.aliases = aliases || [];
@@ -101,15 +101,15 @@ export class GoVerb extends Verb {
     super(
       name,
       room => {
-        const adjacentRoom = room.adjacentRooms[name];
+        const adjacentRoom = room.adjacentRooms[name.toLowerCase()];
         return adjacentRoom && adjacentRoom.test();
       },
       [`Going ${name}.`, room => room.go(name)],
       room => {
-        const adjacentRoom = room.adjacentRooms[name];
+        const adjacentRoom = room.adjacentRooms[name.toLowerCase()];
         return adjacentRoom && adjacentRoom.failureText
-          ? new Interaction(adjacentRoom.failureText)
-          : new Interaction("There's nowhere to go that way.");
+          ? new Append(adjacentRoom.failureText)
+          : new Append("There's nowhere to go that way.");
       },
       aliases
     );

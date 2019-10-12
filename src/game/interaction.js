@@ -2,7 +2,7 @@ import Option from "./option";
 import { changeInteraction } from "../redux/gameActions";
 import { getStore } from "../redux/storeRegistry";
 
-export default class Interaction {
+export class Interaction {
   constructor(pages, options, page) {
     this.pages = Array.isArray(pages) ? pages : [pages];
     this.page = page || 0;
@@ -34,3 +34,5 @@ export default class Interaction {
     }
   }
 }
+
+export class Append extends Interaction {}

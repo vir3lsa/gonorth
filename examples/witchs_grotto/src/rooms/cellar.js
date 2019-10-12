@@ -1,5 +1,4 @@
-import Room from "../../../../lib/game/room";
-import Door from "../../../../lib/game/door";
+import { Room, Door } from "../../../../lib/gonorth";
 import { cellarNook } from "./cellarNook";
 import { kitchen } from "./kitchen";
 

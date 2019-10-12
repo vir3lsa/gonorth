@@ -108,9 +108,11 @@ describe("Room", () => {
     it("prints a message when successfully going in a direction", () => {
       hall.setWest(new Room("Chapel"));
       hall.try("west");
-      expect(getStore().getState().game.interaction.currentPage).toBe(
-        "Going west."
-      );
+      expect(
+        getStore()
+          .getState()
+          .game.interaction.currentPage.includes("Going West.")
+      ).toBeTruthy();
     });
   });
 });

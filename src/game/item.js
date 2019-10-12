@@ -34,7 +34,7 @@ export default class Item {
   }
 
   addVerb(verb) {
-    this._verbs[verb.name] = verb;
+    this._verbs[verb.name.toLowerCase()] = verb;
     verb.parent = this;
   }
 
@@ -49,7 +49,7 @@ export default class Item {
   _addAliasesToContainer() {
     if (this._container && this._aliases) {
       this._aliases.forEach(alias => {
-        this._container.items[alias] = this;
+        this._container.items[alias.toLowerCase()] = this;
       });
     }
   }
@@ -86,7 +86,7 @@ export default class Item {
    * @param  {...any} args to pass to the verb
    */
   try(verbName, ...args) {
-    const verb = this.verbs[verbName];
+    const verb = this.verbs[verbName.toLowerCase()];
 
     if (verb) {
       return verb.attempt(this, ...args);
