@@ -12,5 +12,5 @@ export const receiveInput = async input => {
   // Trigger actions based on user input
   await getStore().dispatch(receivePlayerInput(input));
   // Do the end of turn actions
-  selectGame().handleTurnEnd();
+  return selectGame().handleTurnEnd();
 };

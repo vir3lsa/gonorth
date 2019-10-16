@@ -1,12 +1,16 @@
 import * as type from "./gameActionTypes";
-import { output, showOptions, promptInput } from "../utils/consoleIO";
+import {
+  output,
+  showOptions,
+  promptInput,
+  isPromptActive,
+  cancelActivePrompt
+} from "../utils/consoleIO";
 import { parsePlayerInput } from "../game/parser";
 import { AppendInput } from "../game/interaction";
 
 const selectInBrowser = state => state.game.inBrowser;
 const selectDebugMode = state => state.game.debugMode;
-const selectOutput = state => state.game.interaction.currentPage;
-const selectOptions = state => state.game.interaction.options;
 const selectPlayerInput = state => state.game.playerInput;
 
 export const newGame = (game, inBrowser, debugMode) => ({
@@ -22,6 +26,11 @@ export const changeInteraction = interaction => (dispatch, getState) => {
   if ((!inBrowser || debugMode) && !(interaction instanceof AppendInput)) {
     const currentOutput = interaction.currentPage;
     const currentOptions = interaction.options;
+
+    if (isPromptActive()) {
+      // Don't want more than one prompt active at once
+      cancelActivePrompt();
+    }
 
     output(
       `${!inBrowser ? "\n" : ""}${currentOutput}${!inBrowser ? "\n" : ""}`

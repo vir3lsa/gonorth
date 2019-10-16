@@ -1,9 +1,17 @@
-import { getStore } from "../redux/storeRegistry";
-import { receivePlayerInput } from "../redux/gameActions";
 import { receiveInput } from "./inputReceiver";
+
+let promptPromise;
 
 export const output = text => {
   console.log(text);
+};
+
+export const isPromptActive = () => {
+  return Boolean(promptPromise);
+};
+
+export const cancelActivePrompt = () => {
+  prompts.cancelMostRecent();
 };
 
 export const promptInput = async options => {
@@ -18,25 +26,36 @@ async function promptMultiChoice(options) {
   const choices = options.map(option => ({
     title: option.label
   }));
-  const response = await prompts({
+  promptPromise = prompts({
     type: "select",
     name: "choice",
     message: "Choose:",
     choices
   });
+  const response = await promptPromise;
+  promptPromise = null;
+
   const selected = options[response.choice];
-  selected.action();
+
+  if (selected) {
+    selected.action();
+  }
 }
 
 async function promptFreeText() {
-  const response = await prompts({
+  promptPromise = prompts({
     type: "text",
     name: "input",
     message: "What do you want to do?",
     validate: input => (input ? true : "Do something!")
   });
 
-  receiveInput(response.input);
+  const response = await promptPromise;
+  promptPromise = null;
+
+  if (response && response.input && response.input.length) {
+    receiveInput(response.input);
+  }
 }
 
 export const showOptions = options => {

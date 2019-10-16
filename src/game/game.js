@@ -75,7 +75,7 @@ export default class Game {
     });
 
     // End the turn
-    getStore().dispatch(nextTurn());
+    return getStore().dispatch(nextTurn());
   }
 
   renderTopLevel() {
