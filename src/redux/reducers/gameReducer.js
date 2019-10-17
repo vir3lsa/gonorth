@@ -21,7 +21,7 @@ export default function(state = initialState, action) {
         interaction instanceof Append &&
         state.interaction.currentPage.length
       ) {
-        interaction.currentPage = `${state.interaction.currentPage}\n\n${interaction.nextPage}`;
+        interaction.currentPage = `${state.interaction.currentPage}\n\n${interaction.currentPage}`;
 
         if (!interaction.options) {
           interaction.options = state.interaction.options;

@@ -11,6 +11,8 @@ export class Interaction {
   constructor(text, options) {
     this.text = text;
     this.options = options;
+    this.currentPage =
+      typeof this._text === "string" ? this._text : this._text.text;
   }
 
   set text(text = "") {
@@ -38,17 +40,11 @@ export class Interaction {
   }
 
   get currentPage() {
-    return this._currentPage || this.nextPage;
+    return this._currentPage;
   }
 
   set currentPage(currentPage) {
     this._currentPage = currentPage;
-  }
-
-  get nextPage() {
-    this._currentPage =
-      typeof this._text === "string" ? this._text : this._text.text;
-    return this._currentPage;
   }
 
   get options() {
