@@ -109,7 +109,7 @@ export class GoVerb extends Verb {
         const adjacentRoom = room.adjacentRooms[name.toLowerCase()];
         return adjacentRoom && adjacentRoom.failureText
           ? new Append(adjacentRoom.failureText)
-          : new Append("There's nowhere to go that way.");
+          : new Append("You can't go that way.");
       },
       aliases
     );

@@ -10,12 +10,19 @@ export class Interaction {
   constructor(pages, options, page) {
     this.pages = Array.isArray(pages) ? pages : [pages];
     this.page = page || 0;
+    this.options = options;
+  }
 
+  set options(options) {
     if (options) {
       this._options = Array.isArray(options) ? options : [options];
     } else {
       this._options = null;
     }
+  }
+
+  get options() {
+    return this._options;
   }
 
   get currentPage() {

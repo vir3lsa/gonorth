@@ -24,6 +24,10 @@ export default function(state = initialState, action) {
         interaction.pages[
           interaction.page
         ] = `${state.interaction.currentPage}\n\n${interaction.currentPage}`;
+
+        if (!interaction.options) {
+          interaction.options = state.interaction.options;
+        }
       }
 
       return { ...state, interaction };

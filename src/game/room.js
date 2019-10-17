@@ -8,7 +8,7 @@ import { itemsRevealed } from "../redux/gameActions";
 const selectGame = () => getStore().getState().game.game;
 
 export default class Room extends Item {
-  constructor(name, description) {
+  constructor(name, description, options) {
     super(name, description, false, -1, [
       new GoVerb("North", ["forward", "straight on"]),
       new GoVerb("South", ["back", "backward", "reverse"]),
@@ -20,6 +20,7 @@ export default class Room extends Item {
     this.visits = 0;
     this.adjacentRooms = {};
     this.items = {};
+    this.options = options;
   }
 
   get interaction() {

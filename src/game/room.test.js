@@ -93,7 +93,7 @@ describe("Room", () => {
     it("informs player when a direction doesn't exist", () => {
       hall.try("east");
       expect(getStore().getState().game.interaction.currentPage).toBe(
-        "There's nowhere to go that way."
+        "You can't go that way."
       );
     });
 
