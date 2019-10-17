@@ -1,8 +1,8 @@
 import { Interaction } from "./interaction";
 
 describe("Interaction", () => {
-  it("Turns a single page into an array", () => {
+  it("Keeps a single string as a string", () => {
     const interaction = new Interaction("Hello");
-    expect(Array.isArray(interaction.pages)).toBeTruthy();
+    expect(typeof interaction._text).toBe("string");
   });
 });

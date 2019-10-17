@@ -1,16 +1,28 @@
 import Option from "./option";
 import { changeInteraction } from "../redux/gameActions";
 import { getStore } from "../redux/storeRegistry";
+import { Text, PagedText } from "./text";
 
 /**
  * Replaces the current screen contents and displays text and prompts for user input, whether
  * free text or a series of options.
  */
 export class Interaction {
-  constructor(pages, options, page) {
-    this.pages = Array.isArray(pages) ? pages : [pages];
-    this.page = page || 0;
+  constructor(text, options) {
+    this.text = text;
     this.options = options;
+  }
+
+  set text(text = "") {
+    if (typeof text === "string" || text instanceof Text) {
+      this._text = text;
+    } else if (Array.isArray(text)) {
+      this._text = new PagedText(text);
+    } else {
+      throw Error(
+        "Only strings, arrays of strings, or Text instances may be used in Interactions"
+      );
+    }
   }
 
   set options(options) {
@@ -26,17 +38,25 @@ export class Interaction {
   }
 
   get currentPage() {
-    return this.pages[this.page];
+    return this._currentPage || this.nextPage;
+  }
+
+  set currentPage(currentPage) {
+    this._currentPage = currentPage;
+  }
+
+  get nextPage() {
+    this._currentPage =
+      typeof this._text === "string" ? this._text : this._text.text;
+    return this._currentPage;
   }
 
   get options() {
-    if (this.page < this.pages.length - 1) {
+    if (this._text.paged && !this._text.isLastPage()) {
       return [
         new Option("Next", () => {
           getStore().dispatch(
-            changeInteraction(
-              new Interaction(this.pages, this._options, this.page + 1)
-            )
+            changeInteraction(new Append(this._text, this._options))
           );
         })
       ];
