@@ -1,4 +1,4 @@
-import { toChainableFunction, chainActions } from "../utils/actionChain";
+import { chainActions, createChainableFunction } from "../utils/actionChain";
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
@@ -21,8 +21,7 @@ export class Event {
   }
 
   set action(action) {
-    const actionArray = Array.isArray(action) ? action : [action];
-    this._action = actionArray.map(toChainableFunction);
+    this._action = createChainableFunction(action);
   }
 
   get action() {

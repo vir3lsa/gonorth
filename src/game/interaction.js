@@ -1,25 +1,35 @@
 import Option from "./option";
 import { changeInteraction } from "../redux/gameActions";
 import { getStore } from "../redux/storeRegistry";
-import { Text, PagedText } from "./text";
+import { Text, SequentialText } from "./text";
 
 /**
  * Replaces the current screen contents and displays text and prompts for user input, whether
  * free text or a series of options.
  */
 export class Interaction {
-  constructor(text, options) {
+  constructor(text, options, nextOnLastPage) {
     this.text = text;
     this.options = options;
+    this.nextOnLastPage = nextOnLastPage;
     this.currentPage =
       typeof this._text === "string" ? this._text : this._text.text;
+    this.promise = new Promise(res => (this.resolve = res));
+
+    if (
+      !nextOnLastPage &&
+      (!(this._text instanceof SequentialText) || this._text.isLastPage())
+    ) {
+      // This interaction resolves immediately
+      this.resolve();
+    }
   }
 
   set text(text = "") {
     if (typeof text === "string" || text instanceof Text) {
       this._text = text;
     } else if (Array.isArray(text)) {
-      this._text = new PagedText(text);
+      this._text = new SequentialText(text);
     } else {
       throw Error(
         "Only strings, arrays of strings, or Text instances may be used in Interactions"
@@ -48,14 +58,25 @@ export class Interaction {
   }
 
   get options() {
-    if (this._text.paged && !this._text.isLastPage()) {
+    if (this._text instanceof SequentialText && !this._text.isLastPage()) {
       return [
-        new Option("Next", () => {
-          getStore().dispatch(
-            changeInteraction(new Append(this._text, this._options))
+        new Option("Next", async () => {
+          const interactionType = this._text.paged ? Interaction : Append;
+          await getStore().dispatch(
+            changeInteraction(
+              new interactionType(
+                this._text,
+                this._options,
+                this.nextOnLastPage
+              )
+            )
           );
+          // This interaction is finished
+          this.resolve();
         })
       ];
+    } else if (this.nextOnLastPage) {
+      return [new Option("Next", () => this.resolve())];
     } else {
       return this._options;
     }

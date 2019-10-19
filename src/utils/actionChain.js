@@ -2,47 +2,44 @@ import { changeInteraction } from "../redux/gameActions";
 import Option from "../game/option";
 import { Interaction, Append } from "../game/interaction";
 import { getStore } from "../redux/storeRegistry";
+import { Text, SequentialText } from "../game/text";
 
-export const toChainableFunction = (action, i, actions) => {
+export const createChainableFunction = actions => {
+  const actionArray = Array.isArray(actions) ? actions : [actions];
+  return actionArray.map(toChainableFunction);
+};
+
+function toChainableFunction(action, i, actions) {
+  let actionFunction = action;
   const lastAction = i === actions.length - 1;
 
-  if (typeof action === "string") {
-    return () => {
-      if (lastAction) {
-        // No "Next" button if this is the last action
-        getStore().dispatch(changeInteraction(new Append(action)));
-      } else {
-        return new Promise(resolve => {
-          getStore().dispatch(
-            changeInteraction(new Append(action, new Option("Next", resolve)))
-          );
-        });
-      }
-    };
-  } else if (action instanceof Interaction) {
-    return () => getStore().dispatch(changeInteraction(action));
-  } else {
-    return (...args) => {
-      const result = action(...args);
-
-      if (typeof result === "string") {
-        if (lastAction) {
-          getStore().dispatch(changeInteraction(new Append(result)));
-        } else {
-          return new Promise(resolve =>
-            getStore().dispatch(
-              changeInteraction(new Append(result, new Option("Next", resolve)))
-            )
-          );
-        }
-      } else if (result instanceof Interaction) {
-        return getStore().dispatch(changeInteraction(result));
-      }
-
-      return result;
-    };
+  if (typeof actionFunction !== "function") {
+    actionFunction = () => action;
   }
-};
+
+  return (...args) => {
+    const result = actionFunction(...args);
+
+    if (typeof result === "string") {
+      return dispatchAppend(result, !lastAction);
+    } else if (Array.isArray(result) && typeof result[0] === "string") {
+      return dispatchAppend(new SequentialText(result), !lastAction);
+    } else if (result instanceof Text) {
+      return dispatchAppend(result, !lastAction);
+    } else if (result instanceof Interaction) {
+      return getStore().dispatch(changeInteraction(result, !lastAction));
+    }
+
+    // This is an arbitrary action that shouldn't create a new interaction
+    return result;
+  };
+}
+
+function dispatchAppend(text, nextOnLastPage) {
+  return getStore().dispatch(
+    changeInteraction(new Append(text, null, nextOnLastPage))
+  );
+}
 
 export const chainActions = async (actions, ...args) => {
   for (let i in actions) {

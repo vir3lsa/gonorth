@@ -10,9 +10,8 @@ export class Text {
 }
 
 export class CyclicText extends Text {
-  constructor(texts, paged) {
+  constructor(texts) {
     super(texts);
-    this.paged = paged;
   }
 
   get text() {
@@ -26,7 +25,14 @@ export class CyclicText extends Text {
   }
 
   isLastPage() {
-    return this.index === this.texts.length - 1;
+    return this.index === this._texts.length - 1;
+  }
+}
+
+export class SequentialText extends CyclicText {
+  constructor(texts, paged) {
+    super(texts);
+    this.paged = paged;
   }
 }
 
@@ -38,7 +44,7 @@ export class RandomText extends Text {
   get text() {
     const oldIndex = this.index;
 
-    while (this.index === oldIndex) {
+    while (this._texts.length > 1 && this.index === oldIndex) {
       this.index = Math.floor(Math.random() * this._texts.length);
     }
 

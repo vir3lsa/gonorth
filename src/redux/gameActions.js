@@ -47,6 +47,8 @@ export const changeInteraction = interaction => (dispatch, getState) => {
     type: type.CHANGE_INTERACTION,
     payload: interaction
   });
+
+  return interaction.promise;
 };
 
 export const receivePlayerInput = input => (dispatch, getState) => {

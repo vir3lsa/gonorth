@@ -2,7 +2,7 @@ import { getStore } from "../redux/storeRegistry";
 import { changeInteraction } from "../redux/gameActions";
 import { AppendInput } from "./interaction";
 import { selectGame } from "../utils/selectors";
-import { toChainableFunction, chainActions } from "../utils/actionChain";
+import { chainActions, createChainableFunction } from "../utils/actionChain";
 
 export default class Option {
   constructor(label, action) {
@@ -15,8 +15,7 @@ export default class Option {
   }
 
   set action(action) {
-    const actionArray = Array.isArray(action) ? action : [action];
-    const actionChain = actionArray.map(toChainableFunction);
+    const actionChain = createChainableFunction(action);
 
     this._action = async (...args) => {
       // Record player decision

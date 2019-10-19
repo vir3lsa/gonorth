@@ -17,14 +17,15 @@ export default function(state = initialState, action) {
     case type.CHANGE_INTERACTION:
       const interaction = action.payload;
 
-      if (
-        interaction instanceof Append &&
-        state.interaction.currentPage.length
-      ) {
+      if (interaction instanceof Append && state.interaction.currentPage) {
         interaction.currentPage = `${state.interaction.currentPage}\n\n${interaction.currentPage}`;
 
         if (!interaction.options) {
           interaction.options = state.interaction.options;
+        }
+
+        if (typeof interaction.nextOnLastPage === "undefined") {
+          interaction.nextOnLastPage = state.interaction.nextOnLastPage;
         }
       }
 

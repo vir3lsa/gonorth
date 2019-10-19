@@ -1,7 +1,7 @@
 import { getStore } from "../redux/storeRegistry";
 import { verbCreated } from "../redux/gameActions";
-import { Interaction, Append } from "./interaction";
-import { toChainableFunction, chainActions } from "../utils/actionChain";
+import { Append } from "./interaction";
+import { chainActions, createChainableFunction } from "../utils/actionChain";
 
 export class Verb {
   constructor(name, test = true, onSuccess = [], onFailure = [], aliases = []) {
@@ -33,13 +33,11 @@ export class Verb {
   }
 
   set onSuccess(onSuccess) {
-    const successActions = Array.isArray(onSuccess) ? onSuccess : [onSuccess];
-    this._onSuccess = successActions.map(toChainableFunction);
+    this._onSuccess = createChainableFunction(onSuccess);
   }
 
   set onFailure(onFailure) {
-    const failureActions = Array.isArray(onFailure) ? onFailure : [onFailure];
-    this._onFailure = failureActions.map(toChainableFunction);
+    this._onFailure = createChainableFunction(onFailure);
   }
 
   get onSuccess() {

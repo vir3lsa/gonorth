@@ -1,3 +1,5 @@
+import { Text, SequentialText } from "./text";
+
 export default class Item {
   constructor(name, description, holdable, size, verbs, aliases = []) {
     this.name = name;
@@ -18,18 +20,26 @@ export default class Item {
   }
 
   /**
-   * @param {string | function | undefined } description
+   * @param {string | string[] | function | Text | undefined } description
    */
   set description(description) {
-    if (typeof description === "string") {
+    if (typeof description === "string" || description instanceof Text) {
       this._description = () => description;
+    } else if (
+      Array.isArray(description) &&
+      typeof description[0] === "string"
+    ) {
+      const sequence = new SequentialText(description);
+      this._description = () => sequence;
     } else if (typeof description === "function") {
       this._description = description;
     } else if (typeof description === "undefined") {
       this._description = item =>
         `There's nothing noteworthy about the ${item}.`;
     } else {
-      throw Error("Description must be a string or a function");
+      throw Error(
+        "Description must be a string, string array, Text or a function"
+      );
     }
   }
 
