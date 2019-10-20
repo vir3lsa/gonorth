@@ -7,7 +7,7 @@ import {
   cancelActivePrompt
 } from "../utils/consoleIO";
 import { parsePlayerInput } from "../game/parser";
-import { AppendInput } from "../game/interaction";
+import { AppendInput, Append } from "../game/interaction";
 
 const selectInBrowser = state => state.game.inBrowser;
 const selectDebugMode = state => state.game.debugMode;
@@ -25,7 +25,12 @@ export const changeInteraction = interaction => (dispatch, getState) => {
 
   if ((!inBrowser || debugMode) && !(interaction instanceof AppendInput)) {
     const currentOutput = interaction.currentPage;
-    const currentOptions = interaction.options;
+    let currentOptions = interaction.options;
+
+    if (!currentOptions && interaction instanceof Append) {
+      // Current options are copied onto new interaction
+      currentOptions = state.game.interaction.options;
+    }
 
     if (isPromptActive()) {
       // Don't want more than one prompt active at once
