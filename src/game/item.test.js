@@ -1,4 +1,10 @@
 import Item from "./item";
+import { initStore } from "../redux/store";
+import { getStore } from "../redux/storeRegistry";
+import { SequentialText } from "./text";
+initStore();
+
+const selectOptions = () => getStore().getState().game.interaction.options;
 
 test("items can have variable descriptions", () => {
   let looks = 0;
@@ -13,4 +19,17 @@ test("items can have variable descriptions", () => {
 
   expect(clock.description).toBe("It's 12 o'clock");
   expect(clock.description).toBe("It's 1 o'clock");
+});
+
+it("Doesn't render a Next button for cyclic descriptions", () => {
+  const table = new Item("table", ["It's made of wood.", "It has four legs."]);
+  table.try("x");
+  expect(selectOptions()).toBeNull();
+});
+
+it("renders each page of sequential text then stops", () => {
+  const chair = new Item("chair", new SequentialText(["a", "b"]));
+  chair.try("x");
+  selectOptions()[0].action();
+  expect(selectOptions()).toBeNull();
 });

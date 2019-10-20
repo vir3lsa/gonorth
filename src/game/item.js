@@ -1,7 +1,8 @@
-import { Text, SequentialText } from "./text";
+import { Text, SequentialText, CyclicText } from "./text";
+import { Verb } from "./verb";
 
 export default class Item {
-  constructor(name, description, holdable, size, verbs, aliases = []) {
+  constructor(name, description, holdable, size, verbs = [], aliases = []) {
     this.name = name;
     this.description = description;
     this.holdable = holdable;
@@ -9,10 +10,16 @@ export default class Item {
     this.visible = true;
     this.aliases = aliases;
     this.container = null;
+    this.verbs = verbs;
 
-    if (verbs) {
-      this.verbs = verbs;
-    }
+    this.addVerb(
+      new Verb("examine", true, this._description, null, [
+        "ex",
+        "x",
+        "look at",
+        "inspect"
+      ])
+    );
   }
 
   get description() {
@@ -29,7 +36,7 @@ export default class Item {
       Array.isArray(description) &&
       typeof description[0] === "string"
     ) {
-      const sequence = new SequentialText(description);
+      const sequence = new CyclicText(description);
       this._description = () => sequence;
     } else if (typeof description === "function") {
       this._description = description;

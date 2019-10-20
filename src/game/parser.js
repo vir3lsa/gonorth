@@ -32,16 +32,18 @@ export const parsePlayerInput = input => {
       // Is the verb registered globally?
       const verbExists = selectVerbNames().has(possibleVerb);
       registeredVerb = verbExists ? possibleVerb : registeredVerb;
-
-      // Is the verb in the current room?
-      const roomVerb = room.verbs[possibleVerb];
-
-      if (roomVerb) {
-        // The room has the verb, so do it
-        return roomVerb.attempt(room);
-      }
-
       const verbEndIndex = verbIndex + numWords;
+
+      // If the player hasn't included an item, try the current room
+      if (verbEndIndex === tokens.length) {
+        // Is the verb in the current room?
+        const roomVerb = room.verbs[possibleVerb];
+
+        if (roomVerb) {
+          // The room has the verb, so do it
+          return roomVerb.attempt(room);
+        }
+      }
 
       // Look for an item in what the player's typed
       for (

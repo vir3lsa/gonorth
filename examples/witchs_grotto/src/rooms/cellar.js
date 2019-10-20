@@ -9,7 +9,11 @@ export const cellar = new Room(
 
 const trapdoor = new Door(
   "trapdoor",
-  "It's made of thick, heavy oak and opens upwards.",
+  [
+    "It's made of thick, heavy oak and opens upwards.",
+    "If you remember correctly, it leads to the witch's grubby kitchen.",
+    "You recall it closing with a loud *bang* as the witch swung it shut, sending a shower of dust cascading down."
+  ],
   false,
   false,
   "You crouch at the top of the steep stone steps with your shoulders pressed against the rough boards of the trapdoor. As you heave upwards it lifts slowly into the room above, making a loud *thud* as it swings over and hits the floor."

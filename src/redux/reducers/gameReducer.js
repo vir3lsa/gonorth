@@ -5,7 +5,7 @@ const initialState = {
   turn: 1,
   inBrowser: false,
   debugMode: false,
-  interaction: new Interaction("Loading...", []),
+  interaction: new Interaction("Loading..."),
   verbNames: new Set(),
   itemNames: new Set()
 };
@@ -21,7 +21,8 @@ export default function(state = initialState, action) {
         interaction.currentPage = `${state.interaction.currentPage}\n\n${interaction.currentPage}`;
 
         if (!interaction.options) {
-          interaction.options = state.interaction.options;
+          // Copy concrete options (not 'Next') from previous interaction
+          interaction.options = state.interaction._options;
         }
 
         if (typeof interaction.nextOnLastPage === "undefined") {
