@@ -25,7 +25,7 @@ function toChainableFunction(action, i, actions) {
     } else if (Array.isArray(result) && typeof result[0] === "string") {
       return dispatchAppend(new SequentialText(result), !lastAction);
     } else if (result instanceof Text) {
-      return dispatchAppend(result, !lastAction);
+      return dispatchAppend(result, !lastAction, result.paged);
     } else if (result instanceof Interaction) {
       return getStore().dispatch(changeInteraction(result, !lastAction));
     }
@@ -35,9 +35,11 @@ function toChainableFunction(action, i, actions) {
   };
 }
 
-function dispatchAppend(text, nextOnLastPage) {
+function dispatchAppend(text, nextOnLastPage, clearPage) {
+  const interactionType = clearPage ? Interaction : Append;
+
   return getStore().dispatch(
-    changeInteraction(new Append(text, null, nextOnLastPage))
+    changeInteraction(new interactionType(text, null, nextOnLastPage))
   );
 }
 

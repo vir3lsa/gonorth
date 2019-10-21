@@ -205,4 +205,13 @@ describe("chainable actions", () => {
       "Next"
     );
   });
+
+  it("Clears the page for paged text", async () => {
+    verb.onSuccess = ["blah", new SequentialText("jam", true)];
+    const promise = verb.attempt(3);
+    expect(selectCurrentPage()).toBe("blah");
+    clickNext();
+    await promise;
+    expect(selectCurrentPage()).toBe("jam");
+  });
 });
