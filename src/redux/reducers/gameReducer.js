@@ -1,5 +1,5 @@
 import * as type from "../gameActionTypes";
-import { Interaction, Append } from "../../game/interaction";
+import { Interaction, Append, AppendInput } from "../../game/interaction";
 
 const initialState = {
   turn: 1,
@@ -25,7 +25,10 @@ export default function(state = initialState, action) {
           interaction.options = state.interaction._options;
         }
 
-        if (typeof interaction.nextOnLastPage === "undefined") {
+        if (
+          typeof interaction.nextOnLastPage === "undefined" &&
+          !(interaction instanceof AppendInput)
+        ) {
           interaction.nextOnLastPage = state.interaction.nextOnLastPage;
         }
       }

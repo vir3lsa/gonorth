@@ -1,10 +1,16 @@
-import { Room, Door } from "../../../../lib/gonorth";
+import {
+  Room,
+  Door,
+  RandomText,
+  Item,
+  SequentialText
+} from "../../../../lib/gonorth";
 import { cellarNook } from "./cellarNook";
 import { kitchen } from "./kitchen";
 
 export const cellar = new Room(
   "Cellar",
-  "The cellar is dark, damp and smells of rotting Earth. That old crone shut you down here, cackling as she swung the trapdoor shut. Rough stone steps lead up towards it in one corner, whilst the closed double doors of a coal hatch are recessed into the low stone roof on the east side. A narrow archway leads deeper into the cellar to the west."
+  "The cellar is dark, damp and smells of rotting Earth. That old crone shut you down here, cackling as she swung the trapdoor shut. Rough stone steps lead up towards it in one corner, whilst the closed double doors of a coal hatch are recessed into the low stone roof on the east side. A narrow archway leads deeper into the cellar to the west. The wooden ceiling boards give way to stone to the South, as the roof and floor both slope downwards. The room is flooded with murky looking water in that direction."
 );
 
 const trapdoor = new Door(
@@ -22,7 +28,11 @@ trapdoor.aliases = ["trap door"];
 
 const coalHatch = new Door(
   "coal hatch",
-  "Double doors that open upwards and outwards to allow coal to be shovelled in.",
+  new RandomText([
+    "Double doors that open upwards and outwards to allow coal to be shovelled in.",
+    "A small amount of grey light filters through the cracks between the wooden boards.",
+    "If you could get it open, it'd be easily big enough to squeeze through and make your escape."
+  ]),
   false,
   true
 );
@@ -31,6 +41,31 @@ const unlockCoalHatch = coalHatch.getVerb("unlock");
 unlockCoalHatch.test = false;
 unlockCoalHatch.onFailure = "The coal hatch is bolted from the other side.";
 
+const bubbles = new Item(
+  "bubbles",
+  new SequentialText(
+    [
+      "You're sure you saw bubbles. Like something had moved just beneath the surface.",
+      "There! Unmistakeable this time. Ripples cross the surface of the opaque black water to lap at the edge just in front of your feet.",
+      "There's something in there."
+    ],
+    true
+  )
+);
+bubbles.aliases = ["disturbance", "ripples", "bubble", "ripple", "surface"];
+
+const water = new Item(
+  "water",
+  new SequentialText([
+    "The water looks deep.",
+    "The water looks cold.",
+    "Are your eyes playing tricks on you, or did bubbles just break the surface a few feet from the edge?"
+  ])
+);
+water.aliases = ["flood", "deluge"];
+water.hidesItems = bubbles;
+
+cellar.addItem(water);
 cellar.setWest(cellarNook, true);
 cellar.setNorth(
   null,
@@ -42,7 +77,7 @@ cellar.setSouth(
   null,
   false,
   null,
-  "The ceiling comes down to practically meet the floor at the back of the cellar. There's nowhere to go."
+  "The water looks dark, cold and deep and eventually meets the ceiling at the back of the cellar. You decide you'd rather stay dry."
 );
 cellar.setEast(null, coalHatch, null, "The coal hatch is shut.");
 cellar.setUp(

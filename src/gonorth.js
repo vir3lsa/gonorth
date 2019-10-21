@@ -10,3 +10,4 @@ export { default as Item } from "./game/item";
 export { Interaction, Append } from "./game/interaction";
 export { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/event";
 export { default as Option } from "./game/option";
+export { CyclicText, SequentialText, RandomText } from "./game/text";

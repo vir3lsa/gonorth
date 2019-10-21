@@ -10,12 +10,12 @@ const selectGame = () => getStore().getState().game.game;
 export default class Room extends Item {
   constructor(name, description, options) {
     super(name, description, false, -1, [
-      new GoVerb("North", ["forward", "straight on"]),
-      new GoVerb("South", ["back", "backward", "reverse"]),
-      new GoVerb("East", "right"),
-      new GoVerb("West", "left"),
-      new GoVerb("Up", ["upward", "upwards"]),
-      new GoVerb("Down", ["downward", "downwards"])
+      new GoVerb("North", ["n", "forward", "straight on"]),
+      new GoVerb("South", ["s", "back", "backward", "reverse"]),
+      new GoVerb("East", ["e", "right"]),
+      new GoVerb("West", ["w", "left"]),
+      new GoVerb("Up", ["u", "upward", "upwards"]),
+      new GoVerb("Down", ["d", "downward", "downwards"])
     ]);
     this.visits = 0;
     this.adjacentRooms = {};

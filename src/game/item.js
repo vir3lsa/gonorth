@@ -2,7 +2,15 @@ import { Text, SequentialText, CyclicText } from "./text";
 import { Verb } from "./verb";
 
 export default class Item {
-  constructor(name, description, holdable, size, verbs = [], aliases = []) {
+  constructor(
+    name,
+    description,
+    holdable,
+    size,
+    verbs = [],
+    aliases = [],
+    hidesItems = []
+  ) {
     this.name = name;
     this.description = description;
     this.holdable = holdable;
@@ -11,14 +19,16 @@ export default class Item {
     this.aliases = aliases;
     this.container = null;
     this.verbs = verbs;
+    this.hidesItems = hidesItems;
 
     this.addVerb(
-      new Verb("examine", true, this._description, null, [
-        "ex",
-        "x",
-        "look at",
-        "inspect"
-      ])
+      new Verb(
+        "examine",
+        true,
+        [() => this.revealItems(), this._description],
+        null,
+        ["ex", "x", "look at", "inspect"]
+      )
     );
   }
 
@@ -88,6 +98,10 @@ export default class Item {
     this._addAliasesToContainer();
   }
 
+  get container() {
+    return this._container;
+  }
+
   /**
    * @param {string | string[]} aliases
    */
@@ -127,5 +141,24 @@ export default class Item {
 
     this.items[name] = item;
     item.container = this;
+  }
+
+  set hidesItems(hidesItems) {
+    this._hidesItems = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
+  }
+
+  get hidesItems() {
+    return this._hidesItems;
+  }
+
+  /**
+   * Adds the items this item hides to this item's container e.g. adds hidden items
+   * to the room.
+   */
+  revealItems() {
+    if (!this.itemsRevealed && this.container) {
+      this.hidesItems.forEach(item => this.container.addItem(item));
+      this.itemsRevealed = true;
+    }
   }
 }

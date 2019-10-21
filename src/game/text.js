@@ -42,12 +42,14 @@ export class RandomText extends Text {
   }
 
   get text() {
-    const oldIndex = this.index;
-
-    while (this._texts.length > 1 && this.index === oldIndex) {
-      this.index = Math.floor(Math.random() * this._texts.length);
+    if (!this.candidates || !this.candidates.length) {
+      this.candidates = [...this._texts];
     }
 
-    return this._texts[this.index];
+    this.index = Math.floor(Math.random() * this.candidates.length);
+    const text = this.candidates[this.index];
+    this.candidates = this.candidates.filter(c => c !== text);
+
+    return text;
   }
 }
