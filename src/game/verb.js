@@ -81,7 +81,14 @@ export class Verb {
       const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
       this._aliases.push(...aliasArray);
       this._addAliasesToParent();
-      getStore().dispatch(verbCreated([this.name, ...this.aliases]));
+      const nameMap = this.aliases.reduce(
+        (acc, alias) => {
+          acc[alias] = this.name;
+          return acc;
+        },
+        { [this.name]: this.name }
+      );
+      getStore().dispatch(verbCreated(nameMap));
     }
   }
 

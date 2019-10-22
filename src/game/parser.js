@@ -30,8 +30,8 @@ export const parsePlayerInput = input => {
       const possibleVerb = possibleVerbWords.join(" ");
 
       // Is the verb registered globally?
-      const verbExists = selectVerbNames().has(possibleVerb);
-      registeredVerb = verbExists ? possibleVerb : registeredVerb;
+      const canonicalVerb = selectVerbNames()[possibleVerb];
+      registeredVerb = canonicalVerb || registeredVerb;
       const verbEndIndex = verbIndex + numWords;
 
       // If the player hasn't included an item, try the current room

@@ -18,10 +18,7 @@ const clickNext = () =>
     .getState()
     .game.interaction.options[0].action();
 
-const storeHasVerb = verbName =>
-  getStore()
-    .getState()
-    .game.verbNames.has(verbName);
+const storeHasVerb = verbName => getStore().getState().game.verbNames[verbName];
 
 // Prevent console logging
 getStore().dispatch(newGame(null, true, false));

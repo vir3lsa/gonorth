@@ -6,7 +6,7 @@ const initialState = {
   inBrowser: false,
   debugMode: false,
   interaction: new Interaction("Loading..."),
-  verbNames: new Set(),
+  verbNames: {},
   itemNames: new Set()
 };
 
@@ -39,9 +39,10 @@ export default function(state = initialState, action) {
     case type.NEXT_TURN:
       return { ...state, turn: state.turn + 1 };
     case type.VERB_CREATED:
+      const verbNames = { ...state.verbNames, ...action.payload };
       return {
         ...state,
-        verbNames: new Set([...state.verbNames, ...action.payload])
+        verbNames
       };
     case type.ITEMS_REVEALED:
       return {
