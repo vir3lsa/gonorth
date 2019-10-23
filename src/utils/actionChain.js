@@ -48,7 +48,7 @@ function dispatchAppend(text, nextOnLastPage, clearPage) {
 async function expandSequentialText(sequentialText, nextOnLastPage) {
   while (!sequentialText.isLastPage()) {
     await dispatchAppend(
-      sequentialText.text,
+      sequentialText.next(),
       nextOnLastPage || !sequentialText.isLastPage(),
       sequentialText.paged
     );

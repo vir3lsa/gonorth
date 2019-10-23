@@ -13,7 +13,7 @@ export class Interaction {
     this.options = options;
     this.nextOnLastPage = nextOnLastPage;
     this.currentPage =
-      typeof this._text === "string" ? this._text : this._text.text;
+      typeof this._text === "string" ? this._text : this._text.next();
     this.promise = new Promise(res => (this.resolve = res));
 
     if (

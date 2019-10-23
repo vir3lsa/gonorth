@@ -7,6 +7,10 @@ export class Text {
   set texts(texts = []) {
     this._texts = Array.isArray(texts) ? texts : [texts];
   }
+
+  get text() {
+    return this._texts[this.index];
+  }
 }
 
 export class CyclicText extends Text {
@@ -14,7 +18,7 @@ export class CyclicText extends Text {
     super(texts);
   }
 
-  get text() {
+  next() {
     this.index++;
 
     if (this.index > this._texts.length - 1) {
@@ -41,7 +45,7 @@ export class RandomText extends Text {
     super(texts);
   }
 
-  get text() {
+  next() {
     if (!this.candidates || !this.candidates.length) {
       this.candidates = [...this._texts];
     }
