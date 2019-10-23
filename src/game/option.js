@@ -23,7 +23,7 @@ export default class Option {
       // First perform the player actions
       await chainActions(actionChain, ...args);
       // Do the end of turn actions
-      selectGame().handleTurnEnd();
+      return selectGame().handleTurnEnd();
     };
   }
 }

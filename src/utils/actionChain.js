@@ -2,7 +2,7 @@ import { changeInteraction } from "../redux/gameActions";
 import Option from "../game/option";
 import { Interaction, Append } from "../game/interaction";
 import { getStore } from "../redux/storeRegistry";
-import { Text, SequentialText } from "../game/text";
+import { Text, SequentialText, RandomText } from "../game/text";
 
 export const createChainableFunction = actions => {
   const actionArray = Array.isArray(actions) ? actions : [actions];
@@ -24,6 +24,8 @@ function toChainableFunction(action, i, actions) {
       return dispatchAppend(result, !lastAction);
     } else if (Array.isArray(result) && typeof result[0] === "string") {
       return dispatchAppend(new SequentialText(result), !lastAction);
+    } else if (result instanceof SequentialText) {
+      return expandSequentialText(result, !lastAction);
     } else if (result instanceof Text) {
       return dispatchAppend(result, !lastAction, result.paged);
     } else if (result instanceof Interaction) {
@@ -41,6 +43,16 @@ function dispatchAppend(text, nextOnLastPage, clearPage) {
   return getStore().dispatch(
     changeInteraction(new interactionType(text, null, nextOnLastPage))
   );
+}
+
+async function expandSequentialText(sequentialText, nextOnLastPage) {
+  while (!sequentialText.isLastPage()) {
+    await dispatchAppend(
+      sequentialText.text,
+      nextOnLastPage || !sequentialText.isLastPage(),
+      sequentialText.paged
+    );
+  }
 }
 
 export const chainActions = async (actions, ...args) => {

@@ -20,6 +20,13 @@ const clickNext = () =>
 
 const storeHasVerb = verbName => getStore().getState().game.verbNames[verbName];
 
+const selectInteraction = () => getStore().getState().game.interaction;
+
+const clickNextAndWait = () => {
+  clickNext();
+  return selectInteraction().promise;
+};
+
 // Prevent console logging
 getStore().dispatch(newGame(null, true, false));
 
@@ -87,9 +94,9 @@ describe("chainable actions", () => {
     verb.onSuccess = new SequentialText(["a", "b", "c"]);
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
-    clickNext();
+    await clickNextAndWait();
     expect(selectCurrentPage()).toBe("a\n\n`>` Next\n\nb");
-    clickNext();
+    await clickNextAndWait();
     expect(selectCurrentPage()).toBe("a\n\n`>` Next\n\nb\n\n`>` Next\n\nc");
     await promise;
   });
@@ -98,9 +105,9 @@ describe("chainable actions", () => {
     verb.onSuccess = new SequentialText(["a", "b", "c"], true);
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
-    clickNext();
+    await clickNextAndWait();
     expect(selectCurrentPage()).toBe("b");
-    clickNext();
+    await clickNextAndWait();
     expect(selectCurrentPage()).toBe("c");
     await promise;
   });
@@ -113,7 +120,7 @@ describe("chainable actions", () => {
     ];
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
-    clickNext();
+    await clickNextAndWait();
     expect(selectCurrentPage()).toBe("b");
     clickNext();
     await promise;
@@ -124,7 +131,7 @@ describe("chainable actions", () => {
     verb.onSuccess = [new SequentialText(["a", "b"], true), "c"];
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
-    clickNext();
+    await clickNextAndWait();
     expect(selectCurrentPage()).toBe("b");
     clickNext();
     await promise;
@@ -139,7 +146,7 @@ describe("chainable actions", () => {
     ];
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
-    clickNext();
+    await clickNextAndWait();
     expect(selectCurrentPage()).toBe("a\n\n`>` Next\n\nb");
     clickNext();
     await promise;
@@ -150,7 +157,7 @@ describe("chainable actions", () => {
     verb.onSuccess = [new SequentialText(["a", "b"], false), "c"];
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
-    clickNext();
+    await clickNextAndWait();
     expect(selectCurrentPage()).toBe("a\n\n`>` Next\n\nb");
     clickNext();
     await promise;
