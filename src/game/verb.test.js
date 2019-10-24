@@ -1,9 +1,10 @@
-import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
 import { Verb } from "./verb";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { Interaction } from "./interaction";
 import { CyclicText, SequentialText, RandomText } from "./text";
+import { initStore } from "../redux/store";
+import Game from "./game";
 
 initStore();
 
@@ -28,7 +29,7 @@ const clickNextAndWait = () => {
 };
 
 // Prevent console logging
-getStore().dispatch(newGame(null, true, false));
+getStore().dispatch(newGame(new Game("test"), true, false));
 
 beforeEach(() => {
   verb = new Verb(

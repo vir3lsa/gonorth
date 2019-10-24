@@ -1,5 +1,6 @@
 import { Text, SequentialText, CyclicText } from "./text";
 import { Verb } from "./verb";
+import { createDynamicText } from "../utils/dynamicDescription";
 
 export default class Item {
   constructor(
@@ -40,24 +41,7 @@ export default class Item {
    * @param {string | string[] | function | Text | undefined } description
    */
   set description(description) {
-    if (typeof description === "string" || description instanceof Text) {
-      this._description = () => description;
-    } else if (
-      Array.isArray(description) &&
-      typeof description[0] === "string"
-    ) {
-      const sequence = new CyclicText(description);
-      this._description = () => sequence;
-    } else if (typeof description === "function") {
-      this._description = description;
-    } else if (typeof description === "undefined") {
-      this._description = item =>
-        `There's nothing noteworthy about the ${item}.`;
-    } else {
-      throw Error(
-        "Description must be a string, string array, Text or a function"
-      );
-    }
+    this._description = createDynamicText(description);
   }
 
   addVerb(verb) {

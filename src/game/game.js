@@ -5,20 +5,20 @@ import { Provider } from "react-redux";
 import IODevice from "../web/iodevice";
 import { getStore } from "../redux/storeRegistry";
 import { newGame, changeInteraction, nextTurn } from "../redux/gameActions";
-import { LOADING, TITLE, INTRO, ROOM } from "./gameState";
 import { Interaction } from "./interaction";
 import Option from "./option";
 import Room from "./room";
 import { DORMANT, PENDING, ACTIVE } from "./event";
+import { createChainableFunction, chainActions } from "../utils/actionChain";
+import { SequentialText } from "./text";
 
 export default class Game {
   constructor(title, debugMode) {
     this.title = title;
     this.debugMode = debugMode;
-    this.status = LOADING;
     this.container = null;
     this.author = null;
-    this._intro = null;
+    this.introActions = createChainableFunction(() => this.goToStartingRoom());
     this.events = [];
     this._startingRoom = new Room(
       "Empty Room",
@@ -47,16 +47,10 @@ export default class Game {
     const titleScreen = new Interaction(
       output,
       new Option("Play", () => {
-        if (this._intro) {
-          this.status = INTRO;
-          getStore().dispatch(changeInteraction(this._intro));
-        } else {
-          this.goToStartingRoom();
-        }
+        chainActions(this.introActions);
       })
     );
 
-    this.status = TITLE;
     getStore().dispatch(changeInteraction(titleScreen));
   }
 
@@ -93,14 +87,22 @@ export default class Game {
    * @param {{ pages: string[]; }} intro
    */
   set intro(intro) {
-    const leaveIntroOption = new Option("Next", () => this.goToStartingRoom());
-    this._intro = new Interaction(intro, leaveIntroOption);
+    if (
+      typeof intro === "string" ||
+      (Array.isArray(intro) && typeof intro[0] === "string")
+    ) {
+      this.introActions = createChainableFunction([
+        new SequentialText(intro, true),
+        () => this.goToStartingRoom()
+      ]);
+    } else {
+      throw Error("Intro must be a string or a string array.");
+    }
   }
 
   goToStartingRoom() {
-    this._room = this._startingRoom;
-    getStore().dispatch(changeInteraction(this._room.interaction));
-    this._room.revealItems();
+    this.room = this._startingRoom;
+    return this._startingRoom.interaction;
   }
 
   /**

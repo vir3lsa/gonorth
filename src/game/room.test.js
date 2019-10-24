@@ -7,6 +7,9 @@ import { Interaction } from "./interaction";
 
 initStore();
 
+// Prevent console logging
+getStore().dispatch(newGame(new Game("test"), true, false));
+
 let hall, north, south, east, west;
 
 beforeEach(() => {
