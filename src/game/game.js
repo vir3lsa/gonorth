@@ -116,7 +116,6 @@ export default class Game {
    */
   set room(room) {
     this._room = room;
-    getStore().dispatch(changeInteraction(room.interaction));
     room.revealItems();
   }
 

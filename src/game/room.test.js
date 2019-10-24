@@ -2,7 +2,8 @@ import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
 import Room from "./room";
 import Game from "./game";
-import { newGame } from "../redux/gameActions";
+import { newGame, changeInteraction } from "../redux/gameActions";
+import { Interaction } from "./interaction";
 
 initStore();
 
@@ -14,6 +15,7 @@ beforeEach(() => {
   south = new Room("Kitchen", "");
   east = new Room("Scullery", "");
   west = new Room("Pantry", "");
+  getStore().dispatch(changeInteraction(new Interaction("")));
 });
 
 describe("Room", () => {

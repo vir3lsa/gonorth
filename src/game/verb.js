@@ -112,9 +112,9 @@ export class GoVerb extends Verb {
       [`Going ${name}.`, room => room.go(name)],
       room => {
         const adjacentRoom = room.adjacentRooms[name.toLowerCase()];
-        return adjacentRoom && adjacentRoom.failureText
-          ? new Append(adjacentRoom.failureText)
-          : new Append("You can't go that way.");
+        return (
+          (adjacentRoom && adjacentRoom.failureText) || "You can't go that way."
+        );
       },
       aliases
     );

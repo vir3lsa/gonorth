@@ -109,8 +109,9 @@ export default class Room extends Item {
 
   go(directionName) {
     const direction = directionName.toLowerCase();
-    const adjacent = this.adjacentRooms[direction];
-    selectGame().room = adjacent.room;
+    const adjacent = this.adjacentRooms[direction].room;
+    selectGame().room = adjacent;
+    return adjacent.interaction;
   }
 
   revealItems() {
