@@ -11,6 +11,10 @@ export class Text {
   get text() {
     return this._texts[this.index];
   }
+
+  get texts() {
+    return this._texts;
+  }
 }
 
 export class CyclicText extends Text {
@@ -55,5 +59,12 @@ export class RandomText extends Text {
     this.candidates = this.candidates.filter(c => c !== text);
 
     return text;
+  }
+}
+
+export class TextWrapper {
+  constructor(text, options) {
+    this.text = text;
+    this.options = options;
   }
 }

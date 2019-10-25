@@ -2,7 +2,7 @@ import { changeInteraction } from "../redux/gameActions";
 import Option from "../game/option";
 import { Interaction, Append } from "../game/interaction";
 import { getStore } from "../redux/storeRegistry";
-import { Text, SequentialText, RandomText } from "../game/text";
+import { Text, SequentialText, RandomText, TextWrapper } from "../game/text";
 
 export const createChainableFunction = actions => {
   const actionArray = Array.isArray(actions) ? actions : [actions];
@@ -19,17 +19,24 @@ function toChainableFunction(action, i, actions) {
 
   return (...args) => {
     const result = actionFunction(...args);
+    let value = result;
+    let options;
 
-    if (typeof result === "string") {
-      return dispatchAppend(result, !lastAction);
-    } else if (Array.isArray(result) && typeof result[0] === "string") {
-      return dispatchAppend(new SequentialText(result), !lastAction);
-    } else if (result instanceof SequentialText) {
-      return expandSequentialText(result, !lastAction);
-    } else if (result instanceof Text) {
-      return dispatchAppend(result, !lastAction, result.paged);
-    } else if (result instanceof Interaction) {
-      return getStore().dispatch(changeInteraction(result, !lastAction));
+    if (result instanceof TextWrapper) {
+      options = result.options;
+      value = result.text;
+    }
+
+    if (typeof value === "string") {
+      return dispatchAppend(value, options, !lastAction);
+    } else if (Array.isArray(value) && typeof value[0] === "string") {
+      return dispatchAppend(new SequentialText(value), options, !lastAction);
+    } else if (value instanceof SequentialText) {
+      return expandSequentialText(value, options, !lastAction);
+    } else if (value instanceof Text) {
+      return dispatchAppend(value, options, !lastAction, value.paged);
+    } else if (value instanceof Interaction) {
+      return getStore().dispatch(changeInteraction(value, !lastAction));
     }
 
     // This is an arbitrary action that shouldn't create a new interaction
@@ -37,19 +44,22 @@ function toChainableFunction(action, i, actions) {
   };
 }
 
-function dispatchAppend(text, nextOnLastPage, clearPage) {
+function dispatchAppend(text, options, nextOnLastPage, clearPage) {
   const interactionType = clearPage ? Interaction : Append;
 
   return getStore().dispatch(
-    changeInteraction(new interactionType(text, null, nextOnLastPage))
+    changeInteraction(new interactionType(text, options, nextOnLastPage))
   );
 }
 
-async function expandSequentialText(sequentialText, nextOnLastPage) {
-  while (!sequentialText.isLastPage()) {
+async function expandSequentialText(sequentialText, options, nextOnLastPage) {
+  const texts = sequentialText.texts;
+  for (let index = 0; index < texts.length; index++) {
+    const lastPage = index === texts.length - 1;
     await dispatchAppend(
-      sequentialText.next(),
-      nextOnLastPage || !sequentialText.isLastPage(),
+      texts[index],
+      lastPage ? options : null,
+      nextOnLastPage || !lastPage,
       sequentialText.paged
     );
   }

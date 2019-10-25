@@ -1,15 +1,16 @@
-import { Interaction } from "./interaction";
 import { getStore } from "../redux/storeRegistry";
 import Door from "./door";
 import { GoVerb } from "./verb";
 import Item from "./item";
 import { itemsRevealed } from "../redux/gameActions";
+import { TextWrapper } from "./text";
+import { preferPaged } from "../utils/dynamicDescription";
 
 const selectGame = () => getStore().getState().game.game;
 
 export default class Room extends Item {
   constructor(name, description, options) {
-    super(name, description, false, -1, [
+    super(name, preferPaged(description), false, -1, [
       new GoVerb("North", ["n", "forward", "straight on"]),
       new GoVerb("South", ["s", "back", "backward", "reverse"]),
       new GoVerb("East", ["e", "right"]),
@@ -23,8 +24,8 @@ export default class Room extends Item {
     this.options = options;
   }
 
-  get interaction() {
-    return new Interaction(this.description, this.options);
+  get textWrapper() {
+    return new TextWrapper(this.description, this.options);
   }
 
   addAdjacentRoom(room, directionName, navigable, successText, failureText) {
@@ -111,7 +112,7 @@ export default class Room extends Item {
     const direction = directionName.toLowerCase();
     const adjacent = this.adjacentRooms[direction].room;
     selectGame().room = adjacent;
-    return adjacent.interaction;
+    return adjacent.textWrapper;
   }
 
   revealItems() {

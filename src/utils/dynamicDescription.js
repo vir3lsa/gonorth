@@ -1,4 +1,15 @@
-import { Text, CyclicText } from "../game/text";
+import { Text, CyclicText, SequentialText } from "../game/text";
+
+export const preferPaged = text => {
+  if (
+    typeof text === "string" ||
+    (Array.isArray(text) && typeof text === "string")
+  ) {
+    return new SequentialText(text, true);
+  }
+
+  return text;
+};
 
 export const createDynamicText = text => {
   if (typeof text === "string" || text instanceof Text) {

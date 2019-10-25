@@ -10,6 +10,21 @@ initStore();
 // Prevent console logging
 getStore().dispatch(newGame(new Game("test"), true, false));
 
+const clickNext = () =>
+  getStore()
+    .getState()
+    .game.interaction.options[0].action();
+
+const selectCurrentPage = () =>
+  getStore().getState().game.interaction.currentPage;
+
+const selectInteraction = () => getStore().getState().game.interaction;
+
+const clickNextAndWait = () => {
+  clickNext();
+  return selectInteraction().promise;
+};
+
 let hall, north, south, east, west;
 
 beforeEach(() => {
@@ -17,7 +32,7 @@ beforeEach(() => {
   north = new Room("Garden", "");
   south = new Room("Kitchen", "");
   east = new Room("Scullery", "");
-  west = new Room("Pantry", "");
+  west = new Room("Pantry", "the pantry");
   getStore().dispatch(changeInteraction(new Interaction("")));
 });
 
@@ -113,11 +128,14 @@ describe("Room", () => {
     it("prints a message when successfully going in a direction", () => {
       hall.setWest(new Room("Chapel"));
       hall.try("west");
-      expect(
-        getStore()
-          .getState()
-          .game.interaction.currentPage.includes("Going West.")
-      ).toBeTruthy();
+      expect(selectCurrentPage().includes("Going West.")).toBeTruthy();
+    });
+
+    it("prints new room text", async () => {
+      hall.setWest(west);
+      hall.try("west");
+      await clickNextAndWait();
+      expect(selectCurrentPage()).toBe("the pantry");
     });
   });
 });
