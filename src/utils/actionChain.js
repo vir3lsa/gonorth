@@ -30,11 +30,15 @@ function toChainableFunction(action, i, actions) {
     if (typeof value === "string") {
       return dispatchAppend(value, options, !lastAction);
     } else if (Array.isArray(value) && typeof value[0] === "string") {
-      return dispatchAppend(new SequentialText(value), options, !lastAction);
+      return expandSequentialText(
+        new SequentialText(value),
+        options,
+        !lastAction
+      );
     } else if (value instanceof SequentialText) {
       return expandSequentialText(value, options, !lastAction);
     } else if (value instanceof Text) {
-      return dispatchAppend(value, options, !lastAction, value.paged);
+      return dispatchAppend(value.next(), options, !lastAction, value.paged);
     } else if (value instanceof Interaction) {
       return getStore().dispatch(changeInteraction(value, !lastAction));
     }

@@ -2,11 +2,13 @@ import Game from "./game";
 import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
 import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
+import Option from "./option";
+import Room from "./room";
 
 initStore();
 jest.mock("../utils/consoleIO");
 
-let game, x;
+let game, x, room;
 
 const eventTest = (event, expectation) => {
   game.addEvent(event);
@@ -18,6 +20,8 @@ const eventTest = (event, expectation) => {
 describe("Game class", () => {
   beforeEach(() => {
     game = new Game("title");
+    room = new Room("stairs", "description", new Option("do it"));
+    game.startingRoom = room;
     x = 0;
   });
 
@@ -29,6 +33,17 @@ describe("Game class", () => {
 
   it("throws an error if trying to attach with no container", () => {
     expect(game.attach).toThrow(Error);
+  });
+
+  it("goes to the starting room", () => {
+    game.goToStartingRoom();
+    expect(game.room).toBe(room);
+  });
+
+  it("returns starting room text wrapper", () => {
+    const wrapper = game.goToStartingRoom();
+    expect(wrapper.text.paged).toBeTruthy();
+    expect(wrapper.options[0].label).toBe("do it");
   });
 
   describe("events", () => {

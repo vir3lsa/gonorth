@@ -26,14 +26,10 @@ export class Interaction {
   }
 
   set text(text = "") {
-    if (typeof text === "string" || text instanceof Text) {
+    if (typeof text === "string") {
       this._text = text;
-    } else if (Array.isArray(text)) {
-      this._text = new SequentialText(text);
     } else {
-      throw Error(
-        "Only strings, arrays of strings, or Text instances may be used in Interactions"
-      );
+      throw Error("Only strings may be used in Interactions");
     }
   }
 

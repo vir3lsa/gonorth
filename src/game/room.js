@@ -9,7 +9,7 @@ import { preferPaged } from "../utils/dynamicDescription";
 const selectGame = () => getStore().getState().game.game;
 
 export default class Room extends Item {
-  constructor(name, description, options) {
+  constructor(name, description, options = []) {
     super(name, preferPaged(description), false, -1, [
       new GoVerb("North", ["n", "forward", "straight on"]),
       new GoVerb("South", ["s", "back", "backward", "reverse"]),
@@ -22,6 +22,14 @@ export default class Room extends Item {
     this.adjacentRooms = {};
     this.items = {};
     this.options = options;
+  }
+
+  set options(options) {
+    this._options = Array.isArray(options) ? options : [options];
+  }
+
+  get options() {
+    return this._options;
   }
 
   get textWrapper() {

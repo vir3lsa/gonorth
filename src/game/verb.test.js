@@ -169,9 +169,9 @@ describe("chainable actions", () => {
     verb.onSuccess = [["a", "b"], "c"];
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
-    clickNext();
+    await clickNextAndWait();
     expect(selectCurrentPage()).toBe("a\n\n`>` Next\n\nb");
-    clickNext();
+    await clickNextAndWait();
     await promise;
     expect(selectCurrentPage()).toBe("a\n\n`>` Next\n\nb\n\n`>` Next\n\nc");
   });

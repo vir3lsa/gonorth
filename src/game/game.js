@@ -102,7 +102,7 @@ export default class Game {
 
   goToStartingRoom() {
     this.room = this._startingRoom;
-    return this._startingRoom.interaction;
+    return this._startingRoom.textWrapper;
   }
 
   /**

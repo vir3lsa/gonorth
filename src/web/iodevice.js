@@ -9,7 +9,7 @@ const IODevice = props => {
   return (
     <div>
       <ReactMarkdown source={interaction.currentPage} />
-      {interaction.options ? (
+      {interaction.options && interaction.options.length ? (
         <DecisionBar options={interaction.options} />
       ) : (
         <ParserBar />
