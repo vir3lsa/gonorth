@@ -28,7 +28,7 @@ function toChainableFunction(action, i, actions) {
     }
 
     if (typeof value === "string") {
-      return dispatchAppend(value, options, !lastAction);
+      return dispatchAppend(value, options, !lastAction, false);
     } else if (Array.isArray(value) && typeof value[0] === "string") {
       return expandSequentialText(
         new SequentialText(value),
@@ -40,7 +40,7 @@ function toChainableFunction(action, i, actions) {
     } else if (value instanceof Text) {
       return dispatchAppend(value.next(), options, !lastAction, value.paged);
     } else if (value instanceof Interaction) {
-      return getStore().dispatch(changeInteraction(value, !lastAction));
+      return getStore().dispatch(changeInteraction(value));
     }
 
     // This is an arbitrary action that shouldn't create a new interaction
@@ -48,22 +48,22 @@ function toChainableFunction(action, i, actions) {
   };
 }
 
-function dispatchAppend(text, options, nextOnLastPage, clearPage) {
+function dispatchAppend(text, options, nextIfNoOptions, clearPage) {
   const interactionType = clearPage ? Interaction : Append;
 
   return getStore().dispatch(
-    changeInteraction(new interactionType(text, options, nextOnLastPage))
+    changeInteraction(new interactionType(text, options, nextIfNoOptions))
   );
 }
 
-async function expandSequentialText(sequentialText, options, nextOnLastPage) {
+async function expandSequentialText(sequentialText, options, nextIfNoOptions) {
   const texts = sequentialText.texts;
   for (let index = 0; index < texts.length; index++) {
     const lastPage = index === texts.length - 1;
     await dispatchAppend(
       texts[index],
       lastPage ? options : null,
-      nextOnLastPage || !lastPage,
+      nextIfNoOptions || !lastPage,
       sequentialText.paged
     );
   }

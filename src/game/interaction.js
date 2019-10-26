@@ -8,18 +8,15 @@ import { Text, SequentialText } from "./text";
  * free text or a series of options.
  */
 export class Interaction {
-  constructor(text, options, nextOnLastPage) {
+  constructor(text, options, renderNextButton) {
     this.text = text;
+    this.renderNextButton = renderNextButton;
     this.options = options;
-    this.nextOnLastPage = nextOnLastPage;
     this.currentPage =
       typeof this._text === "string" ? this._text : this._text.next();
     this.promise = new Promise(res => (this.resolve = res));
 
-    if (
-      !nextOnLastPage &&
-      (!(this._text instanceof SequentialText) || this._text.isLastPage())
-    ) {
+    if (!renderNextButton) {
       // This interaction resolves immediately
       this.resolve();
     }
@@ -33,18 +30,6 @@ export class Interaction {
     }
   }
 
-  set options(options) {
-    if (options) {
-      this._options = Array.isArray(options) ? options : [options];
-    } else {
-      this._options = null;
-    }
-  }
-
-  get options() {
-    return this._options;
-  }
-
   get currentPage() {
     return this._currentPage;
   }
@@ -53,29 +38,19 @@ export class Interaction {
     this._currentPage = currentPage;
   }
 
-  get options() {
-    if (this._text instanceof SequentialText && !this._text.isLastPage()) {
-      return [
-        new Option("Next", async () => {
-          const interactionType = this._text.paged ? Interaction : Append;
-          await getStore().dispatch(
-            changeInteraction(
-              new interactionType(
-                this._text,
-                this._options,
-                this.nextOnLastPage
-              )
-            )
-          );
-          // This interaction is finished
-          this.resolve();
-        })
-      ];
-    } else if (this.nextOnLastPage) {
-      return [new Option("Next", () => this.resolve())];
+  set options(options) {
+    if (options) {
+      this._options = Array.isArray(options) ? options : [options];
+    } else if (this.renderNextButton) {
+      this._options = [new Option("Next", () => this.resolve())];
+      this.nextButtonRendered = true;
     } else {
-      return this._options;
+      this._options = null;
     }
+  }
+
+  get options() {
+    return this._options;
   }
 }
 

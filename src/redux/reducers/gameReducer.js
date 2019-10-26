@@ -20,16 +20,16 @@ export default function(state = initialState, action) {
       if (interaction instanceof Append && state.interaction.currentPage) {
         interaction.currentPage = `${state.interaction.currentPage}\n\n${interaction.currentPage}`;
 
-        if (!interaction.options) {
-          // Copy concrete options (not 'Next') from previous interaction
-          interaction.options = state.interaction._options;
+        if (!interaction.options && !state.interaction.nextButtonRendered) {
+          // Copy concrete options (not 'Next') from previous interaction (TODO need Next to work too)
+          interaction.options = state.interaction.options;
         }
 
         if (
-          typeof interaction.nextOnLastPage === "undefined" &&
+          typeof interaction.renderNextButton === "undefined" &&
           !(interaction instanceof AppendInput)
         ) {
-          interaction.nextOnLastPage = state.interaction.nextOnLastPage;
+          interaction.renderNextButton = state.interaction.renderNextButton;
         }
       }
 
