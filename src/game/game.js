@@ -60,10 +60,10 @@ export default class Game {
 
       if (event.state === DORMANT && event.condition()) {
         // First look for events to commence
-        event.commence();
+        await event.commence();
       } else if (event.state === PENDING) {
         // Then look for events that are counting down
-        event.tick();
+        await event.tick();
       } else if (event.state === ACTIVE) {
         // Then trigger active events
         await event.trigger();

@@ -5,6 +5,7 @@ import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import Option from "./option";
 import Room from "./room";
 import { Verb } from "./verb";
+import { newGame } from "../redux/gameActions";
 
 initStore();
 jest.mock("../utils/consoleIO");
@@ -14,14 +15,10 @@ const clickNext = () =>
     .getState()
     .game.interaction.options[0].action();
 
-const selectInteraction = () => getStore().getState().game.interaction;
-
-const clickNextAndWait = () => {
-  clickNext();
-  return selectInteraction().promise;
-};
-
 let game, x, y, room;
+
+// Prevent errors
+getStore().dispatch(newGame(new Game("test"), true, false));
 
 const eventTest = async (event, expectation) => {
   game.addEvent(event);
@@ -108,13 +105,24 @@ describe("Game class", () => {
     });
 
     it("waits for a chain to finish before triggering", async () => {
-      const verbPromise = new Verb("verb", true, ["one", "two"]).attempt();
-      game.addEvent(new Event(() => x++));
-      game.handleTurnEnd();
+      new Verb("verb", true, ["one", "two"]).attempt();
+      const promise = new Event(() => x++).trigger();
       expect(x).toBe(0);
-      await clickNextAndWait();
-      await verbPromise;
+      clickNext();
+      await promise;
       expect(x).toBe(1);
+    });
+
+    it("triggers waiting events in the right order", async () => {
+      new Verb("verb", true, ["one", "two"]).attempt();
+      x = 1;
+      const p1 = new Event(() => x++).trigger();
+      const p2 = new Event(() => (x *= 3)).trigger();
+      expect(x).toBe(1);
+      clickNext();
+      await p1;
+      await p2;
+      expect(x).toBe(6);
     });
   });
 });
