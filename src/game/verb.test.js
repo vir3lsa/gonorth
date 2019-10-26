@@ -219,4 +219,11 @@ describe("chainable actions", () => {
     await promise;
     expect(selectCurrentPage()).toBe("jam");
   });
+
+  it("Does not render Next buttons forever", async () => {
+    verb.onSuccess = new SequentialText(["one", "two"]);
+    verb.attempt(3);
+    await clickNextAndWait();
+    expect(selectInteraction().options).toBeNull();
+  });
 });
