@@ -54,8 +54,10 @@ export default class Game {
     getStore().dispatch(changeInteraction(titleScreen));
   }
 
-  handleTurnEnd() {
-    this.events.forEach(event => {
+  async handleTurnEnd() {
+    for (let i in this.events) {
+      const event = this.events[i];
+
       if (event.state === DORMANT && event.condition()) {
         // First look for events to commence
         event.commence();
@@ -64,9 +66,9 @@ export default class Game {
         event.tick();
       } else if (event.state === ACTIVE) {
         // Then trigger active events
-        event.trigger();
+        await event.trigger();
       }
-    });
+    }
 
     // End the turn
     return getStore().dispatch(nextTurn());

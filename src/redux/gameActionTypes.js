@@ -4,3 +4,5 @@ export const RECEIVE_INPUT = "RECEIVE_INPUT";
 export const NEXT_TURN = "NEXT_TURN";
 export const VERB_CREATED = "VERB_CREATED";
 export const ITEMS_REVEALED = "ITEM_REVEALED";
+export const CHAIN_STARTED = "CHAIN_STARTED";
+export const CHAIN_ENDED = "CHAIN_ENDED";

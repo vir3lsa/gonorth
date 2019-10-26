@@ -8,11 +8,11 @@ import Room from "./room";
 initStore();
 jest.mock("../utils/consoleIO");
 
-let game, x, room;
+let game, x, y, room;
 
-const eventTest = (event, expectation) => {
+const eventTest = async (event, expectation) => {
   game.addEvent(event);
-  game.handleTurnEnd();
+  await game.handleTurnEnd();
   expect(expectation()).toBeTruthy();
   event.cancel();
 };
@@ -22,7 +22,7 @@ describe("Game class", () => {
     game = new Game("title");
     room = new Room("stairs", "description", new Option("do it"));
     game.startingRoom = room;
-    x = 0;
+    x = y = 0;
   });
 
   it("defaults output to Loading", () => {
@@ -87,6 +87,11 @@ describe("Game class", () => {
       game.handleTurnEnd();
       game.handleTurnEnd();
       expect(x).toBe(1);
+    });
+
+    it("chains events", () => {
+      const event = new Event([() => x++, () => y++]);
+      eventTest(event, () => x === 1 && y === 1);
     });
   });
 });
