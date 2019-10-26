@@ -7,7 +7,8 @@ const initialState = {
   debugMode: false,
   interaction: new Interaction("Loading..."),
   verbNames: {},
-  itemNames: new Set()
+  itemNames: new Set(),
+  actionChainPromise: null
 };
 
 export default function(state = initialState, action) {
@@ -49,6 +50,17 @@ export default function(state = initialState, action) {
         ...state,
         itemNames: new Set([...state.itemNames, ...action.payload])
       };
+    case type.CHAIN_STARTED:
+      return {
+        ...state,
+        actionChainPromise: state.actionChainPromise || action.payload
+      };
+    case type.CHAIN_ENDED:
+      const actionChainPromise =
+        action.payload === state.actionChainPromise
+          ? null
+          : state.actionChainPromise;
+      return { ...state, actionChainPromise };
     default:
       return state;
   }

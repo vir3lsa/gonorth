@@ -1,4 +1,8 @@
-import { changeInteraction } from "../redux/gameActions";
+import {
+  changeInteraction,
+  chainStarted,
+  chainEnded
+} from "../redux/gameActions";
 import Option from "../game/option";
 import { Interaction, Append } from "../game/interaction";
 import { getStore } from "../redux/storeRegistry";
@@ -70,8 +74,15 @@ async function expandSequentialText(sequentialText, options, nextIfNoOptions) {
 }
 
 export const chainActions = async (actions, ...args) => {
+  let chainResolve;
+  const chainPromise = new Promise(resolve => (chainResolve = resolve));
+  getStore().dispatch(chainStarted(chainPromise));
+
   for (let i in actions) {
     const action = actions[i];
     await action(...args);
   }
+
+  chainResolve();
+  getStore().dispatch(chainEnded(chainPromise));
 };

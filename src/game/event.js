@@ -1,4 +1,5 @@
 import { chainActions, createChainableFunction } from "../utils/actionChain";
+import { getStore } from "../redux/storeRegistry";
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
@@ -69,7 +70,14 @@ export class Event {
     }
   }
 
-  trigger() {
+  async trigger() {
+    let chainPromise;
+
+    while ((chainPromise = getStore().getState().game.actionChainPromise)) {
+      // Don't start the event until no action chains are running
+      await chainPromise;
+    }
+
     this.state = ACTIVE;
     this.executionCount++;
 

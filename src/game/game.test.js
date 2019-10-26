@@ -4,9 +4,22 @@ import { getStore } from "../redux/storeRegistry";
 import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import Option from "./option";
 import Room from "./room";
+import { Verb } from "./verb";
 
 initStore();
 jest.mock("../utils/consoleIO");
+
+const clickNext = () =>
+  getStore()
+    .getState()
+    .game.interaction.options[0].action();
+
+const selectInteraction = () => getStore().getState().game.interaction;
+
+const clickNextAndWait = () => {
+  clickNext();
+  return selectInteraction().promise;
+};
 
 let game, x, y, room;
 
@@ -92,6 +105,16 @@ describe("Game class", () => {
     it("chains events", () => {
       const event = new Event([() => x++, () => y++]);
       eventTest(event, () => x === 1 && y === 1);
+    });
+
+    it("waits for a chain to finish before triggering", async () => {
+      const verbPromise = new Verb("verb", true, ["one", "two"]).attempt();
+      game.addEvent(new Event(() => x++));
+      game.handleTurnEnd();
+      expect(x).toBe(0);
+      await clickNextAndWait();
+      await verbPromise;
+      expect(x).toBe(1);
     });
   });
 });

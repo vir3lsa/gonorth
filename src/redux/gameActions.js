@@ -90,3 +90,13 @@ export const itemsRevealed = itemNames => ({
   type: type.ITEMS_REVEALED,
   payload: itemNames
 });
+
+export const chainStarted = promise => ({
+  type: type.CHAIN_STARTED,
+  payload: promise
+});
+
+export const chainEnded = promise => ({
+  type: type.CHAIN_ENDED,
+  payload: promise
+});
