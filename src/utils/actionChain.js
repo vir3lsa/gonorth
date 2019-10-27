@@ -3,10 +3,9 @@ import {
   chainStarted,
   chainEnded
 } from "../redux/gameActions";
-import Option from "../game/option";
 import { Interaction, Append } from "../game/interaction";
 import { getStore } from "../redux/storeRegistry";
-import { Text, SequentialText, RandomText, TextWrapper } from "../game/text";
+import { Text, SequentialText, TextWrapper } from "../game/text";
 
 export const createChainableFunction = actions => {
   const actionArray = Array.isArray(actions) ? actions : [actions];
@@ -29,6 +28,12 @@ function toChainableFunction(action, i, actions) {
     if (result instanceof TextWrapper) {
       options = result.options;
       value = result.text;
+    }
+
+    if (!lastAction && (options || (value && value.options))) {
+      throw Error(
+        "Custom options are only supported at the end of action chains."
+      );
     }
 
     if (typeof value === "string") {

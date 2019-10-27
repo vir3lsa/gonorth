@@ -5,6 +5,7 @@ import { Interaction } from "./interaction";
 import { CyclicText, SequentialText, RandomText } from "./text";
 import { initStore } from "../redux/store";
 import Game from "./game";
+import Option from "./option";
 
 initStore();
 
@@ -225,5 +226,15 @@ describe("chainable actions", () => {
     verb.attempt(3);
     await clickNextAndWait();
     expect(selectInteraction().options).toBeNull();
+  });
+
+  it("Throws error if custom options in middle of chain", async () => {
+    verb.onSuccess = [new Interaction("risky", new Option("Custom")), "Text"];
+    try {
+      await verb.attempt(3);
+      throw Error("Expected Error not thrown");
+    } catch (error) {
+      expect(error.message).toEqual(expect.stringContaining("Custom options"));
+    }
   });
 });
