@@ -79,15 +79,21 @@ async function expandSequentialText(sequentialText, options, nextIfNoOptions) {
 }
 
 export const chainActions = async (actions, ...args) => {
-  let chainResolve;
+  let chainResolve, result;
   const chainPromise = new Promise(resolve => (chainResolve = resolve));
   getStore().dispatch(chainStarted(chainPromise));
 
   for (let i in actions) {
     const action = actions[i];
-    await action(...args);
+    result = await action(...args);
+
+    if (result === false) {
+      // Returning false from an action breaks the chain
+      break;
+    }
   }
 
   chainResolve();
   getStore().dispatch(chainEnded(chainPromise));
+  return result;
 };

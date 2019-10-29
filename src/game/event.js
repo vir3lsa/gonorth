@@ -6,19 +6,26 @@ export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
 export const DORMANT = "DORMANT";
 export const PENDING = "PENDING";
 export const ACTIVE = "ACTIVE";
-export const FINISHED = "FINISHED";
+export const SUCCEEDED = "SUCCEEDED";
+export const FAILED = "FAILED";
 export const CANCELLED = "CANCELLED";
 
 export class Event {
-  constructor(action = [], condition, timeout, timeoutType, repetitions) {
+  constructor(
+    action = [],
+    condition,
+    timeout,
+    timeoutType,
+    onComplete = () => {}
+  ) {
     this.action = action;
     this.condition = condition;
     this.timeout = timeout || 0;
     this.timeoutType = timeoutType || TIMEOUT_TURNS;
-    this.repetitions = repetitions || 1;
     this.executionCount = 0;
     this.timeoutId = null;
     this.state = DORMANT;
+    this.onComplete = onComplete;
   }
 
   set action(action) {
@@ -31,6 +38,18 @@ export class Event {
 
   get condition() {
     return this._condition;
+  }
+
+  set onComplete(onComplete) {
+    if (typeof onComplete !== "function") {
+      throw Error("onComplete must be a function");
+    }
+
+    this._onComplete = onComplete;
+  }
+
+  get onComplete() {
+    return this._onComplete;
   }
 
   set condition(condition) {
@@ -79,13 +98,15 @@ export class Event {
     }
 
     this.state = ACTIVE;
-    this.executionCount++;
+    const result = await chainActions(this.action);
 
-    if (this.executionCount >= this.repetitions) {
-      this.state = FINISHED;
+    if (result === false) {
+      this.state = FAILED;
+    } else {
+      this.state = SUCCEEDED;
     }
 
-    return chainActions(this.action);
+    return this.onComplete();
   }
 
   cancel() {

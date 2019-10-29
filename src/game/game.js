@@ -130,4 +130,8 @@ export default class Game {
   addEvent(event) {
     this.events.push(event);
   }
+
+  addSchedule(schedule) {
+    this.events.push(schedule.firstEvent);
+  }
 }

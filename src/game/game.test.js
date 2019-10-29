@@ -124,5 +124,13 @@ describe("Game class", () => {
       await p2;
       expect(x).toBe(6);
     });
+
+    it("calls onComplete when the event completes", async () => {
+      const event = new Event(() => x++);
+      event.onComplete = () => x++;
+      game.addEvent(event);
+      await game.handleTurnEnd();
+      expect(x).toBe(2);
+    });
   });
 });
