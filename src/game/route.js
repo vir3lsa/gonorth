@@ -46,6 +46,10 @@ export class Route {
         return this;
       }
 
+      withText(text) {
+        this.currentStep.text = text;
+      }
+
       build() {
         return new Route(this);
       }
@@ -67,7 +71,7 @@ export class Route {
 
     builder.steps.forEach(step => {
       scheduleBuilder
-        .addEvent(() => builder.subject.go(step.direction))
+        .addEvent(() => builder.subject.go(step.direction), step.text)
         .withDelay(step.delay)
         .withDelayType(step.delayType);
     });

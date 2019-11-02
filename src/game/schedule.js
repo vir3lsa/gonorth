@@ -50,7 +50,7 @@ export class Schedule {
         return this;
       }
 
-      addEvent(actions) {
+      addEvent(...actions) {
         return this.scheduleBuilder.addEvent(actions);
       }
 
