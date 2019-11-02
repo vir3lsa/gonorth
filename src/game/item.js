@@ -127,6 +127,11 @@ export default class Item {
     item.container = this;
   }
 
+  removeItem(item) {
+    delete this.items[item.name];
+    item.container = null;
+  }
+
   set hidesItems(hidesItems) {
     this._hidesItems = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
   }

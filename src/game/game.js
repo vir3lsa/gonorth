@@ -20,6 +20,7 @@ export default class Game {
     this.author = null;
     this.introActions = createChainableFunction(() => this.goToStartingRoom());
     this.events = [];
+    this.schedules = [];
     this._startingRoom = new Room(
       "Empty Room",
       "The room is completely devoid of anything interesting."
@@ -56,18 +57,11 @@ export default class Game {
 
   async handleTurnEnd() {
     for (let i in this.events) {
-      const event = this.events[i];
+      await processEvent(this.events[i]);
+    }
 
-      if (event.state === DORMANT && event.condition()) {
-        // First look for events to commence
-        await event.commence();
-      } else if (event.state === PENDING) {
-        // Then look for events that are counting down
-        await event.tick();
-      } else if (event.state === ACTIVE) {
-        // Then trigger active events
-        await event.trigger();
-      }
+    for (let i in this.schedules) {
+      await processEvent(this.schedules[i].currentEvent);
     }
 
     // End the turn
@@ -132,6 +126,19 @@ export default class Game {
   }
 
   addSchedule(schedule) {
-    this.events.push(schedule.firstEvent);
+    this.schedules.push(schedule);
+  }
+}
+
+async function processEvent(event) {
+  if (event.state === DORMANT && event.condition()) {
+    // First look for events to commence
+    await event.commence();
+  } else if (event.state === PENDING) {
+    // Then look for events that are counting down
+    await event.tick();
+  } else if (event.state === ACTIVE) {
+    // Then trigger active events
+    await event.trigger();
   }
 }

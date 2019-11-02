@@ -8,15 +8,24 @@ import { preferPaged } from "../utils/dynamicDescription";
 
 const selectGame = () => getStore().getState().game.game;
 
+const directionAliases = {
+  north: ["n", "forward", "straight on"],
+  south: ["s", "back", "backward", "reverse"],
+  east: ["e", "right"],
+  west: ["w", "left"],
+  up: ["u", "upward", "upwards"],
+  down: ["d", "downward", "downwards"]
+};
+
 export default class Room extends Item {
   constructor(name, description, options = []) {
     super(name, preferPaged(description), false, -1, [
-      new GoVerb("North", ["n", "forward", "straight on"]),
-      new GoVerb("South", ["s", "back", "backward", "reverse"]),
-      new GoVerb("East", ["e", "right"]),
-      new GoVerb("West", ["w", "left"]),
-      new GoVerb("Up", ["u", "upward", "upwards"]),
-      new GoVerb("Down", ["d", "downward", "downwards"])
+      new GoVerb("North", directionAliases["north"]),
+      new GoVerb("South", directionAliases["south"]),
+      new GoVerb("East", directionAliases["east"]),
+      new GoVerb("West", directionAliases["west"]),
+      new GoVerb("Up", directionAliases["up"]),
+      new GoVerb("Down", directionAliases["down"])
     ]);
     this.visits = 0;
     this.adjacentRooms = {};
@@ -48,13 +57,19 @@ export default class Room extends Item {
     }
 
     const direction = directionName.toLowerCase();
-    this.adjacentRooms[direction] = {
+    const aliases = [direction, ...(directionAliases[direction] || [])];
+    const directionObject = {
       room,
       test,
       successText,
       failureText,
       direction
     };
+
+    // Map each of the direction aliases to the direction object
+    aliases.forEach(alias => {
+      this.adjacentRooms[alias] = directionObject;
+    });
 
     // Add the verb if we don't already have it
     if (!this.verbs[directionName]) {

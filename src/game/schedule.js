@@ -17,8 +17,8 @@ export class Schedule {
         return this;
       }
 
-      addEvent() {
-        const eventBuilder = new EventBuilder(this);
+      addEvent(...actions) {
+        const eventBuilder = new EventBuilder(this, actions);
         this.eventBuilders.push(eventBuilder);
         return eventBuilder;
       }
@@ -29,13 +29,9 @@ export class Schedule {
     }
 
     class EventBuilder {
-      constructor(scheduleBuilder) {
+      constructor(scheduleBuilder, actions) {
         this.scheduleBuilder = scheduleBuilder;
-      }
-
-      withActions(actions) {
         this.actions = actions;
-        return this;
       }
 
       withDelay(delay) {
@@ -54,6 +50,10 @@ export class Schedule {
         return this;
       }
 
+      addEvent(actions) {
+        return this.scheduleBuilder.addEvent(actions);
+      }
+
       done() {
         return this.scheduleBuilder;
       }
@@ -64,6 +64,7 @@ export class Schedule {
 
   constructor(builder) {
     this.continueOnFail = builder.continueOnFail || false;
+    this.stage = 0;
 
     // Handle to next Event so previous event can trigger it
     let nextEvent;
@@ -87,6 +88,7 @@ export class Schedule {
         const nextInChain = nextEvent;
         event.onComplete = () => {
           if (event.state === SUCCEEDED || this.continueOnFail) {
+            this.stage++;
             nextInChain.commence();
           }
         };
@@ -99,7 +101,7 @@ export class Schedule {
     this.events.reverse();
   }
 
-  get firstEvent() {
-    return this.events[0];
+  get currentEvent() {
+    return this.events[this.stage];
   }
 }

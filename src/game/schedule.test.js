@@ -20,8 +20,7 @@ function createBuilder(condition, continueOnFail) {
 
 function addEvent(builder, delay, delayType, ...actions) {
   builder
-    .addEvent()
-    .withActions(...actions)
+    .addEvent(...actions)
     .withDelay(delay)
     .withDelayType(delayType);
 }
@@ -48,6 +47,28 @@ test("schedule executes", async () => {
 test("multiple events execute", async () => {
   const builder = createBuilder(true, false);
   addEvent(builder, 0, TIMEOUT_MILLIS, () => x++);
+  addEvent(builder, 0, TIMEOUT_TURNS, () => (x *= 3));
+  await buildAndExecute(builder);
+  expect(x).toBe(6);
+});
+
+test("failed action stops schedule", async () => {
+  const builder = createBuilder(true, false);
+  addEvent(builder, 0, TIMEOUT_MILLIS, () => {
+    x++;
+    return false; // Indicates fail
+  });
+  addEvent(builder, 0, TIMEOUT_TURNS, () => (x *= 3));
+  await buildAndExecute(builder);
+  expect(x).toBe(2);
+});
+
+test("failed action does not stop schedule if configured", async () => {
+  const builder = createBuilder(true, true);
+  addEvent(builder, 0, TIMEOUT_MILLIS, () => {
+    x++;
+    return false; // Indicates fail
+  });
   addEvent(builder, 0, TIMEOUT_TURNS, () => (x *= 3));
   await buildAndExecute(builder);
   expect(x).toBe(6);
