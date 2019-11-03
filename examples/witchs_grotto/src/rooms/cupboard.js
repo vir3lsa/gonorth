@@ -1,4 +1,4 @@
-import { Room, Option } from "../../../../lib/gonorth";
+import { Room, Option, RandomText } from "../../../../lib/gonorth";
 import { witch } from "./garden";
 
 export const cupboard = new Room(
@@ -11,8 +11,9 @@ cupboard.options = [
   new Option("Peek", () => {
     const noone =
       "You put your eye to the crack at the side of the door. There doesn't appear to be anyone out there.";
-    const watchOut =
-      "You peer furtively round the side of the door and quickly recoil. The witch is in the room. You hold your breath.";
+    const watchOut = new RandomText(
+      "You peer furtively round the side of the door and quickly recoil. The witch is in the room. You hold your breath."
+    );
     return witch.container.name === "Pantry" ? watchOut : noone;
   }),
   new Option(

@@ -1,7 +1,4 @@
 import Option from "./option";
-import { changeInteraction } from "../redux/gameActions";
-import { getStore } from "../redux/storeRegistry";
-import { Text, SequentialText } from "./text";
 
 /**
  * Replaces the current screen contents and displays text and prompts for user input, whether

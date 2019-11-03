@@ -76,7 +76,7 @@ test("NPCs can follow routes", async () => {
 });
 
 test("Movement can produce text", async () => {
-  const text = new CyclicText(["one", "two", "three"]);
+  const text = new CyclicText("one", "two", "three");
   createRoute(gran, true, false, text, "s", "e", "n", "w");
   await game.handleTurnEnd();
   expect(getCurrentPage().includes("one")).toBeTruthy();

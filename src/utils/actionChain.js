@@ -40,7 +40,7 @@ function toChainableFunction(action, i, actions) {
       return dispatchAppend(value, options, !lastAction, false);
     } else if (Array.isArray(value) && typeof value[0] === "string") {
       return expandSequentialText(
-        new SequentialText(value),
+        new SequentialText(...value),
         options,
         !lastAction
       );

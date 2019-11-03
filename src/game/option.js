@@ -22,8 +22,11 @@ export default class Option {
       getStore().dispatch(changeInteraction(new AppendInput(this.label)));
       // First perform the player actions
       await chainActions(actionChain, ...args);
-      // Do the end of turn actions
-      return selectGame().handleTurnEnd();
+
+      if (!getStore().getState().game.actionChainPromise) {
+        // Do the end of turn actions if there's no enclosing chain i.e. we came from room options
+        return selectGame().handleTurnEnd();
+      }
     };
   }
 }

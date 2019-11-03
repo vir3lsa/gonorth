@@ -1,4 +1,4 @@
-import { Text, SequentialText, CyclicText } from "./text";
+import { Text } from "./text";
 import { Verb } from "./verb";
 import { createDynamicText } from "../utils/dynamicDescription";
 

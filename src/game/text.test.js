@@ -3,8 +3,8 @@ import { CyclicText, RandomText } from "./text";
 let cyclic, random;
 
 beforeEach(() => {
-  cyclic = new CyclicText(["a", "b", "c"]);
-  random = new RandomText(["x", "y", "z"]);
+  cyclic = new CyclicText("a", "b", "c");
+  random = new RandomText("x", "y", "z");
 });
 
 test("Cyclic text gives texts in order", () => {
@@ -15,7 +15,7 @@ test("Cyclic text gives texts in order", () => {
 });
 
 test("Cyclic text works with just one entry", () => {
-  const text = new CyclicText(["a"]);
+  const text = new CyclicText("a");
   expect(text.next()).toBe("a");
   expect(text.next()).toBe("a");
   expect(text.next()).toBe("a");

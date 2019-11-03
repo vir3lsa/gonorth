@@ -32,7 +32,7 @@ it("Doesn't render a Next button for cyclic descriptions", () => {
 });
 
 it("renders each page of sequential text then stops", async () => {
-  const chair = new Item("chair", new SequentialText(["a", "b"]));
+  const chair = new Item("chair", new SequentialText("a", "b"));
   chair.try("x");
   setTimeout(() => selectOptions()[0].action());
   expect(selectOptions()).toBeNull();

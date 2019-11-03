@@ -1,10 +1,10 @@
 export class Text {
-  constructor(texts) {
+  constructor(...texts) {
     this.texts = texts;
     this.index = -1;
   }
 
-  set texts(texts = []) {
+  set texts(texts) {
     this._texts = Array.isArray(texts) ? texts : [texts];
   }
 
@@ -18,8 +18,8 @@ export class Text {
 }
 
 export class CyclicText extends Text {
-  constructor(texts) {
-    super(texts);
+  constructor(...texts) {
+    super(...texts);
   }
 
   next() {
@@ -38,15 +38,21 @@ export class CyclicText extends Text {
 }
 
 export class SequentialText extends CyclicText {
-  constructor(texts, paged) {
-    super(texts);
-    this.paged = paged;
+  constructor(...texts) {
+    super(...texts);
+  }
+}
+
+export class PagedText extends SequentialText {
+  constructor(...texts) {
+    super(...texts);
+    this.paged = true;
   }
 }
 
 export class RandomText extends Text {
-  constructor(texts) {
-    super(texts);
+  constructor(...texts) {
+    super(...texts);
   }
 
   next() {

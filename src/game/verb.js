@@ -1,6 +1,5 @@
 import { getStore } from "../redux/storeRegistry";
 import { verbCreated } from "../redux/gameActions";
-import { Append } from "./interaction";
 import { chainActions, createChainableFunction } from "../utils/actionChain";
 
 export class Verb {

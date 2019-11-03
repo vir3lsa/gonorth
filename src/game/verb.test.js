@@ -2,7 +2,7 @@ import { getStore } from "../redux/storeRegistry";
 import { Verb } from "./verb";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { Interaction } from "./interaction";
-import { CyclicText, SequentialText, RandomText } from "./text";
+import { CyclicText, SequentialText, RandomText, PagedText } from "./text";
 import { initStore } from "../redux/store";
 import Game from "./game";
 import Option from "./option";
@@ -81,7 +81,7 @@ it("adds new aliases to the global registry", () => {
 
 describe("chainable actions", () => {
   it("supports cyclic text", async () => {
-    verb.onSuccess = new CyclicText(["a", "b", "c"]);
+    verb.onSuccess = new CyclicText("a", "b", "c");
     await verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await verb.attempt(3);
@@ -93,7 +93,7 @@ describe("chainable actions", () => {
   });
 
   it("supports sequential text", async () => {
-    verb.onSuccess = new SequentialText(["a", "b", "c"]);
+    verb.onSuccess = new SequentialText("a", "b", "c");
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
@@ -104,7 +104,7 @@ describe("chainable actions", () => {
   });
 
   it("supports paged text", async () => {
-    verb.onSuccess = new SequentialText(["a", "b", "c"], true);
+    verb.onSuccess = new PagedText("a", "b", "c");
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
@@ -116,10 +116,7 @@ describe("chainable actions", () => {
 
   it("supports sequential text earlier in the chain", async () => {
     let pass = false;
-    verb.onSuccess = [
-      new SequentialText(["a", "b"], true),
-      () => (pass = true)
-    ];
+    verb.onSuccess = [new PagedText("a", "b"), () => (pass = true)];
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
@@ -130,7 +127,7 @@ describe("chainable actions", () => {
   });
 
   it("supports sequential text followed by normal text", async () => {
-    verb.onSuccess = [new SequentialText(["a", "b"], true), "c"];
+    verb.onSuccess = [new PagedText("a", "b"), "c"];
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
@@ -142,10 +139,7 @@ describe("chainable actions", () => {
 
   it("supports appending sequential text earlier in the chain", async () => {
     let pass = false;
-    verb.onSuccess = [
-      new SequentialText(["a", "b"], false),
-      () => (pass = true)
-    ];
+    verb.onSuccess = [new SequentialText("a", "b"), () => (pass = true)];
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
@@ -156,7 +150,7 @@ describe("chainable actions", () => {
   });
 
   it("supports appending sequential text followed by normal text", async () => {
-    verb.onSuccess = [new SequentialText(["a", "b"], false), "c"];
+    verb.onSuccess = [new SequentialText("a", "b"), "c"];
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
@@ -178,7 +172,7 @@ describe("chainable actions", () => {
   });
 
   it("cycles through messages", () => {
-    verb.onSuccess = new CyclicText(["a", "b", "c"]);
+    verb.onSuccess = new CyclicText("a", "b", "c");
     verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
     verb.attempt(3);
@@ -190,7 +184,7 @@ describe("chainable actions", () => {
   });
 
   it("selects random messages", () => {
-    verb.onSuccess = new RandomText(["x", "y", "z"]);
+    verb.onSuccess = new RandomText("x", "y", "z");
     verb.attempt(3);
     const page1 = selectCurrentPage();
     verb.attempt(3);
@@ -213,7 +207,7 @@ describe("chainable actions", () => {
   });
 
   it("Clears the page for paged text", async () => {
-    verb.onSuccess = ["blah", new SequentialText("jam", true)];
+    verb.onSuccess = ["blah", new PagedText("jam")];
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("blah");
     clickNext();
@@ -222,7 +216,7 @@ describe("chainable actions", () => {
   });
 
   it("Does not render Next buttons forever", async () => {
-    verb.onSuccess = new SequentialText(["one", "two"]);
+    verb.onSuccess = new SequentialText("one", "two");
     verb.attempt(3);
     await clickNextAndWait();
     expect(selectInteraction().options).toBeNull();

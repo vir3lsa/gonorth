@@ -3,7 +3,8 @@ import {
   Door,
   RandomText,
   Item,
-  SequentialText
+  SequentialText,
+  PagedText
 } from "../../../../lib/gonorth";
 import { cellarNook } from "./cellarNook";
 import { kitchen } from "./kitchen";
@@ -28,11 +29,11 @@ trapdoor.aliases = ["trap door"];
 
 const coalHatch = new Door(
   "coal hatch",
-  new RandomText([
+  new RandomText(
     "Double doors that open upwards and outwards to allow coal to be shovelled in.",
     "A small amount of grey light filters through the cracks between the wooden boards.",
     "If you could get it open, it'd be easily big enough to squeeze through and make your escape."
-  ]),
+  ),
   false,
   true
 );
@@ -43,24 +44,21 @@ unlockCoalHatch.onFailure = "The coal hatch is bolted from the other side.";
 
 const bubbles = new Item(
   "bubbles",
-  new SequentialText(
-    [
-      "You're sure you saw bubbles. Like something had moved just beneath the surface.",
-      "There! Unmistakeable this time. Ripples cross the surface of the opaque black water to lap at the edge just in front of your feet.",
-      "There's something in there."
-    ],
-    true
+  new PagedText(
+    "You're sure you saw bubbles. Like something had moved just beneath the surface.",
+    "There! Unmistakeable this time. Ripples cross the surface of the opaque black water to lap at the edge just in front of your feet.",
+    "There's something in there."
   )
 );
 bubbles.aliases = ["disturbance", "ripples", "bubble", "ripple", "surface"];
 
 const water = new Item(
   "water",
-  new SequentialText([
+  new SequentialText(
     "The water looks deep.",
     "The water looks cold.",
     "Are your eyes playing tricks on you, or did bubbles just break the surface a few feet from the edge?"
-  ])
+  )
 );
 water.aliases = ["flood", "deluge"];
 water.hidesItems = bubbles;

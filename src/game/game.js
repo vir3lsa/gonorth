@@ -10,7 +10,7 @@ import Option from "./option";
 import Room from "./room";
 import { DORMANT, PENDING, ACTIVE } from "./event";
 import { createChainableFunction, chainActions } from "../utils/actionChain";
-import { SequentialText } from "./text";
+import { PagedText } from "./text";
 
 export default class Game {
   constructor(title, debugMode) {
@@ -88,7 +88,7 @@ export default class Game {
       (Array.isArray(intro) && typeof intro[0] === "string")
     ) {
       this.introActions = createChainableFunction([
-        new SequentialText(intro, true),
+        new PagedText(intro),
         () => this.goToStartingRoom()
       ]);
     } else {
