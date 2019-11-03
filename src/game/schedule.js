@@ -72,7 +72,8 @@ export class Schedule {
     this.events = builder.eventBuilders.reverse().map((eventBuilder, index) => {
       let condition;
 
-      if (index === 0) {
+      if (index === builder.eventBuilders.length - 1) {
+        // Add condition to the last i.e. the first event in the (reversed) schedule
         condition = builder.condition || true;
       }
 

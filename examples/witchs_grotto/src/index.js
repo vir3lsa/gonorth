@@ -1,6 +1,12 @@
-import { Game, Event, TIMEOUT_MILLIS } from "../../../lib/gonorth";
+import {
+  Game,
+  TIMEOUT_MILLIS,
+  Route,
+  TIMEOUT_TURNS
+} from "../../../lib/gonorth";
 import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
+import { witch } from "./rooms/garden";
 
 const game = new Game("The Witch's Grotto", true);
 game.author = "Rich Locke";
@@ -14,12 +20,34 @@ if (typeof document !== "undefined") {
   game.attach(container);
 }
 
-const witchEnterHall = new Event(
-  "A door slams somewhere nearby. The witch is coming!",
-  () => game.room === pantry,
-  10000,
-  TIMEOUT_MILLIS
-);
+const witchArrival = new Route.Builder()
+  .withSubject(witch)
+  .withCondition(() => game.room === pantry)
+  .go("south")
+  .withDelay(10000)
+  .withDelayType(TIMEOUT_MILLIS)
+  .withText("A door slams somewhere nearby. The witch is coming!")
+  .go("west")
+  .withDelay(2)
+  .withDelayType(TIMEOUT_TURNS)
+  .withText(
+    "You hear footsteps. Sounds like they're coming from the kitchen. Hide!"
+  )
+  .go("south")
+  .withDelay(10000)
+  .withDelayType(TIMEOUT_MILLIS)
+  .withText(
+    "A door creaks, sending shivers down your spine. The witch is looking for you."
+  )
+  .go("east")
+  .withDelay(3)
+  .withDelayType(TIMEOUT_TURNS)
+  .withText("Another door slams. Where *is* she?")
+  .go("east")
+  .withDelay(3)
+  .withDelayType(TIMEOUT_TURNS)
+  .withText("Muffled footsteps sound elsewhere in the house. Be careful.")
+  .build();
 
-game.addEvent(witchEnterHall);
+game.addSchedule(witchArrival);
 game.play();

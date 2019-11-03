@@ -48,6 +48,7 @@ export class Route {
 
       withText(text) {
         this.currentStep.text = text;
+        return this;
       }
 
       build() {

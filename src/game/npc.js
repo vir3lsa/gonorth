@@ -2,8 +2,8 @@ import Item from "./item";
 import Room from "./room";
 
 export class Npc extends Item {
-  constructor(name) {
-    super(name, `${name} is unremarkable.`, false);
+  constructor(name, description) {
+    super(name, description || `${name} is unremarkable.`, false);
   }
 
   go(direction) {
