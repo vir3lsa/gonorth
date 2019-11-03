@@ -6,6 +6,7 @@ import Option from "./option";
 import Room from "./room";
 import { Verb } from "./verb";
 import { newGame } from "../redux/gameActions";
+import { receiveInput } from "../utils/inputReceiver";
 
 initStore();
 jest.mock("../utils/consoleIO");
@@ -17,9 +18,6 @@ const clickNext = () =>
 
 let game, x, y, room;
 
-// Prevent errors
-getStore().dispatch(newGame(new Game("test"), true, false));
-
 const eventTest = async (event, expectation) => {
   game.addEvent(event);
   await game.handleTurnEnd();
@@ -27,10 +25,13 @@ const eventTest = async (event, expectation) => {
   event.cancel();
 };
 
+const selectTurn = () => getStore().getState().game.turn;
+
 describe("Game class", () => {
   beforeEach(() => {
     game = new Game("title");
     room = new Room("stairs", "description", new Option("do it"));
+    getStore().dispatch(newGame(game, true, false));
     game.startingRoom = room;
     x = y = 0;
   });
@@ -54,6 +55,17 @@ describe("Game class", () => {
     const wrapper = game.goToStartingRoom();
     expect(wrapper.text.paged).toBeTruthy();
     expect(wrapper.options[0].label).toBe("do it");
+  });
+
+  it("increments the turn at the end of a chain", async () => {
+    room.addVerb(new Verb("shimmy", true, ["one", "two", "three"]));
+    game.goToStartingRoom();
+    setTimeout(async () => {
+      await clickNext();
+      await clickNext();
+    });
+    await receiveInput("shimmy");
+    expect(selectTurn()).toBe(2);
   });
 
   describe("events", () => {
