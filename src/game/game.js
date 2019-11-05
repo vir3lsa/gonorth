@@ -4,13 +4,18 @@ import { Provider } from "react-redux";
 
 import IODevice from "../web/iodevice";
 import { getStore } from "../redux/storeRegistry";
-import { newGame, changeInteraction, nextTurn } from "../redux/gameActions";
+import {
+  newGame,
+  changeInteraction,
+  nextTurn,
+  addEvent
+} from "../redux/gameActions";
 import { Interaction } from "./interaction";
 import Option from "./option";
 import Room from "./room";
-import { DORMANT, PENDING, ACTIVE } from "./event";
 import { createChainableFunction, chainActions } from "../utils/actionChain";
 import { PagedText } from "./text";
+import { processEvent } from "../utils/evenUtils";
 
 export default class Game {
   constructor(title, debugMode) {
@@ -19,7 +24,6 @@ export default class Game {
     this.container = null;
     this.author = null;
     this.introActions = createChainableFunction(() => this.goToStartingRoom());
-    this.events = [];
     this.schedules = [];
     this._startingRoom = new Room(
       "Empty Room",
@@ -56,8 +60,10 @@ export default class Game {
   }
 
   async handleTurnEnd() {
-    for (let i in this.events) {
-      await processEvent(this.events[i]);
+    const events = getStore().getState().game.events;
+
+    for (let i in events) {
+      await processEvent(events[i]);
     }
 
     for (let i in this.schedules) {
@@ -122,23 +128,10 @@ export default class Game {
   }
 
   addEvent(event) {
-    this.events.push(event);
+    getStore().dispatch(addEvent(event));
   }
 
   addSchedule(schedule) {
     this.schedules.push(schedule);
-  }
-}
-
-async function processEvent(event) {
-  if (event.state === DORMANT && event.condition()) {
-    // First look for events to commence
-    await event.commence();
-  } else if (event.state === PENDING) {
-    // Then look for events that are counting down
-    await event.tick();
-  } else if (event.state === ACTIVE) {
-    // Then trigger active events
-    await event.trigger();
   }
 }

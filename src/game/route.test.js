@@ -5,25 +5,17 @@ import { initStore } from "../redux/store";
 import { Npc } from "./npc";
 import Game from "./game";
 import { CyclicText } from "./text";
-import { getStore } from "../redux/storeRegistry";
+import { getStore, unregisterStore } from "../redux/storeRegistry";
+import { newGame } from "../redux/gameActions";
 
 jest.mock("../utils/consoleIO");
-initStore();
 
-const nw = new Room("nw");
-const sw = new Room("sw");
-const se = new Room("se");
-const ne = new Room("ne");
-
+let nw;
+let sw;
+let se;
+let ne;
 let game;
-
-nw.setSouth(sw);
-sw.setEast(se);
-se.setNorth(ne);
-ne.setWest(nw);
-
-const gran = new Npc("gran");
-nw.addItem(gran);
+let gran;
 
 function createRoute(
   subject,
@@ -55,7 +47,23 @@ function getCurrentPage() {
 }
 
 beforeEach(() => {
+  unregisterStore();
+  initStore();
   game = new Game();
+  getStore().dispatch(newGame(game, true, false));
+
+  nw = new Room("nw");
+  sw = new Room("sw");
+  se = new Room("se");
+  ne = new Room("ne");
+
+  nw.setSouth(sw);
+  sw.setEast(se);
+  se.setNorth(ne);
+  ne.setWest(nw);
+
+  gran = new Npc("gran");
+  nw.addItem(gran);
 });
 
 test("routes can be built", () => {

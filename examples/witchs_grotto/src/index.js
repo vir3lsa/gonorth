@@ -20,9 +20,19 @@ if (typeof document !== "undefined") {
   game.attach(container);
 }
 
+witch.addEncounter(
+  `The witch is here.
+  
+Your blood runs cold as her icy blue eyes fix you to the spot. For a moment, neither of you move, then suddenly she *lunges* for you, a snarl twisting her face.`
+);
+
 const witchArrival = new Route.Builder()
   .withSubject(witch)
   .withCondition(() => game.room === pantry)
+  .withContinueOnFail(false)
+  .withFindPlayerText(
+    "You hear a noise behind you and whirl round in time to see a tall woman dressed in a black shawl slip into the room."
+  )
   .go("south")
   .withDelay(10000)
   .withDelayType(TIMEOUT_MILLIS)

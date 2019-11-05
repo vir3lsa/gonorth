@@ -1,5 +1,6 @@
 import { Schedule } from "./schedule";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
+import { selectGame } from "../utils/selectors";
 
 export class Route {
   static get Builder() {
@@ -21,6 +22,11 @@ export class Route {
 
       withContinueOnFail(value) {
         this.continueOnFail = value;
+        return this;
+      }
+
+      withFindPlayerText(text) {
+        this.findPlayerText = text;
         return this;
       }
 
@@ -71,8 +77,19 @@ export class Route {
       .withContinueOnFail(builder.continueOnFail);
 
     builder.steps.forEach(step => {
+      const getText = () => {
+        if (
+          builder.subject.container === selectGame().room &&
+          builder.findPlayerText
+        ) {
+          return builder.findPlayerText;
+        }
+
+        return step.text;
+      };
+
       scheduleBuilder
-        .addEvent(() => builder.subject.go(step.direction), step.text)
+        .addEvent(() => builder.subject.go(step.direction), getText)
         .withDelay(step.delay)
         .withDelayType(step.delayType);
     });

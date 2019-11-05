@@ -1,6 +1,6 @@
 import Game from "./game";
 import { initStore } from "../redux/store";
-import { getStore } from "../redux/storeRegistry";
+import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import Option from "./option";
 import Room from "./room";
@@ -8,7 +8,6 @@ import { Verb } from "./verb";
 import { newGame } from "../redux/gameActions";
 import { receiveInput } from "../utils/inputReceiver";
 
-initStore();
 jest.mock("../utils/consoleIO");
 
 const clickNext = () =>
@@ -29,6 +28,8 @@ const selectTurn = () => getStore().getState().game.turn;
 
 describe("Game class", () => {
   beforeEach(() => {
+    unregisterStore();
+    initStore();
     game = new Game("title");
     room = new Room("stairs", "description", new Option("do it"));
     getStore().dispatch(newGame(game, true, false));
@@ -103,11 +104,11 @@ describe("Game class", () => {
       );
     });
 
-    it("triggers count down events after the required turns have passed", () => {
+    it("triggers count down events after the required turns have passed", async () => {
       game.addEvent(new Event(() => x++, true, 2, TIMEOUT_TURNS));
-      game.handleTurnEnd();
-      game.handleTurnEnd();
-      game.handleTurnEnd();
+      await game.handleTurnEnd();
+      await game.handleTurnEnd();
+      await game.handleTurnEnd();
       expect(x).toBe(1);
     });
 

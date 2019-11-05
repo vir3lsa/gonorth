@@ -100,3 +100,8 @@ export const chainEnded = promise => ({
   type: type.CHAIN_ENDED,
   payload: promise
 });
+
+export const addEvent = event => ({
+  type: type.ADD_EVENT,
+  payload: event
+});

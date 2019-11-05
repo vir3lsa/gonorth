@@ -16,3 +16,7 @@ export const getStore = () => {
     throw Error("Trying to get the store, but no store has been registered");
   }
 };
+
+export const unregisterStore = () => {
+  registeredStore = null;
+};

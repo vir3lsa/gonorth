@@ -8,7 +8,8 @@ const initialState = {
   interaction: new Interaction("Loading..."),
   verbNames: {},
   itemNames: new Set(),
-  actionChainPromise: null
+  actionChainPromise: null,
+  events: []
 };
 
 export default function(state = initialState, action) {
@@ -61,6 +62,9 @@ export default function(state = initialState, action) {
           ? null
           : state.actionChainPromise;
       return { ...state, actionChainPromise };
+    case type.ADD_EVENT:
+      const events = [...state.events, action.payload];
+      return { ...state, events };
     default:
       return state;
   }
