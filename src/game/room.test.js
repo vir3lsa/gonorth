@@ -4,6 +4,7 @@ import Room from "./room";
 import Game from "./game";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { Interaction } from "./interaction";
+import Item from "./item";
 
 initStore();
 
@@ -37,6 +38,26 @@ beforeEach(() => {
 });
 
 describe("Room", () => {
+  describe("description", () => {
+    it("prints item room listing", () => {
+      const item = new Item("candlestick", "ornate silver");
+      item.roomListing =
+        "There's an ornate silver candle holder on a side table";
+      hall.addItem(item);
+      expect(hall.itemListings.includes(item.roomListing)).toBeTruthy();
+    });
+
+    it("lists holdable items with no room listing", () => {
+      const item1 = new Item("candlestick", "", true);
+      const item2 = new Item("bread maker", "", true);
+      hall.addItem(item1);
+      hall.addItem(item2);
+      expect(
+        hall.itemListings.includes("candlestick,\n\tbread maker")
+      ).toBeTruthy();
+    });
+  });
+
   describe("adjacent rooms", () => {
     it("sets North", () => {
       hall.setNorth(north);

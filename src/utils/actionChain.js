@@ -36,7 +36,9 @@ function toChainableFunction(action, i, actions) {
       );
     }
 
-    if (typeof value === "string") {
+    if (value instanceof ActionChain) {
+      return chainActions(value);
+    } else if (typeof value === "string") {
       return dispatchAppend(value, options, !lastAction, false);
     } else if (Array.isArray(value) && typeof value[0] === "string") {
       return expandSequentialText(
@@ -78,7 +80,8 @@ async function expandSequentialText(sequentialText, options, nextIfNoOptions) {
   }
 }
 
-export const chainActions = async (actions, ...args) => {
+export async function chainActions(chain, ...args) {
+  const actions = chain instanceof ActionChain ? chain.actions : chain;
   let chainResolve, result;
   const chainPromise = new Promise(resolve => (chainResolve = resolve));
   getStore().dispatch(chainStarted(chainPromise));
@@ -96,4 +99,10 @@ export const chainActions = async (actions, ...args) => {
   chainResolve();
   getStore().dispatch(chainEnded(chainPromise));
   return result;
-};
+}
+
+export class ActionChain {
+  constructor(...actions) {
+    this.actions = actions;
+  }
+}

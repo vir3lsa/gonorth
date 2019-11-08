@@ -73,3 +73,15 @@ test("failed action does not stop schedule if configured", async () => {
   await buildAndExecute(builder);
   expect(x).toBe(6);
 });
+
+test("schedule can be cancelled", async () => {
+  const builder = createBuilder(true, false);
+  addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
+  addEvent(builder, 1, TIMEOUT_TURNS, () => (x *= 3));
+  const schedule = builder.build();
+  game.addSchedule(schedule);
+  await game.handleTurnEnd();
+  schedule.cancel();
+  await game.handleTurnEnd();
+  expect(x).toBe(2);
+});

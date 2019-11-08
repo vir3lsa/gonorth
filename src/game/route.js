@@ -100,4 +100,8 @@ export class Route {
   get currentEvent() {
     return this.schedule.currentEvent;
   }
+
+  cancel() {
+    this.schedule.cancel();
+  }
 }

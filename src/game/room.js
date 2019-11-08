@@ -4,7 +4,8 @@ import { GoVerb } from "./verb";
 import Item from "./item";
 import { itemsRevealed } from "../redux/gameActions";
 import { TextWrapper } from "./text";
-import { preferPaged } from "../utils/dynamicDescription";
+import { preferPaged, createDynamicText } from "../utils/dynamicDescription";
+import { ActionChain } from "../utils/actionChain";
 
 const selectGame = () => getStore().getState().game.game;
 
@@ -135,7 +136,9 @@ export default class Room extends Item {
     const direction = directionName.toLowerCase();
     const adjacent = this.adjacentRooms[direction].room;
     selectGame().room = adjacent;
-    return adjacent.textWrapper;
+    const wrapper = adjacent.textWrapper;
+    const listings = adjacent.itemListings;
+    return listings ? new ActionChain(wrapper, listings) : wrapper;
   }
 
   revealItems() {
@@ -144,5 +147,25 @@ export default class Room extends Item {
       .map(([name]) => name);
 
     getStore().dispatch(itemsRevealed(itemNames));
+  }
+
+  get itemListings() {
+    let description = "";
+    const plainList = []; // Items with no room listing
+
+    Object.values(this.items).forEach(item => {
+      if (item.roomListing) {
+        description += `${item.roomListing} `;
+      } else if (item.holdable) {
+        plainList.push(item.name); // We'll list this item separately
+      }
+    });
+
+    if (plainList.length) {
+      // Just list any items without room listings
+      description += `\n\nYou also see:\n\t${plainList.join(",\n\t")}`;
+    }
+
+    return description;
   }
 }

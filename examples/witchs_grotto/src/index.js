@@ -20,12 +20,6 @@ if (typeof document !== "undefined") {
   game.attach(container);
 }
 
-witch.addEncounter(
-  `The witch is here.
-  
-Your blood runs cold as her icy blue eyes fix you to the spot. For a moment, neither of you move, then suddenly she *lunges* for you, a snarl twisting her face.`
-);
-
 const witchArrival = new Route.Builder()
   .withSubject(witch)
   .withCondition(() => game.room === pantry)
@@ -60,4 +54,12 @@ const witchArrival = new Route.Builder()
   .build();
 
 game.addSchedule(witchArrival);
+
+witch.addEncounter(
+  () => witchArrival.cancel(),
+  `The witch is here.
+  
+Your blood runs cold as her icy blue eyes fix you to the spot. For a moment, neither of you move, then suddenly she *lunges* for you, a snarl twisting her face.`
+);
+
 game.play();

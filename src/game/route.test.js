@@ -93,3 +93,11 @@ test("Movement can produce text", async () => {
   await game.handleTurnEnd();
   expect(getCurrentPage().includes("three")).toBeTruthy();
 });
+
+test("Encounter triggers when NPC happens upon player", async () => {
+  createRoute(gran, true, false, null, "s", "e");
+  game.room = sw;
+  gran.addEncounter("Hello!");
+  await game.handleTurnEnd();
+  expect(getCurrentPage().includes("Hello!")).toBeTruthy();
+});

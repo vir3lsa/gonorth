@@ -21,6 +21,7 @@ export default class Item {
     this.container = null;
     this.verbs = verbs;
     this.hidesItems = hidesItems;
+    this.roomListing = null;
 
     this.addVerb(
       new Verb(
@@ -149,5 +150,13 @@ export default class Item {
       this.hidesItems.forEach(item => this.container.addItem(item));
       this.itemsRevealed = true;
     }
+  }
+
+  get roomListing() {
+    return this._roomListing;
+  }
+
+  set roomListing(listing) {
+    this._roomListing = listing;
   }
 }

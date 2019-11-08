@@ -88,7 +88,10 @@ export class Schedule {
         // Commence next event
         const nextInChain = nextEvent;
         event.onComplete = () => {
-          if (event.state === SUCCEEDED || this.continueOnFail) {
+          if (
+            (event.state === SUCCEEDED || this.continueOnFail) &&
+            !this.cancelled
+          ) {
             this.stage++;
             nextInChain.commence();
           }
@@ -104,5 +107,10 @@ export class Schedule {
 
   get currentEvent() {
     return this.events[this.stage];
+  }
+
+  cancel() {
+    this.cancelled = true;
+    this.currentEvent.cancel();
   }
 }
