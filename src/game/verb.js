@@ -1,6 +1,6 @@
 import { getStore } from "../redux/storeRegistry";
 import { verbCreated } from "../redux/gameActions";
-import { chainActions, createChainableFunction } from "../utils/actionChain";
+import { ActionChain } from "../utils/actionChain";
 
 export class Verb {
   constructor(name, test = true, onSuccess = [], onFailure = [], aliases = []) {
@@ -32,11 +32,13 @@ export class Verb {
   }
 
   set onSuccess(onSuccess) {
-    this._onSuccess = createChainableFunction(onSuccess);
+    this._onSuccess =
+      onSuccess instanceof ActionChain ? onSuccess : new ActionChain(onSuccess);
   }
 
   set onFailure(onFailure) {
-    this._onFailure = createChainableFunction(onFailure);
+    this._onFailure =
+      onFailure instanceof ActionChain ? onFailure : new ActionChain(onFailure);
   }
 
   get onSuccess() {
@@ -93,9 +95,9 @@ export class Verb {
 
   attempt(...args) {
     if (this._test(...args)) {
-      return chainActions(this.onSuccess, ...args);
+      return this.onSuccess.chain(...args);
     } else {
-      return chainActions(this.onFailure, ...args);
+      return this.onFailure.chain(...args);
     }
   }
 }

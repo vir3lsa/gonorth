@@ -7,11 +7,6 @@ import { Interaction, Append } from "../game/interaction";
 import { getStore } from "../redux/storeRegistry";
 import { Text, SequentialText, TextWrapper } from "../game/text";
 
-export const createChainableFunction = actions => {
-  const actionArray = Array.isArray(actions) ? actions : [actions];
-  return actionArray.map(toChainableFunction);
-};
-
 function toChainableFunction(action, i, actions) {
   let actionFunction = action;
   const lastAction = i === actions.length - 1;
@@ -80,29 +75,33 @@ async function expandSequentialText(sequentialText, options, nextIfNoOptions) {
   }
 }
 
-export async function chainActions(chain, ...args) {
-  const actions = chain instanceof ActionChain ? chain.actions : chain;
-  let chainResolve, result;
-  const chainPromise = new Promise(resolve => (chainResolve = resolve));
-  getStore().dispatch(chainStarted(chainPromise));
-
-  for (let i in actions) {
-    const action = actions[i];
-    result = await action(...args);
-
-    if (result === false) {
-      // Returning false from an action breaks the chain
-      break;
+export class ActionChain {
+  constructor(...actions) {
+    if (actions.length === 1 && Array.isArray(actions[0])) {
+      // An array was passed - unpack it
+      this.actions = actions[0].map(toChainableFunction);
+    } else {
+      this.actions = actions.map(toChainableFunction);
     }
   }
 
-  chainResolve();
-  getStore().dispatch(chainEnded(chainPromise));
-  return result;
-}
+  async chain(...args) {
+    let chainResolve, result;
+    const chainPromise = new Promise(resolve => (chainResolve = resolve));
+    getStore().dispatch(chainStarted(chainPromise));
 
-export class ActionChain {
-  constructor(...actions) {
-    this.actions = actions;
+    for (let i in this.actions) {
+      const action = this.actions[i];
+      result = await action(...args);
+
+      if (result === false) {
+        // Returning false from an action breaks the chain
+        break;
+      }
+    }
+
+    chainResolve();
+    getStore().dispatch(chainEnded(chainPromise));
+    return result;
   }
 }

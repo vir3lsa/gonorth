@@ -13,7 +13,7 @@ import {
 import { Interaction } from "./interaction";
 import Option from "./option";
 import Room from "./room";
-import { createChainableFunction, chainActions } from "../utils/actionChain";
+import { ActionChain } from "../utils/actionChain";
 import { PagedText } from "./text";
 import { processEvent } from "../utils/evenUtils";
 
@@ -23,7 +23,7 @@ export default class Game {
     this.debugMode = debugMode;
     this.container = null;
     this.author = null;
-    this.introActions = createChainableFunction(() => this.goToStartingRoom());
+    this.introActions = new ActionChain(() => this.goToStartingRoom());
     this.schedules = [];
     this._startingRoom = new Room(
       "Empty Room",
@@ -52,7 +52,7 @@ export default class Game {
     const titleScreen = new Interaction(
       output,
       new Option("Play", () => {
-        chainActions(this.introActions);
+        this.introActions.chain();
       })
     );
 
@@ -93,10 +93,9 @@ export default class Game {
       typeof intro === "string" ||
       (Array.isArray(intro) && typeof intro[0] === "string")
     ) {
-      this.introActions = createChainableFunction([
-        new PagedText(intro),
-        () => this.goToStartingRoom()
-      ]);
+      this.introActions = new ActionChain(new PagedText(intro), () =>
+        this.goToStartingRoom()
+      );
     } else {
       throw Error("Intro must be a string or a string array.");
     }

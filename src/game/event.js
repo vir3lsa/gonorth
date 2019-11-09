@@ -1,6 +1,5 @@
-import { chainActions, createChainableFunction } from "../utils/actionChain";
+import { ActionChain } from "../utils/actionChain";
 import { getStore } from "../redux/storeRegistry";
-import { selectGame } from "../utils/selectors";
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
@@ -30,7 +29,7 @@ export class Event {
   }
 
   set action(action) {
-    this._action = createChainableFunction(action);
+    this._action = new ActionChain(action);
   }
 
   get action() {
@@ -99,7 +98,7 @@ export class Event {
     }
 
     this.state = ACTIVE;
-    const result = await chainActions(this.action);
+    const result = await this.action.chain();
 
     if (result === false) {
       this.state = FAILED;
