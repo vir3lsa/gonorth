@@ -8,9 +8,7 @@ export default class Door extends Item {
     open = true,
     locked = false,
     openSuccessText,
-    openFailureText,
     unlockSuccessText,
-    unlockFailureText,
     aliases
   ) {
     super(
@@ -21,27 +19,39 @@ export default class Door extends Item {
       [
         new Verb(
           "open",
-          door => !door.locked,
+          door => !door.locked && !door.open,
           [
             door => (door.open = true),
             openSuccessText || `The ${name} opens relatively easily.`
           ],
-          openFailureText || `The ${name} is locked.`
+          door =>
+            door.open
+              ? `The ${name} is already open.`
+              : `The ${name} is locked.`
         ),
         new Verb(
           "close",
           door => door.open,
-          [door => (door.open = false), `You close the ${name}.`],
+          [
+            door => {
+              door.open = false;
+              return true;
+            },
+            `You close the ${name}.`
+          ],
           `The ${name} is already closed.`
         ),
         new Verb(
           "unlock",
           door => door.locked,
           [
-            door => (door.locked = false),
-            unlockSuccessText || `The ${name} unlocks with a soft click.`
+            door => {
+              door.locked = false;
+              return true;
+            },
+            unlockSuccessText || `The ${name} unlocks with a soft *click*.`
           ],
-          unlockFailureText || `The ${name} is already unlocked.`
+          `The ${name} is already unlocked.`
         )
       ],
       aliases
