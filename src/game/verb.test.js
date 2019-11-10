@@ -36,7 +36,7 @@ beforeEach(() => {
   verb = new Verb(
     "twirl",
     x => x > 2,
-    [x => (y = x + 1), "You twirl beautifully"],
+    [(fail, x) => (y = x + 1), "You twirl beautifully"],
     "You fall over",
     ["spin", "rotate"]
   );

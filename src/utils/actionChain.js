@@ -63,8 +63,8 @@ export class ActionChain {
       actionFunction = () => action;
     }
 
-    return (...args) => {
-      const value = actionFunction(...args);
+    return (failAction, ...args) => {
+      const value = actionFunction(failAction, ...args);
 
       // Render next buttons? Calculate here to ensure this.renderNexts is set
       const nextIfNoOptions = this.renderNexts && !lastAction;
@@ -111,10 +111,15 @@ export class ActionChain {
 
     for (let i in this._actions) {
       const action = this._actions[i];
-      result = await action(...args);
 
-      if (result === false) {
-        // Returning false from an action breaks the chain
+      // Create function to fail the action
+      let actionSucceeded = true;
+      const failAction = () => (actionSucceeded = false);
+
+      result = await action(failAction, ...args);
+
+      if (!actionSucceeded) {
+        // Failing an action breaks the chain
         break;
       }
     }

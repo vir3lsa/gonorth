@@ -21,10 +21,10 @@ export default class Door extends Item {
           "open",
           door => !door.locked && !door.open,
           [
-            door => (door.open = true),
+            (fail, door) => (door.open = true),
             openSuccessText || `The ${name} opens relatively easily.`
           ],
-          door =>
+          (fail, door) =>
             door.open
               ? `The ${name} is already open.`
               : `The ${name} is locked.`
@@ -32,23 +32,14 @@ export default class Door extends Item {
         new Verb(
           "close",
           door => door.open,
-          [
-            door => {
-              door.open = false;
-              return true;
-            },
-            `You close the ${name}.`
-          ],
+          [(fail, door) => (door.open = false), `You close the ${name}.`],
           `The ${name} is already closed.`
         ),
         new Verb(
           "unlock",
           door => door.locked,
           [
-            door => {
-              door.locked = false;
-              return true;
-            },
+            (fail, door) => (door.locked = false),
             unlockSuccessText || `The ${name} unlocks with a soft *click*.`
           ],
           `The ${name} is already unlocked.`
