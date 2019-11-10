@@ -3,8 +3,7 @@ import Door from "./door";
 import { GoVerb } from "./verb";
 import Item from "./item";
 import { itemsRevealed } from "../redux/gameActions";
-import { TextWrapper } from "./text";
-import { preferPaged, createDynamicText } from "../utils/dynamicDescription";
+import { preferPaged } from "../utils/dynamicDescription";
 import { ActionChain } from "../utils/actionChain";
 
 const selectGame = () => getStore().getState().game.game;
@@ -19,7 +18,7 @@ const directionAliases = {
 };
 
 export default class Room extends Item {
-  constructor(name, description, options = []) {
+  constructor(name, description, options) {
     super(name, preferPaged(description), false, -1, [
       new GoVerb("North", directionAliases["north"]),
       new GoVerb("South", directionAliases["south"]),
@@ -30,20 +29,17 @@ export default class Room extends Item {
     ]);
     this.visits = 0;
     this.adjacentRooms = {};
-    this.items = {};
     this.options = options;
   }
 
   set options(options) {
-    this._options = Array.isArray(options) ? options : [options];
+    if (options) {
+      this._options = Array.isArray(options) ? options : [options];
+    }
   }
 
   get options() {
     return this._options;
-  }
-
-  get textWrapper() {
-    return new TextWrapper(this.description, this.options);
   }
 
   addAdjacentRoom(room, directionName, navigable, successText, failureText) {
@@ -136,9 +132,24 @@ export default class Room extends Item {
     const direction = directionName.toLowerCase();
     const adjacent = this.adjacentRooms[direction].room;
     selectGame().room = adjacent;
-    const wrapper = adjacent.textWrapper;
-    const listings = adjacent.itemListings;
-    return listings ? new ActionChain(wrapper, listings) : wrapper;
+    return adjacent.actionChain;
+  }
+
+  /**
+   * Get the ActionChain (including any options) associated with going to this room.
+   */
+  get actionChain() {
+    const actions = [this.description];
+
+    if (this.itemListings) {
+      actions.push(this.itemListings);
+    }
+
+    const chain = new ActionChain(...actions);
+    chain.options = this.options;
+    chain.renderNexts = false; // Render all the text (on the last page) immediately
+
+    return chain;
   }
 
   revealItems() {
@@ -153,7 +164,7 @@ export default class Room extends Item {
     let description = "";
     const plainList = []; // Items with no room listing
 
-    Object.values(this.items).forEach(item => {
+    this.uniqueItems.forEach(item => {
       if (item.roomListing) {
         description += `${item.roomListing} `;
       } else if (item.holdable) {

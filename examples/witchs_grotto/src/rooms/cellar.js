@@ -85,5 +85,15 @@ cellar.setUp(
   "The trapdoor's shut but moves when you push experimentally against it, as if the old bat forgot to lock it. You think you can probably heave it open with a bit of strength."
 );
 
+const pale = new Item(
+  "pale",
+  "The bucket looks like it's seen better days. It's rusted right through on the bottom. It's not going to be holding water any time soon. The handle is still intact though.",
+  true
+);
+pale.aliases = ["rusty pale", "bucket"];
+pale.roomListing =
+  "There's a rusty pale lying on its side near the water's edge.";
+
 cellar.addItem(trapdoor);
 cellar.addItem(coalHatch);
+cellar.addItem(pale);

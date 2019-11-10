@@ -7,6 +7,7 @@ import Room from "./room";
 import { Verb } from "./verb";
 import { newGame } from "../redux/gameActions";
 import { receiveInput } from "../utils/inputReceiver";
+import { ActionChain } from "../utils/actionChain";
 
 jest.mock("../utils/consoleIO");
 
@@ -52,10 +53,10 @@ describe("Game class", () => {
     expect(game.room).toBe(room);
   });
 
-  it("returns starting room text wrapper", () => {
-    const wrapper = game.goToStartingRoom();
-    expect(wrapper.text.paged).toBeTruthy();
-    expect(wrapper.options[0].label).toBe("do it");
+  it("returns starting room action chain", () => {
+    const chain = game.goToStartingRoom();
+    expect(chain instanceof ActionChain).toBeTruthy();
+    expect(chain.options[0].label).toBe("do it");
   });
 
   it("increments the turn at the end of a chain", async () => {

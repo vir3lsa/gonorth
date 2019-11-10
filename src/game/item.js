@@ -22,6 +22,8 @@ export default class Item {
     this.verbs = verbs;
     this.hidesItems = hidesItems;
     this.roomListing = null;
+    this.items = {};
+    this.uniqueItems = new Set();
 
     this.addVerb(
       new Verb(
@@ -124,6 +126,7 @@ export default class Item {
       throw Error(`Item '${this.name}' already has an item called '${name}'`);
     }
 
+    this.uniqueItems.add(item);
     this.items[name] = item;
     item.container = this;
   }
@@ -158,5 +161,14 @@ export default class Item {
 
   set roomListing(listing) {
     this._roomListing = listing;
+  }
+
+  get items() {
+    return this._items;
+  }
+
+  set items(items) {
+    this._items = items;
+    this.uniqueItems = new Set(...Object.values(this._items));
   }
 }

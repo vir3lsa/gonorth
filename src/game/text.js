@@ -67,10 +67,3 @@ export class RandomText extends Text {
     return text;
   }
 }
-
-export class TextWrapper {
-  constructor(text, options) {
-    this.text = text;
-    this.options = options;
-  }
-}

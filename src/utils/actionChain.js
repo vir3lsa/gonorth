@@ -7,53 +7,6 @@ import { Interaction, Append } from "../game/interaction";
 import { getStore } from "../redux/storeRegistry";
 import { Text, SequentialText, TextWrapper } from "../game/text";
 
-function toChainableFunction(action, i, actions) {
-  let actionFunction = action;
-  const lastAction = i === actions.length - 1;
-
-  if (typeof actionFunction !== "function") {
-    actionFunction = () => action;
-  }
-
-  return (...args) => {
-    const result = actionFunction(...args);
-    let value = result;
-    let options;
-
-    if (result instanceof TextWrapper) {
-      options = result.options;
-      value = result.text;
-    }
-
-    if (!lastAction && (options || (value && value.options))) {
-      throw Error(
-        "Custom options are only supported at the end of action chains."
-      );
-    }
-
-    if (value instanceof ActionChain) {
-      return chainActions(value);
-    } else if (typeof value === "string") {
-      return dispatchAppend(value, options, !lastAction, false);
-    } else if (Array.isArray(value) && typeof value[0] === "string") {
-      return expandSequentialText(
-        new SequentialText(...value),
-        options,
-        !lastAction
-      );
-    } else if (value instanceof SequentialText) {
-      return expandSequentialText(value, options, !lastAction);
-    } else if (value instanceof Text) {
-      return dispatchAppend(value.next(), options, !lastAction, value.paged);
-    } else if (value instanceof Interaction) {
-      return getStore().dispatch(changeInteraction(value));
-    }
-
-    // This is an arbitrary action that shouldn't create a new interaction
-    return result;
-  };
-}
-
 function dispatchAppend(text, options, nextIfNoOptions, clearPage) {
   const interactionType = clearPage ? Interaction : Append;
 
@@ -77,12 +30,78 @@ async function expandSequentialText(sequentialText, options, nextIfNoOptions) {
 
 export class ActionChain {
   constructor(...actions) {
+    this.actions = actions;
+    this.renderNexts = true;
+  }
+
+  set options(options) {
+    this._options = options;
+  }
+
+  get options() {
+    return this._options;
+  }
+
+  set actions(actions) {
     if (actions.length === 1 && Array.isArray(actions[0])) {
       // An array was passed - unpack it
-      this.actions = actions[0].map(toChainableFunction);
+      this._actions = actions[0].map((action, i, actions) =>
+        this.toChainableFunction(action, i, actions)
+      );
     } else {
-      this.actions = actions.map(toChainableFunction);
+      this._actions = actions.map((action, i, actions) =>
+        this.toChainableFunction(action, i, actions)
+      );
     }
+  }
+
+  toChainableFunction(action, i, actions) {
+    let actionFunction = action;
+    const lastAction = i === actions.length - 1;
+
+    if (typeof actionFunction !== "function") {
+      actionFunction = () => action;
+    }
+
+    return (...args) => {
+      const value = actionFunction(...args);
+
+      // Render next buttons? Calculate here to ensure this.renderNexts is set
+      const nextIfNoOptions = this.renderNexts && !lastAction;
+
+      // If this isn't the last action and new value is ActionChain with options
+      if (!lastAction && value && value.options) {
+        throw Error(
+          "Custom options are only supported at the end of action chains."
+        );
+      }
+
+      if (value instanceof ActionChain) {
+        return value.chain(...args);
+      } else if (typeof value === "string") {
+        return dispatchAppend(value, this.options, nextIfNoOptions, false);
+      } else if (Array.isArray(value) && typeof value[0] === "string") {
+        return expandSequentialText(
+          new SequentialText(...value),
+          this.options,
+          nextIfNoOptions
+        );
+      } else if (value instanceof SequentialText) {
+        return expandSequentialText(value, this.options, nextIfNoOptions);
+      } else if (value instanceof Text) {
+        return dispatchAppend(
+          value.next(),
+          this.options,
+          nextIfNoOptions,
+          value.paged
+        );
+      } else if (value instanceof Interaction) {
+        return getStore().dispatch(changeInteraction(value));
+      }
+
+      // This is an arbitrary action that shouldn't create a new interaction
+      return value;
+    };
   }
 
   async chain(...args) {
@@ -90,8 +109,8 @@ export class ActionChain {
     const chainPromise = new Promise(resolve => (chainResolve = resolve));
     getStore().dispatch(chainStarted(chainPromise));
 
-    for (let i in this.actions) {
-      const action = this.actions[i];
+    for (let i in this._actions) {
+      const action = this._actions[i];
       result = await action(...args);
 
       if (result === false) {
