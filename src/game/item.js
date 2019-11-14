@@ -1,13 +1,16 @@
-import { Text } from "./text";
+import { Text, RandomText } from "./text";
 import { Verb } from "./verb";
 import { createDynamicText } from "../utils/dynamicDescription";
+import { selectInventory } from "../utils/selectors";
+import { getStore } from "../redux/storeRegistry";
+import { pickUpItem } from "../redux/gameActions";
 
 export default class Item {
   constructor(
     name,
     description,
     holdable,
-    size,
+    size = 1,
     verbs = [],
     aliases = [],
     hidesItems = []
@@ -34,6 +37,28 @@ export default class Item {
         ["ex", "x", "look at", "inspect"]
       )
     );
+
+    if (this.holdable) {
+      this.addVerb(
+        new Verb(
+          "take",
+          () => this.size < selectInventory().free && this.container,
+          [
+            () => {
+              this.container.removeItem(this);
+              return getStore().dispatch(pickUpItem(this));
+            },
+            new RandomText(
+              `You take the ${this.name}.`,
+              `You pick up the ${this.name}.`,
+              `You grab the ${this.name}.`
+            )
+          ],
+          `You don't have enough room for the ${this.name}.`,
+          ["pick up", "steal", "grab", "hold"]
+        )
+      );
+    }
   }
 
   get description() {
@@ -61,8 +86,8 @@ export default class Item {
   }
 
   _addAliasesToContainer() {
-    if (this._container && this._aliases) {
-      this._aliases.forEach(alias => {
+    if (this._container && this.aliases) {
+      this.aliases.forEach(alias => {
         this._container.items[alias.toLowerCase()] = this;
       });
     }
@@ -87,6 +112,10 @@ export default class Item {
 
   get container() {
     return this._container;
+  }
+
+  get aliases() {
+    return this._aliases;
   }
 
   /**
@@ -134,6 +163,11 @@ export default class Item {
   removeItem(item) {
     delete this.items[item.name];
     item.container = null;
+
+    // Remove aliases
+    item.aliases.forEach(alias => {
+      delete this.items[alias];
+    });
   }
 
   set hidesItems(hidesItems) {

@@ -9,7 +9,12 @@ const initialState = {
   verbNames: {},
   itemNames: new Set(),
   actionChainPromise: null,
-  events: []
+  events: [],
+  inventory: {
+    items: {},
+    capacity: 10,
+    free: 10
+  }
 };
 
 export default function(state = initialState, action) {
@@ -65,6 +70,19 @@ export default function(state = initialState, action) {
     case type.ADD_EVENT:
       const events = [...state.events, action.payload];
       return { ...state, events };
+    case type.PICK_UP_ITEM:
+      const item = action.payload;
+      const inventoryItems = { ...state.inventory.items, [item.name]: item };
+      item.aliases.forEach(alias => (inventoryItems[alias] = item));
+      const inventory = { ...state.inventory, items: inventoryItems };
+      inventory.free -= item.size;
+      return { ...state, inventory };
+    case type.INVENTORY_SIZE:
+      const inv = state.inventory;
+      const total = inv.capacity - inv.free;
+      inv.capacity = action.payload;
+      inv.free = inv.capacity - total;
+      return { ...state, inventory: inv };
     default:
       return state;
   }

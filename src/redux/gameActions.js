@@ -105,3 +105,13 @@ export const addEvent = event => ({
   type: type.ADD_EVENT,
   payload: event
 });
+
+export const pickUpItem = item => ({
+  type: type.PICK_UP_ITEM,
+  payload: item
+});
+
+export const setInventorySize = size => ({
+  type: type.INVENTORY_SIZE,
+  payload: size
+});

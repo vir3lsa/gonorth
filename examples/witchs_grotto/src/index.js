@@ -62,4 +62,5 @@ witch.addEncounter(
 Your blood runs cold as her icy blue eyes fix you to the spot. For a moment, neither of you move, then suddenly she *lunges* for you, a snarl twisting her face.`
 );
 
+game.setInventoryCapacity(10);
 game.play();

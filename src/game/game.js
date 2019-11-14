@@ -8,7 +8,8 @@ import {
   newGame,
   changeInteraction,
   nextTurn,
-  addEvent
+  addEvent,
+  setInventorySize
 } from "../redux/gameActions";
 import { Interaction } from "./interaction";
 import Option from "./option";
@@ -132,5 +133,9 @@ export default class Game {
 
   addSchedule(schedule) {
     this.schedules.push(schedule);
+  }
+
+  setInventoryCapacity(size) {
+    getStore().dispatch(setInventorySize(size));
   }
 }

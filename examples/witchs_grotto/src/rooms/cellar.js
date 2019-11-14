@@ -88,7 +88,8 @@ cellar.setUp(
 const pale = new Item(
   "pale",
   "The bucket looks like it's seen better days. It's rusted right through on the bottom. It's not going to be holding water any time soon. The handle is still intact though.",
-  true
+  true,
+  3
 );
 pale.aliases = ["rusty pale", "bucket"];
 pale.roomListing =
