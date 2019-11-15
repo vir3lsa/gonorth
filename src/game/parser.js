@@ -1,10 +1,12 @@
 import { getStore } from "../redux/storeRegistry";
 import { changeInteraction } from "../redux/gameActions";
 import { Interaction } from "./interaction";
-
-const selectRoom = () => getStore().getState().game.game.room;
-const selectVerbNames = () => getStore().getState().game.verbNames;
-const selectItemNames = () => getStore().getState().game.itemNames;
+import {
+  selectVerbNames,
+  selectRoom,
+  selectItemNames,
+  selectInventory
+} from "../utils/selectors";
 
 export const parsePlayerInput = input => {
   const tokens = input
@@ -72,6 +74,18 @@ export const parsePlayerInput = input => {
           if (roomItem && roomItem.visible && roomItem.verbs[possibleVerb]) {
             // The verb and item match so attempt the action
             return roomItem.try(possibleVerb);
+          }
+
+          // Try items in the player's inventory instead
+          const inventoryItem = selectInventory().items[possibleItem];
+
+          if (inventoryItem) {
+            roomItem = inventoryItem;
+
+            if (roomItem && roomItem.visible && roomItem.verbs[possibleVerb]) {
+              // The verb and item match so attempt the action
+              return roomItem.try(possibleVerb);
+            }
           }
         }
       }

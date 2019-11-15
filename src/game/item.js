@@ -54,7 +54,10 @@ export default class Item {
               `You grab the ${this.name}.`
             )
           ],
-          `You don't have enough room for the ${this.name}.`,
+          () =>
+            this.container
+              ? `You don't have enough room for the ${this.name}.`
+              : `You're already carrying the ${this.name}!`,
           ["pick up", "steal", "grab", "hold"]
         )
       );

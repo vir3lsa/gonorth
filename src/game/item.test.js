@@ -8,6 +8,8 @@ import Game from "./game";
 import Room from "./room";
 
 const selectOptions = () => getStore().getState().game.interaction.options;
+const selectCurrentPage = () =>
+  getStore().getState().game.interaction.currentPage;
 
 let game, room;
 
@@ -74,4 +76,12 @@ test("items can't be picked up if there's no room left", async () => {
   await panda.try("take");
   expect(selectInventory().items["medicine ball"]).not.toBeUndefined();
   expect(selectInventory().items.panda).toBeUndefined();
+});
+
+test("items can't be picked up twice", async () => {
+  const cup = new Item("cup", "little", true, 1);
+  room.addItem(cup);
+  await cup.try("take");
+  await cup.try("take");
+  expect(selectCurrentPage().includes("already carrying")).toBe(true);
 });
