@@ -140,14 +140,12 @@ export default class Room extends Item {
    */
   get actionChain() {
     const actions = [this.description];
-
-    if (this.itemListings) {
-      actions.push(this.itemListings);
-    }
-
     const chain = new ActionChain(...actions);
     chain.options = this.options;
-    chain.renderNexts = false; // Render all the text (on the last page) immediately
+
+    if (this.itemListings) {
+      chain.postScript = this.itemListings;
+    }
 
     return chain;
   }

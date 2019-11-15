@@ -5,7 +5,7 @@ import {
 } from "../redux/gameActions";
 import { Interaction, Append } from "../game/interaction";
 import { getStore } from "../redux/storeRegistry";
-import { Text, SequentialText, TextWrapper } from "../game/text";
+import { Text, SequentialText } from "../game/text";
 
 function dispatchAppend(text, options, nextIfNoOptions, clearPage) {
   const interactionType = clearPage ? Interaction : Append;
@@ -15,23 +15,11 @@ function dispatchAppend(text, options, nextIfNoOptions, clearPage) {
   );
 }
 
-async function expandSequentialText(sequentialText, options, nextIfNoOptions) {
-  const texts = sequentialText.texts;
-  for (let index = 0; index < texts.length; index++) {
-    const lastPage = index === texts.length - 1;
-    await dispatchAppend(
-      texts[index],
-      lastPage ? options : null,
-      nextIfNoOptions || !lastPage,
-      sequentialText.paged
-    );
-  }
-}
-
 export class ActionChain {
   constructor(...actions) {
     this.actions = actions;
     this.renderNexts = true;
+    this.postScript = null;
   }
 
   set options(options) {
@@ -40,6 +28,14 @@ export class ActionChain {
 
   get options() {
     return this._options;
+  }
+
+  set postScript(postScript) {
+    this._postScript = postScript;
+  }
+
+  get postScript() {
+    return this._postScript;
   }
 
   set actions(actions) {
@@ -69,6 +65,13 @@ export class ActionChain {
       // Render next buttons? Calculate here to ensure this.renderNexts is set
       const nextIfNoOptions = this.renderNexts && !lastAction;
 
+      // Add a post-script?
+      let postScript = "";
+
+      if (lastAction && this.postScript) {
+        postScript = `\n\n${this.postScript}`;
+      }
+
       // If this isn't the last action and new value is ActionChain with options
       if (!lastAction && value && value.options) {
         throw Error(
@@ -79,18 +82,29 @@ export class ActionChain {
       if (value instanceof ActionChain) {
         return value.chain(...args);
       } else if (typeof value === "string") {
-        return dispatchAppend(value, this.options, nextIfNoOptions, false);
+        return dispatchAppend(
+          `${value}${postScript}`,
+          this.options,
+          nextIfNoOptions,
+          false
+        );
       } else if (Array.isArray(value) && typeof value[0] === "string") {
-        return expandSequentialText(
+        return this.expandSequentialText(
           new SequentialText(...value),
           this.options,
-          nextIfNoOptions
+          nextIfNoOptions,
+          postScript
         );
       } else if (value instanceof SequentialText) {
-        return expandSequentialText(value, this.options, nextIfNoOptions);
+        return this.expandSequentialText(
+          value,
+          this.options,
+          nextIfNoOptions,
+          postScript
+        );
       } else if (value instanceof Text) {
         return dispatchAppend(
-          value.next(),
+          `${value.next()}${postScript}`,
           this.options,
           nextIfNoOptions,
           value.paged
@@ -102,6 +116,25 @@ export class ActionChain {
       // This is an arbitrary action that shouldn't create a new interaction
       return value;
     };
+  }
+
+  async expandSequentialText(
+    sequentialText,
+    options,
+    nextIfNoOptions,
+    postScript
+  ) {
+    const texts = sequentialText.texts;
+    for (let index = 0; index < texts.length; index++) {
+      const lastPage = index === texts.length - 1;
+
+      await dispatchAppend(
+        `${texts[index]}${lastPage ? postScript : ""}`,
+        lastPage ? options : null,
+        nextIfNoOptions || !lastPage,
+        sequentialText.paged
+      );
+    }
   }
 
   async chain(...args) {
