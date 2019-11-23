@@ -9,3 +9,4 @@ export const CHAIN_ENDED = "CHAIN_ENDED";
 export const ADD_EVENT = "ADD_EVENT";
 export const PICK_UP_ITEM = "PICK_UP_ITEM";
 export const INVENTORY_SIZE = "INVENTORY_SIZE";
+export const ADD_KEYWORDS = "ADD_KEYWORDS";

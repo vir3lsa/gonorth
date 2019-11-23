@@ -1,11 +1,12 @@
 import { getStore } from "../redux/storeRegistry";
 import { changeInteraction } from "../redux/gameActions";
-import { Interaction } from "./interaction";
+import { Interaction, Append } from "./interaction";
 import {
   selectVerbNames,
   selectRoom,
   selectItemNames,
-  selectInventory
+  selectInventory,
+  selectKeywords
 } from "../utils/selectors";
 
 export const parsePlayerInput = input => {
@@ -36,8 +37,15 @@ export const parsePlayerInput = input => {
       registeredVerb = canonicalVerb || registeredVerb;
       const verbEndIndex = verbIndex + numWords;
 
-      // If the player hasn't included an item, try the current room
+      // If the player hasn't included an item, try keywords and the current room
       if (verbEndIndex === tokens.length) {
+        // Is the verb a keyword?
+        const keyword = selectKeywords()[possibleVerb];
+
+        if (keyword) {
+          return keyword.attempt();
+        }
+
         // Is the verb in the current room?
         const roomVerb = room.verbs[possibleVerb];
 
@@ -116,5 +124,5 @@ export const parsePlayerInput = input => {
     }
   }
 
-  getStore().dispatch(changeInteraction(new Interaction(message)));
+  getStore().dispatch(changeInteraction(new Append(message)));
 };

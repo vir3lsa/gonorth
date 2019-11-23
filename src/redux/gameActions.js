@@ -115,3 +115,8 @@ export const setInventorySize = size => ({
   type: type.INVENTORY_SIZE,
   payload: size
 });
+
+export const addKeywords = keywords => ({
+  type: type.ADD_KEYWORDS,
+  keywords
+});

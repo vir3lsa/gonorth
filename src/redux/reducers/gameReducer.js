@@ -12,9 +12,11 @@ const initialState = {
   events: [],
   inventory: {
     items: {},
+    unique: [],
     capacity: 10,
     free: 10
-  }
+  },
+  keywords: {}
 };
 
 export default function(state = initialState, action) {
@@ -47,10 +49,7 @@ export default function(state = initialState, action) {
       return { ...state, turn: state.turn + 1 };
     case type.VERB_CREATED:
       const verbNames = { ...state.verbNames, ...action.payload };
-      return {
-        ...state,
-        verbNames
-      };
+      return { ...state, verbNames };
     case type.ITEMS_REVEALED:
       return {
         ...state,
@@ -76,6 +75,7 @@ export default function(state = initialState, action) {
       item.aliases.forEach(alias => (inventoryItems[alias] = item));
       const inventory = { ...state.inventory, items: inventoryItems };
       inventory.free -= item.size;
+      inventory.unique = [...state.inventory.unique, item.name];
       return { ...state, inventory };
     case type.INVENTORY_SIZE:
       const inv = state.inventory;
@@ -83,6 +83,8 @@ export default function(state = initialState, action) {
       inv.capacity = action.payload;
       inv.free = inv.capacity - total;
       return { ...state, inventory: inv };
+    case type.ADD_KEYWORDS:
+      return { ...state, keywords: { ...state.keywords, ...action.keywords } };
     default:
       return state;
   }

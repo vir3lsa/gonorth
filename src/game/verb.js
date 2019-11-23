@@ -1,10 +1,18 @@
 import { getStore } from "../redux/storeRegistry";
-import { verbCreated } from "../redux/gameActions";
+import { verbCreated, addKeywords } from "../redux/gameActions";
 import { ActionChain } from "../utils/actionChain";
 
 export class Verb {
-  constructor(name, test = true, onSuccess = [], onFailure = [], aliases = []) {
+  constructor(
+    name,
+    test = true,
+    onSuccess = [],
+    onFailure = [],
+    aliases = [],
+    isKeyword = false
+  ) {
     this.name = name.trim().toLowerCase();
+    this.isKeyword = isKeyword;
     this.aliases = aliases || [];
     this._parent = null;
 
@@ -90,6 +98,18 @@ export class Verb {
         { [this.name]: this.name }
       );
       getStore().dispatch(verbCreated(nameMap));
+
+      if (this.isKeyword) {
+        const keywordMap = this.aliases.reduce(
+          (acc, alias) => {
+            acc[alias] = this;
+            return acc;
+          },
+          { [this.name]: this }
+        );
+
+        getStore().dispatch(addKeywords(keywordMap));
+      }
     }
   }
 

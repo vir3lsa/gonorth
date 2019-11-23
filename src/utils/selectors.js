@@ -5,3 +5,4 @@ export const selectInventory = () => getStore().getState().game.inventory;
 export const selectRoom = () => getStore().getState().game.game.room;
 export const selectVerbNames = () => getStore().getState().game.verbNames;
 export const selectItemNames = () => getStore().getState().game.itemNames;
+export const selectKeywords = () => getStore().getState().game.keywords;

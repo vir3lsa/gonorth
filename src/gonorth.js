@@ -1,6 +1,8 @@
 import { initStore } from "./redux/store";
+import { createKeywords } from "./game/keywords";
 
 initStore();
+createKeywords();
 
 export { default as Game } from "./game/game";
 export { default as Room } from "./game/room";

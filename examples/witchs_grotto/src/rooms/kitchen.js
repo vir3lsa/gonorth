@@ -1,4 +1,4 @@
-import { Room } from "../../../../lib/gonorth";
+import { Room, Item } from "../../../../lib/gonorth";
 import { diningRoom } from "./diningRoom";
 import { pantry } from "./pantry";
 import { entranceHall } from "./entranceHall";
@@ -10,6 +10,16 @@ export const kitchen = new Room(
 An archway leads West, a rickety door barely hangs on its hinges to the South and a sturdier looking door leads East.`
 );
 
+const cookBook = new Item(
+  "cook book",
+  "The front cover reads *Cooking with Children - A Complete Guide*.",
+  true,
+  2
+);
+cookBook.aliases = ["book", "cook book", "tome"];
+cookBook.roomListing = "A dusty book lies open on the table.";
+
+kitchen.addItem(cookBook);
 kitchen.setWest(diningRoom);
 kitchen.setSouth(pantry);
 kitchen.setEast(entranceHall);

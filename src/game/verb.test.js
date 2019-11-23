@@ -6,14 +6,12 @@ import { CyclicText, SequentialText, RandomText, PagedText } from "./text";
 import { initStore } from "../redux/store";
 import Game from "./game";
 import Option from "./option";
+import { selectCurrentPage } from "../utils/testSelectors";
 
 initStore();
 
 let y;
 let verb;
-
-const selectCurrentPage = () =>
-  getStore().getState().game.interaction.currentPage;
 
 const clickNext = () =>
   getStore()
