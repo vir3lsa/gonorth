@@ -1,10 +1,9 @@
-import { Room, Item, Verb } from "../../../../lib/gonorth";
+import { Room, Item, Verb, goToRoom } from "../../../../lib/gonorth";
 import { diningRoom } from "./diningRoom";
 import { pantry } from "./pantry";
 import { entranceHall } from "./entranceHall";
 import door from "../../../../lib/game/door";
 import { insideOven } from "./insideOven";
-import { getGame } from "./gameRegistry";
 
 export const kitchen = new Room(
   "Kitchen",
@@ -43,7 +42,7 @@ const crawl = new Verb(
     "Just as you pull your feet in behind you, you hear a noise from the kitchen. As you begin to turn around there's a bone-chilling cackle and the oven door slams shut, trapping you inside.",
     "There's a squeal as another door in the oven that you hadn't noticed is opened. It must be in a chamber below you. There's a noise like sandpaper being rubbed against something and within seconds the cloying aroma of coal smoke tickles your nostrils.",
     "The witch must have lit the fire in the compartment at the bottom of the oven.",
-    () => getGame().goToRoom(insideOven)
+    () => goToRoom(insideOven)
   ],
   "The oven door's closed.",
   ["enter", "go into"]

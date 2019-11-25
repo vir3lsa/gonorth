@@ -3,12 +3,15 @@ import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
 import { newGame } from "../redux/gameActions";
 import { parsePlayerInput } from "./parser";
-import Game from "./game";
 import Door from "./door";
 import Item from "./item";
 import { Verb } from "./verb";
+import { initGame, setRoom } from "../gonorth";
 
-initStore();
+jest.mock("../utils/consoleIO");
+const consoleIO = require("../utils/consoleIO");
+consoleIO.output = jest.fn();
+consoleIO.showOptions = jest.fn();
 
 let game;
 const hall = new Room("Hall", "");
@@ -57,9 +60,9 @@ const badInputTest = (input, expectedOutput) => {
 describe("parser", () => {
   describe("directions", () => {
     beforeEach(() => {
-      game = new Game("The Giant's Castle");
+      game = initGame("The Giant's Castle", false);
       getStore().dispatch(newGame(game, true));
-      game.room = hall;
+      setRoom(hall);
       door.open = false;
     });
 

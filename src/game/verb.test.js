@@ -3,12 +3,14 @@ import { Verb } from "./verb";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { Interaction } from "./interaction";
 import { CyclicText, SequentialText, RandomText, PagedText } from "./text";
-import { initStore } from "../redux/store";
-import Game from "./game";
 import Option from "./option";
 import { selectCurrentPage } from "../utils/testSelectors";
+import { initGame } from "../gonorth";
 
-initStore();
+jest.mock("../utils/consoleIO");
+const consoleIO = require("../utils/consoleIO");
+consoleIO.output = jest.fn();
+consoleIO.showOptions = jest.fn();
 
 let y;
 let verb;
@@ -28,7 +30,7 @@ const clickNextAndWait = () => {
 };
 
 // Prevent console logging
-getStore().dispatch(newGame(new Game("test"), true, false));
+getStore().dispatch(newGame(initGame("test", false), true, false));
 
 beforeEach(() => {
   verb = new Verb(

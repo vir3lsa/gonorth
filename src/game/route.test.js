@@ -3,10 +3,11 @@ import { TIMEOUT_TURNS } from "./event";
 import Room from "./room";
 import { initStore } from "../redux/store";
 import { Npc } from "./npc";
-import Game from "./game";
 import { CyclicText } from "./text";
 import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { newGame } from "../redux/gameActions";
+import { addSchedule, initGame } from "../gonorth";
+import { handleTurnEnd } from "../utils/lifecycle";
 
 jest.mock("../utils/consoleIO");
 
@@ -38,7 +39,7 @@ function createRoute(
   });
 
   const route = routeBuilder.build();
-  game.addSchedule(route);
+  addSchedule(route);
   return route;
 }
 
@@ -49,7 +50,7 @@ function getCurrentPage() {
 beforeEach(() => {
   unregisterStore();
   initStore();
-  game = new Game();
+  game = initGame("", false);
   getStore().dispatch(newGame(game, true, false));
 
   nw = new Room("nw");
@@ -73,24 +74,24 @@ test("routes can be built", () => {
 test("NPCs can follow routes", async () => {
   createRoute(gran, true, false, null, "s", "e", "n", "w");
   expect(gran.container).toBe(nw);
-  await game.handleTurnEnd();
+  await handleTurnEnd();
   expect(gran.container).toBe(sw);
-  await game.handleTurnEnd();
+  await handleTurnEnd();
   expect(gran.container).toBe(se);
-  await game.handleTurnEnd();
+  await handleTurnEnd();
   expect(gran.container).toBe(ne);
-  await game.handleTurnEnd();
+  await handleTurnEnd();
   expect(gran.container).toBe(nw);
 });
 
 test("Movement can produce text", async () => {
   const text = new CyclicText("one", "two", "three");
   createRoute(gran, true, false, text, "s", "e", "n", "w");
-  await game.handleTurnEnd();
+  await handleTurnEnd();
   expect(getCurrentPage().includes("one")).toBeTruthy();
-  await game.handleTurnEnd();
+  await handleTurnEnd();
   expect(getCurrentPage().includes("two")).toBeTruthy();
-  await game.handleTurnEnd();
+  await handleTurnEnd();
   expect(getCurrentPage().includes("three")).toBeTruthy();
 });
 
@@ -98,6 +99,6 @@ test("Encounter triggers when NPC happens upon player", async () => {
   createRoute(gran, true, false, null, "s", "e");
   game.room = sw;
   gran.addEncounter("Hello!");
-  await game.handleTurnEnd();
+  await handleTurnEnd();
   expect(getCurrentPage().includes("Hello!")).toBeTruthy();
 });

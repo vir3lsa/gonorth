@@ -1,7 +1,7 @@
 import { getStore } from "../redux/storeRegistry";
 import { receivePlayerInput, changeInteraction } from "../redux/gameActions";
 import { AppendInput } from "../game/interaction";
-import { selectGame } from "./selectors";
+import { handleTurnEnd } from "./lifecycle";
 
 export const receiveInput = async input => {
   if (input && input.length) {
@@ -12,5 +12,5 @@ export const receiveInput = async input => {
   // Trigger actions based on user input
   await getStore().dispatch(receivePlayerInput(input));
   // Do the end of turn actions
-  return selectGame().handleTurnEnd();
+  return handleTurnEnd();
 };

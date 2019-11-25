@@ -1,26 +1,28 @@
-import { initStore } from "../redux/store";
 import { newGame, changeInteraction } from "../redux/gameActions";
-import Game from "./game";
 import Door from "./door";
 import { getStore } from "../redux/storeRegistry";
 import Room from "./room";
 import { Interaction } from "./interaction";
+import { initGame } from "../gonorth";
 
 const selectCurrentPage = () =>
   getStore().getState().game.interaction.currentPage;
 
-initStore();
-
 // Prevent console logging
-getStore().dispatch(newGame(new Game("test"), true, false));
+getStore().dispatch(newGame({}, true, false));
 
 let game, room, door;
+
+jest.mock("../utils/consoleIO");
+const consoleIO = require("../utils/consoleIO");
+consoleIO.output = jest.fn();
+consoleIO.showOptions = jest.fn();
 
 beforeEach(() => {
   room = new Room("Hall", "");
   door = new Door("heavy oak door", "", false, true);
   getStore().dispatch(changeInteraction(new Interaction("")));
-  game = new Game("The Giant's Castle");
+  game = initGame("The Giant's Castle", false);
   getStore().dispatch(newGame(game, true));
   game.room = room;
 });

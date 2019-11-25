@@ -5,6 +5,11 @@ import { getKeyword, createKeywords } from "./keywords";
 import { selectCurrentPage } from "../utils/testSelectors";
 import { initStore } from "../redux/store";
 
+jest.mock("../utils/consoleIO");
+const consoleIO = require("../utils/consoleIO");
+consoleIO.output = jest.fn();
+consoleIO.showOptions = jest.fn();
+
 beforeEach(() => {
   unregisterStore();
   initStore();

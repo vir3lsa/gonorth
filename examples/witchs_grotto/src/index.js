@@ -1,5 +1,12 @@
 import {
-  Game,
+  addSchedule,
+  attach,
+  getRoom,
+  initGame,
+  play,
+  setIntro,
+  setInventoryCapacity,
+  setStartingRoom,
   TIMEOUT_MILLIS,
   Route,
   TIMEOUT_TURNS
@@ -8,21 +15,21 @@ import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
 import { witch } from "./rooms/garden";
 
-const game = new Game("The Witch's Grotto", true);
-game.author = "Rich Locke";
-game.intro =
-  "Now's your chance. Quickly! Make your escape whilst the witch is out.";
+initGame("The Witch's Grotto", "Rich Locke", true);
+setIntro(
+  "Now's your chance. Quickly! Make your escape whilst the witch is out."
+);
 
-game.startingRoom = cellar;
+setStartingRoom(cellar);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
-  game.attach(container);
+  attach(container);
 }
 
 const witchArrival = new Route.Builder()
   .withSubject(witch)
-  .withCondition(() => game.room === pantry)
+  .withCondition(() => getRoom() === pantry)
   .withContinueOnFail(false)
   .withFindPlayerText(
     "You hear a noise behind you and whirl round in time to see a tall woman dressed in a black shawl slip into the room."
@@ -53,7 +60,7 @@ const witchArrival = new Route.Builder()
   .withText("Muffled footsteps sound elsewhere in the house. Be careful.")
   .build();
 
-game.addSchedule(witchArrival);
+addSchedule(witchArrival);
 
 witch.addEncounter(
   () => witchArrival.cancel(),
@@ -62,5 +69,5 @@ witch.addEncounter(
 Your blood runs cold as her icy blue eyes fix you to the spot. For a moment, neither of you move, then suddenly she *lunges* for you, a snarl twisting her face.`
 );
 
-game.setInventoryCapacity(10);
-game.play();
+setInventoryCapacity(10);
+play();

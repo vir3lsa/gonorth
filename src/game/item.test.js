@@ -4,8 +4,8 @@ import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { SequentialText } from "./text";
 import { newGame } from "../redux/gameActions";
 import { selectInventory } from "../utils/selectors";
-import Game from "./game";
 import Room from "./room";
+import { initGame, setInventoryCapacity } from "../gonorth";
 
 const selectOptions = () => getStore().getState().game.interaction.options;
 const selectCurrentPage = () =>
@@ -13,12 +13,17 @@ const selectCurrentPage = () =>
 
 let game, room;
 
+jest.mock("../utils/consoleIO");
+const consoleIO = require("../utils/consoleIO");
+consoleIO.output = jest.fn();
+consoleIO.showOptions = jest.fn();
+
 beforeEach(() => {
   unregisterStore();
   initStore();
 
   // Pretend we're in the browser
-  game = new Game("Jolly Capers", false);
+  game = initGame("Jolly Capers", false);
   room = new Room("red");
   getStore().dispatch(newGame(game, true, false));
 });
@@ -59,7 +64,7 @@ test("items can be picked up", async () => {
 });
 
 test("items can't be picked up if they're bigger than the inventory", async () => {
-  game.setInventoryCapacity(5);
+  setInventoryCapacity(5);
   const medicineBall = new Item("medicine ball", "big", true, 6);
   room.addItem(medicineBall);
   await medicineBall.try("take");
@@ -67,7 +72,7 @@ test("items can't be picked up if they're bigger than the inventory", async () =
 });
 
 test("items can't be picked up if there's no room left", async () => {
-  game.setInventoryCapacity(10);
+  setInventoryCapacity(10);
   const medicineBall = new Item("medicine ball", "big", true, 6);
   const panda = new Item("panda", "black and white", true, 6);
   room.addItem(medicineBall);

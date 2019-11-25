@@ -1,14 +1,17 @@
-import Game from "./game";
 import { Schedule } from "./schedule";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
-import { initStore } from "../redux/store";
+import { handleTurnEnd } from "../utils/lifecycle";
+import { addSchedule, initGame } from "../gonorth";
 
-let game, x;
+jest.mock("../utils/consoleIO");
+const consoleIO = require("../utils/consoleIO");
+consoleIO.output = jest.fn();
+consoleIO.showOptions = jest.fn();
 
-initStore();
+let x;
 
 beforeEach(() => {
-  game = new Game();
+  initGame("", false);
   x = 1;
 });
 
@@ -27,8 +30,8 @@ function addEvent(builder, delay, delayType, ...actions) {
 
 function buildAndExecute(builder) {
   const schedule = builder.build();
-  game.addSchedule(schedule);
-  return game.handleTurnEnd();
+  addSchedule(schedule);
+  return handleTurnEnd();
 }
 
 test("schedule can be built", () => {
@@ -79,9 +82,9 @@ test("schedule can be cancelled", async () => {
   addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
   addEvent(builder, 1, TIMEOUT_TURNS, () => (x *= 3));
   const schedule = builder.build();
-  game.addSchedule(schedule);
-  await game.handleTurnEnd();
+  addSchedule(schedule);
+  await handleTurnEnd();
   schedule.cancel();
-  await game.handleTurnEnd();
+  await handleTurnEnd();
   expect(x).toBe(2);
 });

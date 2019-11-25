@@ -5,8 +5,7 @@ import Item from "./item";
 import { itemsRevealed } from "../redux/gameActions";
 import { preferPaged } from "../utils/dynamicDescription";
 import { ActionChain } from "../utils/actionChain";
-
-const selectGame = () => getStore().getState().game.game;
+import { goToRoom } from "../gonorth";
 
 const directionAliases = {
   north: ["n", "forward", "straight on"],
@@ -131,7 +130,7 @@ export default class Room extends Item {
   go(directionName) {
     const direction = directionName.toLowerCase();
     const adjacent = this.adjacentRooms[direction].room;
-    return selectGame().goToRoom(adjacent);
+    return goToRoom(adjacent);
   }
 
   /**
@@ -149,7 +148,7 @@ export default class Room extends Item {
     return chain;
   }
 
-  revealItems() {
+  revealVisibleItems() {
     const itemNames = Object.entries(this.items)
       .filter(([, item]) => item.visible)
       .map(([name]) => name);

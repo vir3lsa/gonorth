@@ -1,15 +1,18 @@
 import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
 import Room from "./room";
-import Game from "./game";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { Interaction } from "./interaction";
 import Item from "./item";
+import { initGame } from "../gonorth";
 
-initStore();
+jest.mock("../utils/consoleIO");
+const consoleIO = require("../utils/consoleIO");
+consoleIO.output = jest.fn();
+consoleIO.showOptions = jest.fn();
 
 // Prevent console logging
-getStore().dispatch(newGame(new Game("test"), true, false));
+getStore().dispatch(newGame(initGame("test", false), true, false));
 
 const clickNext = () =>
   getStore()
@@ -104,7 +107,7 @@ describe("Room", () => {
     let game;
 
     beforeEach(() => {
-      game = new Game("The Giant's Castle");
+      game = initGame("The Giant's Castle", false);
       getStore().dispatch(newGame(game, true));
       game.room = hall;
     });
