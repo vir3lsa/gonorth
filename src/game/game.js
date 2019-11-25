@@ -103,8 +103,12 @@ export default class Game {
   }
 
   goToStartingRoom() {
-    this.room = this._startingRoom;
-    return this._startingRoom.actionChain;
+    return this.goToRoom(this._startingRoom);
+  }
+
+  goToRoom(room) {
+    this.room = room;
+    return this.room.actionChain;
   }
 
   /**

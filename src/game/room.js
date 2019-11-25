@@ -131,8 +131,7 @@ export default class Room extends Item {
   go(directionName) {
     const direction = directionName.toLowerCase();
     const adjacent = this.adjacentRooms[direction].room;
-    selectGame().room = adjacent;
-    return adjacent.actionChain;
+    return selectGame().goToRoom(adjacent);
   }
 
   /**
