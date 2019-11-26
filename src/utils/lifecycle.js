@@ -20,5 +20,6 @@ export async function handleTurnEnd() {
 
 export function goToRoom(room) {
   selectGame().room = room;
+  room.revealVisibleItems();
   return room.actionChain;
 }

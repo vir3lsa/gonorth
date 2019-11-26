@@ -143,6 +143,10 @@ export default class Item {
     }
   }
 
+  addItems(...items) {
+    items.forEach(item => this.addItem(item));
+  }
+
   /**
    * Adds an item to this item's roster.
    * @param {Item} item The item to add.

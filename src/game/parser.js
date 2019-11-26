@@ -23,7 +23,7 @@ export const parsePlayerInput = input => {
   let roomItem;
   let message;
 
-  for (let numWords = 1; numWords <= tokens.length; numWords++) {
+  for (let numWords = tokens.length; numWords > 0; numWords--) {
     for (
       let verbIndex = 0;
       verbIndex <= tokens.length - numWords;
@@ -57,13 +57,13 @@ export const parsePlayerInput = input => {
 
       // Look for an item in what the player's typed
       for (
-        let numItemWords = 1;
-        numItemWords <= tokens.length - verbEndIndex;
-        numItemWords++
+        let numItemWords = tokens.length - verbEndIndex;
+        numItemWords > 0;
+        numItemWords--
       ) {
         for (
           let itemIndex = verbEndIndex;
-          itemIndex < tokens.length;
+          itemIndex <= tokens.length - numItemWords;
           itemIndex++
         ) {
           const possibleItemWords = tokens.slice(
@@ -77,7 +77,7 @@ export const parsePlayerInput = input => {
           registeredItem = itemExists ? possibleItem : registeredItem;
 
           // Is the item in the room and visible? Does it support the verb?
-          roomItem = room.items[possibleItem];
+          roomItem = room.items[possibleItem] || roomItem;
 
           if (roomItem && roomItem.visible && roomItem.verbs[possibleVerb]) {
             // The verb and item match so attempt the action

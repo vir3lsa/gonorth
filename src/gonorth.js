@@ -108,15 +108,6 @@ function setStartingRoom(room) {
   game._startingRoom = room;
 }
 
-/**
- * Navigate directly to a new room without showing a message.
- * @param {Room} room
- */
-function setRoom(room) {
-  game.room = room;
-  room.revealVisibleItems();
-}
-
 function getRoom() {
   return game.room;
 }
@@ -152,7 +143,6 @@ export {
   setIntro,
   setStartingRoom,
   goToStartingRoom,
-  setRoom,
   getRoom,
   addEvent,
   addSchedule,

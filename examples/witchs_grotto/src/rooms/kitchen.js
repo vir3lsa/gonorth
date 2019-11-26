@@ -25,17 +25,18 @@ const oven = new Item(
   "oven",
   "It's massive and black and appears dormant at present. There's a large, windowless door in the front. The top of the oven is a long way above you - you couldn't see the hob even if you stood on a chair."
 );
+oven.aliases = ["cooker", "stove"];
 
 const ovenDoor = new door(
   "oven door",
-  "Like the rest of the oven, the door is black and appears to be made of solid iron",
+  "Like the rest of the oven, the door is charcoal black and appears to be made of solid iron.",
   false,
   false,
   "You yank the handle and the door swings open with a clang."
 );
 
 const crawl = new Verb(
-  "crawl",
+  "crawl inside",
   () => ovenDoor.open,
   [
     "You drop to all fours and crawl inside the open oven head first.",
@@ -45,14 +46,14 @@ const crawl = new Verb(
     () => goToRoom(insideOven)
   ],
   "The oven door's closed.",
-  ["enter", "go into"]
+  ["crawl", "enter", "go into", "hide"]
 );
 
-oven.hidesItems = ovenDoor;
 oven.addVerb(crawl);
 
 kitchen.addItem(cookBook);
 kitchen.addItem(oven);
+kitchen.addItem(ovenDoor);
 
 kitchen.setWest(diningRoom);
 kitchen.setSouth(pantry);

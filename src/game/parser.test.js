@@ -1,12 +1,12 @@
 import Room from "./room";
-import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
 import { newGame } from "../redux/gameActions";
 import { parsePlayerInput } from "./parser";
 import Door from "./door";
 import Item from "./item";
 import { Verb } from "./verb";
-import { initGame, setRoom } from "../gonorth";
+import { initGame } from "../gonorth";
+import { goToRoom } from "../utils/lifecycle";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -20,7 +20,8 @@ const south = new Room("Kitchen", "");
 const east = new Room("Scullery", "");
 const west = new Room("Pantry", "");
 const door = new Door("trapdoor", "", false);
-const chair = new Item("chair", "", false, 0, new Verb("sit in"));
+const chair = new Item("chair", "comfy", false, 0, new Verb("sit in"));
+const chairman = new Item("chair man", "impressive");
 new Verb("jump on"); // Should add verb to global registry
 door.aliases = ["hatch", "trap door", "door"];
 door.getVerb("open").addAliases("give a shove to");
@@ -29,8 +30,7 @@ hall.setNorth(north);
 hall.setSouth(south);
 hall.setEast(east);
 hall.setWest(west);
-hall.addItem(door);
-hall.addItem(chair);
+hall.addItems(door, chair, chairman);
 
 const directionTest = async (input, expectedRoom) => {
   const actionPromise = parsePlayerInput(input);
@@ -48,8 +48,8 @@ const openDoorTest = input => {
   expect(door.open).toBe(true);
 };
 
-const badInputTest = (input, expectedOutput) => {
-  parsePlayerInput(input);
+const inputTest = async (input, expectedOutput) => {
+  await parsePlayerInput(input);
   expect(
     getStore()
       .getState()
@@ -62,7 +62,7 @@ describe("parser", () => {
     beforeEach(() => {
       game = initGame("The Giant's Castle", false);
       getStore().dispatch(newGame(game, true));
-      setRoom(hall);
+      goToRoom(hall);
       door.open = false;
     });
 
@@ -83,16 +83,18 @@ describe("parser", () => {
     it("responds to multi-word verbs", () =>
       openDoorTest("now give a shove to the trapdoor"));
     it("gives a suitable message if the player types nonsense", () =>
-      badInputTest("feed bread to the ducks", "confusion"));
+      inputTest("feed bread to the ducks", "confusion"));
     it("gives message if verb is recognised but not item", () =>
-      badInputTest("open fridge", "don't seem able to open that"));
+      inputTest("open fridge", "don't seem able to open that"));
     it("gives message if item doesn't support verb", () =>
-      badInputTest("sit in door", "can't see how to sit in the door"));
+      inputTest("sit in door", "can't see how to sit in the door"));
     it("gives message if item found but no verb", () =>
-      badInputTest("set fire to chair", "can't easily do that to the chair"));
+      inputTest("set fire to chair", "can't easily do that to the chair"));
     it("gives message if global verb and local item found", () =>
-      badInputTest("jump on chair", "can't see how to jump on the chair"));
+      inputTest("jump on chair", "can't see how to jump on the chair"));
     it("gives message if global verb and no local item found", () =>
-      badInputTest("jump on skateboard", "don't seem able to jump on that"));
+      inputTest("jump on skateboard", "don't seem able to jump on that"));
+    it("tries more specific items first", () =>
+      inputTest("x chair man", "impressive"));
   });
 });
