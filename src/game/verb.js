@@ -9,12 +9,18 @@ export class Verb {
     onSuccess = [],
     onFailure = [],
     aliases = [],
-    isKeyword = false
+    isKeyword = false,
+    object = null
   ) {
     this.name = name.trim().toLowerCase();
     this.isKeyword = isKeyword;
     this.aliases = aliases || [];
+    this.object = object;
     this._parent = null;
+
+    this.helpers = {
+      object: this.object
+    };
 
     // Call test setter
     this.test = test;
@@ -42,11 +48,13 @@ export class Verb {
   set onSuccess(onSuccess) {
     this._onSuccess =
       onSuccess instanceof ActionChain ? onSuccess : new ActionChain(onSuccess);
+    this._onSuccess.addHelpers(this.helpers);
   }
 
   set onFailure(onFailure) {
     this._onFailure =
       onFailure instanceof ActionChain ? onFailure : new ActionChain(onFailure);
+    this._onFailure.addHelpers(this.helpers);
   }
 
   get onSuccess() {
@@ -114,7 +122,7 @@ export class Verb {
   }
 
   attempt(...args) {
-    if (this._test(...args)) {
+    if (this._test(this.helpers, ...args)) {
       return this.onSuccess.chain(...args);
     } else {
       return this.onFailure.chain(...args);
@@ -126,12 +134,12 @@ export class GoVerb extends Verb {
   constructor(name, aliases) {
     super(
       name,
-      room => {
+      (helper, room) => {
         const adjacentRoom = room.adjacentRooms[name.toLowerCase()];
         return adjacentRoom && adjacentRoom.test();
       },
-      [`Going ${name}.`, (fail, room) => room.go(name)],
-      (fail, room) => {
+      [`Going ${name}.`, (helper, room) => room.go(name)],
+      (helper, room) => {
         const adjacentRoom = room.adjacentRooms[name.toLowerCase()];
         return (
           (adjacentRoom && adjacentRoom.failureText) || "You can't go that way."

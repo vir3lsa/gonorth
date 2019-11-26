@@ -35,8 +35,8 @@ getStore().dispatch(newGame(initGame("test", false), true, false));
 beforeEach(() => {
   verb = new Verb(
     "twirl",
-    x => x > 2,
-    [(fail, x) => (y = x + 1), "You twirl beautifully"],
+    (helper, x) => x > 2,
+    [(helper, x) => (y = x + 1), "You twirl beautifully"],
     "You fall over",
     ["spin", "rotate"]
   );

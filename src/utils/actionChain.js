@@ -20,6 +20,10 @@ export class ActionChain {
     this.actions = actions;
     this.renderNexts = true;
     this.postScript = null;
+    this.failed = false;
+    this.helpers = {
+      fail: () => (this.failed = true)
+    };
   }
 
   set options(options) {
@@ -36,6 +40,10 @@ export class ActionChain {
 
   get postScript() {
     return this._postScript;
+  }
+
+  addHelpers(helpers) {
+    this.helpers = { ...this.helpers, ...helpers };
   }
 
   set actions(actions) {
@@ -59,8 +67,8 @@ export class ActionChain {
       actionFunction = () => action;
     }
 
-    return (failAction, ...args) => {
-      const value = actionFunction(failAction, ...args);
+    return (...args) => {
+      const value = actionFunction(this.helpers, ...args);
 
       // Render next buttons? Calculate here to ensure this.renderNexts is set
       const nextIfNoOptions = this.renderNexts && !lastAction;
@@ -145,13 +153,9 @@ export class ActionChain {
     for (let i in this._actions) {
       const action = this._actions[i];
 
-      // Create function to fail the action
-      let actionSucceeded = true;
-      const failAction = () => (actionSucceeded = false);
+      result = await action(...args);
 
-      result = await action(failAction, ...args);
-
-      if (!actionSucceeded) {
+      if (this.failed) {
         // Failing an action breaks the chain
         break;
       }

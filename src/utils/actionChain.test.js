@@ -6,9 +6,9 @@ initStore();
 test("action chain ends early if action fails", async () => {
   let x = 1;
   const chain = new ActionChain(
-    fail => {
+    helper => {
       x++;
-      fail();
+      helper.fail();
     },
     () => (x *= 3)
   );

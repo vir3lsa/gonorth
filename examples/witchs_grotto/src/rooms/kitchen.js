@@ -50,6 +50,8 @@ const crawl = new Verb(
 );
 
 oven.addVerb(crawl);
+oven.addVerb(ovenDoor.verbs["open"]); // Doing 'open oven' should open the oven door
+oven.addVerb(ovenDoor.verbs["close"]);
 
 kitchen.addItem(cookBook);
 kitchen.addItem(oven);
