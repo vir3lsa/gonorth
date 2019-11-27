@@ -3,16 +3,58 @@ import {
   Door,
   RandomText,
   Item,
+  CyclicText,
   SequentialText,
-  PagedText
+  PagedText,
+  Verb
 } from "../../../../lib/gonorth";
 import { cellarNook } from "./cellarNook";
 import { kitchen } from "./kitchen";
 
 export const cellar = new Room(
   "Cellar",
-  "The cellar is dark, damp and smells of rotting Earth. That old crone shut you down here, cackling as she swung the trapdoor shut. Rough stone steps lead up towards it in one corner, whilst the closed double doors of a coal hatch are recessed into the low roof on the east side. A narrow archway leads deeper into the cellar to the west. The wooden ceiling boards give way to stone to the South, as the roof and floor both slope downwards. The room is flooded with murky looking water in that direction."
+  "The cellar is dark, damp and smells of rotting Earth. That old crone shut you down here, cackling as she swung the trapdoor shut. Rough stone steps lead up towards it in one corner, whilst the closed double doors of a coal hatch are recessed into the low roof on the east side. A narrow archway leads deeper into the cellar to the west. The wooden ceiling boards give way to stone to the South, as the roof and floor both slope downwards. The room is flooded with murky looking water in that direction.\n\nThe whole space is lit by a single dim orange lightbulb hanging from a wire that disappears between the wooden boards of the ceiling. It casts a pallid glow over everything it touches but its weak light barely reaches the corners of the room."
 );
+
+const lightbulb = new Item(
+  "lightbulb",
+  new RandomText(
+    "It's the kind where you can see the coiled filament inside, even as it glows hotly.",
+    "Reaching up to it, you can feel the heat coming off it, but you can't quite stretch your fingers far enough to touch it."
+  )
+);
+lightbulb.aliases = ["light", "bulb"];
+lightbulb.addVerb(
+  new Verb(
+    "take",
+    false,
+    null,
+    "Even standing on tip-toes you can't quite reach it. It would probably be too hot even if you could.",
+    ["unscrew", "steal", "grab", "hold"]
+  )
+);
+
+const ceiling = new Item(
+  "ceiling",
+  "Much of the ceiling consists of wooden boards but they come to a stop towards the South of the cellar to be replaced by solid stone as the roof slops downwards. It's too high for you to reach, even there."
+);
+ceiling.aliases = ["roof", "boards"];
+
+const steps = new Item(
+  "steps",
+  new CyclicText(
+    "They look as though they've been carved from the very rock the witch's grotto sits on.",
+    "They're worn smooth and dip slightly in the middle of each step from the gradual erosion of passing feet.",
+    "They lead up to a trapdoor in the ceiling."
+  )
+);
+steps.aliases = ["stairs", "staircase"];
+
+const archway = new Item(
+  "archway",
+  "It's a roughly semicircular arch cut into the stone of the western wall of the cellar. Darkness lies beyond."
+);
+archway.aliases = ["arch", "doorway"];
 
 const trapdoor = new Door(
   "trapdoor",
@@ -95,6 +137,4 @@ pale.aliases = ["rusty pale", "bucket"];
 pale.roomListing =
   "There's a rusty pale lying on its side near the water's edge.";
 
-cellar.addItem(trapdoor);
-cellar.addItem(coalHatch);
-cellar.addItem(pale);
+cellar.addItems(trapdoor, coalHatch, pale, steps, archway, ceiling, lightbulb);
