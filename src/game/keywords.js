@@ -1,9 +1,18 @@
-import { Verb } from "./verb";
+import { Verb, GoVerb } from "./verb";
 import { selectInventory } from "../utils/selectors";
 import { Npc } from "./npc";
 
 const vowels = ["a", "e", "i", "o", "u"];
-let keywords;
+const keywords = {};
+
+export const directionAliases = {
+  north: ["n", "forward", "straight on"],
+  south: ["s", "back", "backward", "reverse"],
+  east: ["e", "right"],
+  west: ["w", "left"],
+  up: ["u", "upward", "upwards"],
+  down: ["d", "downward", "downwards"]
+};
 
 export function createKeywords() {
   const inventory = new Verb(
@@ -44,8 +53,24 @@ export function createKeywords() {
     true
   );
 
-  keywords = {};
-  keywords["inventory"] = inventory;
+  const north = new GoVerb("North", directionAliases["north"], true);
+  const south = new GoVerb("South", directionAliases["south"], true);
+  const east = new GoVerb("East", directionAliases["east"], true);
+  const west = new GoVerb("West", directionAliases["west"], true);
+  const up = new GoVerb("Up", directionAliases["up"], true);
+  const down = new GoVerb("Down", directionAliases["down"], true);
+
+  addKeyword(inventory);
+  addKeyword(north);
+  addKeyword(south);
+  addKeyword(east);
+  addKeyword(west);
+  addKeyword(up);
+  addKeyword(down);
+}
+
+export function addKeyword(keyword) {
+  keywords[keyword.name] = keyword;
 }
 
 export function getKeyword(name) {

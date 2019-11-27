@@ -6,26 +6,11 @@ import { itemsRevealed } from "../redux/gameActions";
 import { preferPaged } from "../utils/dynamicDescription";
 import { ActionChain } from "../utils/actionChain";
 import { goToRoom } from "../gonorth";
-
-const directionAliases = {
-  north: ["n", "forward", "straight on"],
-  south: ["s", "back", "backward", "reverse"],
-  east: ["e", "right"],
-  west: ["w", "left"],
-  up: ["u", "upward", "upwards"],
-  down: ["d", "downward", "downwards"]
-};
+import { getKeyword, addKeyword, directionAliases } from "./keywords";
 
 export default class Room extends Item {
   constructor(name, description, options) {
-    super(name, preferPaged(description), false, -1, [
-      new GoVerb("North", directionAliases["north"]),
-      new GoVerb("South", directionAliases["south"]),
-      new GoVerb("East", directionAliases["east"]),
-      new GoVerb("West", directionAliases["west"]),
-      new GoVerb("Up", directionAliases["up"]),
-      new GoVerb("Down", directionAliases["down"])
-    ]);
+    super(name, preferPaged(description), false, -1);
     this.visits = 0;
     this.adjacentRooms = {};
     this.options = options;
@@ -67,9 +52,9 @@ export default class Room extends Item {
       this.adjacentRooms[alias] = directionObject;
     });
 
-    // Add the verb if we don't already have it
-    if (!this.verbs[directionName]) {
-      this.addVerb(new GoVerb(directionName));
+    // Add the keyword if we don't already have it
+    if (!getKeyword(directionName)) {
+      addKeyword(new GoVerb(directionName, [], true));
     }
   }
 

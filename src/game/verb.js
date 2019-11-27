@@ -1,6 +1,7 @@
 import { getStore } from "../redux/storeRegistry";
 import { verbCreated, addKeywords } from "../redux/gameActions";
 import { ActionChain } from "../utils/actionChain";
+import { selectRoom } from "../utils/selectors";
 
 export class Verb {
   constructor(
@@ -131,21 +132,22 @@ export class Verb {
 }
 
 export class GoVerb extends Verb {
-  constructor(name, aliases) {
+  constructor(name, aliases, isKeyword = false) {
     super(
       name,
-      (helper, room) => {
-        const adjacentRoom = room.adjacentRooms[name.toLowerCase()];
+      () => {
+        const adjacentRoom = selectRoom().adjacentRooms[name.toLowerCase()];
         return adjacentRoom && adjacentRoom.test();
       },
-      [`Going ${name}.`, (helper, room) => room.go(name)],
-      (helper, room) => {
-        const adjacentRoom = room.adjacentRooms[name.toLowerCase()];
+      [`Going ${name}.`, () => selectRoom().go(name)],
+      () => {
+        const adjacentRoom = selectRoom().adjacentRooms[name.toLowerCase()];
         return (
           (adjacentRoom && adjacentRoom.failureText) || "You can't go that way."
         );
       },
-      aliases
+      aliases,
+      isKeyword
     );
   }
 }
