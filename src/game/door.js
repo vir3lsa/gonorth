@@ -13,7 +13,7 @@ export default class Door extends Item {
   ) {
     super(name, description, false, -1, [], aliases);
 
-    this.verbs = [
+    this.addVerb(
       new Verb(
         "open",
         helper => !helper.object.locked && !helper.object.open,
@@ -28,7 +28,10 @@ export default class Door extends Item {
         [],
         false,
         this
-      ),
+      )
+    );
+
+    this.addVerb(
       new Verb(
         "close",
         helper => helper.object.open,
@@ -37,7 +40,10 @@ export default class Door extends Item {
         [],
         false,
         this
-      ),
+      )
+    );
+
+    this.addVerb(
       new Verb(
         "unlock",
         helper => helper.object.locked,
@@ -50,7 +56,7 @@ export default class Door extends Item {
         false,
         this
       )
-    ];
+    );
 
     this.open = open;
     this.locked = locked;
