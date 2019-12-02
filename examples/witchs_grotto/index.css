@@ -1,0 +1,39 @@
+html {
+  background: #333;
+  font-family: "masaakiregular";
+  color: #cc9;
+}
+
+h1 {
+  font-family: "8-bit_operator_scregular";
+}
+
+p {
+  font-size: 1.3em;
+}
+
+button.MuiButton-outlinedPrimary {
+  color: white;
+  font-family: "masaakiregular";
+  font-size: 1.2rem;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+button.MuiButton-outlinedPrimary:hover {
+  border-color: white;
+}
+
+div.MuiInputBase-root {
+  color: #9be;
+  font-family: "masaakiregular";
+  font-size: 1.3em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.42);
+}
+
+div.MuiInputBase-root:hover {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.87);
+}
+
+div.MuiInput-underline:after {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.87);
+}
