@@ -62,6 +62,6 @@ export class Append extends Interaction {}
  */
 export class AppendInput extends Append {
   constructor(input, ...args) {
-    super(`\`>\` ${input}`, ...args);
+    super(`###### \`>\` ${input}`, ...args);
   }
 }

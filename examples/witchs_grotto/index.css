@@ -8,6 +8,15 @@ h1 {
   font-family: "8-bit_operator_scregular";
 }
 
+.gonorth h6 {
+  font-size: 1.3em;
+  font-style: normal;
+  font-weight: normal;
+  color: #9be;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+}
+
 p {
   font-size: 1.3em;
 }

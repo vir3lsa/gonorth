@@ -8,7 +8,7 @@ const IODevice = props => {
   const { interaction } = props;
   return (
     <div>
-      <ReactMarkdown source={interaction.currentPage} />
+      <ReactMarkdown source={interaction.currentPage} className="gonorth" />
       {interaction.options && interaction.options.length ? (
         <DecisionBar options={interaction.options} />
       ) : (
