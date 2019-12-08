@@ -6,7 +6,7 @@ import {
   isPromptActive,
   cancelActivePrompt
 } from "../utils/consoleIO";
-import { parsePlayerInput } from "../game/parser";
+import { Parser } from "../game/parser";
 import { AppendInput, Append } from "../game/interaction";
 
 const selectInBrowser = state => state.game.inBrowser;
@@ -73,7 +73,7 @@ export const receivePlayerInput = input => (dispatch, getState) => {
     }
 
     // Respond to input and return Promise that resolves when actions are complete
-    return parsePlayerInput(currentInput);
+    return new Parser(currentInput).parse();
   }
 };
 

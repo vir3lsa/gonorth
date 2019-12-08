@@ -18,6 +18,7 @@ export class Verb {
     this.aliases = aliases || [];
     this.object = object;
     this._parent = null;
+    this.prepositional = false;
 
     this.helpers = {
       object: this.object

@@ -90,3 +90,54 @@ test("items can't be picked up twice", async () => {
   await cup.try("take");
   expect(selectCurrentPage().includes("already carrying")).toBe(true);
 });
+
+describe("putting items", () => {
+  let ball, table, flowers;
+
+  beforeEach(() => {
+    ball = new Item("ball", "red", true, 1);
+    table = new Item("table", "mahogany", false);
+    flowers = new Item("flowers", "pretty", true);
+
+    table.capacity = 10;
+    table.preposition = "on";
+
+    room.addItems(ball, table);
+  });
+
+  test("adds the item to the container", async () => {
+    await ball.try("put", table);
+    expect(table.items[ball.name]).toBe(ball);
+  });
+
+  test("removes the item from the room", async () => {
+    await ball.try("put", table);
+    expect(room.items[ball.name]).toBeUndefined();
+  });
+
+  test("removes the item from the inventory", async () => {
+    expect(false).toBeTruthy();
+  });
+
+  test("uses the correct preposition", async () => {
+    await ball.try("put", table);
+    expect(selectCurrentPage().includes("ball on the table")).toBeTruthy();
+  });
+
+  test("uses a different preposition", async () => {
+    table.preposition = "under";
+    await ball.try("put", table);
+    expect(selectCurrentPage().includes("ball under the table")).toBeTruthy();
+  });
+
+  test("fails if the indirect object isn't a container", async () => {
+    await ball.try("put", flowers);
+    expect(selectCurrentPage().includes("can't put the ball")).toBeTruthy();
+  });
+
+  test("fails if there's no room left in the container", async () => {
+    table.capacity = 0;
+    await ball.try("put", table);
+    expect(selectCurrentPage().includes("no room on the table"));
+  });
+});

@@ -14,6 +14,7 @@ export default class Room extends Item {
     this.visits = 0;
     this.adjacentRooms = {};
     this.options = options;
+    this.canHoldItems = true;
   }
 
   set options(options) {

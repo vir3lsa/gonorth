@@ -5,7 +5,7 @@ import { newGame, changeInteraction } from "../redux/gameActions";
 import { Interaction } from "./interaction";
 import Item from "./item";
 import { initGame } from "../gonorth";
-import { parsePlayerInput } from "./parser";
+import { Parser } from "./parser";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -115,19 +115,19 @@ describe("Room", () => {
 
     it("doesn't change room if not navigable as boolean", () => {
       hall.setNorth(north, false);
-      parsePlayerInput("north");
+      new Parser("north").parse();
       expect(game.room.name).toBe("Hall");
     });
 
     it("doesn't change room if not navigable as function", () => {
       hall.setNorth(north, () => false);
-      parsePlayerInput("north");
+      new Parser("north").parse();
       expect(game.room.name).toBe("Hall");
     });
 
     it("responds to custom directions", async () => {
       hall.addAdjacentRoom(east, "archway");
-      const actionPromise = parsePlayerInput("archway");
+      const actionPromise = new Parser("archway").parse();
       getStore()
         .getState()
         .game.interaction.options[0].action();
@@ -136,7 +136,7 @@ describe("Room", () => {
     });
 
     it("informs player when a direction doesn't exist", () => {
-      parsePlayerInput("east");
+      new Parser("east").parse();
       expect(getStore().getState().game.interaction.currentPage).toBe(
         "You can't go that way."
       );
@@ -144,7 +144,7 @@ describe("Room", () => {
 
     it("gives custom messages when a direction doesn't exist", () => {
       hall.setSouth(null, false, null, "You can't walk through walls");
-      parsePlayerInput("south");
+      new Parser("south").parse();
       expect(getStore().getState().game.interaction.currentPage).toBe(
         "You can't walk through walls"
       );
@@ -152,13 +152,13 @@ describe("Room", () => {
 
     it("prints a message when successfully going in a direction", () => {
       hall.setWest(new Room("Chapel"));
-      parsePlayerInput("west");
+      new Parser("west").parse();
       expect(selectCurrentPage().includes("Going West.")).toBeTruthy();
     });
 
     it("prints new room text", async () => {
       hall.setWest(west);
-      parsePlayerInput("west");
+      new Parser("west").parse();
       await clickNextAndWait();
       expect(selectCurrentPage()).toBe("the pantry");
     });

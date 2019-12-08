@@ -1,12 +1,13 @@
 import Room from "./room";
 import { getStore } from "../redux/storeRegistry";
-import { newGame } from "../redux/gameActions";
-import { parsePlayerInput } from "./parser";
+import { newGame, changeInteraction } from "../redux/gameActions";
+import { Parser } from "./parser";
 import Door from "./door";
 import Item from "./item";
 import { Verb } from "./verb";
 import { initGame } from "../gonorth";
 import { goToRoom } from "../utils/lifecycle";
+import { PagedText } from "./text";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -21,7 +22,10 @@ const east = new Room("Scullery", "");
 const west = new Room("Pantry", "");
 const door = new Door("trapdoor", "", false);
 const chair = new Item("chair", "comfy", false, 0, new Verb("sit in"));
+chair.capacity = 5;
+chair.preposition = "in";
 const chairman = new Item("chair man", "impressive");
+const cushion = new Item("cushion", "plush", true, 2);
 new Verb("jump on"); // Should add verb to global registry
 door.aliases = ["hatch", "trap door", "door"];
 door.getVerb("open").addAliases("give a shove to");
@@ -30,10 +34,21 @@ hall.setNorth(north);
 hall.setSouth(south);
 hall.setEast(east);
 hall.setWest(west);
-hall.addItems(door, chair, chairman);
+hall.addItems(door, chair, chairman, cushion);
+
+expect.extend({
+  toInclude(received, text) {
+    const pass = received.includes(text);
+    return {
+      message: () =>
+        `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
+      pass
+    };
+  }
+});
 
 const directionTest = async (input, expectedRoom) => {
-  const actionPromise = parsePlayerInput(input);
+  const actionPromise = new Parser(input).parse();
   setTimeout(() =>
     getStore()
       .getState()
@@ -44,17 +59,15 @@ const directionTest = async (input, expectedRoom) => {
 };
 
 const openDoorTest = input => {
-  parsePlayerInput(input);
+  new Parser(input).parse();
   expect(door.open).toBe(true);
 };
 
 const inputTest = async (input, expectedOutput) => {
-  await parsePlayerInput(input);
-  expect(
-    getStore()
-      .getState()
-      .game.interaction.currentPage.includes(expectedOutput)
-  ).toBeTruthy();
+  await new Parser(input).parse();
+  expect(getStore().getState().game.interaction.currentPage).toInclude(
+    expectedOutput
+  );
 };
 
 describe("parser", () => {
@@ -64,6 +77,11 @@ describe("parser", () => {
       getStore().dispatch(newGame(game, true));
       goToRoom(hall);
       door.open = false;
+      getStore().dispatch(changeInteraction(new PagedText("")));
+
+      if (!hall.items["cushion"]) {
+        hall.addItem(cushion);
+      }
     });
 
     it("goes North", () => directionTest("North", "Garden"));
@@ -96,5 +114,13 @@ describe("parser", () => {
       inputTest("jump on skateboard", "don't seem able to jump on that"));
     it("tries more specific items first", () =>
       inputTest("x chair man", "impressive"));
+    it("handles prepositional verbs", () =>
+      inputTest("put the cushion in the chair", "cushion in the chair"));
+    it("gives feedback when the first item isn't recognised", () =>
+      inputTest("put mug in chair", "how to put the chair"));
+    it("gives feedback when the second item isn't recognised", () =>
+      inputTest("put cushion in sofa", "how to put the cushion"));
+    it("gives feedback when the second item isn't a container", () =>
+      inputTest("put cushion in chairman", "how to put the cushion"));
   });
 });

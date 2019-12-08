@@ -27,6 +27,10 @@ export default class Item {
     this.roomListing = null;
     this.items = {};
     this.uniqueItems = new Set();
+    this.canHoldItems = false;
+    this.capacity = -1;
+    this.free = -1;
+    this.preposition = "in";
 
     this.addVerb(
       new Verb(
@@ -61,6 +65,28 @@ export default class Item {
           ["pick up", "steal", "grab", "hold"]
         )
       );
+
+      const putVerb = new Verb(
+        "put",
+        (helper, other) =>
+          other.canHoldItems && (other.free === -1 || this.size <= other.free),
+        [
+          (helper, other) => {
+            this.container.removeItem(this); // TODO Handle when container is inventory
+            return other.addItem(this);
+          },
+          (helper, other) =>
+            `You put the ${this.name} ${other.preposition} the ${other.name}`
+        ],
+        (helper, other) =>
+          other.canHoldItems
+            ? `There's no room ${other.preposition} the ${other.name}`
+            : `You can't put the ${this.name} ${other.preposition} the ${other.name}`,
+        ["place", "drop"]
+      );
+      putVerb.prepositional = true;
+
+      this.addVerb(putVerb);
     }
   }
 
@@ -139,7 +165,7 @@ export default class Item {
     const verb = this.verbs[verbName.toLowerCase()];
 
     if (verb) {
-      return verb.attempt(this, ...args);
+      return verb.attempt(...args);
     }
   }
 
@@ -165,6 +191,10 @@ export default class Item {
     this.uniqueItems.add(item);
     this.items[name] = item;
     item.container = this;
+
+    if (this.free > 0) {
+      this.free -= item.size;
+    }
   }
 
   removeItem(item) {
@@ -211,5 +241,18 @@ export default class Item {
   set items(items) {
     this._items = items;
     this.uniqueItems = new Set(...Object.values(this._items));
+  }
+
+  get capacity() {
+    return this._capacity;
+  }
+
+  set capacity(capacity) {
+    this._capacity = capacity;
+    this.free = capacity;
+
+    if (capacity > 0) {
+      this.canHoldItems = true;
+    }
   }
 }
