@@ -76,12 +76,12 @@ export default class Item {
             return other.addItem(this);
           },
           (helper, other) =>
-            `You put the ${this.name} ${other.preposition} the ${other.name}`
+            `You put the ${this.name} ${other.preposition} the ${other.name}.`
         ],
         (helper, other) =>
           other.canHoldItems
-            ? `There's no room ${other.preposition} the ${other.name}`
-            : `You can't put the ${this.name} ${other.preposition} the ${other.name}`,
+            ? `There's no room ${other.preposition} the ${other.name}.`
+            : `You can't put the ${this.name} ${other.preposition} the ${other.name}.`,
         ["place", "drop"]
       );
       putVerb.prepositional = true;

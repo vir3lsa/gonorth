@@ -60,29 +60,22 @@ export class Parser {
           }
         }
 
-        // Look for an item in what the player's typed
-        const [item, itemEndIndex] = this.findRoomItem(
-          1,
-          tokens,
-          verbEndIndex,
-          possibleVerb
-        );
-        this.roomItem = item || this.roomItem;
+        const items = this.findRoomItems(tokens, verbEndIndex);
 
-        if (item && item.visible && item.verbs[possibleVerb]) {
-          if (item.verbs[possibleVerb].prepositional) {
-            const [item2] = this.findRoomItem(
-              2,
-              tokens,
-              itemEndIndex,
-              possibleVerb
-            );
+        if (items && items.length) {
+          const item = items[0];
+          this.roomItem = item || this.roomItem;
 
-            if (item2 && item2.visible) {
-              return item.try(possibleVerb, item2);
+          if (item && item.visible && item.verbs[possibleVerb]) {
+            if (item.verbs[possibleVerb].prepositional) {
+              const indirectItem = items[1];
+
+              if (indirectItem && indirectItem.visible) {
+                return item.try(possibleVerb, indirectItem);
+              }
+            } else {
+              return item.try(possibleVerb);
             }
-          } else {
-            return item.try(possibleVerb);
           }
         }
       }
@@ -91,8 +84,9 @@ export class Parser {
     return this.giveFeedback();
   }
 
-  findRoomItem(itemNum, tokens, verbEndIndex, possibleVerb) {
+  findRoomItems(tokens, verbEndIndex) {
     const room = selectRoom();
+    const items = [];
 
     for (
       let numItemWords = tokens.length - verbEndIndex;
@@ -108,7 +102,7 @@ export class Parser {
         const possibleItemWords = tokens.slice(itemIndex, endIndex);
         const possibleItem = possibleItemWords.join(" ");
 
-        if (itemNum === 1) {
+        if (!items.length) {
           // Is the first item registered globally?
           const itemExists = selectItemNames().has(possibleItem);
           this.registeredItem = itemExists ? possibleItem : this.registeredItem;
@@ -117,23 +111,35 @@ export class Parser {
         // Is the item in the room and visible? Does it support the verb?
         const item = room.items[possibleItem];
 
-        if (item && item.visible && item.verbs[possibleVerb]) {
+        if (item && item.visible) {
           // The verb and item match so stop looking
-          return [item, endIndex];
+          this.recordItem(item, items, itemIndex);
+        } else {
+          // Try items in the player's inventory instead
+          const inventoryItem = selectInventory().items[possibleItem];
+
+          if (inventoryItem) {
+            this.recordItem(inventoryItem, items, itemIndex);
+          }
         }
 
-        // Try items in the player's inventory instead
-        const inventoryItem = selectInventory().items[possibleItem];
-
-        if (inventoryItem) {
-          return [inventoryItem, endIndex];
-        } else if (item) {
-          return [item, endIndex];
+        if (items.length > 1) {
+          return items.map(itemEntry => itemEntry[0]);
         }
       }
     }
 
-    return [];
+    return items.map(itemEntry => itemEntry[0]);
+  }
+
+  recordItem(item, items, itemIndex) {
+    if (items.length) {
+      if (itemIndex < items[0][1]) {
+        return items.unshift([item, itemIndex]);
+      }
+    }
+
+    return items.push([item, itemIndex]);
   }
 
   giveFeedback() {

@@ -120,7 +120,7 @@ describe("parser", () => {
       inputTest("put mug in chair", "how to put the chair"));
     it("gives feedback when the second item isn't recognised", () =>
       inputTest("put cushion in sofa", "how to put the cushion"));
-    it("gives feedback when the second item isn't a container", () =>
-      inputTest("put cushion in chairman", "how to put the cushion"));
+    it("gives feedback when the second item isn't a container, deferring to verb", () =>
+      inputTest("put cushion in chair man", "can't put the cushion"));
   });
 });

@@ -104,6 +104,7 @@ const water = new Item(
 );
 water.aliases = ["flood", "deluge"];
 water.hidesItems = bubbles;
+water.canHoldItems = true;
 
 cellar.addItem(water);
 cellar.setWest(cellarNook, true);
