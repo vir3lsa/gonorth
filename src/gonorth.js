@@ -15,6 +15,7 @@ import {
 import { Interaction } from "./game/interaction";
 import Option from "./game/option";
 import Room from "./game/room";
+import Item from "./game/item";
 import { ActionChain } from "./utils/actionChain";
 import { PagedText } from "./game/text";
 import { goToRoom } from "./utils/lifecycle";
@@ -35,6 +36,7 @@ function initGame(title, author, debugMode) {
     "Empty Room",
     "The room is completely devoid of anything interesting."
   );
+  game.player = new Item("player", "You look as you normally do.", false);
 
   createKeywords();
 
@@ -121,7 +123,7 @@ function addSchedule(schedule) {
 }
 
 function setInventoryCapacity(size) {
-  getStore().dispatch(setInventorySize(size));
+  game.player.capacity = size;
 }
 
 export { default as Room } from "./game/room";

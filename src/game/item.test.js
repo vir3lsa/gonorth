@@ -7,6 +7,17 @@ import { selectInventory } from "../utils/selectors";
 import Room from "./room";
 import { initGame, setInventoryCapacity } from "../gonorth";
 
+expect.extend({
+  toInclude(received, text) {
+    const pass = received.includes(text);
+    return {
+      message: () =>
+        `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
+      pass
+    };
+  }
+});
+
 const selectOptions = () => getStore().getState().game.interaction.options;
 const selectCurrentPage = () =>
   getStore().getState().game.interaction.currentPage;
@@ -88,7 +99,7 @@ test("items can't be picked up twice", async () => {
   room.addItem(cup);
   await cup.try("take");
   await cup.try("take");
-  expect(selectCurrentPage().includes("already carrying")).toBe(true);
+  expect(selectCurrentPage()).toInclude("already carrying");
 });
 
 describe("putting items", () => {
@@ -111,12 +122,16 @@ describe("putting items", () => {
   });
 
   test("removes the item from the room", async () => {
+    expect(room.items[ball.name]).not.toBeUndefined();
     await ball.try("put", table);
     expect(room.items[ball.name]).toBeUndefined();
   });
 
   test("removes the item from the inventory", async () => {
-    expect(false).toBeTruthy();
+    await ball.try("take");
+    expect(selectInventory().items[ball.name]).not.toBeUndefined();
+    await ball.try("put", table);
+    expect(selectInventory().items[ball.name]).toBeUndefined();
   });
 
   test("uses the correct preposition", async () => {

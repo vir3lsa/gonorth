@@ -1,7 +1,7 @@
 import { Text, RandomText } from "./text";
 import { Verb } from "./verb";
 import { createDynamicText } from "../utils/dynamicDescription";
-import { selectInventory } from "../utils/selectors";
+import { selectInventory, selectGame } from "../utils/selectors";
 import { getStore } from "../redux/storeRegistry";
 import { pickUpItem } from "../redux/gameActions";
 
@@ -46,11 +46,17 @@ export default class Item {
       this.addVerb(
         new Verb(
           "take",
-          () => this.size < selectInventory().free && this.container,
+          () => {
+            const inventory = selectInventory();
+            return (
+              this.container !== inventory &&
+              (inventory.capacity === -1 || this.size < inventory.free)
+            );
+          },
           [
             () => {
               this.container.removeItem(this);
-              return getStore().dispatch(pickUpItem(this));
+              selectInventory().addItem(this);
             },
             new RandomText(
               `You take the ${this.name}.`,
@@ -59,7 +65,7 @@ export default class Item {
             )
           ],
           () =>
-            this.container
+            this.container !== selectInventory()
               ? `You don't have enough room for the ${this.name}.`
               : `You're already carrying the ${this.name}!`,
           ["pick up", "steal", "grab", "hold"]
@@ -190,7 +196,7 @@ export default class Item {
 
     this.uniqueItems.add(item);
     this.items[name] = item;
-    item.container = this;
+    item.container = this; // This causes the item's aliases to also be added to this item
 
     if (this.free > 0) {
       this.free -= item.size;

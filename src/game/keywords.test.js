@@ -4,54 +4,70 @@ import Item from "./item";
 import { getKeyword, createKeywords } from "./keywords";
 import { selectCurrentPage } from "../utils/testSelectors";
 import { initStore } from "../redux/store";
+import { selectInventory } from "../utils/selectors";
+import { initGame } from "../gonorth";
+
+expect.extend({
+  toInclude(received, text) {
+    const pass = received.includes(text);
+    return {
+      message: () =>
+        `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
+      pass
+    };
+  }
+});
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
+let game;
+
 beforeEach(() => {
   unregisterStore();
   initStore();
   createKeywords();
+  game = initGame("Jolly Capers", false);
 });
 
 test("inventory lists a single item", async () => {
-  getStore().dispatch(pickUpItem(new Item("spoon")));
+  selectInventory().addItem(new Item("spoon"));
   await getKeyword("inventory").attempt();
-  expect(selectCurrentPage().includes("You're carrying a spoon.")).toBe(true);
+  expect(selectCurrentPage()).toInclude("You're carrying a spoon.");
 });
 
 test("inventory lists a single item using the correct indefinite article", async () => {
-  getStore().dispatch(pickUpItem(new Item("apron")));
+  selectInventory().addItem(new Item("apron"));
   await getKeyword("inventory").attempt();
-  expect(selectCurrentPage().includes("You're carrying an apron.")).toBe(true);
+  expect(selectCurrentPage()).toInclude("You're carrying an apron.");
 });
 
 test("inventory lists two items", async () => {
-  getStore().dispatch(pickUpItem(new Item("spoon")));
-  getStore().dispatch(pickUpItem(new Item("apron")));
+  selectInventory().addItem(new Item("spoon"));
+  selectInventory().addItem(new Item("apron"));
   await getKeyword("inventory").attempt();
   const expectedText = "You're carrying a spoon and an apron.";
-  expect(selectCurrentPage().includes(expectedText)).toBe(true);
+  expect(selectCurrentPage()).toInclude(expectedText);
 });
 
 test("inventory lists three items", async () => {
-  getStore().dispatch(pickUpItem(new Item("spoon")));
-  getStore().dispatch(pickUpItem(new Item("apron")));
-  getStore().dispatch(pickUpItem(new Item("screwdriver")));
+  selectInventory().addItem(new Item("spoon"));
+  selectInventory().addItem(new Item("apron"));
+  selectInventory().addItem(new Item("screwdriver"));
   await getKeyword("inventory").attempt();
   const expectedText = "You're carrying a spoon, an apron and a screwdriver.";
-  expect(selectCurrentPage().includes(expectedText)).toBe(true);
+  expect(selectCurrentPage()).toInclude(expectedText);
 });
 
 test("inventory lists four items", async () => {
-  getStore().dispatch(pickUpItem(new Item("spoon")));
-  getStore().dispatch(pickUpItem(new Item("apron")));
-  getStore().dispatch(pickUpItem(new Item("screwdriver")));
-  getStore().dispatch(pickUpItem(new Item("teddy bear")));
+  selectInventory().addItem(new Item("spoon"));
+  selectInventory().addItem(new Item("apron"));
+  selectInventory().addItem(new Item("screwdriver"));
+  selectInventory().addItem(new Item("teddy bear"));
   await getKeyword("inventory").attempt();
   const expectedText =
     "You're carrying a spoon, an apron, a screwdriver and a teddy bear.";
-  expect(selectCurrentPage().includes(expectedText)).toBe(true);
+  expect(selectCurrentPage()).toInclude(expectedText);
 });

@@ -20,7 +20,8 @@ export function createKeywords() {
     true,
     () => {
       const inventory = selectInventory();
-      const { items, unique } = inventory;
+      const { items, uniqueItems } = inventory;
+      const unique = [...uniqueItems].map(item => item.name);
 
       if (!Object.keys(items).length) {
         return "You're not holding anything.";
