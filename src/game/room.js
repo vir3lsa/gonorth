@@ -160,13 +160,14 @@ export default class Room extends Item {
       .forEach(container => {
         const titleCasePrep = toTitleCase(container.preposition);
         const list = container.basicItemList;
-        description += `\n\n${titleCasePrep} the ${container.name} there's ${list}`;
-        description += ".";
+        description += description.length ? "\n\n" : "";
+        description += `${titleCasePrep} the ${container.name} there's ${list}.`;
       });
 
     if (plainList.length) {
       // Just list any items without room listings
-      description += `\n\nYou also see ${getBasicItemList(plainList)}`;
+      description += description.length ? "\n\n" : "";
+      description += `You also see ${getBasicItemList(plainList)}`;
     }
 
     return description;
