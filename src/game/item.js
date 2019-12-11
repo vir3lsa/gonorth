@@ -1,9 +1,10 @@
 import { Text, RandomText } from "./text";
 import { Verb } from "./verb";
 import { createDynamicText } from "../utils/dynamicDescription";
-import { selectInventory, selectGame } from "../utils/selectors";
-import { getStore } from "../redux/storeRegistry";
-import { pickUpItem } from "../redux/gameActions";
+import { selectInventory } from "../utils/selectors";
+import { getBasicItemList, toTitleCase } from "../utils/textFunctions";
+
+const vowels = ["a", "e", "i", "o", "u"];
 
 export default class Item {
   constructor(
@@ -31,14 +32,16 @@ export default class Item {
     this.capacity = -1;
     this.free = -1;
     this.preposition = "in";
+    this.itemsCanBeSeen = true;
+    this.article = `a${vowels.includes(this.name[0]) ? "n" : ""}`;
 
     this.addVerb(
       new Verb(
         "examine",
         true,
-        [() => this.revealItems(), this._description],
+        [() => this.revealItems(), () => this.getFullDescription()],
         null,
-        ["ex", "x", "look at", "inspect"]
+        ["ex", "x", "look", "inspect"]
       )
     );
 
@@ -205,6 +208,7 @@ export default class Item {
 
   removeItem(item) {
     delete this.items[item.name];
+    this.uniqueItems.delete(item);
     item.container = null;
 
     // Remove aliases
@@ -260,5 +264,21 @@ export default class Item {
     if (capacity > 0) {
       this.canHoldItems = true;
     }
+  }
+
+  get basicItemList() {
+    return getBasicItemList([...this.uniqueItems]);
+  }
+
+  getFullDescription() {
+    let description = this.description;
+    const itemList = this.basicItemList;
+
+    if (itemList.length) {
+      const prep = toTitleCase(this.preposition);
+      description += `\n\n${prep} the ${this.name} there's ${itemList}.`;
+    }
+
+    return description;
   }
 }

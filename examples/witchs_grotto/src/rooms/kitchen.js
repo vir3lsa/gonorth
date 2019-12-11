@@ -13,13 +13,20 @@ An archway leads West, a rickety door barely hangs on its hinges to the South an
 );
 
 const cookBook = new Item(
-  "cook book",
+  "dusty cook book",
   "The front cover reads *Cooking with Children - A Complete Guide*.",
   true,
   2
 );
-cookBook.aliases = ["book", "cook book", "tome"];
-cookBook.roomListing = "A dusty book lies open on the table.";
+cookBook.aliases = ["book", "dusty book", "cook book", "tome"];
+
+const table = new Item(
+  "table",
+  "It's a small round, wooden table with four uneven legs. There's a definite wobble."
+);
+table.capacity = 10;
+table.preposition = "on";
+table.addItem(cookBook);
 
 const oven = new Item(
   "oven",
@@ -53,7 +60,7 @@ oven.addVerb(crawl);
 oven.addVerb(ovenDoor.verbs["open"]); // Doing 'open oven' should open the oven door
 oven.addVerb(ovenDoor.verbs["close"]);
 
-kitchen.addItem(cookBook);
+kitchen.addItem(table);
 kitchen.addItem(oven);
 kitchen.addItem(ovenDoor);
 

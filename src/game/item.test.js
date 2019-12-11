@@ -80,6 +80,7 @@ test("items can't be picked up if they're bigger than the inventory", async () =
   room.addItem(medicineBall);
   await medicineBall.try("take");
   expect(selectInventory().items["medicine ball"]).toBeUndefined();
+  expect(selectCurrentPage()).toInclude("don't have enough room");
 });
 
 test("items can't be picked up if there's no room left", async () => {
@@ -92,6 +93,7 @@ test("items can't be picked up if there's no room left", async () => {
   await panda.try("take");
   expect(selectInventory().items["medicine ball"]).not.toBeUndefined();
   expect(selectInventory().items.panda).toBeUndefined();
+  expect(selectCurrentPage()).toInclude("don't have enough room");
 });
 
 test("items can't be picked up twice", async () => {

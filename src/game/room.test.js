@@ -1,4 +1,3 @@
-import { initStore } from "../redux/store";
 import { getStore } from "../redux/storeRegistry";
 import Room from "./room";
 import { newGame, changeInteraction } from "../redux/gameActions";
@@ -6,6 +5,17 @@ import { Interaction } from "./interaction";
 import Item from "./item";
 import { initGame } from "../gonorth";
 import { Parser } from "./parser";
+
+expect.extend({
+  toInclude(received, text) {
+    const pass = received.includes(text);
+    return {
+      message: () =>
+        `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
+      pass
+    };
+  }
+});
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -48,17 +58,27 @@ describe("Room", () => {
       item.roomListing =
         "There's an ornate silver candle holder on a side table";
       hall.addItem(item);
-      expect(hall.itemListings.includes(item.roomListing)).toBeTruthy();
+      expect(hall.itemListings).toInclude(item.roomListing);
     });
 
     it("lists holdable items with no room listing", () => {
       const item1 = new Item("candlestick", "", true);
       const item2 = new Item("bread maker", "", true);
-      hall.addItem(item1);
-      hall.addItem(item2);
-      expect(
-        hall.itemListings.includes("candlestick,\n\tbread maker")
-      ).toBeTruthy();
+      hall.addItems(item1, item2);
+      expect(hall.itemListings).toInclude("a candlestick and a bread maker");
+    });
+
+    it("lists items contained by other items", () => {
+      const item1 = new Item("candlestick", "", true);
+      const item2 = new Item("apple", "", true);
+      const table = new Item("table", "");
+      table.preposition = "on";
+      table.capacity = 10;
+      table.addItems(item1, item2);
+      hall.addItem(table);
+      expect(hall.itemListings).toInclude(
+        "On the table there's a candlestick and an apple."
+      );
     });
   });
 

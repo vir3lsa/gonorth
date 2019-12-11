@@ -1,8 +1,6 @@
 import { Verb, GoVerb } from "./verb";
 import { selectInventory } from "../utils/selectors";
-import { Npc } from "./npc";
 
-const vowels = ["a", "e", "i", "o", "u"];
 const keywords = {};
 
 export const directionAliases = {
@@ -15,39 +13,18 @@ export const directionAliases = {
 };
 
 export function createKeywords() {
-  const inventory = new Verb(
+  const inventoryVerb = new Verb(
     "inventory",
     true,
     () => {
       const inventory = selectInventory();
-      const { items, uniqueItems } = inventory;
-      const unique = [...uniqueItems].map(item => item.name);
+      const { items } = inventory;
 
       if (!Object.keys(items).length) {
         return "You're not holding anything.";
       }
 
-      let text = "You're carrying ";
-
-      unique.forEach((name, i) => {
-        let article = items[name] instanceof Npc ? "" : "a";
-
-        if (article.length && vowels.includes(name.substring(0, 1))) {
-          article += "n";
-        }
-
-        text += `${article} ${name}`;
-
-        if (i < unique.length - 2) {
-          text += ", ";
-        } else if (i < unique.length - 1) {
-          text += " and ";
-        } else {
-          text += ".";
-        }
-      });
-
-      return text;
+      return `You're carrying ${inventory.basicItemList}.`;
     },
     null,
     ["i", "holding", "carrying"],
@@ -61,7 +38,7 @@ export function createKeywords() {
   const up = new GoVerb("Up", directionAliases["up"], true);
   const down = new GoVerb("Down", directionAliases["down"], true);
 
-  addKeyword(inventory);
+  addKeyword(inventoryVerb);
   addKeyword(north);
   addKeyword(south);
   addKeyword(east);

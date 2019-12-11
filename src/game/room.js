@@ -7,6 +7,7 @@ import { preferPaged } from "../utils/dynamicDescription";
 import { ActionChain } from "../utils/actionChain";
 import { goToRoom } from "../gonorth";
 import { getKeyword, addKeyword, directionAliases } from "./keywords";
+import { getBasicItemList, toTitleCase } from "../utils/textFunctions";
 
 export default class Room extends Item {
   constructor(name, description, options) {
@@ -123,8 +124,7 @@ export default class Room extends Item {
    * Get the ActionChain (including any options) associated with going to this room.
    */
   get actionChain() {
-    const actions = [this.description];
-    const chain = new ActionChain(...actions);
+    const chain = new ActionChain(this.description);
     chain.options = this.options;
 
     if (this.itemListings) {
@@ -150,15 +150,32 @@ export default class Room extends Item {
       if (item.roomListing) {
         description += `${item.roomListing} `;
       } else if (item.holdable) {
-        plainList.push(item.name); // We'll list this item separately
+        plainList.push(item); // We'll list this item separately
       }
     });
 
+    [...this.uniqueItems]
+      .filter(item => Object.keys(item.items).length)
+      .filter(container => container.itemsCanBeSeen)
+      .forEach(container => {
+        const titleCasePrep = toTitleCase(container.preposition);
+        const list = container.basicItemList;
+        description += `\n\n${titleCasePrep} the ${container.name} there's ${list}`;
+        description += ".";
+      });
+
     if (plainList.length) {
       // Just list any items without room listings
-      description += `\n\nYou also see:\n\t${plainList.join(",\n\t")}`;
+      description += `\n\nYou also see ${getBasicItemList(plainList)}`;
     }
 
     return description;
+  }
+
+  /*
+   * Overrides the default implementation on Item to include room listings.
+   */
+  getFullDescription() {
+    return this.actionChain;
   }
 }

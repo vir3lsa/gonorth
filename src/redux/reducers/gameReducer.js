@@ -24,7 +24,7 @@ export default function(state = initialState, action) {
         interaction.currentPage = `${state.interaction.currentPage}\n\n${interaction.currentPage}`;
 
         if (!interaction.options && !state.interaction.nextButtonRendered) {
-          // Copy concrete options (not 'Next') from previous interaction (TODO need Next to work too)
+          // Copy concrete options (not 'Next') from previous interaction
           interaction.options = state.interaction.options;
         }
 

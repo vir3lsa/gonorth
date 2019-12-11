@@ -10,6 +10,7 @@ export class Npc extends Item {
   constructor(name, description) {
     super(name, description || `${name} is unremarkable.`, false);
     this.encounters = [];
+    this.article = "";
   }
 
   async go(direction) {
