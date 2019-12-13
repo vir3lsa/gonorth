@@ -1,12 +1,15 @@
 import {
   Room,
   Door,
+  Event,
   RandomText,
   Item,
   CyclicText,
   SequentialText,
   PagedText,
-  Verb
+  Verb,
+  TIMEOUT_TURNS,
+  addEvent
 } from "../../../../lib/gonorth";
 import { cellarNook } from "./cellarNook";
 import { kitchen } from "./kitchen";
@@ -139,5 +142,24 @@ pale.roomListing =
   "There's a rusty pale lying on its side near the water's edge.";
 pale.capacity = 3;
 pale.preposition = "in";
+
+const waterMonster = new Event(
+  () => {
+    let text;
+    [...water.uniqueItems].forEach(item => {
+      text = new RandomText(
+        `The water suddenly churns violently around the ${item.name}. When it's calm again, the ${item.name} is gone.`,
+        `With a loud splash and a spray of water the ${item.name} disappears. Was that the flick of a tail you glimpsed?`
+      );
+      water.removeItem(item);
+    });
+    return text;
+  },
+  () => water.uniqueItems.size,
+  0,
+  TIMEOUT_TURNS
+);
+waterMonster.recurring = true;
+addEvent(waterMonster);
 
 cellar.addItems(trapdoor, coalHatch, pale, steps, archway, ceiling, lightbulb);

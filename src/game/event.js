@@ -16,7 +16,8 @@ export class Event {
     condition,
     timeout,
     timeoutType,
-    onComplete = () => {}
+    onComplete = () => {},
+    recurring = false
   ) {
     this.action = action;
     this.condition = condition;
@@ -26,6 +27,7 @@ export class Event {
     this.timeoutId = null;
     this.state = DORMANT;
     this.onComplete = onComplete;
+    this.recurring = recurring;
   }
 
   set action(action) {
@@ -106,7 +108,11 @@ export class Event {
       this.state = SUCCEEDED;
     }
 
-    return this.onComplete();
+    await this.onComplete();
+
+    if (this.recurring) {
+      this.state = DORMANT;
+    }
   }
 
   cancel() {
