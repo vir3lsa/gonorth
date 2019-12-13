@@ -15,7 +15,7 @@ consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
 let game;
-const hall = new Room("Hall", "");
+const hall = new Room("Hall", "grand");
 const north = new Room("Garden", "");
 const south = new Room("Kitchen", "");
 const east = new Room("Scullery", "");
@@ -122,5 +122,15 @@ describe("parser", () => {
       inputTest("put cushion in sofa", "how to put the cushion"));
     it("gives feedback when the second item isn't a container, deferring to verb", () =>
       inputTest("put cushion in chair man", "can't put the cushion"));
+    it("allows interaction with items inside other items", () => {
+      inputTest("put cushion in chair", "You put the cushion in the chair");
+      inputTest("take cushion", "You take the cushion");
+    });
+    it("allows rooms to be referred to by name", () =>
+      inputTest("x hall", "grand"));
+    it("allows rooms to be referred to generically", () =>
+      inputTest("x room", "grand"));
+    it("allows items to be put on the floor", () =>
+      inputTest("put cushion on the floor", "You put the cushion in the Hall"));
   });
 });

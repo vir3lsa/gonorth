@@ -155,6 +155,12 @@ describe("putting items", () => {
   test("fails if there's no room left in the container", async () => {
     table.capacity = 0;
     await ball.try("put", table);
-    expect(selectCurrentPage().includes("no room on the table"));
+    expect(selectCurrentPage().includes("no room on the table")).toBeTruthy();
+  });
+
+  test("fails if putting an object in itself", async () => {
+    ball.capacity = 3;
+    await ball.try("put", ball);
+    expect(selectCurrentPage()).toInclude("nonsensical");
   });
 });

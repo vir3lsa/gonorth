@@ -109,7 +109,7 @@ export class Parser {
         }
 
         // Is the item in the room and visible? Does it support the verb?
-        const item = room.items[possibleItem];
+        const item = room.accessibleItems[possibleItem];
 
         if (item && item.visible) {
           // The verb and item match so stop looking

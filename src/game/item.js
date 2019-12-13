@@ -78,7 +78,9 @@ export default class Item {
       const putVerb = new Verb(
         "put",
         (helper, other) =>
-          other.canHoldItems && (other.free === -1 || this.size <= other.free),
+          other !== this &&
+          other.canHoldItems &&
+          (other.free === -1 || this.size <= other.free),
         [
           (helper, other) => {
             this.container.removeItem(this); // TODO Handle when container is inventory
@@ -87,10 +89,15 @@ export default class Item {
           (helper, other) =>
             `You put the ${this.name} ${other.preposition} the ${other.name}.`
         ],
-        (helper, other) =>
-          other.canHoldItems
-            ? `There's no room ${other.preposition} the ${other.name}.`
-            : `You can't put the ${this.name} ${other.preposition} the ${other.name}.`,
+        (helper, other) => {
+          if (other === this) {
+            return `You can't put the ${this.name} ${other.preposition} itself. That would be nonsensical.`;
+          } else if (other.canHoldItems) {
+            return `There's no room ${other.preposition} the ${other.name}.`;
+          } else {
+            return `You can't put the ${this.name} ${other.preposition} the ${other.name}.`;
+          }
+        },
         ["place", "drop"]
       );
       putVerb.prepositional = true;
@@ -187,7 +194,7 @@ export default class Item {
    * @param {Item} item The item to add.
    */
   addItem(item) {
-    const name = item.name;
+    const name = item.name.toLowerCase();
 
     if (!name) {
       throw Error("Item does not have a name");
@@ -280,5 +287,22 @@ export default class Item {
     }
 
     return description;
+  }
+
+  /*
+   * Get items that are accesseible from this item. Includes items inside accessible containers
+   * and this item itself.
+   */
+  get accessibleItems() {
+    // Add this item, its aliases and the items it contains
+    let items = { ...this.items, [this.name.toLowerCase()]: this };
+    this.aliases.forEach(alias => (items[alias] = this));
+
+    // Add items inside this item's containers
+    [...this.uniqueItems].forEach(
+      item => (items = { ...items, ...item.accessibleItems })
+    );
+
+    return items;
   }
 }

@@ -137,5 +137,7 @@ const pale = new Item(
 pale.aliases = ["rusty pale", "bucket"];
 pale.roomListing =
   "There's a rusty pale lying on its side near the water's edge.";
+pale.capacity = 3;
+pale.preposition = "in";
 
 cellar.addItems(trapdoor, coalHatch, pale, steps, archway, ceiling, lightbulb);

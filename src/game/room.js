@@ -16,6 +16,7 @@ export default class Room extends Item {
     this.adjacentRooms = {};
     this.options = options;
     this.canHoldItems = true;
+    this.aliases = ["room", "floor"];
   }
 
   set options(options) {
@@ -135,7 +136,7 @@ export default class Room extends Item {
   }
 
   revealVisibleItems() {
-    const itemNames = Object.entries(this.items)
+    const itemNames = Object.entries(this.accessibleItems)
       .filter(([, item]) => item.visible)
       .map(([name]) => name);
 
