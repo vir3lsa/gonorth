@@ -6,6 +6,7 @@ const initialState = {
   inBrowser: false,
   debugMode: false,
   interaction: new Interaction("Loading..."),
+  lastChange: Date.now(),
   verbNames: {},
   itemNames: new Set(),
   actionChainPromise: null,
@@ -36,7 +37,7 @@ export default function(state = initialState, action) {
         }
       }
 
-      return { ...state, interaction };
+      return { ...state, interaction, lastChange: Date.now() };
     case type.RECEIVE_INPUT:
       return { ...state, playerInput: action.payload };
     case type.NEXT_TURN:

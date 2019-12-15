@@ -1,6 +1,13 @@
 import React, { useRef, useEffect } from "react";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
+import { reactionTimePassed } from "../utils/sharedFunctions";
+
+function selectOption(option) {
+  if (reactionTimePassed()) {
+    option.action();
+  }
+}
 
 export const DecisionBar = props => {
   const buttonRef = useRef();
@@ -19,7 +26,7 @@ export const DecisionBar = props => {
           <Button
             variant="outlined"
             color="primary"
-            onClick={option.action}
+            onClick={() => selectOption(option)}
             buttonRef={index === 0 ? buttonRef : null}
           >
             {option.label}

@@ -1,4 +1,4 @@
-import { processEvent } from "./evenUtils";
+import { processEvent } from "./eventUtils";
 import { getStore } from "../redux/storeRegistry";
 import { selectGame } from "./selectors";
 import { nextTurn } from "../redux/gameActions";

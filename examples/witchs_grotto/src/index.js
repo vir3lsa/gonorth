@@ -14,6 +14,7 @@ import {
 import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
 import { witch } from "./rooms/garden";
+import { hottingUp } from "./rooms/insideOven";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
@@ -61,6 +62,7 @@ const witchArrival = new Route.Builder()
   .build();
 
 addSchedule(witchArrival);
+addSchedule(hottingUp);
 
 witch.addEncounter(
   () => witchArrival.cancel(),

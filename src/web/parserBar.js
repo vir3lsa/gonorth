@@ -1,9 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import TextField from "@material-ui/core/TextField";
 import { receiveInput } from "../utils/inputReceiver";
+import { reactionTimePassed } from "../utils/sharedFunctions";
 
 const captureInput = event => {
-  if (event.key === "Enter") {
+  if (event.key === "Enter" && reactionTimePassed()) {
     receiveInput(event.target.value);
 
     // Reset input
@@ -25,6 +26,7 @@ export const ParserBar = props => {
       margin="normal"
       onKeyUp={captureInput}
       inputRef={inputRef}
+      autoComplete="off"
     />
   );
 };

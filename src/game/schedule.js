@@ -54,8 +54,8 @@ export class Schedule {
         return this.scheduleBuilder.addEvent(actions);
       }
 
-      done() {
-        return this.scheduleBuilder;
+      build() {
+        return this.scheduleBuilder.build();
       }
     }
 
