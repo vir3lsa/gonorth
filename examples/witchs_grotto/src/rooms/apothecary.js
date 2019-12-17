@@ -12,7 +12,7 @@ const grimoire = new Item(
   1
 );
 grimoire.roomListing =
-  "One in particular catches your eye, however, emblazened with the word *Grimoire* in gold leaf.";
+  "One in particular catches your eye, however, emblazened in gold leaf with the word *Grimoire*.";
 grimoire.aliases = ["book"];
 
 const bookShelf = new Item(
@@ -22,7 +22,7 @@ const bookShelf = new Item(
 
 bookShelf.capacity = 2;
 bookShelf.aliases = ["library", "books", "bookshelf"];
-bookShelf.addItem(grimoire);
+bookShelf.hidesItems = grimoire;
 bookShelf.itemsCanBeSeen = false;
 bookShelf.preposition = "on";
 

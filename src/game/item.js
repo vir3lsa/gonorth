@@ -234,12 +234,18 @@ export default class Item {
   }
 
   /**
-   * Adds the items this item hides to this item's container e.g. adds hidden items
-   * to the room.
+   * Adds holdable items this item hides to this item directly and non-holdable items
+   * to this item's container e.g. adds hidden items to the room.
    */
   revealItems() {
     if (!this.itemsRevealed && this.container) {
-      this.hidesItems.forEach(item => this.container.addItem(item));
+      this.hidesItems.forEach(item => {
+        if (item.holdable) {
+          this.addItem(item);
+        } else {
+          this.container.addItem(item); // Don't want non-holdable item to be listed
+        }
+      });
       this.itemsRevealed = true;
     }
   }
