@@ -168,7 +168,7 @@ export default class Room extends Item {
     if (plainList.length) {
       // Just list any items without room listings
       description += description.length ? "\n\n" : "";
-      description += `You also see ${getBasicItemList(plainList)}`;
+      description += `You also see ${getBasicItemList(plainList)}.`;
     }
 
     return description;

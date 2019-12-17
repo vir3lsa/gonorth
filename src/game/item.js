@@ -60,6 +60,7 @@ export default class Item {
             () => {
               this.container.removeItem(this);
               selectInventory().addItem(this);
+              this.roomListing = null;
             },
             new RandomText(
               `You take the ${this.name}.`,
@@ -274,12 +275,21 @@ export default class Item {
   }
 
   get basicItemList() {
-    return getBasicItemList([...this.uniqueItems]);
+    return getBasicItemList(
+      [...this.uniqueItems].filter(item => !item.roomListing)
+    );
   }
 
   getFullDescription() {
     let description = this.description;
     const itemList = this.basicItemList;
+    const roomListings = [...this.uniqueItems]
+      .filter(item => item.roomListing)
+      .map(item => item.roomListing);
+
+    if (roomListings.length) {
+      description += `\n\n${roomListings.join(" ")}`;
+    }
 
     if (itemList.length) {
       const prep = toTitleCase(this.preposition);

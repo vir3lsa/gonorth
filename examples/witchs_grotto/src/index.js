@@ -17,15 +17,17 @@ import { witch } from "./rooms/garden";
 import { hottingUp } from "./rooms/insideOven";
 import { flue } from "./rooms/flue";
 import { cupboard } from "./rooms/cupboard";
+import { apothecary } from "./rooms/apothecary";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
   "Now's your chance. Quickly! Make your escape whilst the witch is out."
 );
 
-setStartingRoom(cellar);
+// setStartingRoom(cellar);
 // setStartingRoom(flue);
 // setStartingRoom(cupboard);
+setStartingRoom(apothecary);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
