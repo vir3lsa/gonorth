@@ -15,6 +15,8 @@ import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
 import { witch } from "./rooms/garden";
 import { hottingUp } from "./rooms/insideOven";
+import { flue } from "./rooms/flue";
+import { cupboard } from "./rooms/cupboard";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
@@ -22,6 +24,8 @@ setIntro(
 );
 
 setStartingRoom(cellar);
+// setStartingRoom(flue);
+// setStartingRoom(cupboard);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");

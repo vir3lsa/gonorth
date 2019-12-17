@@ -9,8 +9,7 @@ import { getStore } from "./redux/storeRegistry";
 import {
   newGame,
   changeInteraction,
-  addEvent as eventAdded,
-  setInventorySize
+  addEvent as eventAdded
 } from "./redux/gameActions";
 import { Interaction } from "./game/interaction";
 import Option from "./game/option";
