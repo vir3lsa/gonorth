@@ -1,5 +1,5 @@
 import Item from "./item";
-import { Verb } from "./verb";
+import { Verb } from "../verbs/verb";
 
 export default class Door extends Item {
   constructor(

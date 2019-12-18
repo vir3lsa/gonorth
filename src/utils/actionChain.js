@@ -3,9 +3,9 @@ import {
   chainStarted,
   chainEnded
 } from "../redux/gameActions";
-import { Interaction, Append } from "../game/interaction";
+import { Interaction, Append } from "../game/interactions/interaction";
 import { getStore } from "../redux/storeRegistry";
-import { Text, SequentialText } from "../game/text";
+import { Text, SequentialText } from "../game/interactions/text";
 
 function dispatchAppend(text, options, nextIfNoOptions, clearPage) {
   const interactionType = clearPage ? Interaction : Append;

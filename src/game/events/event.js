@@ -1,5 +1,5 @@
-import { ActionChain } from "../utils/actionChain";
-import { getStore } from "../redux/storeRegistry";
+import { ActionChain } from "../../utils/actionChain";
+import { getStore } from "../../redux/storeRegistry";
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";

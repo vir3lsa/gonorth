@@ -1,13 +1,13 @@
-import { getStore } from "../redux/storeRegistry";
+import { getStore } from "../../redux/storeRegistry";
 import Door from "./door";
-import { GoVerb } from "./verb";
+import { GoVerb } from "../verbs/verb";
 import Item from "./item";
-import { itemsRevealed } from "../redux/gameActions";
-import { preferPaged } from "../utils/dynamicDescription";
-import { ActionChain } from "../utils/actionChain";
-import { goToRoom } from "../gonorth";
-import { getKeyword, addKeyword, directionAliases } from "./keywords";
-import { getBasicItemList, toTitleCase } from "../utils/textFunctions";
+import { itemsRevealed } from "../../redux/gameActions";
+import { preferPaged } from "../../utils/dynamicDescription";
+import { ActionChain } from "../../utils/actionChain";
+import { goToRoom } from "../../gonorth";
+import { getKeyword, addKeyword, directionAliases } from "../verbs/keywords";
+import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
 
 export default class Room extends Item {
   constructor(name, description, options) {

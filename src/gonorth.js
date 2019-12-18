@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 
 import { initStore } from "./redux/store";
-import { createKeywords } from "./game/keywords";
+import { createKeywords } from "./game/verbs/keywords";
 import IODevice from "./web/iodevice";
 import { getStore } from "./redux/storeRegistry";
 import {
@@ -11,12 +11,12 @@ import {
   changeInteraction,
   addEvent as eventAdded
 } from "./redux/gameActions";
-import { Interaction } from "./game/interaction";
-import Option from "./game/option";
-import Room from "./game/room";
-import Item from "./game/item";
+import { Interaction } from "./game/interactions/interaction";
+import Option from "./game/interactions/option";
+import Room from "./game/items/room";
+import Item from "./game/items/item";
 import { ActionChain } from "./utils/actionChain";
-import { PagedText } from "./game/text";
+import { PagedText } from "./game/interactions/text";
 import { goToRoom } from "./utils/lifecycle";
 
 initStore();
@@ -125,17 +125,22 @@ function setInventoryCapacity(size) {
   game.player.capacity = size;
 }
 
-export { default as Room } from "./game/room";
-export { Verb, GoVerb } from "./game/verb";
-export { default as Door } from "./game/door";
-export { default as Item } from "./game/item";
-export { Interaction, Append } from "./game/interaction";
-export { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/event";
-export { default as Option } from "./game/option";
-export { CyclicText, SequentialText, RandomText, PagedText } from "./game/text";
-export { Schedule } from "./game/schedule";
-export { Route } from "./game/route";
-export { Npc } from "./game/npc";
+export { default as Room } from "./game/items/room";
+export { Verb, GoVerb } from "./game/verbs/verb";
+export { default as Door } from "./game/items/door";
+export { default as Item } from "./game/items/item";
+export { Interaction, Append } from "./game/interactions/interaction";
+export { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
+export { default as Option } from "./game/interactions/option";
+export {
+  CyclicText,
+  SequentialText,
+  RandomText,
+  PagedText
+} from "./game/interactions/text";
+export { Schedule } from "./game/events/schedule";
+export { Route } from "./game/events/route";
+export { Npc } from "./game/items/npc";
 export { goToRoom } from "./utils/lifecycle";
 export {
   initGame,

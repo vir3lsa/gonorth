@@ -1,9 +1,9 @@
-import { getStore } from "../redux/storeRegistry";
-import { changeInteraction } from "../redux/gameActions";
+import { getStore } from "../../redux/storeRegistry";
+import { changeInteraction } from "../../redux/gameActions";
 import { AppendInput } from "./interaction";
-import { selectGame } from "../utils/selectors";
-import { ActionChain } from "../utils/actionChain";
-import { handleTurnEnd } from "../utils/lifecycle";
+import { selectGame } from "../../utils/selectors";
+import { ActionChain } from "../../utils/actionChain";
+import { handleTurnEnd } from "../../utils/lifecycle";
 
 export default class Option {
   constructor(label, action) {

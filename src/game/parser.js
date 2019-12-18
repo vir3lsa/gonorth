@@ -1,6 +1,6 @@
 import { getStore } from "../redux/storeRegistry";
 import { changeInteraction } from "../redux/gameActions";
-import { Append } from "./interaction";
+import { Append } from "./interactions/interaction";
 import {
   selectVerbNames,
   selectRoom,

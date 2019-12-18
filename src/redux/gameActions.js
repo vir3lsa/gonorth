@@ -7,7 +7,7 @@ import {
   cancelActivePrompt
 } from "../utils/consoleIO";
 import { Parser } from "../game/parser";
-import { AppendInput, Append } from "../game/interaction";
+import { AppendInput, Append } from "../game/interactions/interaction";
 
 const selectInBrowser = state => state.game.inBrowser;
 const selectDebugMode = state => state.game.debugMode;

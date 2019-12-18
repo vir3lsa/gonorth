@@ -1,10 +1,10 @@
-import { getStore } from "../redux/storeRegistry";
+import { getStore } from "../../redux/storeRegistry";
 import Room from "./room";
-import { newGame, changeInteraction } from "../redux/gameActions";
-import { Interaction } from "./interaction";
+import { newGame, changeInteraction } from "../../redux/gameActions";
+import { Interaction } from "../interactions/interaction";
 import Item from "./item";
-import { initGame } from "../gonorth";
-import { Parser } from "./parser";
+import { initGame } from "../../gonorth";
+import { Parser } from "../parser";
 
 expect.extend({
   toInclude(received, text) {
@@ -17,8 +17,8 @@ expect.extend({
   }
 });
 
-jest.mock("../utils/consoleIO");
-const consoleIO = require("../utils/consoleIO");
+jest.mock("../../utils/consoleIO");
+const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 

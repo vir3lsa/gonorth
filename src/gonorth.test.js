@@ -9,12 +9,12 @@ import {
 import { unregisterStore, getStore } from "./redux/storeRegistry";
 import { initStore } from "./redux/store";
 import { newGame } from "./redux/gameActions";
-import Room from "./game/room";
-import Option from "./game/option";
+import Room from "./game/items/room";
+import Option from "./game/interactions/option";
 import { ActionChain } from "./utils/actionChain";
-import { Verb } from "./game/verb";
+import { Verb } from "./game/verbs/verb";
 import { receiveInput } from "./utils/inputReceiver";
-import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event } from "./game/event";
+import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event } from "./game/events/event";
 import { handleTurnEnd } from "./utils/lifecycle";
 
 const title = "Space Auctioneer 2";
@@ -88,11 +88,23 @@ describe("Game class", () => {
 
     it("triggers events with no timeout when the condition is met", () => {
       x = 10;
-      eventTest(new Event(() => x++, () => x === 10), () => x === 11);
+      eventTest(
+        new Event(
+          () => x++,
+          () => x === 10
+        ),
+        () => x === 11
+      );
     });
 
     it("does not trigger events when the condition is not met", () => {
-      eventTest(new Event(() => x++, () => x === 10), () => x === 0);
+      eventTest(
+        new Event(
+          () => x++,
+          () => x === 10
+        ),
+        () => x === 0
+      );
     });
 
     it("does not trigger timed events immediately", () => {

@@ -1,9 +1,9 @@
-import { newGame, changeInteraction } from "../redux/gameActions";
+import { newGame, changeInteraction } from "../../redux/gameActions";
 import Door from "./door";
-import { getStore } from "../redux/storeRegistry";
+import { getStore } from "../../redux/storeRegistry";
 import Room from "./room";
-import { Interaction } from "./interaction";
-import { initGame } from "../gonorth";
+import { Interaction } from "../interactions/interaction";
+import { initGame } from "../../gonorth";
 
 const selectCurrentPage = () =>
   getStore().getState().game.interaction.currentPage;
@@ -13,8 +13,8 @@ getStore().dispatch(newGame({}, true, false));
 
 let game, room, door;
 
-jest.mock("../utils/consoleIO");
-const consoleIO = require("../utils/consoleIO");
+jest.mock("../../utils/consoleIO");
+const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 

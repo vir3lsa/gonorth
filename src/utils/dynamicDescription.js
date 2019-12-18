@@ -1,4 +1,4 @@
-import { Text, CyclicText, PagedText } from "../game/text";
+import { Text, CyclicText, PagedText } from "../game/interactions/text";
 
 export const preferPaged = text => {
   if (typeof text === "string") {

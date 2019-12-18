@@ -1,11 +1,10 @@
-import { getStore, unregisterStore } from "../redux/storeRegistry";
-import { pickUpItem } from "../redux/gameActions";
-import Item from "./item";
+import { unregisterStore } from "../../redux/storeRegistry";
+import Item from "../items/item";
 import { getKeyword, createKeywords } from "./keywords";
-import { selectCurrentPage } from "../utils/testSelectors";
-import { initStore } from "../redux/store";
-import { selectInventory } from "../utils/selectors";
-import { initGame } from "../gonorth";
+import { selectCurrentPage } from "../../utils/testSelectors";
+import { initStore } from "../../redux/store";
+import { selectInventory } from "../../utils/selectors";
+import { initGame } from "../../gonorth";
 
 expect.extend({
   toInclude(received, text) {
@@ -18,8 +17,8 @@ expect.extend({
   }
 });
 
-jest.mock("../utils/consoleIO");
-const consoleIO = require("../utils/consoleIO");
+jest.mock("../../utils/consoleIO");
+const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 

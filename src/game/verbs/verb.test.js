@@ -1,14 +1,19 @@
-import { getStore } from "../redux/storeRegistry";
+import { getStore } from "../../redux/storeRegistry";
 import { Verb } from "./verb";
-import { newGame, changeInteraction } from "../redux/gameActions";
-import { Interaction } from "./interaction";
-import { CyclicText, SequentialText, RandomText, PagedText } from "./text";
-import Option from "./option";
-import { selectCurrentPage } from "../utils/testSelectors";
-import { initGame } from "../gonorth";
+import { newGame, changeInteraction } from "../../redux/gameActions";
+import { Interaction } from "../interactions/interaction";
+import {
+  CyclicText,
+  SequentialText,
+  RandomText,
+  PagedText
+} from "../interactions/text";
+import Option from "../interactions/option";
+import { selectCurrentPage } from "../../utils/testSelectors";
+import { initGame } from "../../gonorth";
 
-jest.mock("../utils/consoleIO");
-const consoleIO = require("../utils/consoleIO");
+jest.mock("../../utils/consoleIO");
+const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 

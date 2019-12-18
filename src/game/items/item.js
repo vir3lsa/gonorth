@@ -1,8 +1,8 @@
-import { Text, RandomText } from "./text";
-import { Verb } from "./verb";
-import { createDynamicText } from "../utils/dynamicDescription";
-import { selectInventory } from "../utils/selectors";
-import { getBasicItemList, toTitleCase } from "../utils/textFunctions";
+import { Text, RandomText } from "../interactions/text";
+import { Verb } from "../verbs/verb";
+import { createDynamicText } from "../../utils/dynamicDescription";
+import { selectInventory } from "../../utils/selectors";
+import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
 
 const vowels = ["a", "e", "i", "o", "u"];
 

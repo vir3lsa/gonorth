@@ -1,7 +1,7 @@
-import { getStore } from "../redux/storeRegistry";
-import { verbCreated, addKeywords } from "../redux/gameActions";
-import { ActionChain } from "../utils/actionChain";
-import { selectRoom } from "../utils/selectors";
+import { getStore } from "../../redux/storeRegistry";
+import { verbCreated, addKeywords } from "../../redux/gameActions";
+import { ActionChain } from "../../utils/actionChain";
+import { selectRoom } from "../../utils/selectors";
 
 export class Verb {
   constructor(

@@ -1,5 +1,9 @@
 import * as type from "../gameActionTypes";
-import { Interaction, Append, AppendInput } from "../../game/interaction";
+import {
+  Interaction,
+  Append,
+  AppendInput
+} from "../../game/interactions/interaction";
 
 const initialState = {
   turn: 1,

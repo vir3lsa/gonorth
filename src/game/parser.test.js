@@ -1,13 +1,13 @@
-import Room from "./room";
+import Room from "./items/room";
 import { getStore } from "../redux/storeRegistry";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { Parser } from "./parser";
-import Door from "./door";
-import Item from "./item";
-import { Verb } from "./verb";
+import Door from "./items/door";
+import Item from "./items/item";
+import { Verb } from "./verbs/verb";
 import { initGame } from "../gonorth";
 import { goToRoom } from "../utils/lifecycle";
-import { PagedText } from "./text";
+import { PagedText } from "./interactions/text";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");

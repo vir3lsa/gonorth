@@ -1,4 +1,4 @@
-import { DORMANT, PENDING } from "../game/event";
+import { DORMANT, PENDING } from "../game/events/event";
 
 export async function processEvent(event) {
   if (event.state === DORMANT && event.condition()) {

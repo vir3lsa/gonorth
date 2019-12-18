@@ -1,6 +1,6 @@
 import { Schedule } from "./schedule";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
-import { selectGame } from "../utils/selectors";
+import { selectGame } from "../../utils/selectors";
 
 export class Route {
   static get Builder() {

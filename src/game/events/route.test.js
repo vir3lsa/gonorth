@@ -1,15 +1,15 @@
 import { Route } from "./route";
 import { TIMEOUT_TURNS } from "./event";
-import Room from "./room";
-import { initStore } from "../redux/store";
-import { Npc } from "./npc";
-import { CyclicText } from "./text";
-import { getStore, unregisterStore } from "../redux/storeRegistry";
-import { newGame } from "../redux/gameActions";
-import { addSchedule, initGame } from "../gonorth";
-import { handleTurnEnd } from "../utils/lifecycle";
+import Room from "../items/room";
+import { initStore } from "../../redux/store";
+import { Npc } from "../items/npc";
+import { CyclicText } from "../interactions/text";
+import { getStore, unregisterStore } from "../../redux/storeRegistry";
+import { newGame } from "../../redux/gameActions";
+import { addSchedule, initGame } from "../../gonorth";
+import { handleTurnEnd } from "../../utils/lifecycle";
 
-jest.mock("../utils/consoleIO");
+jest.mock("../../utils/consoleIO");
 
 let nw;
 let sw;

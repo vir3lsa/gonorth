@@ -1,10 +1,10 @@
 import { Schedule } from "./schedule";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
-import { handleTurnEnd } from "../utils/lifecycle";
-import { addSchedule, initGame } from "../gonorth";
+import { handleTurnEnd } from "../../utils/lifecycle";
+import { addSchedule, initGame } from "../../gonorth";
 
-jest.mock("../utils/consoleIO");
-const consoleIO = require("../utils/consoleIO");
+jest.mock("../../utils/consoleIO");
+const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 

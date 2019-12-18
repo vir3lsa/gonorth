@@ -1,5 +1,5 @@
 import { Verb, GoVerb } from "./verb";
-import { selectInventory } from "../utils/selectors";
+import { selectInventory } from "../../utils/selectors";
 
 const keywords = {};
 

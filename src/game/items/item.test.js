@@ -1,11 +1,11 @@
 import Item from "./item";
-import { initStore } from "../redux/store";
-import { getStore, unregisterStore } from "../redux/storeRegistry";
-import { SequentialText } from "./text";
-import { newGame } from "../redux/gameActions";
-import { selectInventory } from "../utils/selectors";
+import { initStore } from "../../redux/store";
+import { getStore, unregisterStore } from "../../redux/storeRegistry";
+import { SequentialText } from "../interactions/text";
+import { newGame } from "../../redux/gameActions";
+import { selectInventory } from "../../utils/selectors";
 import Room from "./room";
-import { initGame, setInventoryCapacity } from "../gonorth";
+import { initGame, setInventoryCapacity } from "../../gonorth";
 
 expect.extend({
   toInclude(received, text) {
@@ -24,8 +24,8 @@ const selectCurrentPage = () =>
 
 let game, room;
 
-jest.mock("../utils/consoleIO");
-const consoleIO = require("../utils/consoleIO");
+jest.mock("../../utils/consoleIO");
+const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 

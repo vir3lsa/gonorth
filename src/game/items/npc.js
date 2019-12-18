@@ -1,10 +1,10 @@
 import Item from "./item";
 import Room from "./room";
-import { Event } from "./event";
-import { selectGame } from "../utils/selectors";
-import { getStore } from "../redux/storeRegistry";
-import { addEvent } from "../redux/gameActions";
-import { processEvent } from "../utils/eventUtils";
+import { Event } from "../events/event";
+import { selectGame } from "../../utils/selectors";
+import { getStore } from "../../redux/storeRegistry";
+import { addEvent } from "../../redux/gameActions";
+import { processEvent } from "../../utils/eventUtils";
 
 export class Npc extends Item {
   constructor(name, description) {
