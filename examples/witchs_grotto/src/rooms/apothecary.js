@@ -1,4 +1,4 @@
-import { Room, Item } from "../../../../lib/gonorth";
+import { Room, Item, Verb, OptionGraph } from "../../../../lib/gonorth";
 
 export const apothecary = new Room(
   "apothecary",
@@ -14,6 +14,52 @@ const grimoire = new Item(
 grimoire.roomListing =
   "One in particular catches your eye, however, emblazened in gold leaf with the word *Grimoire*.";
 grimoire.aliases = ["book"];
+
+const stopReading = {
+  actions: "You close the grimoire."
+};
+
+const readGrimoire = new OptionGraph({
+  actions:
+    "## Elixir of Mending\n\nGot something that's broken or smashed into bits?\nOne drop of this potion, it's instantly fixed!\n\n### Ingredients\n\n* One\n* Two\n* Three\n\n### Process\n\n* Start with a water base\n* Add the ingredients\n* Gently heat and stir until the mixture turns purple",
+  options: {
+    "Next page": {
+      actions:
+        "## Auto-Refractive Tincture\n\nWant to be sneaky or cause a real fright? This marvellous tincture will hide you from sight.\n\n### Ingredients\n\n* One\n* Two\n* Three\n\n### Process\n\n* One\n* Two\n* Three",
+      options: {
+        "Next page": {
+          actions: "placeholder",
+          options: {
+            "Previous page": null,
+            "Stop reading": stopReading
+          }
+        },
+        "Previous page": null,
+        "Stop reading": stopReading
+      }
+    },
+    "Stop reading": stopReading
+  }
+});
+
+readGrimoire.graph.options["Next page"].options["Previous page"] =
+  readGrimoire.graph;
+readGrimoire.graph.options["Next page"].options["Next page"].options[
+  "Previous page"
+] = readGrimoire.graph.options["Next page"];
+
+grimoire.addVerb(
+  new Verb(
+    "read",
+    true,
+    [
+      "You carefully open the dusty tome, the spine creaking as you prise the yellowing pages apart. Scanning through the contents, most of it doesn't make any sense to you. You do understand the word *Potions*, though, so you flip to the corresponding page.",
+      () => readGrimoire.commence()
+    ],
+    [],
+    ["open"]
+  )
+);
 
 const bookShelf = new Item(
   "book shelf",

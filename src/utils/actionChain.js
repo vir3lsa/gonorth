@@ -7,18 +7,11 @@ import { Interaction, Append } from "../game/interactions/interaction";
 import { getStore } from "../redux/storeRegistry";
 import { Text, SequentialText } from "../game/interactions/text";
 
-function dispatchAppend(text, options, nextIfNoOptions, clearPage) {
-  const interactionType = clearPage ? Interaction : Append;
-
-  return getStore().dispatch(
-    changeInteraction(new interactionType(text, options, nextIfNoOptions))
-  );
-}
-
 export class ActionChain {
   constructor(...actions) {
     this.actions = actions;
     this.renderNexts = true;
+    this.renderOptions = true;
     this.postScript = null;
     this.failed = false;
     this.helpers = {
@@ -59,6 +52,16 @@ export class ActionChain {
     }
   }
 
+  dispatchAppend(text, options, nextIfNoOptions, clearPage) {
+    const interactionType = clearPage ? Interaction : Append;
+
+    return getStore().dispatch(
+      changeInteraction(
+        new interactionType(text, options, nextIfNoOptions, this.renderOptions)
+      )
+    );
+  }
+
   toChainableFunction(action, i, actions) {
     let actionFunction = action;
     const lastAction = i === actions.length - 1;
@@ -90,7 +93,7 @@ export class ActionChain {
       if (value instanceof ActionChain) {
         return value.chain(...args);
       } else if (typeof value === "string") {
-        return dispatchAppend(
+        return this.dispatchAppend(
           `${value}${postScript}`,
           this.options,
           nextIfNoOptions,
@@ -111,7 +114,7 @@ export class ActionChain {
           postScript
         );
       } else if (value instanceof Text) {
-        return dispatchAppend(
+        return this.dispatchAppend(
           `${value.next()}${postScript}`,
           this.options,
           nextIfNoOptions,
@@ -136,7 +139,7 @@ export class ActionChain {
     for (let index = 0; index < texts.length; index++) {
       const lastPage = index === texts.length - 1;
 
-      await dispatchAppend(
+      await this.dispatchAppend(
         `${texts[index]}${lastPage ? postScript : ""}`,
         lastPage ? options : null,
         nextIfNoOptions || !lastPage,

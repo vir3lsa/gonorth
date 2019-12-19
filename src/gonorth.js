@@ -142,6 +142,7 @@ export { Schedule } from "./game/events/schedule";
 export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
 export { goToRoom } from "./utils/lifecycle";
+export { OptionGraph } from "./game/interactions/optionGraph";
 export {
   initGame,
   attach,

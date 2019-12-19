@@ -6,6 +6,7 @@ import { newGame } from "../../redux/gameActions";
 import { selectInventory } from "../../utils/selectors";
 import Room from "./room";
 import { initGame, setInventoryCapacity } from "../../gonorth";
+import { selectOptions } from "../../utils/testSelectors";
 
 expect.extend({
   toInclude(received, text) {
@@ -18,7 +19,6 @@ expect.extend({
   }
 });
 
-const selectOptions = () => getStore().getState().game.interaction.options;
 const selectCurrentPage = () =>
   getStore().getState().game.interaction.currentPage;
 
