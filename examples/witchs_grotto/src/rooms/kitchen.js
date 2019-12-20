@@ -1,8 +1,7 @@
-import { Room, Item, Verb, goToRoom } from "../../../../lib/gonorth";
+import { Room, Item, Verb, goToRoom, Door } from "../../../../lib/gonorth";
 import { diningRoom } from "./diningRoom";
 import { pantry } from "./pantry";
 import { entranceHall } from "./entranceHall";
-import door from "../../../../lib/game/door";
 import { insideOven } from "./insideOven";
 
 export const kitchen = new Room(
@@ -34,7 +33,7 @@ const oven = new Item(
 );
 oven.aliases = ["cooker", "stove"];
 
-const ovenDoor = new door(
+const ovenDoor = new Door(
   "oven door",
   "Like the rest of the oven, the door is charcoal black and appears to be made of solid iron.",
   false,

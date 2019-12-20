@@ -1,4 +1,4 @@
-import Option from "./option";
+import { Option } from "./option";
 
 /**
  * Replaces the current screen contents and displays text and prompts for user input, whether

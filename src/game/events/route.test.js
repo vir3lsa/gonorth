@@ -1,6 +1,6 @@
 import { Route } from "./route";
 import { TIMEOUT_TURNS } from "./event";
-import Room from "../items/room";
+import { Room } from "../items/room";
 import { initStore } from "../../redux/store";
 import { Npc } from "../items/npc";
 import { CyclicText } from "../interactions/text";

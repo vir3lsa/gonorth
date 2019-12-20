@@ -1,10 +1,10 @@
-import Item from "./item";
+import { Item } from "./item";
 import { initStore } from "../../redux/store";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
 import { newGame } from "../../redux/gameActions";
 import { selectInventory } from "../../utils/selectors";
-import Room from "./room";
+import { Room } from "./room";
 import { initGame, setInventoryCapacity } from "../../gonorth";
 import { selectOptions } from "../../utils/testSelectors";
 

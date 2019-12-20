@@ -1,5 +1,5 @@
 import { unregisterStore } from "../../redux/storeRegistry";
-import Item from "../items/item";
+import { Item } from "../items/item";
 import { getKeyword, createKeywords } from "./keywords";
 import { selectCurrentPage } from "../../utils/testSelectors";
 import { initStore } from "../../redux/store";

@@ -1,8 +1,8 @@
 import { getStore } from "../../redux/storeRegistry";
-import Room from "./room";
+import { Room } from "./room";
 import { newGame, changeInteraction } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
-import Item from "./item";
+import { Item } from "./item";
 import { initGame } from "../../gonorth";
 import { Parser } from "../parser";
 

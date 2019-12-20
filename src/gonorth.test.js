@@ -9,8 +9,8 @@ import {
 import { unregisterStore, getStore } from "./redux/storeRegistry";
 import { initStore } from "./redux/store";
 import { newGame } from "./redux/gameActions";
-import Room from "./game/items/room";
-import Option from "./game/interactions/option";
+import { Room } from "./game/items/room";
+import { Option } from "./game/interactions/option";
 import { ActionChain } from "./utils/actionChain";
 import { Verb } from "./game/verbs/verb";
 import { receiveInput } from "./utils/inputReceiver";

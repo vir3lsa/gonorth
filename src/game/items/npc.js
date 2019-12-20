@@ -1,5 +1,5 @@
-import Item from "./item";
-import Room from "./room";
+import { Item } from "./item";
+import { Room } from "./room";
 import { Event } from "../events/event";
 import { selectGame } from "../../utils/selectors";
 import { getStore } from "../../redux/storeRegistry";

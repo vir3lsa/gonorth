@@ -20,15 +20,19 @@ const stopReading = {
 };
 
 const readGrimoire = new OptionGraph({
+  id: "mending",
   actions:
-    "## Elixir of Mending\n\nGot something that's broken or smashed into bits?\nOne drop of this potion, it's instantly fixed!\n\n### Ingredients\n\n* One\n* Two\n* Three\n\n### Process\n\n* Start with a water base\n* Add the ingredients\n* Gently heat and stir until the mixture turns purple",
+    "## Elixir of Mending\n\nGot something that's broken or smashed into bits?\nOne drop of this potion, it's instantly fixed!\n\n### Ingredients\n\n* 3 dryad toenails\n* 1 handful of alfalfa leaves\n* 1 bundle white sage\n\n### Process\n\n* Start with a water base\n* Add the ingredients\n* Gently heat and stir until the mixture turns purple",
   options: {
     "Next page": {
+      id: "invisibility",
       actions:
-        "## Auto-Refractive Tincture\n\nWant to be sneaky or cause a real fright? This marvellous tincture will hide you from sight.\n\n### Ingredients\n\n* One\n* Two\n* Three\n\n### Process\n\n* One\n* Two\n* Three",
+        "## Auto-Refractive Tincture\n\nWant to be sneaky or cause a real fright? This marvellous tincture will hide you from sight.\n\n### Ingredients\n\n* 1 clump of a black cat's fur\n* A cup of burdock root\n* A sprinkling of devil's claw\n* A thimble of newt eyes\n\n### Process\n\n* Work from a basis of animal fat\n* Add the fur and bring the mixture to the boil\n* Add the burdock root and the devil's claw and remove the heat\n* Utter an incantation of binding\n*Finally, add the newt eyes",
       options: {
         "Next page": {
-          actions: "placeholder",
+          id: "sleep",
+          actions:
+            "## Sleeping Draught\n\nIf you're tired and grumpy and up all the night\n\nJust sip on this brew, you'll be out like a light.\n\n###Ingredients\n\n* A pinch of mandrake root, powdered\n* A handful of sage - your choice of colour\n* half a pint of slug mucus\n\nProcess\n\n* One\n* Two\n* Three",
           options: {
             "Previous page": null,
             "Stop reading": stopReading
@@ -42,11 +46,11 @@ const readGrimoire = new OptionGraph({
   }
 });
 
-readGrimoire.graph.options["Next page"].options["Previous page"] =
+readGrimoire.getNode("invisibility").options["Previous page"] =
   readGrimoire.graph;
-readGrimoire.graph.options["Next page"].options["Next page"].options[
-  "Previous page"
-] = readGrimoire.graph.options["Next page"];
+readGrimoire.getNode("sleep").options["Previous page"] = readGrimoire.getNode(
+  "invisibility"
+);
 
 grimoire.addVerb(
   new Verb(
@@ -72,4 +76,21 @@ bookShelf.hidesItems = grimoire;
 bookShelf.itemsCanBeSeen = false;
 bookShelf.preposition = "on";
 
-apothecary.addItems(bookShelf);
+const herbarium = new Item(
+  "herbarium",
+  "This must be the witch's herbarium. You have to admit it's an impressive sight. Multiple shelves line the walls, every inch filled with dusty glass jars, racks of vials, and stoppered bottles. They're all meticulously labelled with swirly handwritten names on paper sleeves, but many of them are indecipherable. You take a mental note of the ones you understand. You see:\n\n* Alfalfa\n* Astragalus\n* Bladderwrack\n* Blue Sage\n* Burdock Root\n* Calendula\n* Dandelion\n* Devil's Claw\n* Dryad Toenails\n* Feverfew\n* Hibiscus\n* Horehound\n* Mandrake Root\n* Mugwort\n* Slug Mucus\n* Valerian\n* Vervain\n* White Sage\n* Witch Hazel\n* Wormwood"
+);
+
+const alfalfa = new Item("alfalfa", "A jar of dried alfalfa leaves.");
+
+herbarium.capacity = 20;
+herbarium.aliases = ["vials", "jars", "bottles", "ingredients"];
+herbarium.hidesItems = alfalfa;
+herbarium.itemsCanBeSeen = false;
+
+const cauldron = new Item(
+  "cauldron",
+  "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire. There's a valve at the bottom to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through into the wall. There's apparatus above the cauldron for filling it with a range of liquids."
+);
+
+apothecary.addItems(bookShelf, herbarium, cauldron);

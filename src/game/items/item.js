@@ -6,7 +6,7 @@ import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
 
 const vowels = ["a", "e", "i", "o", "u"];
 
-export default class Item {
+export class Item {
   constructor(
     name,
     description,
@@ -84,7 +84,7 @@ export default class Item {
           (other.free === -1 || this.size <= other.free),
         [
           (helper, other) => {
-            this.container.removeItem(this); // TODO Handle when container is inventory
+            this.container.removeItem(this);
             return other.addItem(this);
           },
           (helper, other) =>

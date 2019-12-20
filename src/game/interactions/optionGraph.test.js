@@ -24,20 +24,25 @@ consoleIO.showOptions = jest.fn();
 let game, optionGraph, x;
 
 const graph = {
+  id: "alpha",
   actions: "goat",
   options: {
     one: {
+      id: "beta",
       actions: "lamb",
       options: {
         three: {
+          id: "gamma",
           actions: [() => x++, "sheep"]
         },
         four: {
+          id: "delta",
           actions: "rabbit"
         }
       }
     },
     two: {
+      id: "epsilon",
       actions: "falcon"
     }
   }
@@ -85,4 +90,16 @@ test("optionGraph carries out additional actions", async () => {
   await selectOptions()[0].action();
   expect(selectCurrentPage()).toInclude("three");
   expect(x).toBe(1);
+});
+
+test("optionGraph presents nodes by ID", () => {
+  expect(optionGraph.getNode("alpha")).toBe(optionGraph.graph);
+  expect(optionGraph.getNode("beta")).toBe(optionGraph.graph.options.one);
+  expect(optionGraph.getNode("gamma")).toBe(
+    optionGraph.graph.options.one.options.three
+  );
+  expect(optionGraph.getNode("delta")).toBe(
+    optionGraph.graph.options.one.options.four
+  );
+  expect(optionGraph.getNode("epsilon")).toBe(optionGraph.graph.options.two);
 });

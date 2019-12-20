@@ -5,7 +5,7 @@ import { selectGame } from "../../utils/selectors";
 import { ActionChain } from "../../utils/actionChain";
 import { handleTurnEnd } from "../../utils/lifecycle";
 
-export default class Option {
+export class Option {
   constructor(label, action) {
     this.label = label;
     this.action = action;

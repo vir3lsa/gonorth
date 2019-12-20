@@ -12,9 +12,9 @@ import {
   addEvent as eventAdded
 } from "./redux/gameActions";
 import { Interaction } from "./game/interactions/interaction";
-import Option from "./game/interactions/option";
-import Room from "./game/items/room";
-import Item from "./game/items/item";
+import { Option } from "./game/interactions/option";
+import { Room } from "./game/items/room";
+import { Item } from "./game/items/item";
 import { ActionChain } from "./utils/actionChain";
 import { PagedText } from "./game/interactions/text";
 import { goToRoom } from "./utils/lifecycle";
@@ -125,13 +125,13 @@ function setInventoryCapacity(size) {
   game.player.capacity = size;
 }
 
-export { default as Room } from "./game/items/room";
+export { Room } from "./game/items/room";
 export { Verb, GoVerb } from "./game/verbs/verb";
-export { default as Door } from "./game/items/door";
-export { default as Item } from "./game/items/item";
+export { Door } from "./game/items/door";
+export { Item } from "./game/items/item";
 export { Interaction, Append } from "./game/interactions/interaction";
 export { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
-export { default as Option } from "./game/interactions/option";
+export { Option } from "./game/interactions/option";
 export {
   CyclicText,
   SequentialText,

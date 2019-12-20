@@ -1,7 +1,7 @@
 import { getStore } from "../../redux/storeRegistry";
-import Door from "./door";
+import { Door } from "./door";
 import { GoVerb } from "../verbs/verb";
-import Item from "./item";
+import { Item } from "./item";
 import { itemsRevealed } from "../../redux/gameActions";
 import { preferPaged } from "../../utils/dynamicDescription";
 import { ActionChain } from "../../utils/actionChain";
@@ -9,7 +9,7 @@ import { goToRoom } from "../../gonorth";
 import { getKeyword, addKeyword, directionAliases } from "../verbs/keywords";
 import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
 
-export default class Room extends Item {
+export class Room extends Item {
   constructor(name, description, options) {
     super(name, preferPaged(description), false, -1);
     this.visits = 0;

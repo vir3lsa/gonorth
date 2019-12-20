@@ -1,9 +1,9 @@
-import Room from "./items/room";
+import { Room } from "./items/room";
 import { getStore } from "../redux/storeRegistry";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { Parser } from "./parser";
-import Door from "./items/door";
-import Item from "./items/item";
+import { Door } from "./items/door";
+import { Item } from "./items/item";
 import { Verb } from "./verbs/verb";
 import { initGame } from "../gonorth";
 import { goToRoom } from "../utils/lifecycle";

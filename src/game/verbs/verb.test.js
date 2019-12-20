@@ -8,7 +8,7 @@ import {
   RandomText,
   PagedText
 } from "../interactions/text";
-import Option from "../interactions/option";
+import { Option } from "../interactions/option";
 import { selectCurrentPage } from "../../utils/testSelectors";
 import { initGame } from "../../gonorth";
 
