@@ -289,7 +289,8 @@ export class Item {
   getFullDescription() {
     let description = this.description;
     const itemList = this.basicItemList;
-    const roomListings = [...this.uniqueItems]
+    const uniqueItemList = [...this.uniqueItems];
+    const roomListings = uniqueItemList
       .filter(item => item.roomListing)
       .map(item => item.roomListing);
 
@@ -299,7 +300,11 @@ export class Item {
 
     if (itemList.length) {
       const prep = toTitleCase(this.preposition);
-      description += `\n\n${prep} the ${this.name} there's ${itemList}.`;
+      const announceList =
+        uniqueItemList.length < 8
+          ? `there's ${itemList}.`
+          : `you see:\n\n${itemList}`;
+      description += `\n\n${prep} the ${this.name} ${announceList}`;
     }
 
     return description;

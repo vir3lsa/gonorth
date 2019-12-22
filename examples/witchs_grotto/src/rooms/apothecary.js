@@ -1,4 +1,13 @@
 import { Room, Item, Verb, OptionGraph } from "../../../../lib/gonorth";
+import { Ingredient } from "./ingredient";
+import {
+  Procedure,
+  Alchemy,
+  STEP_BASE,
+  BASE_WATER,
+  STEP_INGREDIENTS,
+  STEP_HEAT
+} from "./alchemy";
 
 export const apothecary = new Room(
   "apothecary",
@@ -22,7 +31,7 @@ const stopReading = {
 const readGrimoire = new OptionGraph({
   id: "mending",
   actions:
-    "## Elixir of Mending\n\nGot something that's broken or smashed into bits?\nOne drop of this potion, it's instantly fixed!\n\n### Ingredients\n\n* 3 dryad toenails\n* 1 handful of alfalfa leaves\n* 1 bundle white sage\n\n### Process\n\n* Start with a water base\n* Add the ingredients\n* Gently heat and stir until the mixture turns purple",
+    "## Elixir of Mending\n\nGot something that's broken or smashed into bits?\nOne drop of this potion, it's instantly fixed!\n\n### Ingredients\n\n* 3 dryad toenails\n* 1 handful of alfalfa leaves\n* 1 bundle white sage\n\n### Process\n\n* Start with a water base (half a pot)\n* Add the ingredients\n* Gently heat and stir until the mixture turns purple",
   options: {
     "Next page": {
       id: "invisibility",
@@ -76,21 +85,103 @@ bookShelf.hidesItems = grimoire;
 bookShelf.itemsCanBeSeen = false;
 bookShelf.preposition = "on";
 
-const herbarium = new Item(
-  "herbarium",
-  "This must be the witch's herbarium. You have to admit it's an impressive sight. Multiple shelves line the walls, every inch filled with dusty glass jars, racks of vials, and stoppered bottles. They're all meticulously labelled with swirly handwritten names on paper sleeves, but many of them are indecipherable. You take a mental note of the ones you understand. You see:\n\n* Alfalfa\n* Astragalus\n* Bladderwrack\n* Blue Sage\n* Burdock Root\n* Calendula\n* Dandelion\n* Devil's Claw\n* Dryad Toenails\n* Feverfew\n* Hibiscus\n* Horehound\n* Mandrake Root\n* Mugwort\n* Slug Mucus\n* Valerian\n* Vervain\n* White Sage\n* Witch Hazel\n* Wormwood"
-);
-
-const alfalfa = new Item("alfalfa", "A jar of dried alfalfa leaves.");
-
-herbarium.capacity = 20;
-herbarium.aliases = ["vials", "jars", "bottles", "ingredients"];
-herbarium.hidesItems = alfalfa;
-herbarium.itemsCanBeSeen = false;
-
 const cauldron = new Item(
   "cauldron",
   "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire. There's a valve at the bottom to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through into the wall. There's apparatus above the cauldron for filling it with a range of liquids."
 );
+
+cauldron.capacity = 100;
+
+const herbarium = new Item(
+  "herbarium",
+  "This must be the witch's herbarium. You have to admit it's an impressive sight. Multiple shelves line the walls, every inch filled with dusty glass jars, racks of vials, and stoppered bottles. They're all meticulously labelled with swirly handwritten names on paper sleeves, but many of them are indecipherable. You take a mental note of the ones you understand."
+);
+
+const alfalfa = new Ingredient(
+  "Alfalfa",
+  "A jar of dried alfalfa leaves.",
+  cauldron
+);
+
+const astragalus = new Ingredient("Astragalus", "placeholder", cauldron);
+
+const bladderwrack = new Ingredient("Bladderwrack", "placeholder", cauldron);
+
+const blueSage = new Ingredient("Blue Sage", "placeholder", cauldron);
+
+const burdockRoot = new Ingredient("Burdock Root", "placeholder", cauldron);
+
+const calendula = new Ingredient("Calendula", "placeholder", cauldron);
+
+const dandelion = new Ingredient("Dandelion", "placeholder", cauldron);
+
+const devilsClaw = new Ingredient("Devil's Claw", "placeholder", cauldron);
+
+const dryadToenails = new Ingredient("Dryad Toenails", "placeholder", cauldron);
+
+const feverfew = new Ingredient("Feverfew", "placeholder", cauldron);
+
+const hibiscus = new Ingredient("hibiscus", "placeholder", cauldron);
+
+const horehound = new Ingredient("Horehound", "placeholder", cauldron);
+
+const mandrakeRoot = new Ingredient("Mandrake Root", "placeholder", cauldron);
+
+const mugwort = new Ingredient("Mugwort", "placeholder", cauldron);
+
+const slugMucus = new Ingredient("Slug Mucus", "placeholder", cauldron);
+
+const valerian = new Ingredient("Valerian", "placeholder", cauldron);
+
+const vervain = new Ingredient("Vervain", "placeholder", cauldron);
+
+const whiteSage = new Ingredient("White Sage", "placeholder", cauldron);
+
+const witchHazel = new Ingredient("Witch Hazel", "placeholder", cauldron);
+
+const wormwood = new Ingredient("Wormwood", "placeholder", cauldron);
+
+herbarium.capacity = 20;
+herbarium.aliases = ["vials", "jars", "bottles", "ingredients"];
+herbarium.hidesItems = [
+  alfalfa,
+  astragalus,
+  bladderwrack,
+  blueSage,
+  burdockRoot,
+  calendula,
+  dandelion,
+  devilsClaw,
+  dryadToenails,
+  feverfew,
+  hibiscus,
+  horehound,
+  mandrakeRoot,
+  mugwort,
+  slugMucus,
+  valerian,
+  vervain,
+  whiteSage,
+  witchHazel,
+  wormwood
+];
+herbarium.itemsCanBeSeen = false;
+
+const mendingProcedure = new Procedure({
+  ordered: true,
+  steps: [
+    {
+      ordered: false,
+      steps: [
+        { type: STEP_WATER, value: 0.5 },
+        { type: STEP_INGREDIENTS, value: [dryadToenails, alfalfa, whiteSage] }
+      ]
+    },
+    { type: STEP_HEAT, quantity: 3 }
+  ]
+});
+
+const alchemy = new Alchemy();
+alchemy.addProcedure(mendingProcedure);
 
 apothecary.addItems(bookShelf, herbarium, cauldron);
