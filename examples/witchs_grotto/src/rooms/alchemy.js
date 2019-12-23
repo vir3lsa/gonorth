@@ -3,7 +3,6 @@ import { Item } from "../../../../lib/gonorth";
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
 export const STEP_STIR = "stir";
-export const STEP_COOL = "cool";
 export const STEP_WATER = "water";
 export const STEP_OIL = "oil";
 export const STEP_BLOOD = "blood";
@@ -15,6 +14,7 @@ export class Alchemy {
     this.waterLevel = 0;
     this.oilLevel = 0;
     this.bloodLevel = 0;
+    this.temperature = 0;
     this.potion = null;
   }
 
@@ -32,41 +32,34 @@ export class Alchemy {
   }
 
   addIngredient(ingredient) {
-    this.candidates = this.candidates.filter(cand =>
-      this.findMatchingStep(cand.procedure, STEP_INGREDIENTS, ingredient)
-    );
-
-    this.checkPotion();
+    this.processStep(STEP_INGREDIENTS, ingredient);
   }
 
   addWater() {
     this.waterLevel += 0.25;
-    this.candidates = this.candidates.filter(cand =>
-      this.findMatchingStep(cand.procedure, STEP_WATER)
-    );
-
-    this.checkPotion();
+    this.processStep(STEP_WATER);
   }
 
   addOil() {
     this.oilLevel += 0.25;
-    this.candidates = this.candidates.filter(cand =>
-      this.findMatchingStep(cand.procedure, STEP_OIL)
-    );
-
-    this.checkPotion();
+    this.processStep(STEP_OIL);
   }
 
   addBlood() {
     this.bloodLevel += 0.25;
-    this.candidates = this.candidates.filter(cand =>
-      this.findMatchingStep(cand.procedure, STEP_BLOOD)
-    );
-
-    this.checkPotion();
+    this.processStep(STEP_BLOOD);
   }
 
-  checkPotion() {
+  addHeat() {
+    this.temperature++;
+    this.processStep(STEP_HEAT);
+  }
+
+  processStep(stepType, ingredient) {
+    this.candidates = this.candidates.filter(cand =>
+      this.findMatchingStep(cand.procedure, stepType, ingredient)
+    );
+
     if (this.candidates.length === 1) {
       // We know what potion we're making. Is it finished?
       const chosen = this.candidates[0];
@@ -100,9 +93,7 @@ export class Alchemy {
               matchingStep = stepToConsider;
             }
             break;
-          case STEP_WATER:
-          case STEP_OIL:
-          case STEP_BLOOD:
+          default:
             matchingStep = stepToConsider;
             break;
         }
@@ -154,6 +145,12 @@ export class Alchemy {
             removeStep(steps, matchingStep);
           }
           break;
+        case STEP_HEAT:
+          if (this.temperature === matchingStep.value) {
+            // Remove the completed step
+            removeStep(steps, matchingStep);
+          }
+          break;
       }
     } else if (matchingGroup) {
       if (!matchingGroup.steps.length) {
@@ -169,10 +166,13 @@ export class Alchemy {
   }
 
   copyProcedure(proc) {
-    return new Procedure({
-      ...proc.procedure,
-      steps: this.copySteps(proc.procedure.steps)
-    });
+    return new Procedure(
+      {
+        ...proc.procedure,
+        steps: this.copySteps(proc.procedure.steps)
+      },
+      proc.potion // No need to deep copy the potion
+    );
   }
 
   copySteps(steps) {

@@ -6,7 +6,8 @@ import {
   STEP_BASE,
   BASE_WATER,
   STEP_INGREDIENTS,
-  STEP_HEAT
+  STEP_HEAT,
+  Potion
 } from "./alchemy";
 
 export const apothecary = new Room(
@@ -167,19 +168,25 @@ herbarium.hidesItems = [
 ];
 herbarium.itemsCanBeSeen = false;
 
-const mendingProcedure = new Procedure({
-  ordered: true,
-  steps: [
-    {
-      ordered: false,
-      steps: [
-        { type: STEP_WATER, value: 0.5 },
-        { type: STEP_INGREDIENTS, value: [dryadToenails, alfalfa, whiteSage] }
-      ]
-    },
-    { type: STEP_HEAT, quantity: 3 }
-  ]
-});
+const mendingProcedure = new Procedure(
+  {
+    ordered: true,
+    steps: [
+      {
+        ordered: false,
+        steps: [
+          { type: STEP_WATER, value: 0.5 },
+          { type: STEP_INGREDIENTS, value: [dryadToenails, alfalfa, whiteSage] }
+        ]
+      },
+      { type: STEP_HEAT, value: 3 }
+    ]
+  },
+  new Potion(
+    "Elixir of Mending",
+    "The substance inside the bottle is deep purple in colour, with flecks of gold that catch the light as you examine it."
+  )
+);
 
 const alchemy = new Alchemy();
 alchemy.addProcedure(mendingProcedure);
