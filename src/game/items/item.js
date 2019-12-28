@@ -118,6 +118,10 @@ export class Item {
     this._description = createDynamicText(description);
   }
 
+  addVerbs(...verbs) {
+    verbs.forEach(verb => this.addVerb(verb));
+  }
+
   addVerb(verb) {
     this._verbs[verb.name.toLowerCase()] = verb;
     verb.parent = this;

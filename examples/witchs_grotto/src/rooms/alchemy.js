@@ -4,28 +4,50 @@ export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
 export const STEP_STIR = "stir";
 export const STEP_WATER = "water";
-export const STEP_OIL = "oil";
+export const STEP_FAT = "fat";
 export const STEP_BLOOD = "blood";
+
+function getLiquidText(liquid, level) {
+  let readableLavel;
+
+  if (level > 1) {
+    readableLavel =
+      "It overflows the rim and splashes onto the floor before finding its way to the drainage channel.";
+  } else if (level === 1) {
+    readableLavel = "It's full to the brim.";
+  } else if (level === 0.75) {
+    readableLavel = "It's now around three quarters full.";
+  } else if (level === 0.5) {
+    readableLavel = "It looks to be about half full.";
+  } else if (level === 0.25) {
+    readableLavel = "It's already a quarter full.";
+  }
+
+  return `${liquid} gushes into the cauldron. ${readableLavel}`;
+}
 
 export class Alchemy {
   constructor() {
     this.procedures = [];
     this.candidates = [];
     this.waterLevel = 0;
-    this.oilLevel = 0;
+    this.fatLevel = 0;
     this.bloodLevel = 0;
     this.temperature = 0;
+    this.stirred = 0;
     this.potion = null;
   }
 
-  addProcedure(procedure) {
-    this.procedures.push(procedure);
-    this.candidates.push(this.copyProcedure(procedure));
+  addProcedures(...procedures) {
+    procedures.forEach(procedure => {
+      this.procedures.push(procedure);
+      this.candidates.push(this.copyProcedure(procedure));
+    });
   }
 
   flush() {
     this.waterLevel = 0;
-    this.oilLevel = 0;
+    this.fatLevel = 0;
     this.bloodLevel = 0;
     this.potion = null;
     this.candidates = this.procedures.map(proc => this.copyProcedure(proc));
@@ -38,21 +60,29 @@ export class Alchemy {
   addWater() {
     this.waterLevel += 0.25;
     this.processStep(STEP_WATER);
+    return getLiquidText("Water", this.waterLevel);
   }
 
-  addOil() {
-    this.oilLevel += 0.25;
-    this.processStep(STEP_OIL);
+  addFat() {
+    this.fatLevel += 0.25;
+    this.processStep(STEP_FAT);
+    return getLiquidText("Animal fat", this.fatLevel);
   }
 
   addBlood() {
     this.bloodLevel += 0.25;
     this.processStep(STEP_BLOOD);
+    return getLiquidText("Blood", this.bloodLevel);
   }
 
   addHeat() {
     this.temperature++;
     this.processStep(STEP_HEAT);
+  }
+
+  stir() {
+    this.stirred++;
+    this.processStep(STEP_STIR);
   }
 
   processStep(stepType, ingredient) {
@@ -68,6 +98,9 @@ export class Alchemy {
         // It's finished!
         this.potion = chosen.potion;
       }
+    } else if (!this.candidates.length) {
+      // No matching procedures - potion has failed
+      this.potion = null;
     }
   }
 
@@ -76,6 +109,11 @@ export class Alchemy {
     const steps = group.steps;
     const numStepsToConsider = ordered ? 1 : steps.length;
     let stepToConsider, matchingStep, matchingGroup;
+
+    if (!steps.length) {
+      // No steps to match against - player has probably done too much
+      return false;
+    }
 
     for (let i = 0; i < numStepsToConsider; i++) {
       stepToConsider = steps[i];
@@ -106,14 +144,6 @@ export class Alchemy {
     }
 
     if (matchingStep) {
-      // Function to remove a completed step
-      const removeStep = (steps, matchingStep) => {
-        steps.splice(
-          steps.findIndex(step => step === matchingStep),
-          1
-        );
-      };
-
       switch (stepType) {
         case STEP_INGREDIENTS:
           // Remove the matching ingredient from the step
@@ -123,33 +153,24 @@ export class Alchemy {
 
           if (!matchingStep.value.length) {
             // Remove the empty step
-            removeStep(steps, matchingStep);
+            this.removeStep(steps, matchingStep);
           }
 
           break;
         case STEP_WATER:
-          if (this.waterLevel === matchingStep.value) {
-            // Remove the completed step
-            removeStep(steps, matchingStep);
-          }
+          this.handleNumericStep(this.waterLevel, matchingStep, steps);
           break;
-        case STEP_OIL:
-          if (this.oilLevel === matchingStep.value) {
-            // Remove the completed step
-            removeStep(steps, matchingStep);
-          }
+        case STEP_FAT:
+          this.handleNumericStep(this.fatLevel, matchingStep, steps);
           break;
         case STEP_BLOOD:
-          if (this.bloodLevel === matchingStep.value) {
-            // Remove the completed step
-            removeStep(steps, matchingStep);
-          }
+          this.handleNumericStep(this.bloodLevel, matchingStep, steps);
           break;
         case STEP_HEAT:
-          if (this.temperature === matchingStep.value) {
-            // Remove the completed step
-            removeStep(steps, matchingStep);
-          }
+          this.handleNumericStep(this.temperature, matchingStep, steps);
+          break;
+        case STEP_STIR:
+          this.handleNumericStep(this.stirred, matchingStep, steps);
           break;
       }
     } else if (matchingGroup) {
@@ -163,6 +184,20 @@ export class Alchemy {
     }
 
     return matchingStep !== undefined || matchingGroup !== undefined;
+  }
+
+  removeStep(steps, matchingStep) {
+    steps.splice(
+      steps.findIndex(step => step === matchingStep),
+      1
+    );
+  }
+
+  handleNumericStep(measure, matchingStep, steps) {
+    if (measure === matchingStep.value) {
+      // Remove the completed step
+      this.removeStep(steps, matchingStep);
+    }
   }
 
   copyProcedure(proc) {

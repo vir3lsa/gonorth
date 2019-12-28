@@ -4,6 +4,7 @@ import {
   STEP_INGREDIENTS,
   STEP_HEAT,
   STEP_WATER,
+  STEP_STIR,
   Potion
 } from "./alchemy";
 import { Ingredient } from "./ingredient";
@@ -23,8 +24,15 @@ let alchemy;
 const dryadToenails = new Ingredient("dryadToenails");
 const alfalfa = new Ingredient("alfalfa");
 const whiteSage = new Ingredient("whiteSage");
-const potion = new Potion("Elixir of Mending", "Mends stuff");
-const proc = new Procedure(
+const cockroachSaliva = new Ingredient("cockroach saliva");
+const horehound = new Ingredient("horehound");
+const wormwood = new Ingredient("wormwood");
+const mendingPotion = new Potion("Elixir of Mending", "Mends stuff");
+const woodwormPotion = new Potion(
+  "Organic Dissolution Accelerator",
+  "Dissolves organics"
+);
+const mendingProcedure = new Procedure(
   {
     ordered: true,
     steps: [
@@ -38,7 +46,19 @@ const proc = new Procedure(
       { type: STEP_HEAT, value: 3 }
     ]
   },
-  potion
+  mendingPotion
+);
+const woodwormProcedure = new Procedure(
+  {
+    ordered: true,
+    steps: [
+      { type: STEP_WATER, value: 1 },
+      { type: STEP_INGREDIENTS, value: [cockroachSaliva, horehound] },
+      { type: STEP_STIR, value: 3 },
+      { type: STEP_INGREDIENTS, value: [wormwood] }
+    ]
+  },
+  woodwormPotion
 );
 
 function addIngredients(...ingredients) {
@@ -57,9 +77,21 @@ function addHeat(times) {
   }
 }
 
+function stir(times) {
+  for (let i = 0; i < times; i++) {
+    alchemy.stir();
+  }
+}
+
+function followMendingProcedure() {
+  addIngredients(dryadToenails, alfalfa, whiteSage);
+  addWater(2);
+  addHeat(3);
+}
+
 beforeEach(() => {
   alchemy = new Alchemy();
-  alchemy.addProcedure(proc);
+  alchemy.addProcedures(mendingProcedure, woodwormProcedure);
 });
 
 test("it deep copies procedures", () => {
@@ -107,8 +139,78 @@ test("it allows unordered steps to be completed in any order", () => {
 });
 
 test("it has a potion when the procedure is finished", () => {
+  followMendingProcedure();
+  expect(alchemy.potion).toBe(mendingPotion);
+});
+
+test("it has a different potion if another procedure is followed", () => {
+  addWater(4);
+  addIngredients(cockroachSaliva, horehound);
+  stir(3);
+  addIngredients(wormwood);
+  expect(alchemy.potion).toBe(woodwormPotion);
+});
+
+test("no potion is produced if not enough heat is added", () => {
   addIngredients(dryadToenails, alfalfa, whiteSage);
   addWater(2);
-  addHeat(3);
-  expect(alchemy.potion).toBe(potion);
+  addHeat(2);
+  expect(alchemy.potion).toBe(null);
+});
+
+test("no potion is produced if too much heat is added", () => {
+  followMendingProcedure();
+  addHeat(1);
+  expect(alchemy.potion).toBe(null);
+});
+
+test("no potion is produced if too much water is added", () => {
+  followMendingProcedure();
+  addWater(1);
+  expect(alchemy.potion).toBe(null);
+});
+
+test("no potion is produced if an extra ingredient is added", () => {
+  followMendingProcedure();
+  addIngredients(horehound);
+  expect(alchemy.potion).toBe(null);
+});
+
+test("no potion is produced if an extra ingredient is added earlier on", () => {
+  addIngredients(dryadToenails, alfalfa, whiteSage, horehound);
+  addWater(2);
+  addHeat(2);
+  expect(alchemy.potion).toBe(null);
+});
+
+test("no potion is produced if too much water is added earlier on", () => {
+  addIngredients(dryadToenails, alfalfa, whiteSage);
+  addWater(3);
+  addHeat(2);
+  expect(alchemy.potion).toBe(null);
+});
+
+test("no potion is produced if the mixture is stirred too much", () => {
+  addWater(4);
+  addIngredients(cockroachSaliva, horehound);
+  stir(4);
+  addIngredients(wormwood);
+  expect(alchemy.potion).toBe(null);
+});
+
+test("no potion is produced if the mixture is not stirred enough", () => {
+  addWater(4);
+  addIngredients(cockroachSaliva, horehound);
+  stir(2);
+  addIngredients(wormwood);
+  expect(alchemy.potion).toBe(null);
+});
+
+test("no potion is produced if the mixture is not stirred at the right time", () => {
+  addWater(4);
+  addIngredients(cockroachSaliva, horehound);
+  stir(2);
+  addIngredients(wormwood);
+  stir(1);
+  expect(alchemy.potion).toBe(null);
 });

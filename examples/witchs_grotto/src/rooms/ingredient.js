@@ -4,7 +4,7 @@ export class Ingredient extends Item {
   constructor(name, description, cauldron) {
     super(name, description, true, 1);
     this.article = "";
-    this.verbs["put"].onSuccess = [
+    this.verbs.put.onSuccess = [
       (helper, other) => {
         if (other === cauldron) {
           const name = `some ${this.name}`;
@@ -19,5 +19,6 @@ export class Ingredient extends Item {
       (helper, other) =>
         `You put some ${this.name} ${other.preposition} the ${other.name}.`
     ];
+    this.verbs.put.aliases.push("add");
   }
 }

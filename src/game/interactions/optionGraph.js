@@ -6,6 +6,11 @@ export class OptionGraph {
     this.graph = graph;
     this.flattened = {};
 
+    this.reindex();
+  }
+
+  reindex() {
+    this.flattened = {};
     this.recordNodeIds(this.graph);
   }
 

@@ -143,6 +143,7 @@ export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
 export { goToRoom } from "./utils/lifecycle";
 export { OptionGraph } from "./game/interactions/optionGraph";
+export { selectInventory, selectRoom } from "./utils/selectors";
 export {
   initGame,
   attach,

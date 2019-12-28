@@ -17,7 +17,10 @@ h1 {
   margin-block-end: 1em;
 }
 
-p {
+p,
+table,
+ul,
+ol {
   font-size: 1.3em;
 }
 
@@ -45,4 +48,8 @@ div.MuiInputBase-root:hover {
 
 div.MuiInput-underline:after {
   border-bottom: 2px solid rgba(255, 255, 255, 0.87);
+}
+
+th:first-child {
+  width: 40%;
 }
