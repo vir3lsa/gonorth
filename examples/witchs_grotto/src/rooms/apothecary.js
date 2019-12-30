@@ -8,7 +8,8 @@ import {
   Event,
   TIMEOUT_TURNS,
   addEvent,
-  RandomText
+  RandomText,
+  CyclicText
 } from "../../../../lib/gonorth";
 import { Ingredient } from "./ingredient";
 import {
@@ -25,6 +26,8 @@ export const apothecary = new Room(
   "apothecary",
   "You seem to be in some kind of apothecary or decoction room. There's an enormous open fireplace mostly filled by a large black cauldron. Above it there's an arrangement of pipes that looks as though it's used to fill the cauldron with liquid.\n\nOne wall of the room is lined with shelf upon shelf of vials, jars and bottles. Most but not all have dusty labels with incomprehensible things scrawled on them. Another wall is hidden behind rows and rows of leather-bound books.\n\nOn the cold flagstones under foot there's a pentagram smeared in something brown and old-looking. Behind that there's a wooden bureau strewn with yellowing bits of paper.\n\nThere's a red door to the west."
 );
+
+const alchemy = new Alchemy();
 
 const grimoire = new Item(
   "grimoire",
@@ -43,7 +46,7 @@ const stopReading = {
 const mendingPage = {
   id: "mending",
   actions:
-    "## Elixir of Mending\n\nGot something that's broken or smashed into bits? One drop of this potion, it's instantly fixed!\n\n### Ingredients\n\n* 3 dryad toenails\n* 1 handful of alfalfa leaves\n* 1 bundle white sage\n\n### Process\n\n* Start with a water base (half a pot)\n* Add the ingredients\n* Gently heat and stir until the mixture turns purple",
+    "## Elixir of Mending\n\nGot something that's broken or smashed into bits? One drop of this potion, it's instantly fixed!\n\n### Ingredients\n\n* 3 dryad toenails\n* 1 handful of alfalfa leaves\n* 1 bundle white sage\n\n### Process\n\n* Start with a water base (a full pot)\n* Add the ingredients\n* Gently heat and stir until the mixture turns purple",
   options: {
     "Stop reading": stopReading
   }
@@ -55,7 +58,7 @@ const woodwormPage = {
 
 Ingredients      | Process
 :----------------|:------------------------------------------
-Cockroach saliva | Fill the pot with cold water
+Cockroach saliva | Half fill the pot with cold water
 Wormwood         | Add the cockroach saliva and the horehound
 Horehound        | Stir until the colour changes
 |                | Add the wormwood`,
@@ -137,13 +140,37 @@ bookShelf.hidesItems = grimoire;
 bookShelf.itemsCanBeSeen = false;
 bookShelf.preposition = "on";
 
-const cauldron = new Item(
-  "cauldron",
-  "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire. There's a valve at the bottom to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through the wall. There's apparatus above the cauldron for filling it with a range of liquids."
-);
+const cauldron = new Item("cauldron", () => {
+  const basic =
+    "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire. There's a valve at the bottom to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through the wall. There's apparatus above the cauldron for filling it with a range of liquids.";
+
+  const ingredientsAdded = Object.values(cauldron.items).find(
+    item => item instanceof Ingredient
+  );
+  const baseAdded =
+    alchemy.waterLevel > 0 || alchemy.fatLevel > 0 || alchemy.bloodLevel > 0;
+
+  if (ingredientsAdded && baseAdded) {
+    return `${basic}\n\nThere's some kind of potion inside.`;
+  } else if (ingredientsAdded) {
+    return `${basic}\n\nThere are ingredients inside.`;
+  } else if (baseAdded) {
+    return `${basic}\n\nThere's some kind of liquid inside.`;
+  } else if (!cauldron.items.length) {
+    return `${basic}\n\nThere's currently nothing inside.`;
+  }
+
+  return basic;
+});
 
 cauldron.capacity = 100;
 cauldron.itemsCanBeSeen = false;
+
+const contents = new Item("contents", () => {
+  // TODO Create dynamic description
+  return "placeholder";
+});
+contents.aliases = ["potion", "liquid"];
 
 const fire = new Item(
   "fire",
@@ -167,12 +194,14 @@ const stir = new Verb(
   "stir",
   (helper, other) => other === ladle,
   [
-    () => alchemy.stir(),
-    new RandomText(
-      "You use all your strength to pull the heavy ladle through the contents of the cauldron.",
-      "You grunt as you exert yourself stirring the ingredients in the pot.",
-      "You mix the ingredients with a few good rotations of the ladle."
-    )
+    [
+      new RandomText(
+        "You use all your strength to pull the heavy ladle through the contents of the cauldron.",
+        "You stir the ingredients in the pot, grunting with the exertion.",
+        "You mix the ingredients with a few good rotations of the ladle."
+      ),
+      () => alchemy.stir()
+    ]
   ],
   [],
   ["mix"]
@@ -255,52 +284,99 @@ const herbarium = new Item(
 const alfalfa = new Ingredient(
   "Alfalfa",
   "A jar of dried alfalfa leaves.",
-  cauldron
+  cauldron,
+  alchemy
 );
 
-const astragalus = new Ingredient("Astragalus", "placeholder", cauldron);
+const astragalus = new Ingredient(
+  "Astragalus",
+  "placeholder",
+  cauldron,
+  alchemy
+);
 
-const bladderwrack = new Ingredient("Bladderwrack", "placeholder", cauldron);
+const bladderwrack = new Ingredient(
+  "Bladderwrack",
+  "placeholder",
+  cauldron,
+  alchemy
+);
 
-const blueSage = new Ingredient("Blue Sage", "placeholder", cauldron);
+const blueSage = new Ingredient("Blue Sage", "placeholder", cauldron, alchemy);
 
-const burdockRoot = new Ingredient("Burdock Root", "placeholder", cauldron);
+const burdockRoot = new Ingredient(
+  "Burdock Root",
+  "placeholder",
+  cauldron,
+  alchemy
+);
 
-const calendula = new Ingredient("Calendula", "placeholder", cauldron);
+const calendula = new Ingredient("Calendula", "placeholder", cauldron, alchemy);
 
 const cockroachSaliva = new Ingredient(
   "Cockroach Saliva",
   "A vial of cockroach saliva. The substance is a pale yellow colour.",
-  cauldron
+  cauldron,
+  alchemy
 );
 
-const dandelion = new Ingredient("Dandelion", "placeholder", cauldron);
+const dandelion = new Ingredient("Dandelion", "placeholder", cauldron, alchemy);
 
-const devilsClaw = new Ingredient("Devil's Claw", "placeholder", cauldron);
+const devilsClaw = new Ingredient(
+  "Devil's Claw",
+  "placeholder",
+  cauldron,
+  alchemy
+);
 
-const dryadToenails = new Ingredient("Dryad Toenails", "placeholder", cauldron);
+const dryadToenails = new Ingredient(
+  "Dryad Toenails",
+  "placeholder",
+  cauldron,
+  alchemy
+);
 
-const feverfew = new Ingredient("Feverfew", "placeholder", cauldron);
+const feverfew = new Ingredient("Feverfew", "placeholder", cauldron, alchemy);
 
-const hibiscus = new Ingredient("hibiscus", "placeholder", cauldron);
+const hibiscus = new Ingredient("hibiscus", "placeholder", cauldron, alchemy);
 
-const horehound = new Ingredient("Horehound", "placeholder", cauldron);
+const horehound = new Ingredient("Horehound", "placeholder", cauldron, alchemy);
 
-const mandrakeRoot = new Ingredient("Mandrake Root", "placeholder", cauldron);
+const mandrakeRoot = new Ingredient(
+  "Mandrake Root",
+  "placeholder",
+  cauldron,
+  alchemy
+);
 
-const mugwort = new Ingredient("Mugwort", "placeholder", cauldron);
+const mugwort = new Ingredient("Mugwort", "placeholder", cauldron, alchemy);
 
-const slugMucus = new Ingredient("Slug Mucus", "placeholder", cauldron);
+const slugMucus = new Ingredient(
+  "Slug Mucus",
+  "placeholder",
+  cauldron,
+  alchemy
+);
 
-const valerian = new Ingredient("Valerian", "placeholder", cauldron);
+const valerian = new Ingredient("Valerian", "placeholder", cauldron, alchemy);
 
-const vervain = new Ingredient("Vervain", "placeholder", cauldron);
+const vervain = new Ingredient("Vervain", "placeholder", cauldron, alchemy);
 
-const whiteSage = new Ingredient("White Sage", "placeholder", cauldron);
+const whiteSage = new Ingredient(
+  "White Sage",
+  "placeholder",
+  cauldron,
+  alchemy
+);
 
-const witchHazel = new Ingredient("Witch Hazel", "placeholder", cauldron);
+const witchHazel = new Ingredient(
+  "Witch Hazel",
+  "placeholder",
+  cauldron,
+  alchemy
+);
 
-const wormwood = new Ingredient("Wormwood", "placeholder", cauldron);
+const wormwood = new Ingredient("Wormwood", "placeholder", cauldron, alchemy);
 
 herbarium.capacity = 20;
 herbarium.aliases = ["vials", "jars", "bottles", "ingredients"];
@@ -336,7 +412,7 @@ const mendingProcedure = new Procedure(
       {
         ordered: false,
         steps: [
-          { type: STEP_WATER, value: 0.5 },
+          { type: STEP_WATER, value: 1 },
           { type: STEP_INGREDIENTS, value: [dryadToenails, alfalfa, whiteSage] }
         ]
       },
@@ -353,10 +429,36 @@ const woodwormProcedure = new Procedure(
   {
     ordered: true,
     steps: [
-      { type: STEP_WATER, value: 1 },
-      { type: STEP_INGREDIENTS, value: [cockroachSaliva, horehound] },
-      { type: STEP_STIR, value: 3 },
-      { type: STEP_INGREDIENTS, value: [wormwood] }
+      { type: STEP_WATER, value: 0.5 },
+      {
+        type: STEP_INGREDIENTS,
+        value: [cockroachSaliva, horehound],
+        text: new CyclicText(
+          "It quickly dissolves into the water.",
+          "It falls into the water but needs to be mixed in."
+        )
+      },
+      {
+        type: STEP_STIR,
+        value: 3,
+        text: new CyclicText(
+          "As you stir the mixture begins to turn brown.",
+          "Stirring is becoming more and more difficult as the mixture thickens, taking on a gloopy consistency.",
+          "Gradually, the potion has been turning red before your eyes. It's now a deep crimson colour."
+        ),
+        short: new CyclicText(
+          "brown",
+          "brown, thick and gloopy",
+          "thick and gloopy and deep crimson in colour"
+        )
+      },
+      {
+        type: STEP_INGREDIENTS,
+        value: [wormwood],
+        text:
+          "As the leaves drop into the ruddy mixture it suddenly shifts through shades of orange and yellow before finally setting on a luminous green. There's a strong smell to accompany the change and tendrils of steam are rising from the surface.",
+        short: "luminous green with a chemical smell"
+      }
     ]
   },
   new Potion(
@@ -365,7 +467,6 @@ const woodwormProcedure = new Procedure(
   )
 );
 
-const alchemy = new Alchemy();
 alchemy.addProcedures(mendingProcedure, woodwormProcedure);
 
 apothecary.addItems(bookShelf, herbarium, cauldron, apparatus);

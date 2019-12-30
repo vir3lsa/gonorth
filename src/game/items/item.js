@@ -34,6 +34,7 @@ export class Item {
     this.preposition = "in";
     this.itemsCanBeSeen = true;
     this.article = `a${vowels.includes(this.name[0]) ? "n" : ""}`;
+    this.doNotList = false;
 
     this.addVerb(
       new Verb(
@@ -286,7 +287,7 @@ export class Item {
 
   get basicItemList() {
     return getBasicItemList(
-      [...this.uniqueItems].filter(item => !item.roomListing)
+      [...this.uniqueItems].filter(item => !item.roomListing && !item.doNotList)
     );
   }
 

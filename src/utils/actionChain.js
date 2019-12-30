@@ -80,7 +80,7 @@ export class ActionChain {
       let postScript = "";
 
       if (lastAction && this.postScript) {
-        postScript = `\n\n${this.postScript}`;
+        postScript = `\n\n${this.getPostScript()}`;
       }
 
       // If this isn't the last action and new value is ActionChain with options
@@ -99,12 +99,30 @@ export class ActionChain {
           nextIfNoOptions,
           false
         );
-      } else if (Array.isArray(value) && typeof value[0] === "string") {
-        return this.expandSequentialText(
-          new SequentialText(...value),
+      } else if (Array.isArray(value)) {
+        // Each element is evaluated and concatenated
+        const concatenated = value
+          .map(text => {
+            if (typeof text === "function") {
+              const result = text();
+
+              if (result instanceof Text) {
+                return result.next();
+              }
+
+              return result || "";
+            } else if (text instanceof Text) {
+              return text.next();
+            }
+
+            return text;
+          })
+          .join("\n\n");
+        return this.dispatchAppend(
+          `${concatenated}${postScript}`,
           this.options,
           nextIfNoOptions,
-          postScript
+          false
         );
       } else if (value instanceof SequentialText) {
         return this.expandSequentialText(
@@ -127,6 +145,16 @@ export class ActionChain {
       // This is an arbitrary action that shouldn't create a new interaction
       return value;
     };
+  }
+
+  getPostScript() {
+    if (this.postScript instanceof Text) {
+      return this.postScript.next();
+    } else if (typeof this.postScript === "function") {
+      return this.postScript();
+    } else {
+      return this.postScript;
+    }
   }
 
   async expandSequentialText(

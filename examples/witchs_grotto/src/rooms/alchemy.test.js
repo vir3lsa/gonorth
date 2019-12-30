@@ -8,6 +8,7 @@ import {
   Potion
 } from "./alchemy";
 import { Ingredient } from "./ingredient";
+import { CyclicText } from "../../../../src/gonorth";
 
 expect.extend({
   toInclude(received, value) {
@@ -54,7 +55,15 @@ const woodwormProcedure = new Procedure(
     steps: [
       { type: STEP_WATER, value: 1 },
       { type: STEP_INGREDIENTS, value: [cockroachSaliva, horehound] },
-      { type: STEP_STIR, value: 3 },
+      {
+        type: STEP_STIR,
+        value: 3,
+        text: new CyclicText(
+          "The mixture turns brown.",
+          "The mixture is thickening up.",
+          "The mixture turns a deep red."
+        )
+      },
       { type: STEP_INGREDIENTS, value: [wormwood] }
     ]
   },
@@ -213,4 +222,12 @@ test("no potion is produced if the mixture is not stirred at the right time", ()
   addIngredients(wormwood);
   stir(1);
   expect(alchemy.potion).toBe(null);
+});
+
+test("correct text is returned when potion steps are reached", () => {
+  addWater(4);
+  addIngredients(cockroachSaliva, horehound);
+  const text = alchemy.stir();
+  expect(text instanceof CyclicText).toBe(true);
+  expect(text.next()).toBe("The mixture turns brown.");
 });

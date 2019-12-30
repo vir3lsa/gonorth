@@ -7,25 +7,6 @@ export const STEP_WATER = "water";
 export const STEP_FAT = "fat";
 export const STEP_BLOOD = "blood";
 
-function getLiquidText(liquid, level) {
-  let readableLavel;
-
-  if (level > 1) {
-    readableLavel =
-      "It overflows the rim and splashes onto the floor before finding its way to the drainage channel.";
-  } else if (level === 1) {
-    readableLavel = "It's full to the brim.";
-  } else if (level === 0.75) {
-    readableLavel = "It's now around three quarters full.";
-  } else if (level === 0.5) {
-    readableLavel = "It looks to be about half full.";
-  } else if (level === 0.25) {
-    readableLavel = "It's already a quarter full.";
-  }
-
-  return `${liquid} gushes into the cauldron. ${readableLavel}`;
-}
-
 export class Alchemy {
   constructor() {
     this.procedures = [];
@@ -36,6 +17,7 @@ export class Alchemy {
     this.temperature = 0;
     this.stirred = 0;
     this.potion = null;
+    this.stepText = null;
   }
 
   addProcedures(...procedures) {
@@ -55,34 +37,37 @@ export class Alchemy {
 
   addIngredient(ingredient) {
     this.processStep(STEP_INGREDIENTS, ingredient);
+    return this.stepText;
   }
 
   addWater() {
     this.waterLevel += 0.25;
     this.processStep(STEP_WATER);
-    return getLiquidText("Water", this.waterLevel);
+    return this.getLiquidText("Water", this.waterLevel);
   }
 
   addFat() {
     this.fatLevel += 0.25;
     this.processStep(STEP_FAT);
-    return getLiquidText("Animal fat", this.fatLevel);
+    return this.getLiquidText("Animal fat", this.fatLevel);
   }
 
   addBlood() {
     this.bloodLevel += 0.25;
     this.processStep(STEP_BLOOD);
-    return getLiquidText("Blood", this.bloodLevel);
+    return this.getLiquidText("Blood", this.bloodLevel);
   }
 
   addHeat() {
     this.temperature++;
     this.processStep(STEP_HEAT);
+    return this.stepText;
   }
 
   stir() {
     this.stirred++;
     this.processStep(STEP_STIR);
+    return this.stepText;
   }
 
   processStep(stepType, ingredient) {
@@ -144,6 +129,9 @@ export class Alchemy {
     }
 
     if (matchingStep) {
+      this.stepText = matchingStep.text; // Fine for this to be undefined
+      this.shortDescription = matchingStep.short || this.shortDescription;
+
       switch (stepType) {
         case STEP_INGREDIENTS:
           // Remove the matching ingredient from the step
@@ -221,6 +209,27 @@ export class Alchemy {
 
       return stepCopy;
     });
+  }
+
+  getLiquidText(liquid, level) {
+    let readableLavel;
+
+    if (level > 1) {
+      readableLavel =
+        "It overflows the rim and splashes onto the floor before finding its way to the drainage channel.";
+    } else if (level === 1) {
+      readableLavel = "It's full to the brim.";
+    } else if (level === 0.75) {
+      readableLavel = "It's now around three quarters full.";
+    } else if (level === 0.5) {
+      readableLavel = "It looks to be about half full.";
+    } else if (level === 0.25) {
+      readableLavel = "It's already a quarter full.";
+    }
+
+    let liquidText = `${liquid} gushes into the cauldron. ${readableLavel}`;
+
+    return [liquidText, this.stepText];
   }
 }
 

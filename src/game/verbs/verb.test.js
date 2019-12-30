@@ -165,12 +165,10 @@ describe("chainable actions", () => {
     expect(selectCurrentPage().includes("c")).toBe(true);
   });
 
-  it("supports nested arrays as chained actions", async () => {
+  it("supports nested arrays as chained actions - nested arrays are concatenated", async () => {
     verb.onSuccess = [["a", "b"], "c"];
     const promise = verb.attempt(3);
-    expect(selectCurrentPage()).toBe("a");
-    await clickNextAndWait();
-    expect(selectCurrentPage().includes("b")).toBe(true);
+    expect(selectCurrentPage()).toBe("a\n\nb");
     await clickNextAndWait();
     await promise;
     expect(selectCurrentPage().includes("c")).toBe(true);
