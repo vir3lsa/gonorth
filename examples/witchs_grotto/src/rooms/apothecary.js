@@ -170,7 +170,7 @@ describeCauldronContents = () => {
     return `There are ingredients inside the cauldron.`;
   } else if (baseAdded) {
     return `There's some kind of liquid inside the cauldron.`;
-  } else if (!Object.keys(cauldron.items).length) {
+  } else if (!cauldron.basicItemList.length) {
     return `There's currently nothing inside the cauldron.`;
   }
 };
@@ -180,6 +180,26 @@ cauldron.itemsCanBeSeen = false;
 
 const contents = new Item("contents", () => describeCauldronContents());
 contents.aliases = ["potion", "liquid"];
+contents.addVerb(
+  new Verb(
+    "take",
+    () => {
+      const inventory = selectInventory();
+      return (
+        alchemy.potion && (inventory.capacity === -1 || inventory.free > 0)
+      );
+    },
+    [
+      () => selectInventory().addItem(alchemy.potion),
+      () =>
+        `You grab an empty vial from the shelf and carefully fill it with ${alchemy.potion.name}.`
+    ],
+    () =>
+      alchemy.potion
+        ? "You don't have room to carry the potion."
+        : "There's no finished potion to take yet."
+  )
+);
 
 const fire = new Item(
   "fire",
@@ -447,19 +467,20 @@ const woodwormProcedure = new Procedure(
         value: [cockroachSaliva, horehound],
         text: new CyclicText(
           "It quickly dissolves into the water.",
-          "It falls into the water but needs to be mixed in."
-        )
+          "It falls into the water creating a dirty brown mixture."
+        ),
+        short: new CyclicText("no potion just yet", "a dirty brown colour")
       },
       {
         type: STEP_STIR,
         value: 3,
         text: new CyclicText(
-          "As you stir the mixture begins to turn brown.",
+          "As you stir the ingredients mix together and begin to react.",
           "Stirring is becoming more and more difficult as the mixture thickens, taking on a gloopy consistency.",
           "Gradually, the potion has been turning red before your eyes. It's now a deep crimson colour."
         ),
         short: new CyclicText(
-          "brown",
+          "beginning to react, but it's still just a brown sludge",
           "brown, thick and gloopy",
           "thick and gloopy and deep crimson in colour"
         )
