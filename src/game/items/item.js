@@ -85,6 +85,7 @@ export class Item {
           (other.free === -1 || this.size <= other.free),
         [
           (helper, other) => {
+            this.roomListing = null;
             this.container.removeItem(this);
             return other.addItem(this);
           },

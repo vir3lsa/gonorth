@@ -133,6 +133,7 @@ export { Interaction, Append } from "./game/interactions/interaction";
 export { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
 export { Option } from "./game/interactions/option";
 export {
+  Text,
   CyclicText,
   SequentialText,
   RandomText,

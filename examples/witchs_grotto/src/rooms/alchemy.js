@@ -1,4 +1,4 @@
-import { Item } from "../../../../lib/gonorth";
+import { Item, Text } from "../../../../lib/gonorth";
 
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
@@ -131,6 +131,10 @@ export class Alchemy {
     if (matchingStep) {
       this.stepText = matchingStep.text; // Fine for this to be undefined
       this.shortDescription = matchingStep.short || this.shortDescription;
+
+      if (this.shortDescription instanceof Text) {
+        this.shortDescription = this.shortDescription.next();
+      }
 
       switch (stepType) {
         case STEP_INGREDIENTS:

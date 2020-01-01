@@ -140,36 +140,45 @@ bookShelf.hidesItems = grimoire;
 bookShelf.itemsCanBeSeen = false;
 bookShelf.preposition = "on";
 
+let describeCauldronContents;
+
 const cauldron = new Item("cauldron", () => {
   const basic =
     "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire. There's a valve at the bottom to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through the wall. There's apparatus above the cauldron for filling it with a range of liquids.";
 
+  const detail = describeCauldronContents();
+
+  if (detail) {
+    return `${basic}\n\n${detail}`;
+  }
+
+  return basic;
+});
+
+describeCauldronContents = () => {
   const ingredientsAdded = Object.values(cauldron.items).find(
     item => item instanceof Ingredient
   );
   const baseAdded =
     alchemy.waterLevel > 0 || alchemy.fatLevel > 0 || alchemy.bloodLevel > 0;
 
-  if (ingredientsAdded && baseAdded) {
-    return `${basic}\n\nThere's some kind of potion inside.`;
+  if (alchemy.shortDescription) {
+    return `The concoction within the cauldron is ${alchemy.shortDescription}.`;
+  } else if (ingredientsAdded && baseAdded) {
+    return `There's some kind of potion inside the cauldron.`;
   } else if (ingredientsAdded) {
-    return `${basic}\n\nThere are ingredients inside.`;
+    return `There are ingredients inside the cauldron.`;
   } else if (baseAdded) {
-    return `${basic}\n\nThere's some kind of liquid inside.`;
-  } else if (!cauldron.items.length) {
-    return `${basic}\n\nThere's currently nothing inside.`;
+    return `There's some kind of liquid inside the cauldron.`;
+  } else if (!Object.keys(cauldron.items).length) {
+    return `There's currently nothing inside the cauldron.`;
   }
-
-  return basic;
-});
+};
 
 cauldron.capacity = 100;
 cauldron.itemsCanBeSeen = false;
 
-const contents = new Item("contents", () => {
-  // TODO Create dynamic description
-  return "placeholder";
-});
+const contents = new Item("contents", () => describeCauldronContents());
 contents.aliases = ["potion", "liquid"];
 
 const fire = new Item(
@@ -204,13 +213,16 @@ const stir = new Verb(
     ]
   ],
   [],
-  ["mix"]
+  ["mix"],
+  false,
+  cauldron
 );
 
 stir.prepositional = true;
 
 cauldron.addVerb(stir);
 cauldron.addItem(ladle);
+contents.addVerb(stir);
 
 const apparatus = new Item(
   "filling apparatus",
@@ -469,4 +481,4 @@ const woodwormProcedure = new Procedure(
 
 alchemy.addProcedures(mendingProcedure, woodwormProcedure);
 
-apothecary.addItems(bookShelf, herbarium, cauldron, apparatus);
+apothecary.addItems(bookShelf, herbarium, cauldron, contents, apparatus);
