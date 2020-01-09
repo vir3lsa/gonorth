@@ -144,7 +144,7 @@ let describeCauldronContents;
 
 const cauldron = new Item("cauldron", () => {
   const basic =
-    "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire. There's a valve at the bottom to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through the wall. There's apparatus above the cauldron for filling it with a range of liquids.";
+    "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire. There's a tap at the bottom to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through the wall. There's apparatus above the cauldron for filling it with a range of liquids.";
 
   const detail = describeCauldronContents();
 
@@ -154,6 +154,7 @@ const cauldron = new Item("cauldron", () => {
 
   return basic;
 });
+cauldron.aliases = ["pot", "container"];
 
 describeCauldronContents = () => {
   const ingredientsAdded = Object.values(cauldron.items).find(
@@ -186,7 +187,9 @@ contents.addVerb(
     () => {
       const inventory = selectInventory();
       return (
-        alchemy.potion && (inventory.capacity === -1 || inventory.free > 0)
+        alchemy.potion &&
+        (inventory.capacity === -1 || inventory.free > 0) &&
+        !inventory.items[alchemy.potion.name.toLowerCase()]
       );
     },
     [
@@ -196,7 +199,9 @@ contents.addVerb(
     ],
     () =>
       alchemy.potion
-        ? "You don't have room to carry the potion."
+        ? selectInventory().items[alchemy.potion.name.toLowerCase()]
+          ? `You already have ${alchemy.potion.name}.`
+          : "You don't have room to carry the potion."
         : "There's no finished potion to take yet."
   )
 );
@@ -243,6 +248,33 @@ stir.prepositional = true;
 cauldron.addVerb(stir);
 cauldron.addItem(ladle);
 contents.addVerb(stir);
+
+const tap = new Item(
+  "tap",
+  "A tap at the bottom of the cauldron used to empty it of its contents. It opens into a stone channel that carries the waste liquid out of the room through a dark tunnel in the wall."
+);
+
+tap.addVerb(
+  new Verb(
+    "open",
+    () => alchemy.liquidLevel > 0,
+    [
+      () => alchemy.flush(),
+      // Deliberately copy the uniqueItems list before iterating over it
+      () =>
+        [...cauldron.uniqueItems].forEach(item => {
+          if (item instanceof Ingredient) {
+            cauldron.removeItem(item);
+          }
+        }),
+      "You spin the wheel that opens the tap and watch as the cauldron's contents come gushing and gurgling out into the drainage channel. You jump back quickly to avoid getting your shoes splashed. Once the vessel is empty, you twist the tap back to the closed position."
+    ],
+    "There's no liquid in the cauldron, so it can't be drained.",
+    ["flush", "drain", "empty"]
+  )
+);
+
+cauldron.addVerb(tap.verbs.open);
 
 const apparatus = new Item(
   "filling apparatus",
@@ -489,7 +521,7 @@ const woodwormProcedure = new Procedure(
         type: STEP_INGREDIENTS,
         value: [wormwood],
         text:
-          "As the leaves drop into the ruddy mixture it suddenly shifts through shades of orange and yellow before finally setting on a luminous green. There's a strong smell to accompany the change and tendrils of steam are rising from the surface.",
+          "As the leaves drop into the ruddy mixture it suddenly shifts through shades of orange and yellow before finally settling on a luminous green. There's a strong smell to accompany the change and tendrils of steam are rising from the surface.",
         short: "luminous green with a chemical smell"
       }
     ]
@@ -502,4 +534,4 @@ const woodwormProcedure = new Procedure(
 
 alchemy.addProcedures(mendingProcedure, woodwormProcedure);
 
-apothecary.addItems(bookShelf, herbarium, cauldron, contents, apparatus);
+apothecary.addItems(bookShelf, herbarium, cauldron, contents, apparatus, tap);

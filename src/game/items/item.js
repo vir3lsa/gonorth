@@ -221,7 +221,7 @@ export class Item {
   }
 
   removeItem(item) {
-    delete this.items[item.name];
+    delete this.items[item.name.toLowerCase()];
     this.uniqueItems.delete(item);
     item.container = null;
 

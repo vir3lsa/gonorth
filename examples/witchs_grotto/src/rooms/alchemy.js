@@ -1,4 +1,4 @@
-import { Item, Text } from "../../../../lib/gonorth";
+import { Item, Text, RandomText, CyclicText } from "../../../../lib/gonorth";
 
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
@@ -7,17 +7,39 @@ export const STEP_WATER = "water";
 export const STEP_FAT = "fat";
 export const STEP_BLOOD = "blood";
 
+const errors = new CyclicText(
+  "The cauldron's contents become dull and grey. This doesn't seem right.",
+  "The concoction in the pot turns a vile yellow and begins to smell of rotten eggs. Something's gone wrong.",
+  "The potion acquires a thick oily skin and seems to have lost its potency. You've made a mistake somewhere."
+);
+const errorShorts = new CyclicText(
+  "dull and grey",
+  "yellow and smells of rotten eggs, covered in a thick skin",
+  "covered by a thick oily skin"
+);
+const inert = new RandomText(
+  "The mixture doesn't seem to be doing anything at all. It's no potion.",
+  "The concoction seems totally inert. There's no magic to be seen.",
+  "The contents sit dully in the pot. There's no evidence of anything happening."
+);
+
 export class Alchemy {
   constructor() {
     this.procedures = [];
-    this.candidates = [];
+    this.flush();
+  }
+
+  flush() {
     this.waterLevel = 0;
     this.fatLevel = 0;
     this.bloodLevel = 0;
     this.temperature = 0;
     this.stirred = 0;
-    this.potion = null;
     this.stepText = null;
+    this.potion = null;
+    this.makingPotion = false;
+    this.shortDescription = null;
+    this.candidates = this.procedures.map(proc => this.copyProcedure(proc));
   }
 
   addProcedures(...procedures) {
@@ -25,14 +47,6 @@ export class Alchemy {
       this.procedures.push(procedure);
       this.candidates.push(this.copyProcedure(procedure));
     });
-  }
-
-  flush() {
-    this.waterLevel = 0;
-    this.fatLevel = 0;
-    this.bloodLevel = 0;
-    this.potion = null;
-    this.candidates = this.procedures.map(proc => this.copyProcedure(proc));
   }
 
   addIngredient(ingredient) {
@@ -75,6 +89,10 @@ export class Alchemy {
       this.findMatchingStep(cand.procedure, stepType, ingredient)
     );
 
+    if (this.candidates.length && this.liquidLevel) {
+      this.makingPotion = true;
+    }
+
     if (this.candidates.length === 1) {
       // We know what potion we're making. Is it finished?
       const chosen = this.candidates[0];
@@ -85,6 +103,16 @@ export class Alchemy {
       }
     } else if (!this.candidates.length) {
       // No matching procedures - potion has failed
+      if (this.makingPotion) {
+        this.makingPotion = false;
+        this.stepText = errors;
+        this.shortDescription = errorShorts.next();
+      } else if (this.liquidLevel) {
+        this.stepText = inert.next();
+      } else {
+        this.stepText = null;
+      }
+
       this.potion = null;
     }
   }
@@ -211,29 +239,42 @@ export class Alchemy {
         stepCopy.steps = this.copySteps(step.steps);
       }
 
+      // Clone Texts so their state is independent of the originals
+      if (stepCopy.text && stepCopy.text instanceof Text) {
+        stepCopy.text = stepCopy.text.clone();
+      }
+
+      if (stepCopy.short && stepCopy.short instanceof Text) {
+        stepCopy.short = stepCopy.short.clone();
+      }
+
       return stepCopy;
     });
   }
 
   getLiquidText(liquid, level) {
-    let readableLavel;
+    let readableLabel;
 
     if (level > 1) {
-      readableLavel =
+      readableLabel =
         "It overflows the rim and splashes onto the floor before finding its way to the drainage channel.";
     } else if (level === 1) {
-      readableLavel = "It's full to the brim.";
+      readableLabel = "It's full to the brim.";
     } else if (level === 0.75) {
-      readableLavel = "It's now around three quarters full.";
+      readableLabel = "It's now around three quarters full.";
     } else if (level === 0.5) {
-      readableLavel = "It looks to be about half full.";
+      readableLabel = "It looks to be about half full.";
     } else if (level === 0.25) {
-      readableLavel = "It's already a quarter full.";
+      readableLabel = "It's already a quarter full.";
     }
 
-    let liquidText = `${liquid} gushes into the cauldron. ${readableLavel}`;
+    let liquidText = `${liquid} gushes into the cauldron. ${readableLabel}`;
 
     return [liquidText, this.stepText];
+  }
+
+  get liquidLevel() {
+    return this.waterLevel + this.fatLevel + this.bloodLevel;
   }
 }
 

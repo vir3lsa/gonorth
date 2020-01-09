@@ -4,6 +4,10 @@ export class Text {
     this.index = -1;
   }
 
+  clone() {
+    return new Text(...this.texts);
+  }
+
   set texts(texts) {
     this._texts = Array.isArray(texts) ? texts : [texts];
   }
@@ -20,6 +24,10 @@ export class Text {
 export class CyclicText extends Text {
   constructor(...texts) {
     super(...texts);
+  }
+
+  clone() {
+    return new CyclicText(...this.texts);
   }
 
   next() {
@@ -41,6 +49,10 @@ export class SequentialText extends CyclicText {
   constructor(...texts) {
     super(...texts);
   }
+
+  clone() {
+    return new SequentialText(...this.texts);
+  }
 }
 
 export class PagedText extends SequentialText {
@@ -48,11 +60,19 @@ export class PagedText extends SequentialText {
     super(...texts);
     this.paged = true;
   }
+
+  clone() {
+    return new PagedText(...this.texts);
+  }
 }
 
 export class RandomText extends Text {
   constructor(...texts) {
     super(...texts);
+  }
+
+  clone() {
+    return new RandomText(...this.texts);
   }
 
   next() {
