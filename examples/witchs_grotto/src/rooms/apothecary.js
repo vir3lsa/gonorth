@@ -21,11 +21,37 @@ import {
   Potion,
   STEP_STIR
 } from "./alchemy";
+import { potionEffects } from "./potionEffects";
 
 export const apothecary = new Room(
   "apothecary",
-  "You seem to be in some kind of apothecary or decoction room. There's an enormous open fireplace mostly filled by a large black cauldron. Above it there's an arrangement of pipes that looks as though it's used to fill the cauldron with liquid.\n\nOne wall of the room is lined with shelf upon shelf of vials, jars and bottles. Most but not all have dusty labels with incomprehensible things scrawled on them. Another wall is hidden behind rows and rows of leather-bound books.\n\nOn the cold flagstones under foot there's a pentagram smeared in something brown and old-looking. Behind that there's a wooden bureau strewn with yellowing bits of paper.\n\nThere's a red door to the west."
+  "You seem to be in some kind of apothecary or decoction room. There's an enormous open fireplace mostly filled by a large black cauldron. Above it there's an arrangement of pipes that looks as though it's used to fill the cauldron with liquid.\n\nOne wall of the room is lined with shelf upon shelf of vials, jars and bottles. Most but not all have dusty labels with incomprehensible things scrawled on them. Another wall is hidden behind rows and rows of leather-bound books.\n\nOn the cold flagstones under foot there's a pentagram smeared in something brown and old-looking. Behind that there's a wooden bureau strewn with yellowing bits of paper.\n\nThere's an iron gate to the west."
 );
+
+const bureau = new Item(
+  "bureau",
+  "It's a beautiful oak writing desk lacquered with a rich, dark varnish. There are wide drawers beneath the worktop."
+);
+bureau.aliases = ["desk"];
+bureau.itemsCanBeSeen = false;
+bureau.capacity = 10;
+
+const drawers = new Item(
+  "drawers",
+  "There are three drawers in total, stacked beneath the desk's writing surface, to the right of where one would sit. Each is fitted with an ornate bronze handle."
+);
+drawers.aliases = ["drawer"];
+drawers.addVerb(
+  new Verb(
+    "open",
+    () => drawers.exposed,
+    () => drawers.getFullDescription(),
+    "You tug on each of the drawer handles in turn but they don't budge - they're locked or perhaps just stuck."
+  )
+);
+drawers.capacity = 5;
+
+bureau.hidesItems = drawers;
 
 const alchemy = new Alchemy();
 
@@ -469,6 +495,11 @@ herbarium.hidesItems = [
 ];
 herbarium.itemsCanBeSeen = false;
 
+const mendingPotion = new Potion(
+  "Elixir of Mending",
+  "The substance inside the bottle is deep purple in colour, with flecks of gold that catch the light as you examine it."
+);
+
 const mendingProcedure = new Procedure(
   {
     ordered: true,
@@ -483,11 +514,14 @@ const mendingProcedure = new Procedure(
       { type: STEP_HEAT, value: 3 }
     ]
   },
-  new Potion(
-    "Elixir of Mending",
-    "The substance inside the bottle is deep purple in colour, with flecks of gold that catch the light as you examine it."
-  )
+  mendingPotion
 );
+
+const woodwormPotion = new Potion(
+  "Organic Dissolution Accelerator",
+  "It's thick, bright green and has a powerful chemical odour."
+);
+woodwormPotion.aliases = ["organic", "dissolution", "accelerator"];
 
 const woodwormProcedure = new Procedure(
   {
@@ -526,12 +560,41 @@ const woodwormProcedure = new Procedure(
       }
     ]
   },
-  new Potion(
-    "Organic Dissolution Accelerator",
-    "It's thick, bright green and has a powerful chemical odour."
-  )
+  woodwormPotion
 );
 
-alchemy.addProcedures(mendingProcedure, woodwormProcedure);
+const matchbook = new Item(
+  "matchbook",
+  "It's an old-fashioned matchbook containing several long matches. There's a picture of a phoenix on the cover.",
+  true,
+  0.5
+);
+matchbook.aliases = ["matches", "match"];
 
-apothecary.addItems(bookShelf, herbarium, cauldron, contents, apparatus, tap);
+alchemy.addProcedures(mendingProcedure, woodwormProcedure);
+potionEffects.add(
+  woodwormPotion,
+  bureau,
+  true,
+  () => {
+    bureau.description =
+      "The right-hand side of the bureau has been almost completely eaten away by the dissolution potion. Foamy residue still drips from the carcass-like remains as the nearly-spent reagent works the last of its effects. There's a huge wound-like hole in the top of the desk, exposing the contents of the drawers beaneath.";
+    drawers.description =
+      "The drawers still don't open but now that the desk top is almost completely gone, you can see clealy inside the top drawer.";
+    drawers.exposed = true;
+    drawers.addItem(matchbook);
+  },
+  "You carefully pour a droplet of the Organic Dissolution Accelerator onto the surface of the desk. Immediately it starts foaming and producing white steam. When it finishes hissing and bubbling, there's a depression the size of a grape in the heavy oak worktop.",
+  "You tip the entire contents of the vial onto the bureau, watching in horror and delight as the ferocious substance devours the wood, eating its way right through to the drawers beneath. By the time the potion has done its work, the top of the desk is almost entirely gone and the once-locked drawers are easily accessible."
+);
+
+apothecary.addItems(
+  bookShelf,
+  herbarium,
+  cauldron,
+  contents,
+  apparatus,
+  tap,
+  bureau,
+  woodwormPotion
+);

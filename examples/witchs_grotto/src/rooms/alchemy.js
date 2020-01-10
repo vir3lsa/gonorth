@@ -1,4 +1,11 @@
-import { Item, Text, RandomText, CyclicText } from "../../../../lib/gonorth";
+import {
+  Item,
+  Text,
+  RandomText,
+  CyclicText,
+  Verb
+} from "../../../../lib/gonorth";
+import { potionEffects } from "./potionEffects";
 
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
@@ -288,6 +295,30 @@ export class Procedure {
 export class Potion extends Item {
   constructor(name, description) {
     super(name, description, true, 1);
-    // Add drink verb etc
+
+    const drink = new Verb(
+      "drink",
+      (helper, other) => potionEffects.hasEffect(this, other),
+      [
+        () => this.container.removeItem(this),
+        (helper, other) => potionEffects.apply(this, other)
+      ],
+      (helper, other) => potionEffects.apply(this, other),
+      ["swallow"]
+    );
+
+    const pour = new Verb(
+      "pour",
+      (helper, other) => potionEffects.hasEffect(this, other),
+      [
+        () => this.container.removeItem(this),
+        (helper, other) => potionEffects.apply(this, other)
+      ],
+      (helper, other) => potionEffects.apply(this, other),
+      ["tip", "apply"]
+    );
+    pour.prepositional = true;
+
+    this.addVerbs(drink, pour);
   }
 }
