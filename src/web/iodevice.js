@@ -1,17 +1,21 @@
 import React, { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { connect } from "react-redux";
+import { animateScroll } from "react-scroll";
 import { DecisionBar } from "./decisionBar";
 import { ParserBar } from "./parserBar";
 
 const IODevice = props => {
   const { interaction } = props;
-  const scrollToRef = useRef(null);
 
-  const scrollToEnd = () =>
-    scrollToRef.current.scrollIntoView({ behaviour: "smooth" });
-
-  useEffect(scrollToEnd, [interaction.currentPage]);
+  useEffect(
+    () =>
+      animateScroll.scrollToBottom({
+        smooth: "easeInQuad",
+        duration: 1500
+      }),
+    [interaction.currentPage]
+  );
 
   return (
     <div>
@@ -21,7 +25,6 @@ const IODevice = props => {
       ) : (
         <ParserBar />
       )}
-      <div ref={scrollToRef} />
     </div>
   );
 };
