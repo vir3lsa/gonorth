@@ -269,7 +269,7 @@ const stir = new Verb(
   cauldron
 );
 
-stir.prepositional = true;
+stir.makePrepositional("with what");
 
 cauldron.addVerb(stir);
 cauldron.addItem(ladle);
@@ -428,7 +428,7 @@ const dryadToenails = new Ingredient(
 
 const feverfew = new Ingredient("Feverfew", "placeholder", cauldron, alchemy);
 
-const hibiscus = new Ingredient("hibiscus", "placeholder", cauldron, alchemy);
+const hibiscus = new Ingredient("Hibiscus", "placeholder", cauldron, alchemy);
 
 const horehound = new Ingredient("Horehound", "placeholder", cauldron, alchemy);
 

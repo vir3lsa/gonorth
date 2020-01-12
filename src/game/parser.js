@@ -8,6 +8,7 @@ import {
   selectInventory,
   selectKeywords
 } from "../utils/selectors";
+import { toTitleCase } from "../utils/textFunctions";
 
 // Record the possible matches we find
 let registeredItem;
@@ -17,6 +18,8 @@ export class Parser {
     this.input = input;
     this.registeredItem = null;
     this.registeredVerb = null;
+    this.actualVerb = null;
+    this.verbSupported = false;
     this.roomItem = null;
   }
 
@@ -67,7 +70,10 @@ export class Parser {
           this.roomItem = item || this.roomItem;
 
           if (item && item.visible && item.verbs[possibleVerb]) {
-            if (item.verbs[possibleVerb].prepositional) {
+            this.actualVerb = item.verbs[possibleVerb];
+            this.verbSupported = true;
+
+            if (this.actualVerb.prepositional) {
               const indirectItem = items[1];
 
               if (indirectItem && indirectItem.visible) {
@@ -147,8 +153,22 @@ export class Parser {
 
     if (this.registeredVerb) {
       if (this.roomItem) {
-        // The item's in the room but doesn't support the verb
-        message = `You can't see how to ${this.registeredVerb} the ${this.registeredItem}.`;
+        if (!this.actualVerb) {
+          this.findActualVerb();
+        }
+
+        if (this.verbSupported) {
+          // Prepositional verb missing a second item
+          message = `${toTitleCase(this.registeredVerb)} the ${
+            this.registeredItem
+          } ${this.actualVerb.interrogative}?`;
+        } else if (this.actualVerb && this.actualVerb.prepositional) {
+          // Prepositional verb with missing (or unsupported) first item
+          message = `You can't ${this.registeredVerb} that ${this.roomItem.preposition} the ${this.registeredItem}.`;
+        } else {
+          // The item's in the room but doesn't support the verb
+          message = `You can't see how to ${this.registeredVerb} the ${this.registeredItem}.`;
+        }
       } else if (this.registeredItem) {
         // The item exists elsewhere
         message = `You don't see a ${this.registeredItem} here.`;
@@ -170,5 +190,24 @@ export class Parser {
     }
 
     return getStore().dispatch(changeInteraction(new Append(message)));
+  }
+
+  /*
+   * Used to give feedback when the items the player has referred to don't support the verb.
+   * Instead, find a matching verb on items in the room or in the player's inventory.
+   */
+  findActualVerb() {
+    this.actualVerb =
+      this.findActualVerbIn(selectRoom().accessibleItems) ||
+      this.findActualVerbIn(selectInventory().items);
+  }
+
+  findActualVerbIn(itemMap) {
+    const items = Object.values(itemMap);
+    const itemWithVerb = items.find(item => item.verbs[this.registeredVerb]);
+
+    if (itemWithVerb) {
+      return itemWithVerb.verbs[this.registeredVerb];
+    }
   }
 }

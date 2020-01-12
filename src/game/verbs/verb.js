@@ -19,6 +19,7 @@ export class Verb {
     this.object = object;
     this._parent = null;
     this.prepositional = false;
+    this.interrogative = null;
 
     this.helpers = {
       object: this.object
@@ -121,6 +122,11 @@ export class Verb {
         getStore().dispatch(addKeywords(keywordMap));
       }
     }
+  }
+
+  makePrepositional(interrogative) {
+    this.prepositional = true;
+    this.interrogative = interrogative;
   }
 
   attempt(...args) {

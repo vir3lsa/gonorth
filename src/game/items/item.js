@@ -3,6 +3,8 @@ import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
 import { selectInventory } from "../../utils/selectors";
 import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
+import { getStore } from "../../redux/storeRegistry";
+import { itemsRevealed } from "../../redux/gameActions";
 
 const vowels = ["a", "e", "i", "o", "u"];
 
@@ -103,7 +105,7 @@ export class Item {
         },
         ["place", "drop"]
       );
-      putVerb.prepositional = true;
+      putVerb.makePrepositional("where");
 
       this.addVerb(putVerb);
     }
@@ -252,6 +254,9 @@ export class Item {
           this.container.addItem(item); // Don't want non-holdable item to be listed
         }
       });
+      getStore().dispatch(
+        itemsRevealed(this.hidesItems.map(item => item.name))
+      );
       this.itemsRevealed = true;
     }
   }

@@ -117,9 +117,11 @@ describe("parser", () => {
     it("handles prepositional verbs", () =>
       inputTest("put the cushion in the chair", "cushion in the chair"));
     it("gives feedback when the first item isn't recognised", () =>
-      inputTest("put mug in chair", "how to put the chair"));
+      inputTest("put mug in chair", "You can't put that in the chair"));
     it("gives feedback when the second item isn't recognised", () =>
-      inputTest("put cushion in sofa", "how to put the cushion"));
+      inputTest("put cushion in sofa", "Put the cushion where?"));
+    it("gives feedback when no second item is given", () =>
+      inputTest("put cushion", "Put the cushion where?"));
     it("gives feedback when the second item isn't a container, deferring to verb", () =>
       inputTest("put cushion in chair man", "can't put the cushion"));
     it("allows interaction with items inside other items", () => {

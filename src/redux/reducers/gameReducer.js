@@ -56,7 +56,10 @@ export default function(state = initialState, action) {
     case type.ITEMS_REVEALED:
       return {
         ...state,
-        itemNames: new Set([...state.itemNames, ...action.payload])
+        itemNames: new Set([
+          ...state.itemNames,
+          ...action.payload.map(i => i.toLowerCase())
+        ])
       };
     case type.CHAIN_STARTED:
       return {
