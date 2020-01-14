@@ -31,7 +31,8 @@ export class Event {
   }
 
   set action(action) {
-    this._action = new ActionChain(action);
+    const actionArray = Array.isArray(action) ? action : [action];
+    this._action = new ActionChain(...actionArray);
   }
 
   get action() {

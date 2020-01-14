@@ -11,7 +11,7 @@ class PotionEffects {
 
     affectedItems[item.name] = {
       successful,
-      effects: new ActionChain(effects)
+      effects: new ActionChain(...effects)
     };
   }
 

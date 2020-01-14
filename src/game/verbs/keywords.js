@@ -1,6 +1,7 @@
 import { Verb, GoVerb } from "./verb";
 import { selectInventory } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
+import { OptionGraph } from "../interactions/optionGraph";
 
 const keywords = {};
 
@@ -39,18 +40,35 @@ export function createKeywords() {
   const up = new GoVerb("Up", directionAliases["up"], true);
   const down = new GoVerb("Down", directionAliases["down"], true);
 
-  const wait = new Verb(
-    "wait",
-    true,
-    new RandomText(
-      "You pause for a moment, taking stock of the situation.",
-      "You look around you and drink in your surroundings, letting the moment linger.",
-      "You stop and think. Yes, you're sure there's a way out of this mess."
-    ),
-    [],
-    [],
-    true
+  const waitText = new RandomText(
+    "You pause for a moment, taking stock of the situation.",
+    "You look around you and drink in your surroundings, letting the moment linger.",
+    "You stop and think. Yes, you're sure there's a way out of this mess."
   );
+
+  const stopWaitingText = new RandomText(
+    "You snap out of your reverie and return your attention to the room.",
+    "You've waited long enough. You get back to the task at hand.",
+    "Satisfied everything's in order, you consider what to do next."
+  );
+
+  const waitGraphRaw = {
+    id: "wait",
+    actions: waitText,
+    options: {
+      "Keep waiting": null,
+      "Stop waiting": {
+        id: "stop",
+        noEndTurn: true,
+        actions: stopWaitingText
+      }
+    }
+  };
+
+  waitGraphRaw.options["Keep waiting"] = waitGraphRaw;
+  const waitGraph = new OptionGraph(waitGraphRaw);
+
+  const wait = new Verb("wait", true, waitGraph.commence(), [], [], true);
 
   addKeyword(inventoryVerb);
   addKeyword(north);

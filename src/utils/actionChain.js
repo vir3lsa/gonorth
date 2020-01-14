@@ -40,16 +40,9 @@ export class ActionChain {
   }
 
   set actions(actions) {
-    if (actions.length === 1 && Array.isArray(actions[0])) {
-      // An array was passed - unpack it
-      this._actions = actions[0].map((action, i, actions) =>
-        this.toChainableFunction(action, i, actions)
-      );
-    } else {
-      this._actions = actions.map((action, i, actions) =>
-        this.toChainableFunction(action, i, actions)
-      );
-    }
+    this._actions = actions.map((action, i, actions) =>
+      this.toChainableFunction(action, i, actions)
+    );
   }
 
   dispatchAppend(text, options, nextIfNoOptions, clearPage) {

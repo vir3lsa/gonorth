@@ -45,7 +45,8 @@ export class OptionGraph {
 
     if (options) {
       optionObjects = Object.entries(options).map(
-        ([choice, node]) => new Option(choice, () => this.activateNode(node))
+        ([choice, node]) =>
+          new Option(choice, () => this.activateNode(node), !node.noEndTurn)
       );
     }
 

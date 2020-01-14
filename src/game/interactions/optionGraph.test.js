@@ -4,6 +4,7 @@ import { initStore } from "../../redux/store";
 import { newGame } from "../../redux/gameActions";
 import { OptionGraph } from "./optionGraph";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
+import { selectTurn } from "../../utils/selectors";
 
 expect.extend({
   toInclude(received, text) {
@@ -44,6 +45,11 @@ const graph = {
     two: {
       id: "epsilon",
       actions: "falcon"
+    },
+    three: {
+      id: "three",
+      noEndTurn: true,
+      actions: "bye"
     }
   }
 };
@@ -102,4 +108,16 @@ test("optionGraph presents nodes by ID", () => {
     optionGraph.graph.options.one.options.four
   );
   expect(optionGraph.getNode("epsilon")).toBe(optionGraph.graph.options.two);
+});
+
+test("optionGraph doesn't end the turn for some options", async () => {
+  const turn = selectTurn();
+  await selectOptions()[2].action();
+  expect(selectTurn()).toBe(turn);
+});
+
+test("optionGraph does end the turn for most options", async () => {
+  const turn = selectTurn();
+  await selectOptions()[0].action();
+  expect(selectTurn()).toBe(turn + 1);
 });

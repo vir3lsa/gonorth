@@ -49,14 +49,14 @@ export class Verb {
   }
 
   set onSuccess(onSuccess) {
-    this._onSuccess =
-      onSuccess instanceof ActionChain ? onSuccess : new ActionChain(onSuccess);
+    const onSuccessArray = Array.isArray(onSuccess) ? onSuccess : [onSuccess];
+    this._onSuccess = new ActionChain(...onSuccessArray);
     this._onSuccess.addHelpers(this.helpers);
   }
 
   set onFailure(onFailure) {
-    this._onFailure =
-      onFailure instanceof ActionChain ? onFailure : new ActionChain(onFailure);
+    const onFailureArray = Array.isArray(onFailure) ? onFailure : [onFailure];
+    this._onFailure = new ActionChain(...onFailureArray);
     this._onFailure.addHelpers(this.helpers);
   }
 

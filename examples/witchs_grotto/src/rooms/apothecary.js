@@ -250,20 +250,38 @@ ladle.roomListing =
   "Hanging on a metal bar that extends from one side of the iron pot and loops over it to rejoin the other side is a heavy-duty ladle used for stirring and spooning out the contents.";
 ladle.preposition = "with";
 
+const stirText = new RandomText(
+  "You use all your strength to pull the heavy ladle through the contents of the cauldron.",
+  "You stir the ingredients in the pot, grunting with the exertion.",
+  "You mix the ingredients with a few good rotations of the ladle."
+);
+
+const stopStirringText = new RandomText(
+  "Being careful not to splash any of the brew, you rest the ladle beside the pot.",
+  "You withdraw the ladle and put it down.",
+  "You put the ladle, still dripping, on the floor."
+);
+
+const stirGraphRaw = {
+  id: "stir",
+  actions: [[stirText, () => alchemy.stir()]],
+  options: {
+    "Keep stirring": null,
+    "Stop stirring": {
+      id: "stop",
+      actions: stopStirringText
+    }
+  }
+};
+
+stirGraphRaw.options["Keep stirring"] = stirGraphRaw;
+const stirGraph = new OptionGraph(stirGraphRaw);
+
 const stir = new Verb(
   "stir",
   (helper, other) => other === ladle,
-  [
-    [
-      new RandomText(
-        "You use all your strength to pull the heavy ladle through the contents of the cauldron.",
-        "You stir the ingredients in the pot, grunting with the exertion.",
-        "You mix the ingredients with a few good rotations of the ladle."
-      ),
-      () => alchemy.stir()
-    ]
-  ],
-  [],
+  stirGraph.commence(),
+  "That won't be any good for stirring.",
   ["mix"],
   false,
   cauldron
@@ -580,7 +598,7 @@ potionEffects.add(
     bureau.description =
       "The right-hand side of the bureau has been almost completely eaten away by the dissolution potion. Foamy residue still drips from the carcass-like remains as the nearly-spent reagent works the last of its effects. There's a huge wound-like hole in the top of the desk, exposing the contents of the drawers beaneath.";
     drawers.description =
-      "The drawers still don't open but now that the desk top is almost completely gone, you can see clealy inside the top drawer.";
+      "The drawers still don't open but now that the desk top is almost completely gone, you can see clearly inside the top drawer.";
     drawers.exposed = true;
     drawers.addItem(matchbook);
   },

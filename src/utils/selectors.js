@@ -7,3 +7,4 @@ export const selectVerbNames = () => getStore().getState().game.verbNames;
 export const selectItemNames = () => getStore().getState().game.itemNames;
 export const selectKeywords = () => getStore().getState().game.keywords;
 export const selectLastChange = () => getStore().getState().game.lastChange;
+export const selectTurn = () => getStore().getState().game.turn;
