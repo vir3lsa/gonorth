@@ -3,9 +3,15 @@ import { verbCreated, addKeywords } from "../../redux/gameActions";
 import { ActionChain } from "../../utils/actionChain";
 import { selectRoom } from "../../utils/selectors";
 
+export function newVerb(config) {
+  const verb = new Verb();
+  Object.entries(config).forEach(([key, value]) => (verb[key] = value));
+  return verb;
+}
+
 export class Verb {
   constructor(
-    name,
+    name = "verb",
     test = true,
     onSuccess = [],
     onFailure = [],
@@ -13,7 +19,7 @@ export class Verb {
     isKeyword = false,
     object = null
   ) {
-    this.name = name.trim().toLowerCase();
+    this.name = name;
     this.isKeyword = isKeyword;
     this.aliases = aliases || [];
     this.object = object;
@@ -33,6 +39,14 @@ export class Verb {
 
     // Call the onFailure setter
     this.onFailure = onFailure;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(name) {
+    this._name = name.trim().toLowerCase();
   }
 
   /**

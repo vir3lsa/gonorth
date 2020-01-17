@@ -1,5 +1,5 @@
 import { getStore } from "../../redux/storeRegistry";
-import { Verb } from "./verb";
+import { Verb, newVerb } from "./verb";
 import { newGame, changeInteraction } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
 import {
@@ -233,5 +233,16 @@ describe("chainable actions", () => {
     } catch (error) {
       expect(error.message).toEqual(expect.stringContaining("Custom options"));
     }
+  });
+
+  it("can be configured with a config object", () => {
+    const verb = newVerb({
+      name: "fly",
+      aliases: ["levitate"],
+      isKeyword: false
+    });
+    expect(verb.name).toBe("fly");
+    expect(verb.aliases).toStrictEqual(["levitate"]);
+    expect(verb.isKeyword).toBe(false);
   });
 });

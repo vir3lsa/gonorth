@@ -35,6 +35,7 @@ const bureau = new Item(
 bureau.aliases = ["desk"];
 bureau.itemsCanBeSeen = false;
 bureau.capacity = 10;
+bureau.preposition = "on";
 
 const drawers = new Item(
   "drawers",

@@ -8,11 +8,17 @@ import { itemsRevealed } from "../../redux/gameActions";
 
 const vowels = ["a", "e", "i", "o", "u"];
 
+export function newItem(config) {
+  const item = new Item();
+  Object.entries(config).forEach(([key, value]) => (item[key] = value));
+  return item;
+}
+
 export class Item {
   constructor(
-    name,
-    description,
-    holdable,
+    name = "item",
+    description = "It's fairly ordinary looking",
+    holdable = false,
     size = 1,
     verbs = [],
     aliases = [],
@@ -35,7 +41,6 @@ export class Item {
     this.free = -1;
     this.preposition = "in";
     this.itemsCanBeSeen = true;
-    this.article = `a${vowels.includes(this.name[0]) ? "n" : ""}`;
     this.doNotList = false;
 
     this.addVerb(
@@ -109,6 +114,15 @@ export class Item {
 
       this.addVerb(putVerb);
     }
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(name) {
+    this._name = name;
+    this.article = `a${vowels.includes(name[0]) ? "n" : ""}`;
   }
 
   get description() {

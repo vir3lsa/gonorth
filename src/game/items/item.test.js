@@ -1,4 +1,4 @@
-import { Item } from "./item";
+import { Item, newItem } from "./item";
 import { initStore } from "../../redux/store";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
@@ -162,5 +162,12 @@ describe("putting items", () => {
     ball.capacity = 3;
     await ball.try("put", ball);
     expect(selectCurrentPage()).toInclude("nonsensical");
+  });
+
+  test("items can be created with config objects", () => {
+    const item = newItem({ name: "Dave", description: "Man", holdable: false });
+    expect(item.name).toBe("Dave");
+    expect(item.description).toBe("Man");
+    expect(item.holdable).toBe(false);
   });
 });
