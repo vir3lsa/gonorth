@@ -15,8 +15,6 @@ import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
 import { witch } from "./rooms/garden";
 import { hottingUp } from "./rooms/insideOven";
-import { flue } from "./rooms/flue";
-import { cupboard } from "./rooms/cupboard";
 import { apothecary } from "./rooms/apothecary";
 
 initGame("The Witch's Grotto", "Rich Locke", true);

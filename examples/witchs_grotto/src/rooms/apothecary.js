@@ -11,7 +11,7 @@ import {
   RandomText,
   CyclicText
 } from "../../../../lib/gonorth";
-import { Ingredient } from "./ingredient";
+import { Ingredient } from "../magic/ingredient";
 import {
   Procedure,
   Alchemy,
@@ -20,8 +20,8 @@ import {
   STEP_HEAT,
   Potion,
   STEP_STIR
-} from "./alchemy";
-import { potionEffects } from "./potionEffects";
+} from "../magic/alchemy";
+import { potionEffects } from "../magic/potionEffects";
 
 export const apothecary = new Room(
   "apothecary",
