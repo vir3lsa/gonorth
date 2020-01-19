@@ -3,7 +3,8 @@ import {
   Text,
   RandomText,
   CyclicText,
-  Verb
+  Verb,
+  selectTurn
 } from "../../../../lib/gonorth";
 import { potionEffects } from "./potionEffects";
 
@@ -46,6 +47,10 @@ export class Alchemy {
     this.potion = null;
     this.makingPotion = false;
     this.shortDescription = null;
+    this.heatLeniency = 0;
+    this.stirLeniency = 0;
+    this.ingredientsAdded = false;
+    this.errorMessageOnTurn = -1;
     this.candidates = this.procedures.map(proc => this.copyProcedure(proc));
   }
 
@@ -57,6 +62,7 @@ export class Alchemy {
   }
 
   addIngredient(ingredient) {
+    this.ingredientsAdded = true;
     this.processStep(STEP_INGREDIENTS, ingredient);
     return this.stepText;
   }
@@ -82,7 +88,7 @@ export class Alchemy {
   addHeat() {
     this.temperature++;
     this.processStep(STEP_HEAT);
-    return this.stepText;
+    return this.getHeatText();
   }
 
   stir() {
@@ -92,36 +98,54 @@ export class Alchemy {
   }
 
   processStep(stepType, ingredient) {
-    this.candidates = this.candidates.filter(cand =>
+    this.stepText = null;
+
+    const candidates = this.candidates.filter(cand =>
       this.findMatchingStep(cand.procedure, stepType, ingredient)
     );
 
-    if (this.candidates.length && this.liquidLevel) {
+    if (candidates.length && this.liquidLevel && this.ingredientsAdded) {
       this.makingPotion = true;
     }
 
-    if (this.candidates.length === 1) {
+    if (candidates.length === 1) {
       // We know what potion we're making. Is it finished?
-      const chosen = this.candidates[0];
+      const chosen = candidates[0];
 
       if (!chosen.procedure.steps.length) {
         // It's finished!
         this.potion = chosen.potion;
       }
-    } else if (!this.candidates.length) {
-      // No matching procedures - potion has failed
-      if (this.makingPotion) {
-        this.makingPotion = false;
-        this.stepText = errors;
-        this.shortDescription = errorShorts.next();
-      } else if (this.liquidLevel) {
-        this.stepText = inert.next();
-      } else {
-        this.stepText = null;
-      }
+    } else if (!candidates.length) {
+      const turn = selectTurn();
 
-      this.potion = null;
+      if (stepType === STEP_HEAT && this.heatLeniency) {
+        return this.heatLeniency--;
+      } else if (stepType === STEP_STIR && this.stirLeniency) {
+        return this.stirLeniency--;
+      } else {
+        // No matching procedures - potion has failed
+        if (this.makingPotion) {
+          this.makingPotion = false;
+          this.stepText = errors;
+          this.shortDescription = errorShorts.next();
+          this.heatLeniency = 0;
+          this.stirLeniency = 0;
+          this.errorMessageOnTurn = turn;
+        } else if (
+          this.liquidLevel &&
+          this.ingredientsAdded &&
+          turn > this.errorMessageOnTurn
+        ) {
+          this.stepText = inert.next();
+          this.errorMessageOnTurn = turn;
+        }
+
+        this.potion = null;
+      }
     }
+
+    this.candidates = candidates;
   }
 
   findMatchingStep(group, stepType, ingredient) {
@@ -185,19 +209,21 @@ export class Alchemy {
 
           break;
         case STEP_WATER:
-          this.handleNumericStep(this.waterLevel, matchingStep, steps);
+          this.handleNumericStep(0.25, matchingStep, steps);
           break;
         case STEP_FAT:
-          this.handleNumericStep(this.fatLevel, matchingStep, steps);
+          this.handleNumericStep(0.25, matchingStep, steps);
           break;
         case STEP_BLOOD:
-          this.handleNumericStep(this.bloodLevel, matchingStep, steps);
+          this.handleNumericStep(0.25, matchingStep, steps);
           break;
         case STEP_HEAT:
-          this.handleNumericStep(this.temperature, matchingStep, steps);
+          this.heatLeniency = matchingStep.leniency || 0;
+          this.handleNumericStep(1, matchingStep, steps);
           break;
         case STEP_STIR:
-          this.handleNumericStep(this.stirred, matchingStep, steps);
+          this.stirLeniency = matchingStep.leniency || 0;
+          this.handleNumericStep(1, matchingStep, steps);
           break;
       }
     } else if (matchingGroup) {
@@ -220,8 +246,10 @@ export class Alchemy {
     );
   }
 
-  handleNumericStep(measure, matchingStep, steps) {
-    if (measure === matchingStep.value) {
+  handleNumericStep(amount, matchingStep, steps) {
+    matchingStep.value -= amount;
+
+    if (matchingStep.value === 0) {
       // Remove the completed step
       this.removeStep(steps, matchingStep);
     }
@@ -259,19 +287,19 @@ export class Alchemy {
     });
   }
 
-  getLiquidText(liquid, level) {
+  getLiquidText(liquid) {
     let readableLabel;
 
-    if (level > 1) {
+    if (this.liquidLevel > 1) {
       readableLabel =
         "It overflows the rim and splashes onto the floor before finding its way to the drainage channel.";
-    } else if (level === 1) {
+    } else if (this.liquidLevel === 1) {
       readableLabel = "It's full to the brim.";
-    } else if (level === 0.75) {
+    } else if (this.liquidLevel === 0.75) {
       readableLabel = "It's now around three quarters full.";
-    } else if (level === 0.5) {
+    } else if (this.liquidLevel === 0.5) {
       readableLabel = "It looks to be about half full.";
-    } else if (level === 0.25) {
+    } else if (this.liquidLevel === 0.25) {
       readableLabel = "It's already a quarter full.";
     }
 
@@ -282,6 +310,34 @@ export class Alchemy {
 
   get liquidLevel() {
     return this.waterLevel + this.fatLevel + this.bloodLevel;
+  }
+
+  getHeatText() {
+    if (this.stepText) {
+      return this.stepText;
+    }
+
+    if (this.liquidLevel > 0) {
+      if (this.temperature === 1) {
+        return "The mixture is starting to warm through.";
+      } else if (this.temperature === 3) {
+        return "The pot is hot and you can feel the warmth coming off it when you lean over it.";
+      } else if (this.temperature === 5) {
+        return "The cauldron's contents are hot now. Steam is beginning to rise from the surface of the liquid.";
+      } else if (this.temperature === 7) {
+        return "Small bubbles are starting to rise to the surface of the brew.";
+      } else if (this.temperature === 9) {
+        return "The bubbles are getting larger and the liquid is agitated.";
+      } else if (this.temperature === 10) {
+        return "The concoction is properly boiling now, the surface roiling with large bubbles.";
+      }
+    } else {
+      if (this.temperature === 3) {
+        return "The cauldron is hot now.";
+      }
+    }
+
+    return "The fire heats the cauldron.";
   }
 }
 

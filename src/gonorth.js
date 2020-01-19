@@ -126,9 +126,9 @@ function setInventoryCapacity(size) {
 }
 
 export { Room } from "./game/items/room";
-export { Verb, GoVerb } from "./game/verbs/verb";
+export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door } from "./game/items/door";
-export { Item } from "./game/items/item";
+export { Item, newItem } from "./game/items/item";
 export { Interaction, Append } from "./game/interactions/interaction";
 export { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
 export { Option } from "./game/interactions/option";
@@ -144,7 +144,7 @@ export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
 export { goToRoom } from "./utils/lifecycle";
 export { OptionGraph } from "./game/interactions/optionGraph";
-export { selectInventory, selectRoom } from "./utils/selectors";
+export { selectInventory, selectRoom, selectTurn } from "./utils/selectors";
 export { ActionChain } from "./utils/actionChain";
 export {
   initGame,

@@ -43,7 +43,9 @@ export function createKeywords() {
   const waitText = new RandomText(
     "You pause for a moment, taking stock of the situation.",
     "You look around you and drink in your surroundings, letting the moment linger.",
-    "You stop and think. Yes, you're sure there's a way out of this mess."
+    "You stop and think. Yes, you're sure there's a way out of this mess.",
+    "You wonder aloud whether you'll make it home alive. No-one answers.",
+    "How did you get yourself into this pickle? And how to clamber out?"
   );
 
   const stopWaitingText = new RandomText(

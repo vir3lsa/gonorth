@@ -2,6 +2,7 @@ import {
   Room,
   Item,
   Verb,
+  newVerb,
   OptionGraph,
   selectInventory,
   selectRoom,
@@ -19,7 +20,9 @@ import {
   STEP_INGREDIENTS,
   STEP_HEAT,
   Potion,
-  STEP_STIR
+  STEP_STIR,
+  STEP_BLOOD,
+  STEP_FAT
 } from "../magic/alchemy";
 import { potionEffects } from "../magic/potionEffects";
 
@@ -105,7 +108,15 @@ const invisibilityPage = {
 
 const strengthPage = {
   id: "strength",
-  actions: "placeholder",
+  actions: `## Elixir of Might\n\nIf bullies and monsters are threatening you, And all that you've tried is wrong, Then brew this elixir I'm begging of you, You'll be so incredibly strong!
+    
+Ingredients      | Process
+:----------------|:-----------------------------------------------------------------------
+Fat              | Half fill the pot with equal parts fat and blood
+Blood            | Add the adder venom and bring the mixture to the boil
+Astragalus       | Add the astragalus and stir until the brew turns the colour of amethyst
+Valerian         | Add the valerian and keep stirring until gold flecks appear
+Adder venom      |`,
   options: {
     "Stop reading": stopReading
   }
@@ -171,7 +182,7 @@ let describeCauldronContents;
 
 const cauldron = new Item("cauldron", () => {
   const basic =
-    "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire. There's a tap at the bottom to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through the wall. There's apparatus above the cauldron for filling it with a range of liquids.";
+    "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire - the space is already occupied by a few sturdy logs and some smaller kindling. There's a tap at the bottom cauldron to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through the wall. There's apparatus above the cauldron for filling it with a range of liquids.";
 
   const detail = describeCauldronContents();
 
@@ -233,19 +244,13 @@ contents.addVerb(
   )
 );
 
-const fire = new Item(
-  "fire",
-  "There's a small stack of logs beneath the cauldron that will do very nicely as fuel for a fire. If only you had something to light one with."
-);
-fire.aliases = ["space"];
-fire.addVerb(new Verb("light", () => selectInventory().items["matches"]));
-
 const ladle = new Item(
   "ladle",
   "The handle is almost as long as you are tall. It loops over at the end so it can be hung on the metal bar that crosses the cauldron. At the other end there's a deeply capacious spoon that will do equally well for stirring and dispensing.",
   true,
   7
 );
+ladle.aliases = ["spoon"];
 
 ladle.roomListing =
   "Hanging on a metal bar that extends from one side of the iron pot and loops over it to rejoin the other side is a heavy-duty ladle used for stirring and spooning out the contents.";
@@ -343,6 +348,25 @@ const dial = new Item(
 );
 dial.liquid = "water";
 
+dial.addVerb(
+  new Verb(
+    "turn",
+    true,
+    [
+      () => {
+        dial.liquid === "water"
+          ? (dial.liquid = "fat")
+          : dial.liquid === "fat"
+          ? (dial.liquid = "blood")
+          : (dial.liquid = "water");
+      },
+      () => `You turn the dial to point at the ${dial.liquid} inlet pipe.`
+    ],
+    x => x,
+    ["rotate", "spin", "switch"]
+  )
+);
+
 const flow = new Event(
   () => {
     if (dial.liquid === "water") {
@@ -377,7 +401,8 @@ masterValve.addVerbs(
     () => masterValve.open,
     [
       () => (masterValve.open = false),
-      `You spin the valve wheel back in the other direction to shut off the flow. Sure enough, the sound of rushing liquid ceases and the flow of ${dial.liquid} into the cauldron trickles to a stop.`
+      () =>
+        `You spin the valve wheel back in the other direction to shut off the flow. Sure enough, the sound of rushing liquid ceases and the flow of ${dial.liquid} into the cauldron trickles to a stop.`
     ],
     "The valve is already closed."
   )
@@ -390,6 +415,13 @@ const herbarium = new Item(
   "This must be the witch's herbarium. You have to admit it's an impressive sight. Multiple shelves line the walls, every inch filled with dusty glass jars, racks of vials, and stoppered bottles. They're all meticulously labelled with swirly handwritten names on paper sleeves, but many of them are indecipherable. You take a mental note of the ones you understand."
 );
 
+const adderVenom = new Ingredient(
+  "Adder venom",
+  "A stoppered bottle of slightly cloudy snake venom.",
+  cauldron,
+  alchemy
+);
+
 const alfalfa = new Ingredient(
   "Alfalfa",
   "A jar of dried alfalfa leaves.",
@@ -399,7 +431,7 @@ const alfalfa = new Ingredient(
 
 const astragalus = new Ingredient(
   "Astragalus",
-  "placeholder",
+  "A bottle of astragalus root shavings.",
   cauldron,
   alchemy
 );
@@ -490,6 +522,7 @@ const wormwood = new Ingredient("Wormwood", "placeholder", cauldron, alchemy);
 herbarium.capacity = 20;
 herbarium.aliases = ["vials", "jars", "bottles", "ingredients"];
 herbarium.hidesItems = [
+  adderVenom,
   alfalfa,
   astragalus,
   bladderwrack,
@@ -582,6 +615,96 @@ const woodwormProcedure = new Procedure(
   woodwormPotion
 );
 
+const strengthPotion = new Potion(
+  "Elixir of Might",
+  "It's a deep purple colour, flecked with gold."
+);
+strengthPotion.aliases = ["strength"];
+
+const strengthProcedure = new Procedure(
+  {
+    ordered: true,
+    steps: [
+      {
+        ordered: false,
+        steps: [
+          { type: STEP_BLOOD, value: 0.25 },
+          { type: STEP_FAT, value: 0.25 }
+        ]
+      },
+      {
+        ordered: false,
+        steps: [
+          {
+            type: STEP_INGREDIENTS,
+            value: [adderVenom],
+            text:
+              "The venom immediately splits the mixture, turning it into a slimy mess of reds and yellows.",
+            short: "split, with slimy reds and yellows"
+          },
+          { type: STEP_HEAT, value: 10, leniency: 4 }
+        ]
+      },
+      {
+        type: STEP_INGREDIENTS,
+        value: [astragalus],
+        text:
+          "As the astragalus hits the boiling liquid, a cloud of blue smoke billows from the surface.",
+        short: "billowing blue smoke"
+      },
+      { type: STEP_HEAT, value: 1, leniency: 4 },
+      {
+        ordered: false,
+        steps: [
+          {
+            type: STEP_STIR,
+            value: 2,
+            text: new CyclicText(
+              "The mixture is no longer split, but instead has taken on a smooth, silky texture and is orange in hue.",
+              "The stirring and the heat are causing changes to the concoction. It's darkened to a deep purple."
+            ),
+            short: new CyclicText(
+              "smooth, silky and orange",
+              "smooth, silky and purple"
+            ),
+            leniency: 1
+          },
+          { type: STEP_HEAT, value: 2, leniency: 4 }
+        ]
+      },
+      {
+        type: STEP_INGREDIENTS,
+        value: [valerian],
+        text: "A sweet smell emanates from the cauldron.",
+        short: "smooth, silky, and purple, with a sweet scent."
+      },
+      { type: STEP_HEAT, value: 1, leniency: 4 },
+      {
+        ordered: false,
+        steps: [
+          {
+            type: STEP_STIR,
+            value: 3,
+            text: new CyclicText(
+              "The mixture barely looks wet now - it's more like an extremely malleable plastic, but still somehow liquid.",
+              "The purple colour is even deeper, like an alien sky at night.",
+              "Tiny flecks of gold have appeared amongst the purple, catching the light as you stir."
+            ),
+            short: new CyclicText(
+              "smooth and plastic-like",
+              "deep alien purple",
+              "purple with flecks of gold"
+            ),
+            leniency: 1
+          },
+          { type: STEP_HEAT, value: 3, leniency: 10 }
+        ]
+      }
+    ]
+  },
+  strengthPotion
+);
+
 const matchbook = new Item(
   "matchbook",
   "It's an old-fashioned matchbook containing several long matches. There's a picture of a phoenix on the cover.",
@@ -589,8 +712,9 @@ const matchbook = new Item(
   0.5
 );
 matchbook.aliases = ["matches", "match"];
+matchbook.preposition = "with";
 
-alchemy.addProcedures(mendingProcedure, woodwormProcedure);
+alchemy.addProcedures(mendingProcedure, woodwormProcedure, strengthProcedure);
 potionEffects.add(
   woodwormPotion,
   bureau,
@@ -607,6 +731,53 @@ potionEffects.add(
   "You tip the entire contents of the vial onto the bureau, watching in horror and delight as the ferocious substance devours the wood, eating its way right through to the drawers beneath. By the time the potion has done its work, the top of the desk is almost entirely gone and the once-locked drawers are easily accessible."
 );
 
+const unlitDesc =
+  "There's a small stack of logs beneath the cauldron that will do very nicely as fuel for a fire. If only you had something to light one with.";
+const fire = new Item("fire", unlitDesc);
+fire.aliases = ["space", "logs", "kindling", "fire"];
+
+const ignite = newVerb({
+  name: "light",
+  test: () => !fire.lit,
+  onSuccess: [
+    () => {
+      fire.description =
+        "A decent fire is crackling away beneath the pot, sending tongues of yellow flame licking against its underside.";
+    },
+    () => (fire.lit = true),
+    "Striking one of the big matches against the rough paper, you carefully lower it towards the kindling as its small flame ignites. After a moment or two the kindling catches and begins to crackle as the flames quickly spread. Before too long the logs are smouldering and you can feel the heat radiating from the small blaze."
+  ],
+  onFailire: "The fire's already roaring.",
+  aliases: ["ignite"],
+  prepositional: true,
+  interrogative: "with what"
+});
+const extinguish = newVerb({
+  name: "extinguish",
+  test: () => fire.lit,
+  onSuccess: [
+    () => {
+      fire.description = unlitDesc;
+    },
+    () => (fire.lit = false),
+    "You pull the metal cover over the fire to put it out."
+  ],
+  onFailire: "The fire isn't lit.",
+  aliases: ["put out"]
+});
+fire.addVerbs(ignite, extinguish);
+
+addEvent(
+  new Event(
+    () => alchemy.addHeat(),
+    () => fire.lit,
+    0,
+    TIMEOUT_TURNS,
+    x => x,
+    true
+  )
+);
+
 apothecary.addItems(
   bookShelf,
   herbarium,
@@ -614,6 +785,7 @@ apothecary.addItems(
   contents,
   apparatus,
   tap,
+  fire,
   bureau,
-  woodwormPotion
+  matchbook
 );

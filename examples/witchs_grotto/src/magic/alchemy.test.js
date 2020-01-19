@@ -33,6 +33,7 @@ const woodwormPotion = new Potion(
   "Organic Dissolution Accelerator",
   "Dissolves organics"
 );
+const anotherPotion = new Potion("Another", "");
 const mendingProcedure = new Procedure(
   {
     ordered: true,
@@ -44,7 +45,7 @@ const mendingProcedure = new Procedure(
           { type: STEP_INGREDIENTS, value: [dryadToenails, alfalfa, whiteSage] }
         ]
       },
-      { type: STEP_HEAT, value: 3 }
+      { type: STEP_HEAT, value: 3, leniency: 3 }
     ]
   },
   mendingPotion
@@ -68,6 +69,18 @@ const woodwormProcedure = new Procedure(
     ]
   },
   woodwormPotion
+);
+const anotherProcedure = new Procedure(
+  {
+    ordered: true,
+    steps: [
+      { type: STEP_WATER, value: 0.25 },
+      { type: STEP_INGREDIENTS, value: [horehound] },
+      { type: STEP_STIR, value: 1, leniency: 1 },
+      { type: STEP_INGREDIENTS, value: [wormwood] }
+    ]
+  },
+  anotherPotion
 );
 
 function addIngredients(...ingredients) {
@@ -100,7 +113,7 @@ function followMendingProcedure() {
 
 beforeEach(() => {
   alchemy = new Alchemy();
-  alchemy.addProcedures(mendingProcedure, woodwormProcedure);
+  alchemy.addProcedures(mendingProcedure, woodwormProcedure, anotherProcedure);
 });
 
 test("it deep copies procedures", () => {
@@ -167,12 +180,6 @@ test("no potion is produced if not enough heat is added", () => {
   expect(alchemy.potion).toBe(null);
 });
 
-test("no potion is produced if too much heat is added", () => {
-  followMendingProcedure();
-  addHeat(1);
-  expect(alchemy.potion).toBe(null);
-});
-
 test("no potion is produced if too much water is added", () => {
   followMendingProcedure();
   addWater(1);
@@ -230,4 +237,24 @@ test("correct text is returned when potion steps are reached", () => {
   const text = alchemy.stir();
   expect(text instanceof CyclicText).toBe(true);
   expect(text.next()).toBe("The mixture turns brown.");
+});
+
+test("is lenient with heat", () => {
+  followMendingProcedure();
+  addHeat(3);
+  expect(alchemy.potion).toBe(mendingPotion);
+});
+
+test("isn't lenient forever", () => {
+  followMendingProcedure();
+  addHeat(4);
+  expect(alchemy.potion).toBe(null);
+});
+
+test("follows steps after leniency", () => {
+  addWater(1);
+  addIngredients(horehound);
+  stir(2);
+  addIngredients(wormwood);
+  expect(alchemy.potion).toBe(anotherPotion);
 });

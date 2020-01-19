@@ -4,14 +4,20 @@ import { ActionChain } from "../../utils/actionChain";
 import { selectRoom } from "../../utils/selectors";
 
 export function newVerb(config) {
-  const verb = new Verb();
+  const { name } = config;
+
+  if (!name) {
+    throw Error("You must at least set the verb name.");
+  }
+
+  const verb = new Verb(name);
   Object.entries(config).forEach(([key, value]) => (verb[key] = value));
   return verb;
 }
 
 export class Verb {
   constructor(
-    name = "verb",
+    name,
     test = true,
     onSuccess = [],
     onFailure = [],
