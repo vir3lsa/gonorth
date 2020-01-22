@@ -23,26 +23,21 @@ let fireBurning = true;
 export const hottingUp = new Schedule.Builder()
   .withCondition(() => getRoom() === insideOven)
   .addEvent("It's starting to feel warm under you.")
-  .withDelay(2)
-  .withDelayType(TIMEOUT_TURNS)
+  .withDelay(2, TIMEOUT_TURNS)
   .addEvent("It's definitely getting hot in here now.")
-  .withDelay(3)
-  .withDelayType(TIMEOUT_TURNS)
+  .withDelay(3, TIMEOUT_TURNS)
   .addEvent(
     "It's really hot now, like a sauna. You're covered in sweat - it drips from your nose and evaporates on the hot metal."
   )
-  .withDelay(3)
-  .withDelayType(TIMEOUT_TURNS)
+  .withDelay(3, TIMEOUT_TURNS)
   .addEvent(
     "You need to get out of here. Now. The air is so hot you can feel it burning your face. It's impossible to touch the metal walls and floor of the oven without getting a nasty burn. You're starting to feel faint."
   )
-  .withDelay(4)
-  .withDelayType(TIMEOUT_TURNS)
+  .withDelay(4, TIMEOUT_TURNS)
   .addEvent(
     "You frantically thrash as your hair starts to smoulder and sores appear on your skin. You take a few more ragged breaths, drawing the burning air into your lungs and then collapse in a fit of coughing and spluttering. Everything goes dark."
   )
-  .withDelay(20000)
-  .withDelayType(TIMEOUT_MILLIS)
+  .withDelay(20000, TIMEOUT_MILLIS)
   .build();
 
 const lockedOvenDoor = new Door(

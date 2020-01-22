@@ -6,7 +6,7 @@ import {
   Verb,
   selectTurn
 } from "../../../../lib/gonorth";
-import { potionEffects } from "./potionEffects";
+import { potionEffects, DRINK } from "./potionEffects";
 
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
@@ -354,12 +354,12 @@ export class Potion extends Item {
 
     const drink = new Verb(
       "drink",
-      (helper, other) => potionEffects.hasEffect(this, other),
+      () => potionEffects.hasEffect(this, DRINK),
       [
         () => this.container.removeItem(this),
-        (helper, other) => potionEffects.apply(this, other)
+        () => potionEffects.apply(this, DRINK)
       ],
-      (helper, other) => potionEffects.apply(this, other),
+      () => potionEffects.apply(this, DRINK),
       ["swallow"]
     );
 
@@ -373,7 +373,7 @@ export class Potion extends Item {
       (helper, other) => potionEffects.apply(this, other),
       ["tip", "apply"]
     );
-    pour.prepositional = true;
+    pour.makePrepositional("on what");
 
     this.addVerbs(drink, pour);
   }

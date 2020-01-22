@@ -15,7 +15,7 @@ import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
 import { witch } from "./rooms/garden";
 import { hottingUp } from "./rooms/insideOven";
-import { apothecary } from "./rooms/apothecary";
+import { apothecary, strengthTimer } from "./rooms/apothecary";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
@@ -40,33 +40,29 @@ const witchArrival = new Route.Builder()
     "You hear a noise behind you and whirl round in time to see a tall woman dressed in a black shawl slip into the room."
   )
   .go("south")
-  .withDelay(10000)
-  .withDelayType(TIMEOUT_MILLIS)
+  .withDelay(10000, TIMEOUT_MILLIS)
   .withText("A door slams somewhere nearby. The witch is coming!")
   .go("west")
-  .withDelay(2)
-  .withDelayType(TIMEOUT_TURNS)
+  .withDelay(2, TIMEOUT_TURNS)
   .withText(
     "You hear footsteps. Sounds like they're coming from the kitchen. Hide!"
   )
   .go("south")
-  .withDelay(10000)
-  .withDelayType(TIMEOUT_MILLIS)
+  .withDelay(10000, TIMEOUT_MILLIS)
   .withText(
     "A door creaks, sending shivers down your spine. The witch is looking for you."
   )
   .go("east")
-  .withDelay(3)
-  .withDelayType(TIMEOUT_TURNS)
+  .withDelay(3, TIMEOUT_TURNS)
   .withText("Another door slams. Where *is* she?")
   .go("east")
-  .withDelay(3)
-  .withDelayType(TIMEOUT_TURNS)
+  .withDelay(3, TIMEOUT_TURNS)
   .withText("Muffled footsteps sound elsewhere in the house. Be careful.")
   .build();
 
 addSchedule(witchArrival);
 addSchedule(hottingUp);
+addSchedule(strengthTimer);
 
 witch.addEncounter(
   () => witchArrival.cancel(),

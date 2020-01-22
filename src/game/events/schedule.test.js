@@ -22,10 +22,7 @@ function createBuilder(condition, continueOnFail) {
 }
 
 function addEvent(builder, delay, delayType, ...actions) {
-  builder
-    .addEvent(...actions)
-    .withDelay(delay)
-    .withDelayType(delayType);
+  builder.addEvent(...actions).withDelay(delay, delayType);
 }
 
 function buildAndExecute(builder) {
@@ -87,4 +84,15 @@ test("schedule can be cancelled", async () => {
   schedule.cancel();
   await handleTurnEnd();
   expect(x).toBe(2);
+});
+
+test("schedules can recur", async () => {
+  const builder = createBuilder(true, false);
+  builder.recurring();
+  addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
+  addEvent(builder, 0, TIMEOUT_TURNS, () => (x *= 2));
+  addSchedule(builder.build());
+  await handleTurnEnd();
+  await handleTurnEnd();
+  expect(x).toBe(10);
 });

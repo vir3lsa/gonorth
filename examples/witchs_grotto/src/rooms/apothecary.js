@@ -6,11 +6,14 @@ import {
   OptionGraph,
   selectInventory,
   selectRoom,
+  selectPlayer,
   Event,
   TIMEOUT_TURNS,
   addEvent,
   RandomText,
-  CyclicText
+  CyclicText,
+  Door,
+  Schedule
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 import {
@@ -24,7 +27,7 @@ import {
   STEP_BLOOD,
   STEP_FAT
 } from "../magic/alchemy";
-import { potionEffects } from "../magic/potionEffects";
+import { potionEffects, DRINK } from "../magic/potionEffects";
 
 export const apothecary = new Room(
   "apothecary",
@@ -715,6 +718,7 @@ matchbook.aliases = ["matches", "match"];
 matchbook.preposition = "with";
 
 alchemy.addProcedures(mendingProcedure, woodwormProcedure, strengthProcedure);
+
 potionEffects.add(
   woodwormPotion,
   bureau,
@@ -730,6 +734,29 @@ potionEffects.add(
   "You carefully pour a droplet of the Organic Dissolution Accelerator onto the surface of the desk. Immediately it starts foaming and producing white steam. When it finishes hissing and bubbling, there's a depression the size of a grape in the heavy oak worktop.",
   "You tip the entire contents of the vial onto the bureau, watching in horror and delight as the ferocious substance devours the wood, eating its way right through to the drawers beneath. By the time the potion has done its work, the top of the desk is almost entirely gone and the once-locked drawers are easily accessible."
 );
+
+potionEffects.add(
+  strengthPotion,
+  DRINK,
+  true,
+  () => (selectPlayer().strong = true),
+  "You lift the sweet-smelling elixir to your lips and take a tentative sip. You feel vaguely invigorated as the potion slips down your throat. Feeling suddenly confident, you glug down the rest of the potion from the vial. For a moment nothing happens.",
+  "Then, suddenly, you begin to feel *powerful*. Your shirt starts to feel extremely tight as your muscles swell and bulge. You've never felt so strong. You are *ripped*."
+);
+
+export const strengthTimer = new Schedule.Builder()
+  .withCondition(() => selectPlayer().strong)
+  .addEvent(
+    "You're feeling a little less...buff...than before. The strength potion's starting to wear off."
+  )
+  .withDelay(10, TIMEOUT_TURNS)
+  .addEvent(
+    () => (selectPlayer().strong = false),
+    "Sure enough, the potion's worn off. You're back to your normal skinny self."
+  )
+  .withDelay(3, TIMEOUT_TURNS)
+  .recurring()
+  .build();
 
 const unlitDesc =
   "There's a small stack of logs beneath the cauldron that will do very nicely as fuel for a fire. If only you had something to light one with.";
@@ -778,6 +805,49 @@ addEvent(
   )
 );
 
+const gate = new Door(
+  "gate",
+  "The wrought iron gate stands between you and a sharply curving corridor beyond. It's locked with a rusty padlock and is attached to the wall by two rusty hinges. All of these look like they could fail imminently.",
+  false,
+  true
+);
+
+const hinges = new Item(
+  "hinges",
+  "The hinges are are a mess of red rust and have almost completely worn through. They look very weak."
+);
+hinges.aliases = ["hinge"];
+
+const padlock = new Item(
+  "padlock",
+  "The padlock has certainly seen better days. There's no part of it that isn't covered in rust."
+);
+padlock.aliases = ["lock"];
+
+gate.hidesItems = [hinges, padlock];
+
+const breakVerb = new Verb(
+  "break",
+  () => selectPlayer().strong && !gate.broken,
+  [
+    () => (gate.broken = true),
+    "Flexing your bulging muscles, you grab hold of the iron bars of the gate and pull with all your might. It turns out all your might wasn't required as the padlock and hinges snap easily under the force of your exaggerated strength and you topple backwards, landing clumsily with the gate on top of you.",
+    "You get up, dust yourself off, and lean the liberated gate against the wall."
+  ],
+  () => {
+    if (gate.broken) {
+      return "The gate's already broken! You ripped it from its hinges, remember?";
+    } else {
+      return "You grab hold of the iron bars of the gate and pull with all your might. Unfortunately, it's not enough. The padlock and hinges both hold firm. If only you weren't quite such a weakling.";
+    }
+  },
+  ["pull", "snap", "destroy", "smash", "kick"]
+);
+
+gate.addVerb(breakVerb);
+padlock.addVerb(breakVerb);
+hinges.addVerb(breakVerb);
+
 apothecary.addItems(
   bookShelf,
   herbarium,
@@ -787,5 +857,7 @@ apothecary.addItems(
   tap,
   fire,
   bureau,
+  gate,
+  strengthPotion,
   matchbook
 );

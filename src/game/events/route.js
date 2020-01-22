@@ -36,18 +36,14 @@ export class Route {
         return this;
       }
 
-      withDelay(delay) {
-        this.currentStep.delay = delay;
-        return this;
-      }
-
-      withDelayType(type) {
+      withDelay(delay, type) {
         if (type !== TIMEOUT_MILLIS && type !== TIMEOUT_TURNS) {
           throw Error(
             "Delay type must be one of 'TIMEOUT_MILLIS' and 'TIMEOUT_TURNS'"
           );
         }
 
+        this.currentStep.delay = delay;
         this.currentStep.delayType = type;
         return this;
       }
@@ -90,8 +86,7 @@ export class Route {
 
       scheduleBuilder
         .addEvent(() => builder.subject.go(step.direction), getText)
-        .withDelay(step.delay)
-        .withDelayType(step.delayType);
+        .withDelay(step.delay, step.delayType);
     });
 
     this.schedule = scheduleBuilder.build();

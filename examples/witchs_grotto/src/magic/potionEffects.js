@@ -1,5 +1,7 @@
 import { ActionChain } from "../../../../lib/gonorth";
 
+export const DRINK = { name: "drink" };
+
 class PotionEffects {
   constructor() {
     this.potionEffects = {};
