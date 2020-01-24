@@ -12,6 +12,17 @@ import { Option } from "../interactions/option";
 import { selectCurrentPage } from "../../utils/testSelectors";
 import { initGame } from "../../gonorth";
 
+expect.extend({
+  toInclude(received, text) {
+    const pass = received.includes(text);
+    return {
+      message: () =>
+        `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
+      pass
+    };
+  }
+});
+
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
@@ -102,9 +113,9 @@ describe("chainable actions", () => {
     const promise = verb.attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
-    expect(selectCurrentPage().includes("b")).toBe(true);
+    expect(selectCurrentPage()).toInclude("b");
     await clickNextAndWait();
-    expect(selectCurrentPage().includes("c")).toBe(true);
+    expect(selectCurrentPage()).toInclude("c");
     await promise;
   });
 

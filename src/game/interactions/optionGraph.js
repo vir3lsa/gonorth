@@ -2,8 +2,9 @@ import { ActionChain } from "../../utils/actionChain";
 import { Option } from "./option";
 
 export class OptionGraph {
-  constructor(graph) {
-    this.graph = graph;
+  constructor(...nodes) {
+    this.nodes = nodes;
+    this.startNode = nodes[0];
     this.flattened = {};
 
     this.reindex();
@@ -11,7 +12,7 @@ export class OptionGraph {
 
   reindex() {
     this.flattened = {};
-    this.recordNodeIds(this.graph);
+    this.nodes.forEach(node => this.recordNodeIds(node));
   }
 
   recordNodeIds(node) {
@@ -29,12 +30,29 @@ export class OptionGraph {
     }
   }
 
+  addNodes(...nodes) {
+    this.nodes.push(...nodes);
+    this.nodes.forEach(node => this.recordNodeIds(node));
+  }
+
   getNode(id) {
     return this.flattened[id];
   }
 
+  setStartNode(node) {
+    if (typeof node === "string") {
+      this.startNode = this.getNode(node);
+
+      if (!this.startNode) {
+        throw Error(`Can't find node with id ${node}`);
+      }
+    } else {
+      this.startNode = node;
+    }
+  }
+
   commence() {
-    return this.activateNode(this.graph);
+    return this.activateNode(this.startNode);
   }
 
   activateNode(node) {
@@ -44,10 +62,24 @@ export class OptionGraph {
     actions = Array.isArray(actions) ? actions : [actions];
 
     if (options) {
-      optionObjects = Object.entries(options).map(
-        ([choice, node]) =>
-          new Option(choice, () => this.activateNode(node), !node.noEndTurn)
-      );
+      optionObjects = Object.entries(options).map(([choice, value]) => {
+        let node = value;
+
+        if (typeof node === "string") {
+          // Treat as an ID reference
+          node = this.flattened[node];
+
+          if (!node) {
+            throw Error(`Can't find node with id ${value}`);
+          }
+        }
+
+        return new Option(
+          choice,
+          () => this.activateNode(node),
+          !node.noEndTurn
+        );
+      });
     }
 
     const chain = new ActionChain(...actions);

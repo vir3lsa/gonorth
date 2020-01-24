@@ -54,6 +54,12 @@ const graph = {
   }
 };
 
+const nodes = [
+  { id: "cat", actions: "cat", options: { dog: "dog", sheep: "sheep" } },
+  { id: "dog", actions: "dog", options: { cat: "cat", sheep: "sheep" } },
+  { id: "sheep", actions: "sheep", options: { cat: "cat", dog: "dog" } }
+];
+
 beforeEach(async () => {
   unregisterStore();
   initStore();
@@ -99,15 +105,11 @@ test("optionGraph carries out additional actions", async () => {
 });
 
 test("optionGraph presents nodes by ID", () => {
-  expect(optionGraph.getNode("alpha")).toBe(optionGraph.graph);
-  expect(optionGraph.getNode("beta")).toBe(optionGraph.graph.options.one);
-  expect(optionGraph.getNode("gamma")).toBe(
-    optionGraph.graph.options.one.options.three
-  );
-  expect(optionGraph.getNode("delta")).toBe(
-    optionGraph.graph.options.one.options.four
-  );
-  expect(optionGraph.getNode("epsilon")).toBe(optionGraph.graph.options.two);
+  expect(optionGraph.getNode("alpha")).toBe(graph);
+  expect(optionGraph.getNode("beta")).toBe(graph.options.one);
+  expect(optionGraph.getNode("gamma")).toBe(graph.options.one.options.three);
+  expect(optionGraph.getNode("delta")).toBe(graph.options.one.options.four);
+  expect(optionGraph.getNode("epsilon")).toBe(graph.options.two);
 });
 
 test("optionGraph doesn't end the turn for some options", async () => {
@@ -120,4 +122,28 @@ test("optionGraph does end the turn for most options", async () => {
   const turn = selectTurn();
   await selectOptions()[0].action();
   expect(selectTurn()).toBe(turn + 1);
+});
+
+test("nodes can be referenced by id", async () => {
+  const graph = new OptionGraph(...nodes);
+  await graph.commence().chain();
+  let option = selectOptions()[0];
+  expect(option.label).toBe("dog");
+  await option.action();
+  option = selectOptions()[1];
+  expect(option.label).toBe("sheep");
+});
+
+test("start node can be set", () => {
+  optionGraph.setStartNode(optionGraph.getNode("beta"));
+  optionGraph.commence().chain();
+  expect(selectOptions()[0].label).toBe("three");
+  expect(selectOptions()[1].label).toBe("four");
+});
+
+test("start node can be set by id", () => {
+  optionGraph.setStartNode("beta");
+  optionGraph.commence().chain();
+  expect(selectOptions()[0].label).toBe("three");
+  expect(selectOptions()[1].label).toBe("four");
 });
