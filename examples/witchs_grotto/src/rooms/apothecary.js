@@ -890,9 +890,7 @@ apothecary.addItems(
   tap,
   fire,
   bureau,
-  ironGate,
-  strengthPotion,
-  matchbook
+  ironGate
 );
 
 apothecary.setEast(
