@@ -1,3 +1,5 @@
+const vowels = ["a", "e", "i", "o", "u"];
+
 export function getBasicItemList(items) {
   if (items.length < 8) {
     return commaSeparate(items);
@@ -37,4 +39,8 @@ function bulletPointList(items) {
 
 export function toTitleCase(text) {
   return text[0].toUpperCase() + text.slice(1);
+}
+
+export function getArticle(name) {
+  return `a${vowels.includes(name.toLowerCase()[0]) ? "n" : ""}`;
 }

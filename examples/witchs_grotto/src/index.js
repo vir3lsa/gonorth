@@ -115,7 +115,7 @@ addEvent(
         return downstairsSounds;
       }
     },
-    () => Math.random() * 20 > 19,
+    () => selectRoom() && Math.random() * 20 > 19,
     0,
     TIMEOUT_TURNS,
     x => x,

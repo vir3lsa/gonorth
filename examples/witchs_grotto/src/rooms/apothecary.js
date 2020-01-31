@@ -28,10 +28,11 @@ import {
   STEP_FAT
 } from "../magic/alchemy";
 import { potionEffects, DRINK } from "../magic/potionEffects";
+import { lowerSpiral } from "./lowerSpiral";
 
 export const apothecary = new Room(
-  "apothecary",
-  "You seem to be in some kind of apothecary or decoction room. There's an enormous open fireplace mostly filled by a large black cauldron. Above it there's an arrangement of pipes that looks as though it's used to fill the cauldron with liquid.\n\nOne wall of the room is lined with shelf upon shelf of vials, jars and bottles. Most but not all have dusty labels with incomprehensible things scrawled on them. Another wall is hidden behind rows and rows of leather-bound books.\n\nOn the cold flagstones under foot there's a pentagram smeared in something brown and old-looking. Behind that there's a wooden bureau strewn with yellowing bits of paper.\n\nThere's an iron gate to the west."
+  "Apothecary",
+  "You seem to be in some kind of apothecary or decoction room. There's an enormous open fireplace mostly filled by a large black cauldron. Above it there's an arrangement of pipes that looks as though it's used to fill the cauldron with liquid.\n\nOne wall of the room is lined with shelf upon shelf of vials, jars and bottles. Most but not all have dusty labels with incomprehensible things scrawled on them. Another wall is hidden behind rows and rows of leather-bound books.\n\nOn the cold flagstones under foot there's a pentagram smeared in something brown and old-looking. Behind that there's a wooden bureau strewn with yellowing bits of paper.\n\nThere's an iron gate to the east."
 );
 
 const bureau = new Item(
@@ -810,37 +811,61 @@ addEvent(
   )
 );
 
-const gate = new Door(
+export const ironGate = new Door(
   "gate",
-  "The wrought iron gate stands between you and a sharply curving corridor beyond. It's locked with a rusty padlock and is attached to the wall by two rusty hinges. All of these look like they could fail imminently.",
+  () => {
+    if (ironGate.broken) {
+      return "The broken gate is leaning against the wall where you left it, after ripping it from its hinges.";
+    } else {
+      return `The wrought iron gate stands between you and ${
+        selectRoom().name === "Apothecary"
+          ? "a sharply curving corridor"
+          : "a cluttered-looking room"
+      } beyond. It's locked with a rusty padlock and is attached to the wall by two rusty hinges. All of these look like they could fail imminently.`;
+    }
+  },
   false,
   true
 );
 
-const hinges = new Item(
-  "hinges",
-  "The hinges are are a mess of red rust and have almost completely worn through. They look very weak."
-);
+const hinges = new Item("hinges", () => {
+  if (ironGate.broken) {
+    return "The hinges have snapped right through, parts of them still attached to the stone wall.";
+  } else {
+    return "The hinges are are a mess of red rust and have almost completely worn through. They look very weak.";
+  }
+});
 hinges.aliases = ["hinge"];
 
-const padlock = new Item(
-  "padlock",
-  "The padlock has certainly seen better days. There's no part of it that isn't covered in rust."
-);
+const padlock = new Item("padlock", () => {
+  if (ironGate.broken) {
+    return "The rusty padlock snapped under the immense pressure you put on it. Its mangled remains lie on the floor.";
+  } else {
+    return "The padlock has certainly seen better days. There's no part of it that isn't covered in rust.";
+  }
+});
 padlock.aliases = ["lock"];
 
-gate.hidesItems = [hinges, padlock];
+ironGate.verbs.examine.onSuccess.insertAction(
+  () => {
+    if (!lowerSpiral.items["padlock"]) {
+      lowerSpiral.addItems(padlock, hinges);
+    }
+  } // Add hidden items to adjacent room too
+);
+
+ironGate.hidesItems = [hinges, padlock];
 
 const breakVerb = new Verb(
   "break",
-  () => selectPlayer().strong && !gate.broken,
+  () => selectPlayer().strong && !ironGate.broken,
   [
-    () => (gate.broken = true),
+    () => (ironGate.broken = true),
     "Flexing your bulging muscles, you grab hold of the iron bars of the gate and pull with all your might. It turns out all your might wasn't required as the padlock and hinges snap easily under the force of your exaggerated strength and you topple backwards, landing clumsily with the gate on top of you.",
     "You get up, dust yourself off, and lean the liberated gate against the wall."
   ],
   () => {
-    if (gate.broken) {
+    if (ironGate.broken) {
       return "The gate's already broken! You ripped it from its hinges, remember?";
     } else {
       return "You grab hold of the iron bars of the gate and pull with all your might. Unfortunately, it's not enough. The padlock and hinges both hold firm. If only you weren't quite such a weakling.";
@@ -849,9 +874,12 @@ const breakVerb = new Verb(
   ["pull", "snap", "destroy", "smash", "kick"]
 );
 
-gate.addVerb(breakVerb);
+ironGate.addVerb(breakVerb);
 padlock.addVerb(breakVerb);
 hinges.addVerb(breakVerb);
+
+// Have to add gate to adjacent room here to avoid circular dependencies
+lowerSpiral.addItem(ironGate);
 
 apothecary.addItems(
   bookShelf,
@@ -862,7 +890,14 @@ apothecary.addItems(
   tap,
   fire,
   bureau,
-  gate,
+  ironGate,
   strengthPotion,
   matchbook
+);
+
+apothecary.setEast(
+  lowerSpiral,
+  () => ironGate.broken,
+  "Glancing at the evidence of your physical might leaning against the wall you step casually through the gateway.",
+  "The gate is locked with a large, albeit rusty, padlock."
 );

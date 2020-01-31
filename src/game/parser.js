@@ -8,7 +8,7 @@ import {
   selectInventory,
   selectKeywords
 } from "../utils/selectors";
-import { toTitleCase } from "../utils/textFunctions";
+import { toTitleCase, getArticle } from "../utils/textFunctions";
 
 // Record the possible matches we find
 let registeredItem;
@@ -171,7 +171,9 @@ export class Parser {
         }
       } else if (this.registeredItem) {
         // The item exists elsewhere
-        message = `You don't see a ${this.registeredItem} here.`;
+        message = `You don't see ${getArticle(this.registeredItem)} ${
+          this.registeredItem
+        } here.`;
       } else {
         // The item doesn't (yet) exist anywhere
         message = `You don't seem able to ${this.registeredVerb} that.`;
@@ -182,7 +184,9 @@ export class Parser {
         message = `You can't easily do that to the ${this.registeredItem}.`;
       } else if (this.registeredItem) {
         // The item's elsewhere
-        message = `You don't see a ${this.registeredItem} here.`;
+        message = `You don't see ${getArticle(this.registeredItem)} ${
+          this.registeredItem
+        } here.`;
       } else {
         // Neither the verb nor the item exists
         message = `You shake your head in confusion.`;

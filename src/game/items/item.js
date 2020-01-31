@@ -2,11 +2,13 @@ import { Text, RandomText } from "../interactions/text";
 import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
 import { selectInventory } from "../../utils/selectors";
-import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
+import {
+  getBasicItemList,
+  toTitleCase,
+  getArticle
+} from "../../utils/textFunctions";
 import { getStore } from "../../redux/storeRegistry";
 import { itemsRevealed } from "../../redux/gameActions";
-
-const vowels = ["a", "e", "i", "o", "u"];
 
 export function newItem(config) {
   const item = new Item();
@@ -122,7 +124,7 @@ export class Item {
 
   set name(name) {
     this._name = name;
-    this.article = `a${vowels.includes(name[0]) ? "n" : ""}`;
+    this.article = getArticle(name);
   }
 
   get description() {

@@ -12,24 +12,27 @@ history[0] = "";
 const captureInput = event => {
   if (event.key === "Enter" && reactionTimePassed()) {
     const value = event.target.value;
-    receiveInput(value);
 
-    // Reset input
-    event.target.value = "";
+    if (value && value.length) {
+      receiveInput(value);
 
-    // Record history
-    if (!history.length || value !== history[1]) {
-      history.unshift(value);
-      history[1] = value; // In case we didn't have a working value
+      // Reset input
+      event.target.value = "";
+
+      // Record history
+      if (!history.length || value !== history[1]) {
+        history.unshift(value);
+        history[1] = value; // In case we didn't have a working value
+      }
+
+      if (history.length > maxHistory + 1) {
+        history = history.slice(0, maxHistory + 1);
+      }
+
+      // Blank the working value
+      history[0] = "";
+      historyIndex = 0;
     }
-
-    if (history.length > maxHistory + 1) {
-      history = history.slice(0, maxHistory + 1);
-    }
-
-    // Blank the working value
-    history[0] = "";
-    historyIndex = 0;
   }
 };
 

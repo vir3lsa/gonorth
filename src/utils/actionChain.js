@@ -45,6 +45,12 @@ export class ActionChain {
     );
   }
 
+  insertAction(action) {
+    this._actions.unshift(
+      this.toChainableFunction(action, 0, [action, ...this._actions])
+    );
+  }
+
   dispatchAppend(text, options, nextIfNoOptions, clearPage) {
     const interactionType = clearPage ? Interaction : Append;
 
