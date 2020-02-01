@@ -26,10 +26,10 @@ setIntro(
   "Now's your chance. Quickly! Make your escape whilst the witch is out."
 );
 
-// setStartingRoom(cellar);
+setStartingRoom(cellar);
 // setStartingRoom(flue);
 // setStartingRoom(cupboard);
-setStartingRoom(apothecary);
+// setStartingRoom(apothecary);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");

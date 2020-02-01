@@ -160,15 +160,23 @@ export class Verb {
 
 export class GoVerb extends Verb {
   constructor(name, aliases, isKeyword = false) {
+    const getAdjacent = name => selectRoom().adjacentRooms[name.toLowerCase()];
     super(
       name,
       () => {
-        const adjacentRoom = selectRoom().adjacentRooms[name.toLowerCase()];
+        const adjacentRoom = getAdjacent(name);
         return adjacentRoom && adjacentRoom.test();
       },
-      [`Going ${name}.`, () => selectRoom().go(name)],
       () => {
-        const adjacentRoom = selectRoom().adjacentRooms[name.toLowerCase()];
+        const adjacentRoom = getAdjacent(name);
+        const goActionChain = selectRoom().go(name);
+        const goText =
+          (adjacentRoom && adjacentRoom.successText) || `Going ${name}.`;
+        goActionChain.insertAction(goText);
+        return goActionChain;
+      },
+      () => {
+        const adjacentRoom = getAdjacent(name);
         return (
           (adjacentRoom && adjacentRoom.failureText) || "You can't go that way."
         );
