@@ -20,16 +20,18 @@ import { hottingUp } from "./rooms/insideOven";
 import { apothecary, strengthTimer } from "./rooms/apothecary";
 import { RandomText } from "../../../lib/game/interactions/text";
 import { selectRoom } from "../../../lib/gonorth";
+import { lowerSpiral } from "./rooms/lowerSpiral";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
   "Now's your chance. Quickly! Make your escape whilst the witch is out."
 );
 
-setStartingRoom(cellar);
+// setStartingRoom(cellar);
 // setStartingRoom(flue);
 // setStartingRoom(cupboard);
 // setStartingRoom(apothecary);
+setStartingRoom(lowerSpiral);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");

@@ -191,7 +191,7 @@ let describeCauldronContents;
 
 const cauldron = new Item("cauldron", () => {
   const basic =
-    "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire - the space is already occupied by a few sturdy logs and some smaller kindling. There's a tap at the bottom cauldron to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through the wall. There's apparatus above the cauldron for filling it with a range of liquids.";
+    "A large cast-iron pot that fills the fireplace. It stands on three stubby legs and has space beneath it to light a fire - the space is already occupied by a few sturdy logs and some smaller kindling. There's also a metal cover that can be pulled over to extinguish the fire. At the bottom of the cauldron there's a tap to let the contents drain away into a stone channel in the floor that runs down one side of the room and disappears through the wall. There's apparatus above the cauldron for filling it with a range of liquids.";
 
   const detail = describeCauldronContents();
 
@@ -780,7 +780,7 @@ const ignite = newVerb({
     () => (fire.lit = true),
     "Striking one of the big matches against the rough paper, you carefully lower it towards the kindling as its small flame ignites. After a moment or two the kindling catches and begins to crackle as the flames quickly spread. Before too long the logs are smouldering and you can feel the heat radiating from the small blaze."
   ],
-  onFailire: "The fire's already roaring.",
+  onFailure: "The fire's already roaring.",
   aliases: ["ignite"],
   prepositional: true,
   interrogative: "with what"
@@ -793,12 +793,34 @@ const extinguish = newVerb({
       fire.description = unlitDesc;
     },
     () => (fire.lit = false),
-    "You pull the metal cover over the fire to put it out."
+    "You pull the metal cover over the fire to put it out. Satisfied, you return the cover to its normal position."
   ],
-  onFailire: "The fire isn't lit.",
+  onFailure: "The fire isn't lit.",
   aliases: ["put out"]
 });
 fire.addVerbs(ignite, extinguish);
+
+const cover = new Item(
+  "cover",
+  "A metal cover that can be pulled over the fire to cut off its air supply and extinguish it. Fortunately, the handles are wooden."
+);
+cover.aliases = ["fire cover"];
+cover.addVerb(
+  newVerb({
+    name: "close",
+    test: () => fire.lit,
+    onSuccess: [
+      () => {
+        fire.description = unlitDesc;
+      },
+      () => (fire.lit = false),
+      "You pull the metal cover over the fire to put it out. Satisfied, you return the cover to its normal position."
+    ],
+    onFailure: "The fire isn't lit.",
+    aliases: ["pull", "use"]
+  })
+);
+cauldron.hidesItems = [cover];
 
 addEvent(
   new Event(
