@@ -4,7 +4,7 @@ import {
   addEvent,
   attach,
   goToStartingRoom,
-  setStartingRoom
+  setStartingRoom,
 } from "./gonorth";
 import { unregisterStore, getStore } from "./redux/storeRegistry";
 import { initStore } from "./redux/store";
@@ -23,9 +23,7 @@ jest.mock("./utils/consoleIO");
 const consoleIO = require("./utils/consoleIO");
 
 const clickNext = () =>
-  getStore()
-    .getState()
-    .game.interaction.options[0].action();
+  getStore().getState().game.interaction.options[0].action();
 
 let game, x, y, room;
 
@@ -78,7 +76,7 @@ describe("Game class", () => {
       await clickNext();
     });
     await receiveInput("shimmy");
-    expect(selectTurn()).toBe(2);
+    expect(selectTurn()).toBe(3);
   });
 
   describe("events", () => {
