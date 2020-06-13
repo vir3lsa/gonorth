@@ -118,7 +118,7 @@ describe("Game class", () => {
     it("triggers timed events after the timeout has passed", () => {
       addEvent(new Event(() => x++, true, 10, TIMEOUT_MILLIS));
       handleTurnEnd();
-      return new Promise(resolve =>
+      return new Promise((resolve) =>
         setTimeout(() => {
           expect(x).toBe(1);
           resolve();
