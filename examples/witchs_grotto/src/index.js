@@ -11,7 +11,7 @@ import {
   Route,
   TIMEOUT_TURNS,
   Event,
-  addEvent,
+  addEvent
 } from "../../../lib/gonorth";
 import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
@@ -111,7 +111,7 @@ addEvent(
           "Dining Room",
           "Entrance Hall",
           "Pantry",
-          "South Hall",
+          "South Hall"
         ]
       ) {
         return upstairsSounds;
@@ -122,7 +122,7 @@ addEvent(
     () => selectRoom() && Math.random() * 20 > 19,
     0,
     TIMEOUT_TURNS,
-    (x) => x,
+    x => x,
     true
   )
 );

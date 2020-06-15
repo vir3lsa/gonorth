@@ -4,7 +4,7 @@ import {
   addEvent,
   attach,
   goToStartingRoom,
-  setStartingRoom,
+  setStartingRoom
 } from "./gonorth";
 import { unregisterStore, getStore } from "./redux/storeRegistry";
 import { initStore } from "./redux/store";
@@ -23,7 +23,9 @@ jest.mock("./utils/consoleIO");
 const consoleIO = require("./utils/consoleIO");
 
 const clickNext = () =>
-  getStore().getState().game.interaction.options[0].action();
+  getStore()
+    .getState()
+    .game.interaction.options[0].action();
 
 let game, x, y, room;
 
@@ -68,15 +70,23 @@ describe("Game class", () => {
     expect(chain.options[0].label).toBe("do it");
   });
 
+  /*
+   * First turn is turn 1.
+   * Going to starting room shouldn't increment turn.
+   * Turn should only increment once at the very end of the chain.
+   * End turn should therefore be 2.
+   * In Node 12 it ends on 3?? Why?
+   */
   it("increments the turn at the end of a chain", async () => {
     room.addVerb(new Verb("shimmy", true, ["one", "two", "three"]));
     goToStartingRoom();
+    expect(selectTurn()).toBe(1);
     setTimeout(async () => {
       await clickNext();
       await clickNext();
     });
     await receiveInput("shimmy");
-    expect(selectTurn()).toBe(3);
+    expect(selectTurn()).toBe(2);
   });
 
   describe("events", () => {
@@ -86,23 +96,11 @@ describe("Game class", () => {
 
     it("triggers events with no timeout when the condition is met", () => {
       x = 10;
-      eventTest(
-        new Event(
-          () => x++,
-          () => x === 10
-        ),
-        () => x === 11
-      );
+      eventTest(new Event(() => x++, () => x === 10), () => x === 11);
     });
 
     it("does not trigger events when the condition is not met", () => {
-      eventTest(
-        new Event(
-          () => x++,
-          () => x === 10
-        ),
-        () => x === 0
-      );
+      eventTest(new Event(() => x++, () => x === 10), () => x === 0);
     });
 
     it("does not trigger timed events immediately", () => {
@@ -118,7 +116,7 @@ describe("Game class", () => {
     it("triggers timed events after the timeout has passed", () => {
       addEvent(new Event(() => x++, true, 10, TIMEOUT_MILLIS));
       handleTurnEnd();
-      return new Promise((resolve) =>
+      return new Promise(resolve =>
         setTimeout(() => {
           expect(x).toBe(1);
           resolve();
