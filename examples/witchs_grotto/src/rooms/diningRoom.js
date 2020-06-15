@@ -20,7 +20,7 @@ beadCurtain.aliases = ["curtain", "beads", "moon and stars", "moon", "stars"];
 diningRoom.addItem(beadCurtain);
 nook.addItem(beadCurtain);
 
-diningRoom.add(pictures);
+diningRoom.addItem(pictures);
 
 diningRoom.setWest(
   nook,
