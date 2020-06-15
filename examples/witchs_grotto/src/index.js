@@ -11,7 +11,7 @@ import {
   Route,
   TIMEOUT_TURNS,
   Event,
-  addEvent
+  addEvent,
 } from "../../../lib/gonorth";
 import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
@@ -21,6 +21,7 @@ import { apothecary, strengthTimer } from "./rooms/apothecary";
 import { RandomText } from "../../../lib/game/interactions/text";
 import { selectRoom } from "../../../lib/gonorth";
 import { lowerSpiral } from "./rooms/lowerSpiral";
+import { nook } from "./rooms/nook";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
@@ -31,7 +32,8 @@ setIntro(
 // setStartingRoom(flue);
 // setStartingRoom(cupboard);
 // setStartingRoom(apothecary);
-setStartingRoom(lowerSpiral);
+// setStartingRoom(lowerSpiral);
+setStartingRoom(nook);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
@@ -109,7 +111,7 @@ addEvent(
           "Dining Room",
           "Entrance Hall",
           "Pantry",
-          "South Hall"
+          "South Hall",
         ]
       ) {
         return upstairsSounds;
@@ -120,7 +122,7 @@ addEvent(
     () => selectRoom() && Math.random() * 20 > 19,
     0,
     TIMEOUT_TURNS,
-    x => x,
+    (x) => x,
     true
   )
 );
