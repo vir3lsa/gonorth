@@ -22,6 +22,7 @@ import { RandomText } from "../../../lib/game/interactions/text";
 import { selectRoom } from "../../../lib/gonorth";
 import { lowerSpiral } from "./rooms/lowerSpiral";
 import { nook } from "./rooms/nook";
+import { southHall } from "./rooms/southHall";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
@@ -33,7 +34,8 @@ setIntro(
 // setStartingRoom(cupboard);
 // setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
-setStartingRoom(nook);
+// setStartingRoom(nook);
+setStartingRoom(southHall);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
