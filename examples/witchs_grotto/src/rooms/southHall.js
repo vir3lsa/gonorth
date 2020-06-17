@@ -1,10 +1,10 @@
-import { Room, Door } from "../../../../lib/gonorth";
-import { bedroom } from "./bedroom";
+import { Room, Door, selectPlayer } from "../../../../lib/gonorth";
+import { staircase } from "./staircase";
 import { upperSpiral } from "./upperSpiral";
 
 export const southHall = new Room(
   "South Hall",
-  "You find yourself in a long corridor with pretensions of grandeur. There's a worn and dusty red rug lining much of its length and a large grandfather clock stands in one corner, balefully ticking off the seconds as they pass. There are no windows, but several candles in ornate wall sconces cast a flickering yellow light. The ceiling is some way above you, lost in shadow. You get the queasy feeling something's up there, staring down at you from its hiding place in the dark.\n\nThere are four ways leading out of here. To the north is an archway leading to the main hall. On the West wall there's a white painted door, whilst to the East there's a decoratively varnished door. There's a rickety wooden door to the South."
+  "You find yourself in a long corridor with pretensions of grandeur. There's a worn and dusty red rug lining much of its length and a large grandfather clock stands in one corner, balefully ticking off the seconds as they pass. There are no windows, but several candles in ornate wall sconces cast a flickering yellow light. The ceiling is some way above you, lost in shadow. You get the queasy feeling something's up there, staring down at you from its hiding place in the dark.\n\nThere are four ways leading out of here. To the north is an archway leading to the main hall. On the West wall there's a white painted door, whilst to the East there's an impossibly long and narrow staircase leading upwards into inky shadows. There's a rickety wooden door to the South."
 );
 
 const ricketyDoor = new Door(
@@ -17,7 +17,18 @@ const ricketyDoor = new Door(
 southHall.addItems(ricketyDoor);
 upperSpiral.addItems(ricketyDoor);
 
-southHall.setEast(bedroom);
+southHall.setEast(staircase, true, null, null, false);
+southHall.setUp(staircase, true, null, null, false);
+
+const descendStairsActions = [
+  () => (staircase.stage = 0),
+  "You turn to descend the stairs and find yourself immediately back in the Southern hall."
+];
+
+// Set stairs directions here to avoid circular dependencies
+staircase.setWest(southHall, true, descendStairsActions, null, false);
+staircase.setDown(southHall, true, descendStairsActions, null, false);
+
 southHall.setSouth(
   upperSpiral,
   () => ricketyDoor.open,

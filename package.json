@@ -1,7 +1,7 @@
 {
   "name": "gonorth",
   "version": "0.0.1",
-  "description": "A text adventure game engine",
+  "description": "",
   "main": "./lib/gonorth.js",
   "scripts": {
     "build": "babel src --out-dir lib --ignore '**/*.test.js' --source-maps 'inline'",
@@ -11,11 +11,7 @@
     "play-grotto-server": "webpack --config 'examples/witchs_grotto/webpack.config.server.js' && node examples/witchs_grotto/dist-server/main.js",
     "postinstall": "patch-package"
   },
-  "keywords": [
-    "text",
-    "adventure",
-    "parser"
-  ],
+  "keywords": [],
   "author": "Rich Locke",
   "license": "GPL-3.0",
   "repository": {

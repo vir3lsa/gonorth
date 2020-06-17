@@ -51,6 +51,10 @@ export class ActionChain {
     );
   }
 
+  insertActions(...actions) {
+    actions.reverse().forEach(action => this.insertAction(action));
+  }
+
   dispatchAppend(text, options, nextIfNoOptions, clearPage) {
     const interactionType = clearPage ? Interaction : Append;
 
