@@ -21,8 +21,15 @@ southHall.setEast(staircase, true, null, null, false);
 southHall.setUp(staircase, true, null, null, false);
 
 const descendStairsActions = [
-  () => (staircase.stage = 0),
-  "You turn to descend the stairs and find yourself immediately back in the Southern hall."
+  () => {
+    const text =
+      "You turn to descend the stairs and, after just a few steps, find yourself back in the Southern hall.";
+    if (staircase.stage >= 3) {
+      return `${text} What trickery is this?`;
+    }
+    return text;
+  },
+  () => (staircase.stage = 0)
 ];
 
 // Set stairs directions here to avoid circular dependencies
