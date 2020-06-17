@@ -1,7 +1,6 @@
-import { Room, selectPlayer } from "../../../../lib/gonorth";
+import { Room } from "../../../../lib/gonorth";
 
 export const staircase = new Room("Staircase", () => {
-  console.log(`StairsStage: ${staircase.stage}`);
   staircase.stage++;
 
   switch (staircase.stage) {
