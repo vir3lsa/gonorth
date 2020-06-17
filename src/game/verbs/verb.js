@@ -170,9 +170,11 @@ export class GoVerb extends Verb {
       () => {
         const adjacentRoom = getAdjacent(name);
         const goActionChain = selectRoom().go(name);
-        const goText =
-          (adjacentRoom && adjacentRoom.successText) || `Going ${name}.`;
-        goActionChain.insertAction(goText);
+        const onSuccess = (adjacentRoom && adjacentRoom.onSuccess) || [
+          `Going ${name}.`
+        ];
+
+        goActionChain.insertActions(...onSuccess);
         return goActionChain;
       },
       () => {

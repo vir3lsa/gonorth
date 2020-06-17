@@ -29,7 +29,7 @@ export class Room extends Item {
     return this._options;
   }
 
-  addAdjacentRoom(room, directionName, navigable, successText, failureText) {
+  addAdjacentRoom(room, directionName, navigable, onSuccess, failureText) {
     let test = navigable;
 
     if (typeof navigable === "undefined") {
@@ -40,12 +40,14 @@ export class Room extends Item {
       test = () => navigable.open;
     }
 
+    const onSuccessArray =
+      !onSuccess || Array.isArray(onSuccess) ? onSuccess : [onSuccess];
     const direction = directionName.toLowerCase();
     const aliases = [direction, ...(directionAliases[direction] || [])];
     const directionObject = {
       room,
       test,
-      successText,
+      onSuccess: onSuccessArray,
       failureText,
       direction
     };
@@ -61,57 +63,57 @@ export class Room extends Item {
     }
   }
 
-  setNorth(room, navigable, successText, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "north", navigable, successText, failureText);
+  setNorth(room, navigable, onSuccess, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "north", navigable, onSuccess, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setSouth(this, navigable, successText, failureText, false);
+      room.setSouth(this, navigable, onSuccess, failureText, false);
     }
   }
 
-  setSouth(room, navigable, successText, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "south", navigable, successText, failureText);
+  setSouth(room, navigable, onSuccess, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "south", navigable, onSuccess, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setNorth(this, navigable, successText, failureText, false);
+      room.setNorth(this, navigable, onSuccess, failureText, false);
     }
   }
 
-  setEast(room, navigable, successText, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "east", navigable, successText, failureText);
+  setEast(room, navigable, onSuccess, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "east", navigable, onSuccess, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setWest(this, navigable, successText, failureText, false);
+      room.setWest(this, navigable, onSuccess, failureText, false);
     }
   }
 
-  setWest(room, navigable, successText, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "west", navigable, successText, failureText);
+  setWest(room, navigable, onSuccess, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "west", navigable, onSuccess, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setEast(this, navigable, successText, failureText, false);
+      room.setEast(this, navigable, onSuccess, failureText, false);
     }
   }
 
-  setUp(room, navigable, successText, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "up", navigable, successText, failureText);
+  setUp(room, navigable, onSuccess, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "up", navigable, onSuccess, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setDown(this, navigable, successText, failureText, false);
+      room.setDown(this, navigable, onSuccess, failureText, false);
     }
   }
 
-  setDown(room, navigable, successText, failureText, addInverse = true) {
-    this.addAdjacentRoom(room, "down", navigable, successText, failureText);
+  setDown(room, navigable, onSuccess, failureText, addInverse = true) {
+    this.addAdjacentRoom(room, "down", navigable, onSuccess, failureText);
 
     if (addInverse && room) {
       // Adjacent rooms are bidirectional by default
-      room.setUp(this, navigable, successText, failureText, false);
+      room.setUp(this, navigable, onSuccess, failureText, false);
     }
   }
 
@@ -162,7 +164,9 @@ export class Room extends Item {
         const titleCasePrep = toTitleCase(container.preposition);
         const list = container.basicItemList;
         description += description.length ? "\n\n" : "";
-        description += `${titleCasePrep} the ${container.name} there's ${list}.`;
+        description += `${titleCasePrep} the ${
+          container.name
+        } there's ${list}.`;
       });
 
     if (plainList.length) {

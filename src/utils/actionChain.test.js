@@ -15,3 +15,11 @@ test("action chain ends early if action fails", async () => {
   await chain.chain();
   expect(x).toBe(2);
 });
+
+test("multiple new actions can be inserted at the beginning", async () => {
+  let x = 1;
+  const chain = new ActionChain(() => x++, () => x++);
+  chain.insertActions(() => (x *= -1), () => (x *= 2));
+  await chain.chain();
+  expect(x).toBe(0);
+});

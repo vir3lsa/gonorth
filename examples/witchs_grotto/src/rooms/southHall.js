@@ -17,8 +17,18 @@ const ricketyDoor = new Door(
 southHall.addItems(ricketyDoor);
 upperSpiral.addItems(ricketyDoor);
 
-southHall.setEast(staircase, true, () => (selectPlayer().stairsStage = 0));
-southHall.setUp(staircase, true, () => (selectPlayer().stairsStage = 0));
+southHall.setEast(staircase, true, null, null, false);
+southHall.setUp(staircase, true, null, null, false);
+
+const descendStairsActions = [
+  () => (staircase.stage = 0),
+  "You turn to descend the stairs and find yourself immediately back in the Southern hall."
+];
+
+// Set stairs directions here to avoid circular dependencies
+staircase.setWest(southHall, true, descendStairsActions, null, false);
+staircase.setDown(southHall, true, descendStairsActions, null, false);
+
 southHall.setSouth(
   upperSpiral,
   () => ricketyDoor.open,
