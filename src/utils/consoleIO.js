@@ -1,9 +1,16 @@
 import { receiveInput } from "./inputReceiver";
+import { selectDebugMode } from "./selectors";
 
 let promptPromise;
 
 export const output = text => {
   console.log(text);
+};
+
+export const debug = text => {
+  if (selectDebugMode()) {
+    output(text);
+  }
 };
 
 export const isPromptActive = () => {

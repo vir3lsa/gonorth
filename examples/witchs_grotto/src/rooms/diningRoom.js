@@ -6,10 +6,33 @@ export const diningRoom = new Room(
   "The room is long and thin and is dominated by a large, if plain, table, marking this out as the dining room. Several candles flicker gently at evenly-spaced intervals along the table. Three places have been set with plates, cutlery and large wine goblets. Is the witch expecting guests?\n\nDown one wall is a long wooden cabinet, and various pictures adorn the walls.\n\nAt the rear of the room, a bead curtain with a moon and stars motif leads Westwards, and an archway opens onto the kitchen to the East."
 );
 
+const crossStitch = new Item(
+  "cross-stitch",
+  `It looks home-made, but you can hardly imagine the witch, terrible as she is, sitting down with needle and thread and producing such a jolly piece. It depicts a menagerie of animals, as well as the words:
+
+## Dolittle Decoction
+
+Ingredients      | Process
+:----------------|:------------------------------------------
+Devil's Claw     |
+Worm-eaten fruit |
+Pebbles          |
+Bladderwrack     |`,
+  true
+);
+
 const pictures = new Item(
   "pictures",
-  "There's a disturbing oil painting depicting a stern-looking woman standing over a child who's fallen in the mud and an incongruously cheery cross-stitch. The others don't particularly catch your eye."
+  () =>
+    `There's a disturbing oil painting depicting a stern-looking woman standing over a child who's fallen in the mud${
+      diningRoom.items[crossStitch.name.toLowerCase()]
+        ? ", and an incongruously cheery cross-stitch"
+        : ""
+    }. The others don't particularly catch your eye.`
 );
+pictures.aliases = "paintings";
+pictures.hidesItems = crossStitch;
+diningRoom.addItem(pictures);
 
 const beadCurtain = new Item(
   "bead curtain",
@@ -19,8 +42,6 @@ beadCurtain.aliases = ["curtain", "beads", "moon and stars", "moon", "stars"];
 
 diningRoom.addItem(beadCurtain);
 nook.addItem(beadCurtain);
-
-diningRoom.addItem(pictures);
 
 diningRoom.setWest(
   nook,

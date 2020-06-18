@@ -9,6 +9,7 @@ import {
 } from "../../utils/textFunctions";
 import { getStore } from "../../redux/storeRegistry";
 import { itemsRevealed } from "../../redux/gameActions";
+import { debug } from "../../utils/consoleIO";
 
 export function newItem(config) {
   const item = new Item();
@@ -103,11 +104,15 @@ export class Item {
         ],
         (helper, other) => {
           if (other === this) {
-            return `You can't put the ${this.name} ${other.preposition} itself. That would be nonsensical.`;
+            return `You can't put the ${this.name} ${
+              other.preposition
+            } itself. That would be nonsensical.`;
           } else if (other.canHoldItems) {
             return `There's no room ${other.preposition} the ${other.name}.`;
           } else {
-            return `You can't put the ${this.name} ${other.preposition} the ${other.name}.`;
+            return `You can't put the ${this.name} ${other.preposition} the ${
+              other.name
+            }.`;
           }
         },
         ["place", "drop"]
@@ -263,10 +268,17 @@ export class Item {
    */
   revealItems() {
     if (!this.itemsRevealed && this.container) {
+      debug(`${this.name}: Revealing items`);
       this.hidesItems.forEach(item => {
-        if (item.holdable) {
+        if (item.holdable && this.canHoldItems) {
+          debug(`${this.name}: Adding holdable item ${item.name} to self`);
           this.addItem(item);
         } else {
+          debug(
+            `${this.name}: Adding item ${item.name} to parent container ${
+              this.container.name
+            } because either it isn't holdable or I am not a container`
+          );
           this.container.addItem(item); // Don't want non-holdable item to be listed
         }
       });

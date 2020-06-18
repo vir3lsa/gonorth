@@ -23,6 +23,7 @@ import { selectRoom } from "../../../lib/gonorth";
 import { lowerSpiral } from "./rooms/lowerSpiral";
 import { nook } from "./rooms/nook";
 import { southHall } from "./rooms/southHall";
+import { diningRoom } from "./rooms/diningRoom";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
@@ -35,7 +36,8 @@ setIntro(
 // setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
 // setStartingRoom(nook);
-setStartingRoom(southHall);
+// setStartingRoom(southHall);
+setStartingRoom(diningRoom);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
