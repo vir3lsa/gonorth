@@ -10,16 +10,17 @@ const crossStitch = new Item(
   "cross-stitch",
   `It looks home-made, but you can hardly imagine the witch, terrible as she is, sitting down with needle and thread and producing such a jolly piece. It depicts a menagerie of animals, as well as the words:
 
-## Dolittle Decoction
-
-Ingredients      | Process
-:----------------|:------------------------------------------
-Devil's Claw     |
-Worm-eaten fruit |
-Pebbles          |
-Bladderwrack     |`,
+| Dolittle Decoction                           |
+|:--------------------------------------------:|
+| ***                                          |
+| Start by concocting the Essence of Moon.     |
+| Add devil's claw and some worm-eaten fruit.  |
+| Apply heat and stir until the bubbling stops.|
+| Add crushed crow skull powder and stir in.   |
+| Intone the Beastly Incantation.              |`,
   true
 );
+crossStitch.aliases = ["cross"];
 
 const pictures = new Item(
   "pictures",
@@ -30,7 +31,7 @@ const pictures = new Item(
         : ""
     }. The others don't particularly catch your eye.`
 );
-pictures.aliases = "paintings";
+pictures.aliases = ["paintings", "pics"];
 pictures.hidesItems = crossStitch;
 diningRoom.addItem(pictures);
 
