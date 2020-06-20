@@ -45,6 +45,13 @@ bureau.itemsCanBeSeen = false;
 bureau.capacity = 10;
 bureau.preposition = "on";
 
+const mortarAndPestle = new Item(
+  "stone mortar and pestle",
+  "A stone bowl and stick, used for grinding ingredients.",
+  true
+);
+mortarAndPestle.aliases = ["mortar", "pestle", "bowl", "grinder"];
+
 const drawers = new Item(
   "drawers",
   "There are three drawers in total, stacked beneath the desk's writing surface, to the right of where one would sit. Each is fitted with an ornate bronze handle."
@@ -60,7 +67,7 @@ drawers.addVerb(
 );
 drawers.capacity = 5;
 
-bureau.hidesItems = drawers;
+bureau.hidesItems = [drawers, mortarAndPestle];
 
 const alchemy = new Alchemy();
 
