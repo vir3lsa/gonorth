@@ -12,6 +12,7 @@ import {
   addEvent,
   RandomText,
   CyclicText,
+  SequentialText,
   Door,
   Schedule
 } from "../../../../lib/gonorth";
@@ -242,7 +243,9 @@ contents.addVerb(
     [
       () => selectInventory().addItem(alchemy.potion),
       () =>
-        `You grab an empty vial from the shelf and carefully fill it with ${alchemy.potion.name}.`
+        `You grab an empty vial from the shelf and carefully fill it with ${
+          alchemy.potion.name
+        }.`
     ],
     () =>
       alchemy.potion
@@ -411,7 +414,9 @@ masterValve.addVerbs(
     [
       () => (masterValve.open = false),
       () =>
-        `You spin the valve wheel back in the other direction to shut off the flow. Sure enough, the sound of rushing liquid ceases and the flow of ${dial.liquid} into the cauldron trickles to a stop.`
+        `You spin the valve wheel back in the other direction to shut off the flow. Sure enough, the sound of rushing liquid ceases and the flow of ${
+          dial.liquid
+        } into the cauldron trickles to a stop.`
     ],
     "The valve is already closed."
   )
@@ -723,6 +728,21 @@ const matchbook = new Item(
 matchbook.aliases = ["matches", "match"];
 matchbook.preposition = "with";
 
+const tornPage = new Item(
+  "torn page",
+  new SequentialText(
+    `A page torn roughly from a book. You can see the end of a sentence you can't make sense of, and then something that looks interesting:
+
+## Essence of Moon
+
+Start with a mixture of two parts fat to one part water.  
+Add a single moonstone.  
+Recite the Lunar Incantation.`,
+    "Scibbled in the margin are the words of the Lunar Incantation. You commit them to memory."
+  )
+);
+tornPage.aliases = ["torn", "page"];
+
 alchemy.addProcedures(mendingProcedure, woodwormProcedure, strengthProcedure);
 
 potionEffects.add(
@@ -735,7 +755,7 @@ potionEffects.add(
     drawers.description =
       "The drawers still don't open but now that the desk top is almost completely gone, you can see clearly inside the top drawer.";
     drawers.exposed = true;
-    drawers.addItem(matchbook);
+    drawers.addItems(matchbook, tornPage);
   },
   "You carefully pour a droplet of the Organic Dissolution Accelerator onto the surface of the desk. Immediately it starts foaming and producing white steam. When it finishes hissing and bubbling, there's a depression the size of a grape in the heavy oak worktop.",
   "You tip the entire contents of the vial onto the bureau, watching in horror and delight as the ferocious substance devours the wood, eating its way right through to the drawers beneath. By the time the potion has done its work, the top of the desk is almost entirely gone and the once-locked drawers are easily accessible."
