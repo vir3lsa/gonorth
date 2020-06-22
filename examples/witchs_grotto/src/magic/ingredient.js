@@ -1,7 +1,10 @@
-import { Item } from "../../../../lib/gonorth";
+import { Item, Verb, selectPlayer } from "../../../../lib/gonorth";
+import { alchemy } from "./alchemy";
+import { cauldron } from "./cauldron";
+import { pestleAndMortar } from "./pestleAndMortar";
 
 export class Ingredient extends Item {
-  constructor(name, description, cauldron, alchemy) {
+  constructor(name, description) {
     super(name, description, true, 1);
     this.article = "";
     this.verbs.put.onSuccess = [
@@ -20,7 +23,9 @@ export class Ingredient extends Item {
         }
       },
       (helper, other) => {
-        const text = `You put some ${this.name} ${other.preposition} the ${other.name}.`;
+        const text = `You put some ${this.name} ${other.preposition} the ${
+          other.name
+        }.`;
 
         if (other === cauldron) {
           const alchemyText = alchemy.addIngredient(this);
@@ -31,5 +36,39 @@ export class Ingredient extends Item {
       }
     ];
     this.verbs.put.addAliases("add");
+
+    const grind = new Verb(
+      "grind",
+      (_, other) => !this.powdered && other === pestleAndMortar,
+      [
+        () => {
+          const name = `${this.name} powder`;
+          if (!selectPlayer().items[name.toLowerCase()]) {
+            const powder = new Ingredient(
+              name,
+              `A sample of ${this.name} that has been ground to a fine dust.`
+            );
+            powder.powdered = true;
+            return selectPlayer().addItem(powder);
+          }
+        },
+        `You carefully crush some of the ${
+          this.name
+        } with the rough stone implements, grinding it down until it forms a fine powder.`
+      ],
+      (_, other) => {
+        if (this.powdered) {
+          return `The ${
+            this.name
+          } is already powdered. There's no point in grinding it further.`;
+        }
+        return `The ${
+          other.name
+        } won't make a very good grinder, unfortunately.`;
+      }
+    );
+    grind.makePrepositional("with what");
+    grind.addAliases("crush");
+    this.addVerb(grind);
   }
 }

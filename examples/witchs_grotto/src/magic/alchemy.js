@@ -31,7 +31,7 @@ const inert = new RandomText(
   "The contents sit dully in the pot. There's no evidence of anything happening."
 );
 
-export class Alchemy {
+class Alchemy {
   constructor() {
     this.procedures = [];
     this.flush();
@@ -229,10 +229,7 @@ export class Alchemy {
     } else if (matchingGroup) {
       if (!matchingGroup.steps.length) {
         // Remove the empty group
-        steps.splice(
-          steps.findIndex(step => step === matchingGroup),
-          1
-        );
+        steps.splice(steps.findIndex(step => step === matchingGroup), 1);
       }
     }
 
@@ -240,10 +237,7 @@ export class Alchemy {
   }
 
   removeStep(steps, matchingStep) {
-    steps.splice(
-      steps.findIndex(step => step === matchingStep),
-      1
-    );
+    steps.splice(steps.findIndex(step => step === matchingStep), 1);
   }
 
   handleNumericStep(amount, matchingStep, steps) {
@@ -378,3 +372,5 @@ export class Potion extends Item {
     this.addVerbs(drink, pour);
   }
 }
+
+export const alchemy = new Alchemy();

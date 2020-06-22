@@ -56,7 +56,7 @@ export class Verb {
   }
 
   /**
-   * @param {boolean | (() => boolean) | undefined} test
+   * @param {boolean | ((helper) => boolean) | undefined} test
    */
   set test(test) {
     if (typeof test === "undefined") {

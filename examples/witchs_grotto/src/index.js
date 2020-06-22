@@ -33,12 +33,12 @@ setIntro(
 // setStartingRoom(cellar);
 // setStartingRoom(flue);
 // setStartingRoom(cupboard);
-// setStartingRoom(apothecary);
+setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
 // setStartingRoom(nook);
 // setStartingRoom(southHall);
 // setStartingRoom(diningRoom);
-setStartingRoom(pantry);
+// setStartingRoom(pantry);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
