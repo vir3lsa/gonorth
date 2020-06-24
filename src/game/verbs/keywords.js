@@ -26,7 +26,7 @@ export function createKeywords() {
         return "You're not holding anything.";
       }
 
-      return `You're carrying ${inventory.basicItemList}.`;
+      return `You're carrying ${inventory.basicItemList()}.`;
     },
     null,
     ["i", "holding", "carrying"],

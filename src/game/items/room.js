@@ -162,7 +162,7 @@ export class Room extends Item {
       .filter(container => container.itemsCanBeSeen)
       .forEach(container => {
         const titleCasePrep = toTitleCase(container.preposition);
-        const list = container.basicItemList;
+        const list = container.basicItemList();
         description += description.length ? "\n\n" : "";
         description += `${titleCasePrep} the ${
           container.name

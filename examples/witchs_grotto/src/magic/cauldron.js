@@ -42,7 +42,7 @@ describeCauldronContents = () => {
     return `There are ingredients inside the cauldron.`;
   } else if (baseAdded) {
     return `There's some kind of liquid inside the cauldron.`;
-  } else if (!cauldron.basicItemList.length) {
+  } else if (!cauldron.basicItemList(false).length) {
     return `There's currently nothing inside the cauldron.`;
   }
 };

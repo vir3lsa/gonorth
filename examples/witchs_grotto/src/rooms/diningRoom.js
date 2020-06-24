@@ -6,6 +6,26 @@ export const diningRoom = new Room(
   "The room is long and thin and is dominated by a large, if plain, table, marking this out as the dining room. Several candles flicker gently at evenly-spaced intervals along the table. Three places have been set with plates, cutlery and large wine goblets. Is the witch expecting guests?\n\nDown one wall is a long wooden cabinet, and various pictures adorn the walls.\n\nAt the rear of the room, a bead curtain with a moon and stars motif leads Westwards, and an archway opens onto the kitchen to the East."
 );
 
+const table = new Item(
+  "table",
+  "It's extremely grand given the relative modestness of the rest of the grotto. It's easily large enough to seat ten people, but places are currently set for three - the head of the table at one end and the two places to either side. Elegant silver cutlery has been laid out, along with fine china plates and crystal wine goblets."
+);
+
+const fruit = new Item(
+  "fruit",
+  "It looks fresh and delicious. The bright colours are made to look even more vibrant by the beads of condensation glistening on the skins."
+);
+fruit.roomListing =
+  "In the middle of table is a large assortment of fruit. All shapes, sizes and colours, there are varieties here you don't even know the names of.";
+
+// TODO Custom take verb for fruit which gives you a 'piece of fruit' but leaves 'fruit' on the table
+
+table.aliases = "dining table";
+table.itemsCanBeSeen = true;
+table.capacity = 20;
+table.preposition = "on";
+table.addItem(fruit);
+
 const crossStitch = new Item(
   "cross-stitch",
   `It looks home-made, but you can hardly imagine the witch, terrible as she is, sitting down with needle and thread and producing such a jolly piece. It depicts a menagerie of animals, as well as the words:
@@ -33,7 +53,7 @@ const pictures = new Item(
 );
 pictures.aliases = ["paintings", "pics"];
 pictures.hidesItems = crossStitch;
-diningRoom.addItem(pictures);
+diningRoom.addItems(pictures, table);
 
 const beadCurtain = new Item(
   "bead curtain",
