@@ -319,18 +319,15 @@ export class Item {
     }
   }
 
-  basicItemList(includeItemsWithRoomListing = true) {
+  get basicItemList() {
     return getBasicItemList(
-      [...this.uniqueItems].filter(
-        item =>
-          (includeItemsWithRoomListing || !item.roomListing) && !item.doNotList
-      )
+      [...this.uniqueItems].filter(item => !item.roomListing && !item.doNotList)
     );
   }
 
   getFullDescription() {
     let description = this.description;
-    const itemList = this.basicItemList(false);
+    const itemList = this.basicItemList;
     const uniqueItemList = [...this.uniqueItems];
     const roomListings = uniqueItemList
       .filter(item => item.roomListing)

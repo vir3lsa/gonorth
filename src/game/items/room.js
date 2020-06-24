@@ -8,6 +8,7 @@ import { ActionChain } from "../../utils/actionChain";
 import { goToRoom } from "../../gonorth";
 import { getKeyword, addKeyword, directionAliases } from "../verbs/keywords";
 import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
+import { debug } from "../../utils/consoleIO";
 
 export class Room extends Item {
   constructor(name, description, options) {
@@ -146,14 +147,23 @@ export class Room extends Item {
   }
 
   get itemListings() {
+    debug(`Listing items in ${this.name}.`);
     let description = "";
     const plainList = []; // Items with no room listing
 
     this.uniqueItems.forEach(item => {
       if (item.roomListing) {
+        debug(`Using ${item.name}'s room listing.`);
         description += `${item.roomListing} `;
       } else if (item.holdable) {
+        debug(`Will simply list ${item.name} as it is holdable.`);
         plainList.push(item); // We'll list this item separately
+      } else {
+        debug(
+          `${
+            item.name
+          } is not holdable and doesn't have a room listing so won't be listed.`
+        );
       }
     });
 
@@ -161,12 +171,27 @@ export class Room extends Item {
       .filter(item => Object.keys(item.items).length)
       .filter(container => container.itemsCanBeSeen)
       .forEach(container => {
+        debug(`Listing ${container.name}'s items as they are visible.`);
+        const describedItems = Object.values(container.items).filter(
+          item => item.roomListing
+        );
+        debug(`Found ${describedItems.length} item(s) with room listings.`);
+        const roomListings = describedItems
+          .map(item => item.roomListing)
+          .join(" ");
         const titleCasePrep = toTitleCase(container.preposition);
-        const list = container.basicItemList();
+        const list = container.basicItemList;
+
         description += description.length ? "\n\n" : "";
-        description += `${titleCasePrep} the ${
-          container.name
-        } there's ${list}.`;
+        description += roomListings;
+
+        if (list.length) {
+          debug("Found a basic list of items");
+          description += description.length ? "\n\n" : "";
+          description += `${titleCasePrep} the ${
+            container.name
+          } there's ${list}.`;
+        }
       });
 
     if (plainList.length) {

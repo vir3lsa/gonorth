@@ -16,7 +16,7 @@ const fruit = new Item(
   "It looks fresh and delicious. The bright colours are made to look even more vibrant by the beads of condensation glistening on the skins."
 );
 fruit.roomListing =
-  "In the middle of table is a large assortment of fruit. All shapes, sizes and colours, there are varieties here you don't even know the names of.";
+  "In the middle of the table is a large assortment of fruit. All shapes, sizes and colours, there are varieties here you don't even know the names of.";
 
 // TODO Custom take verb for fruit which gives you a 'piece of fruit' but leaves 'fruit' on the table
 
