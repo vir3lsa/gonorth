@@ -1,4 +1,10 @@
-import { Room, Item } from "../../../../lib/gonorth";
+import {
+  Room,
+  Item,
+  Verb,
+  RandomText,
+  selectInventory
+} from "../../../../lib/gonorth";
 import { nook } from "./nook";
 
 export const diningRoom = new Room(
@@ -13,12 +19,28 @@ const table = new Item(
 
 const fruit = new Item(
   "fruit",
-  "It looks fresh and delicious. The bright colours are made to look even more vibrant by the beads of condensation glistening on the skins."
+  "It looks fresh and delicious. The bright colours are made to look even more vibrant by the beads of condensation glistening on the skins.",
+  true,
+  1
 );
 fruit.roomListing =
   "In the middle of the table is a large assortment of fruit. All shapes, sizes and colours, there are varieties here you don't even know the names of.";
 
-// TODO Custom take verb for fruit which gives you a 'piece of fruit' but leaves 'fruit' on the table
+fruit.verbs["take"].onSuccess = [
+  () => {
+    if (!selectInventory().items["piece of fruit"]) {
+      selectInventory().addItem(
+        new Item(
+          "piece of fruit",
+          "It's mouth-wateringly delicious. Except...when you take a closer look, you realise it doesn't look delicious at all. In fact, it's soft, brown and rotten. Little pits in the surface make you fairly sure it's full of maggots too. Disgusting.",
+          true,
+          1
+        )
+      );
+    }
+  },
+  "You lean across the huge table and select a particularly juicy looking piece of fresh fruit."
+];
 
 table.aliases = "dining table";
 table.itemsCanBeSeen = true;
