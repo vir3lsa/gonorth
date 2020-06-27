@@ -1,5 +1,5 @@
 import {
-  Alchemy,
+  alchemy,
   Procedure,
   STEP_INGREDIENTS,
   STEP_HEAT,
@@ -21,7 +21,6 @@ expect.extend({
   }
 });
 
-let alchemy;
 const dryadToenails = new Ingredient("dryadToenails");
 const alfalfa = new Ingredient("alfalfa");
 const whiteSage = new Ingredient("whiteSage");
@@ -83,6 +82,8 @@ const anotherProcedure = new Procedure(
   anotherPotion
 );
 
+alchemy.addProcedures(mendingProcedure, woodwormProcedure, anotherProcedure);
+
 function addIngredients(...ingredients) {
   ingredients.forEach(ingredient => alchemy.addIngredient(ingredient));
 }
@@ -112,8 +113,7 @@ function followMendingProcedure() {
 }
 
 beforeEach(() => {
-  alchemy = new Alchemy();
-  alchemy.addProcedures(mendingProcedure, woodwormProcedure, anotherProcedure);
+  alchemy.flush();
 });
 
 test("it deep copies procedures", () => {

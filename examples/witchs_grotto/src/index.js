@@ -24,6 +24,7 @@ import { lowerSpiral } from "./rooms/lowerSpiral";
 import { nook } from "./rooms/nook";
 import { southHall } from "./rooms/southHall";
 import { diningRoom } from "./rooms/diningRoom";
+import { kitchen } from "./rooms/kitchen";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
@@ -37,8 +38,9 @@ setIntro(
 // setStartingRoom(lowerSpiral);
 // setStartingRoom(nook);
 // setStartingRoom(southHall);
-setStartingRoom(diningRoom);
+// setStartingRoom(diningRoom);
 // setStartingRoom(pantry);
+setStartingRoom(kitchen);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");

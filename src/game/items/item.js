@@ -1,4 +1,4 @@
-import { Text, RandomText } from "../interactions/text";
+import { RandomText } from "../interactions/text";
 import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
 import { selectInventory } from "../../utils/selectors";

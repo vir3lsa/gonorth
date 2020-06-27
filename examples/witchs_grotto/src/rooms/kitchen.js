@@ -6,7 +6,7 @@ import { insideOven } from "./insideOven";
 
 export const kitchen = new Room(
   "Kitchen",
-  `The witch's kitchen would look homely and cosy if not for the layers of grime coating nearly every surface and the various large and evil looking knives hanging on the wall. In one corner is the most enormous oven you've ever laid eyes on, looming over you imposingly. In the middle of the room is a round, wooden table.
+  `The witch's kitchen would look homely and cosy if not for the layers of grime coating nearly every surface and the various large and evil looking knives hanging on the wall. In one corner is the most enormous oven you've ever laid eyes on, looming over you imposingly. In the middle of the room is a round, wooden table. There's a cabinet against one wall that looks ready to fall apart.
   
 An archway leads West, a rickety door barely hangs on its hinges to the South and a sturdier looking door leads East.`
 );
@@ -18,6 +18,22 @@ const cookBook = new Item(
   2
 );
 cookBook.aliases = ["book", "dusty book", "cook book", "tome"];
+
+const cabinet = new Item(
+  "cabinet",
+  "It's made of grey, dirty wood and comes up to your shoulders. It looks as though it's seen better days, with nails visible between the various panels where it's gradually coming apart. There's a single door taking up most of the front."
+);
+
+const cabinetDoor = new Door(
+  "cabinet door",
+  "It's just as decrepit as the rest of the cabinet but still just about in working order.",
+  false,
+  false,
+  "You find purchase on the corner of the door as there's no handle, and pull it open with a creak."
+);
+
+cabinet.addVerb(cabinetDoor.verbs["open"]); // "open cabinet" should work
+cabinet.addVerb(cabinetDoor.verbs["close"]);
 
 const table = new Item(
   "table",
@@ -49,7 +65,7 @@ const crawl = new Verb(
     "Just as you pull your feet in behind you, you hear a noise from the kitchen. As you begin to turn around there's a bone-chilling cackle and the oven door slams shut, trapping you inside.",
     "There's a squeal as another door in the oven that you hadn't noticed is opened. It must be in a chamber below you. There's a noise like sandpaper being rubbed against something and within seconds the cloying aroma of coal smoke tickles your nostrils.",
     "The witch must have lit the fire in the compartment at the bottom of the oven.",
-    () => goToRoom(insideOven),
+    () => goToRoom(insideOven)
   ],
   "The oven door's closed.",
   ["crawl", "enter", "go into", "hide"]
@@ -67,10 +83,7 @@ const sturdyDoor = new Door(
   "You reach up to the iron handle and give it a good yank. The door barely moves. You pull harder, leaning into it and it slowly but surely opens, making a loud squealing noise. When it's finally open, you let go, panting."
 );
 
-kitchen.addItem(table);
-kitchen.addItem(oven);
-kitchen.addItem(ovenDoor);
-kitchen.addItem(sturdyDoor);
+kitchen.addItems(table, oven, ovenDoor, sturdyDoor, cabinet, cabinetDoor);
 
 entranceHall.addItem(sturdyDoor);
 
