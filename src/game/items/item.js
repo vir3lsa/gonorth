@@ -63,6 +63,7 @@ export class Item {
           () => {
             const inventory = selectInventory();
             return (
+              this.container.itemsCanBeSeen &&
               this.container !== inventory &&
               (inventory.capacity === -1 || this.size < inventory.free)
             );
@@ -79,10 +80,15 @@ export class Item {
               `You grab the ${this.name}.`
             )
           ],
-          () =>
-            this.container !== selectInventory()
-              ? `You don't have enough room for the ${this.name}.`
-              : `You're already carrying the ${this.name}!`,
+          () => {
+            if (!this.container.itemsCanBeSeen) {
+              return "You can't see that.";
+            } else if (this.container !== selectInventory()) {
+              return `You don't have enough room for the ${this.name}.`;
+            } else {
+              return `You're already carrying the ${this.name}!`;
+            }
+          },
           ["pick up", "steal", "grab", "hold"]
         )
       );
@@ -267,7 +273,7 @@ export class Item {
    * to this item's container e.g. adds hidden items to the room.
    */
   revealItems() {
-    if (!this.itemsRevealed && this.container) {
+    if (!this.itemsRevealed && this.container && this.itemsCanBeSeen) {
       debug(`${this.name}: Revealing items`);
       this.hidesItems.forEach(item => {
         if (item.holdable && this.canHoldItems) {
@@ -327,6 +333,28 @@ export class Item {
 
   getFullDescription() {
     let description = this.description;
+
+    if (this.itemsCanBeSeen) {
+      if (Object.keys(this.items).length) {
+        debug(`Items can be seen so adding them to ${this.name} description.`);
+      }
+
+      const heldItemsDescription = this.heldItemsDescription;
+
+      if (heldItemsDescription.length) {
+        description += `\n\n${heldItemsDescription}`;
+      }
+    } else if (Object.keys(this.items).length) {
+      debug(
+        `Items can't be seen so not including them in ${this.name} description.`
+      );
+    }
+
+    return description;
+  }
+
+  get heldItemsDescription() {
+    let description = "";
     const itemList = this.basicItemList;
     const uniqueItemList = [...this.uniqueItems];
     const roomListings = uniqueItemList
@@ -334,7 +362,7 @@ export class Item {
       .map(item => item.roomListing);
 
     if (roomListings.length) {
-      description += `\n\n${roomListings.join(" ")}`;
+      description += roomListings.join(" ");
     }
 
     if (itemList.length) {
@@ -343,7 +371,8 @@ export class Item {
         uniqueItemList.length < 8
           ? `there's ${itemList}.`
           : `you see:\n\n${itemList}`;
-      description += `\n\n${prep} the ${this.name} ${announceList}`;
+      description += description.length ? "\n\n" : "";
+      description += `${prep} the ${this.name} ${announceList}`;
     }
 
     return description;

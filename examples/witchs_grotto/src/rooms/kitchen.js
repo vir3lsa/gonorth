@@ -3,6 +3,7 @@ import { diningRoom } from "./diningRoom";
 import { pantry } from "./pantry";
 import { entranceHall } from "./entranceHall";
 import { insideOven } from "./insideOven";
+import { Ingredient } from "../magic/ingredient";
 
 export const kitchen = new Room(
   "Kitchen",
@@ -23,6 +24,8 @@ const cabinet = new Item(
   "cabinet",
   "It's made of grey, dirty wood and comes up to your shoulders. It looks as though it's seen better days, with nails visible between the various panels where it's gradually coming apart. There's a single door taking up most of the front."
 );
+cabinet.capacity = 8;
+cabinet.itemsCanBeSeen = false;
 
 const cabinetDoor = new Door(
   "cabinet door",
@@ -32,8 +35,31 @@ const cabinetDoor = new Door(
   "You find purchase on the corner of the door as there's no handle, and pull it open with a creak."
 );
 
+cabinetDoor.verbs["open"].onSuccess.renderNexts = false;
+cabinetDoor.verbs["open"].onSuccess.addAction(() => {
+  cabinet.itemsCanBeSeen = true;
+  cabinet.revealItems();
+
+  const cabinetItemsDescription = cabinet.heldItemsDescription;
+  if (cabinetItemsDescription) {
+    return cabinet.heldItemsDescription;
+  }
+});
+cabinetDoor.verbs["close"].onSuccess.insertAction(
+  () => (cabinet.itemsCanBeSeen = false)
+);
+
 cabinet.addVerb(cabinetDoor.verbs["open"]); // "open cabinet" should work
 cabinet.addVerb(cabinetDoor.verbs["close"]);
+
+const moonStone = new Ingredient(
+  "pearl-like stone",
+  "It has a pearlesecent lustre that makes it somehow difficult to focus on. Slight imperfections in its surface resemble craters reminiscent of a full moon."
+);
+moonStone.article = "a";
+moonStone.aliases = ["moon stone", "pearl", "stone"];
+
+cabinet.hidesItems = moonStone;
 
 const table = new Item(
   "table",
