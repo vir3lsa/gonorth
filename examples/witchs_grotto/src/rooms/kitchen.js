@@ -118,5 +118,6 @@ kitchen.setSouth(pantry);
 kitchen.setEast(
   entranceHall,
   () => sturdyDoor.open,
-  "You step through the doorway, noting the impressive thickness of the door and the size of its hinges."
+  "You step through the doorway, noting the impressive thickness of the door and the size of its hinges.",
+  "The door is extremely solid and extremely closed."
 );
