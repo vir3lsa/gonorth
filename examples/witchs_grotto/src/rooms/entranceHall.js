@@ -1,6 +1,7 @@
-import { Room, Item } from "../../../../lib/gonorth";
+import { Room, Item, selectPlayer } from "../../../../lib/gonorth";
 import { southHall } from "./southHall";
 import { garden } from "./garden";
+import { MagicWord } from "../magic/magicWord";
 
 export const entranceHall = new Room(
   "Entrance Hall",
@@ -14,6 +15,16 @@ const slip = new Item(
   0.5
 );
 slip.aliases = ["slip", "paper", "page"];
+slip.verbs["examine"].onSuccess.insertAction(() => {
+  const words = selectPlayer().stats.magicWords;
+
+  if (!words["Charm of the Beast"]) {
+    words["Charm of the Beast"] = new MagicWord("Charm of the Beast", [
+      "beast",
+      "beastly"
+    ]);
+  }
+});
 
 const sideboard = new Item(
   "sideboard",

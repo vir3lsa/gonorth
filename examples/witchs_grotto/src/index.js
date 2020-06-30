@@ -11,7 +11,10 @@ import {
   Route,
   TIMEOUT_TURNS,
   Event,
-  addEvent
+  addEvent,
+  selectPlayer,
+  addKeyword,
+  Verb
 } from "../../../lib/gonorth";
 import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
@@ -25,6 +28,7 @@ import { nook } from "./rooms/nook";
 import { southHall } from "./rooms/southHall";
 import { diningRoom } from "./rooms/diningRoom";
 import { kitchen } from "./rooms/kitchen";
+import { entranceHall } from "./rooms/entranceHall";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
@@ -40,12 +44,36 @@ setIntro(
 // setStartingRoom(southHall);
 // setStartingRoom(diningRoom);
 // setStartingRoom(pantry);
-setStartingRoom(kitchen);
+// setStartingRoom(kitchen);
+setStartingRoom(entranceHall);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
   attach(container);
 }
+
+selectPlayer().stats.magicWords = {};
+
+addKeyword(
+  new Verb(
+    "recall",
+    true,
+    () => {
+      const words = Object.keys(selectPlayer().stats.magicWords);
+
+      if (words.length) {
+        return `You bring to mind all the magic words, charms and incantations you've learned. You know:\n\n${words.join(
+          "  \n"
+        )}`;
+      } else {
+        return "You haven't learned anything useful that you can recall.";
+      }
+    },
+    null,
+    ["remember", "magic", "words"],
+    true
+  )
+);
 
 const witchArrival = new Route.Builder()
   .withSubject(witch)

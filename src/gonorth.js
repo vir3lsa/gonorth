@@ -14,10 +14,10 @@ import {
 import { Interaction } from "./game/interactions/interaction";
 import { Option } from "./game/interactions/option";
 import { Room } from "./game/items/room";
-import { Item } from "./game/items/item";
 import { ActionChain } from "./utils/actionChain";
 import { PagedText } from "./game/interactions/text";
 import { goToRoom } from "./utils/lifecycle";
+import { Player } from "./game/items/player";
 
 initStore();
 
@@ -35,7 +35,7 @@ function initGame(title, author, debugMode) {
     "Empty Room",
     "The room is completely devoid of anything interesting."
   );
-  game.player = new Item("player", "You look as you normally do.", false);
+  game.player = new Player();
 
   createKeywords();
 
@@ -151,6 +151,7 @@ export {
   selectPlayer
 } from "./utils/selectors";
 export { ActionChain } from "./utils/actionChain";
+export { addKeyword } from "./game/verbs/keywords";
 export {
   initGame,
   attach,
