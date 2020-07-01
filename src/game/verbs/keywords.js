@@ -22,7 +22,7 @@ export function createKeywords() {
       const inventory = selectInventory();
       const { items } = inventory;
 
-      if (!Object.keys(items).length) {
+      if (!Object.values(items).filter(item => !item.doNotList).length) {
         return "You're not holding anything.";
       }
 

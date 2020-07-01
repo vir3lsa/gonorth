@@ -17,7 +17,7 @@ import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { PagedText } from "./game/interactions/text";
 import { goToRoom } from "./utils/lifecycle";
-import { Player } from "./game/items/player";
+import { Item } from "./game/items/item";
 
 initStore();
 
@@ -35,7 +35,7 @@ function initGame(title, author, debugMode) {
     "Empty Room",
     "The room is completely devoid of anything interesting."
   );
-  game.player = new Player();
+  game.player = new Item("player", "You look as you normally do.", false);
 
   createKeywords();
 

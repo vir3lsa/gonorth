@@ -16,13 +16,14 @@ const slip = new Item(
 );
 slip.aliases = ["slip", "paper", "page"];
 slip.verbs["examine"].onSuccess.insertAction(() => {
-  const words = selectPlayer().stats.magicWords;
-
-  if (!words["Charm of the Beast"]) {
-    words["Charm of the Beast"] = new MagicWord("Charm of the Beast", [
-      "beast",
-      "beastly"
-    ]);
+  if (!selectPlayer().items["Charm of the Beast"]) {
+    selectPlayer().addItem(
+      new MagicWord(
+        "Charm of the Beast",
+        ["beast", "beastly"],
+        "Consulting your memory, you carefully recite the"
+      )
+    );
   }
 });
 

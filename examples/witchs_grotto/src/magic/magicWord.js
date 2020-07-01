@@ -1,26 +1,19 @@
-export class MagicWord {
-  constructor(name, aliases) {
-    this.name = name;
+import { Verb, Item } from "../../../../lib/gonorth";
+
+export class MagicWord extends Item {
+  constructor(name, aliases, sayingDescription) {
+    super(name);
+    this.magicWord = true;
     this.aliases = aliases;
-  }
-
-  get name() {
-    return this._name;
-  }
-
-  set name(name) {
-    this._name = name;
-  }
-
-  get aliases() {
-    return this._aliases;
-  }
-
-  /**
-   * @param {string | string[]} aliases
-   */
-  set aliases(aliases) {
-    const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
-    this._aliases = aliasArray;
+    this.doNotList = true; // Hides word from normal inventory check
+    this._verbs = {};
+    this.addVerb(
+      new Verb("say", true, `${sayingDescription} ${name}.`, null, [
+        "speak",
+        "intone",
+        "recite",
+        "chant"
+      ])
+    );
   }
 }

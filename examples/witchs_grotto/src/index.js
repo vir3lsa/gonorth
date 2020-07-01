@@ -29,6 +29,7 @@ import { southHall } from "./rooms/southHall";
 import { diningRoom } from "./rooms/diningRoom";
 import { kitchen } from "./rooms/kitchen";
 import { entranceHall } from "./rooms/entranceHall";
+import { MagicWord } from "./magic/magicWord";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(
@@ -52,14 +53,14 @@ if (typeof document !== "undefined") {
   attach(container);
 }
 
-selectPlayer().stats.magicWords = {};
-
 addKeyword(
   new Verb(
     "recall",
     true,
     () => {
-      const words = Object.keys(selectPlayer().stats.magicWords);
+      const words = [...selectPlayer().uniqueItems]
+        .filter(item => item.magicWord)
+        .map(item => item.name);
 
       if (words.length) {
         return `You bring to mind all the magic words, charms and incantations you've learned. You know:\n\n${words.join(

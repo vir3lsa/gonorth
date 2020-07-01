@@ -10,9 +10,6 @@ import {
 } from "../utils/selectors";
 import { toTitleCase, getArticle } from "../utils/textFunctions";
 
-// Record the possible matches we find
-let registeredItem;
-
 export class Parser {
   constructor(input) {
     this.input = input;
@@ -121,6 +118,7 @@ export class Parser {
           // The verb and item match so stop looking
           this.recordItem(item, items, itemIndex);
         } else {
+          console.log(selectInventory().items);
           // Try items in the player's inventory instead
           const inventoryItem = selectInventory().items[possibleItem];
 
@@ -164,10 +162,14 @@ export class Parser {
           } ${this.actualVerb.interrogative}?`;
         } else if (this.actualVerb && this.actualVerb.prepositional) {
           // Prepositional verb with missing (or unsupported) first item
-          message = `You can't ${this.registeredVerb} that ${this.roomItem.preposition} the ${this.registeredItem}.`;
+          message = `You can't ${this.registeredVerb} that ${
+            this.roomItem.preposition
+          } the ${this.registeredItem}.`;
         } else {
           // The item's in the room but doesn't support the verb
-          message = `You can't see how to ${this.registeredVerb} the ${this.registeredItem}.`;
+          message = `You can't see how to ${this.registeredVerb} the ${
+            this.registeredItem
+          }.`;
         }
       } else if (this.registeredItem) {
         // The item exists elsewhere
