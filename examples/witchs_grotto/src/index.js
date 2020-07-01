@@ -29,7 +29,6 @@ import { southHall } from "./rooms/southHall";
 import { diningRoom } from "./rooms/diningRoom";
 import { kitchen } from "./rooms/kitchen";
 import { entranceHall } from "./rooms/entranceHall";
-import { MagicWord } from "./magic/magicWord";
 
 initGame("The Witch's Grotto", "Rich Locke", true);
 setIntro(

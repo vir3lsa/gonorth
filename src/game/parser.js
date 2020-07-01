@@ -118,7 +118,6 @@ export class Parser {
           // The verb and item match so stop looking
           this.recordItem(item, items, itemIndex);
         } else {
-          console.log(selectInventory().items);
           // Try items in the player's inventory instead
           const inventoryItem = selectInventory().items[possibleItem];
 
