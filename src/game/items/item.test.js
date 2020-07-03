@@ -71,7 +71,7 @@ test("items can be picked up", async () => {
   const watch = new Item("watch", "posh-looking", true, 1);
   room.addItem(watch);
   await watch.try("take");
-  expect(selectInventory().items.watch.name).toBe("watch");
+  expect(selectInventory().items.watch[0].name).toBe("watch");
 });
 
 test("items can't be picked up if they're bigger than the inventory", async () => {
@@ -120,7 +120,7 @@ describe("putting items", () => {
 
   test("adds the item to the container", async () => {
     await ball.try("put", table);
-    expect(table.items[ball.name]).toBe(ball);
+    expect(table.items[ball.name][0]).toBe(ball);
   });
 
   test("removes the item from the room", async () => {
