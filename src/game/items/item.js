@@ -169,7 +169,12 @@ export class Item {
   _addAliasesToContainer() {
     if (this._container && this.aliases) {
       this.aliases.forEach(alias => {
-        this._container.items[alias.toLowerCase()] = this;
+        const existing = this._container.items[alias.toLowerCase()];
+        if (existing) {
+          existing.push(this);
+        } else {
+          this._container.items[alias.toLowerCase()] = [this];
+        }
       });
     }
   }
@@ -236,12 +241,15 @@ export class Item {
       throw Error("Item does not have a name");
     }
 
-    if (this.items[name]) {
-      throw Error(`Item '${this.name}' already has an item called '${name}'`);
+    this.uniqueItems.add(item);
+    const existing = this.items[name];
+
+    if (existing) {
+      existing.push(item);
+    } else {
+      this.items[name] = [item];
     }
 
-    this.uniqueItems.add(item);
-    this.items[name] = item;
     item.container = this; // This causes the item's aliases to also be added to this item
 
     if (this.free > 0) {
@@ -249,15 +257,34 @@ export class Item {
     }
   }
 
-  removeItem(item) {
-    delete this.items[item.name.toLowerCase()];
+  /**
+   * Remove an item from this item's collection
+   * @param {*} item The item to remove
+   * @param {*} alias (Optional) The item alias to remove
+   */
+  removeItem(item, alias) {
+    // Use the alias provided or just the item's actual name
+    const name = alias ? alias : item.name.toLowerCase();
+
+    // Remove the item from the array of items with its name
+    this.items[name] = this.items[name].filter(
+      itemWithName => itemWithName !== item
+    );
+
+    // Remove the array if it's empty
+    if (!this.items[name].length) {
+      delete this.items[name];
+    }
+
     this.uniqueItems.delete(item);
     item.container = null;
 
-    // Remove aliases
-    item.aliases.forEach(alias => {
-      delete this.items[alias];
-    });
+    // Remove aliases of the item if we're not already removing an alias
+    if (!alias) {
+      item.aliases.forEach(alias => {
+        this.removeItem(item, alias);
+      });
+    }
   }
 
   set hidesItems(hidesItems) {
@@ -309,7 +336,12 @@ export class Item {
 
   set items(items) {
     this._items = items;
-    this.uniqueItems = new Set(...Object.values(this._items));
+    this.uniqueItems = new Set(
+      ...Object.values(this._items).reduce((acc, itemsWithName) => {
+        itemsWithName.forEach(item => acc.push(item));
+        return acc;
+      }, [])
+    );
   }
 
   get capacity() {
@@ -384,8 +416,30 @@ export class Item {
    */
   get accessibleItems() {
     // Add this item, its aliases and the items it contains
-    let items = { ...this.items, [this.name.toLowerCase()]: this };
-    this.aliases.forEach(alias => (items[alias] = this));
+    let items = {};
+
+    // Copy our item arrays into this new object
+    Object.keys(this.items).forEach(
+      name => (items[name] = [...this.items[name]])
+    );
+
+    const itemsWithName = items[this.name.toLowerCase()];
+
+    if (itemsWithName) {
+      itemsWithName.push(this);
+    } else {
+      items[this.name.toLowerCase()] = [this];
+    }
+
+    this.aliases.forEach(alias => {
+      const itemsWithName = items[alias.toLowerCase()];
+
+      if (itemsWithName) {
+        itemsWithName.push(this);
+      } else {
+        items[alias.toLowerCase()] = [this];
+      }
+    });
 
     // Add items inside this item's containers
     [...this.uniqueItems].forEach(
@@ -393,5 +447,13 @@ export class Item {
     );
 
     return items;
+  }
+
+  // Get a flat array of all of this item's items (including those with duplicate aliases)
+  get itemArray() {
+    return Object.values(this.items).reduce((acc, itemsWithName) => {
+      itemsWithName.forEach(item => acc.push(item));
+      return acc;
+    }, []);
   }
 }

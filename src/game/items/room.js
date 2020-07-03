@@ -139,6 +139,7 @@ export class Room extends Item {
   }
 
   revealVisibleItems() {
+    // TODO Does this work??
     const itemNames = Object.entries(this.accessibleItems)
       .filter(([, item]) => item.visible)
       .map(([name]) => name);
@@ -172,8 +173,11 @@ export class Room extends Item {
       .filter(container => container.itemsCanBeSeen)
       .forEach(container => {
         debug(`Listing ${container.name}'s items as they are visible.`);
-        const describedItems = Object.values(container.items).filter(
-          item => item.roomListing
+        const describedItems = [];
+        Object.values(container.items).forEach(itemsWithName =>
+          itemsWithName
+            .filter(item => item.roomListing)
+            .forEach(describedItems.push)
         );
         debug(`Found ${describedItems.length} item(s) with room listings.`);
         const roomListings = describedItems

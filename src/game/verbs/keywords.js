@@ -20,9 +20,8 @@ export function createKeywords() {
     true,
     () => {
       const inventory = selectInventory();
-      const { items } = inventory;
 
-      if (!Object.values(items).filter(item => !item.doNotList).length) {
+      if (!inventory.itemArray.filter(item => !item.doNotList).length) {
         return "You're not holding anything.";
       }
 

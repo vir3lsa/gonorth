@@ -28,9 +28,10 @@ export const cauldron = new Item("cauldron", () => {
 cauldron.aliases = ["pot", "container"];
 
 describeCauldronContents = () => {
-  const ingredientsAdded = Object.values(cauldron.items).find(
-    item => item instanceof Ingredient
+  const ingredientsAdded = Object.values(cauldron.items).find(itemsWithName =>
+    itemsWithName.find(item => item instanceof Ingredient)
   );
+
   const baseAdded =
     alchemy.waterLevel > 0 || alchemy.fatLevel > 0 || alchemy.bloodLevel > 0;
 

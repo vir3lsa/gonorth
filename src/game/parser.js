@@ -63,21 +63,34 @@ export class Parser {
         const items = this.findRoomItems(tokens, verbEndIndex);
 
         if (items && items.length) {
-          const item = items[0];
-          this.roomItem = item || this.roomItem;
+          const itemsWithName = items[0];
 
-          if (item && item.visible && item.verbs[possibleVerb]) {
-            this.actualVerb = item.verbs[possibleVerb];
-            this.verbSupported = true;
+          if (itemsWithName.length > 1) {
+            // Multiple items with the same name/alias
+            // TODO The message will work for the primary item, but not the
+            // secondary item as it isn't recorded
+            return getStore().dispatch(
+              changeInteraction(
+                new Append(`Which ${this.registeredItem} do you mean?`)
+              )
+            );
+          } else {
+            const item = itemsWithName[0];
+            this.roomItem = item || this.roomItem;
 
-            if (this.actualVerb.prepositional) {
-              const indirectItem = items[1];
+            if (item && item.visible && item.verbs[possibleVerb]) {
+              this.actualVerb = item.verbs[possibleVerb];
+              this.verbSupported = true;
 
-              if (indirectItem && indirectItem.visible) {
-                return item.try(possibleVerb, indirectItem);
+              if (this.actualVerb.prepositional) {
+                const indirectItem = items[1];
+
+                if (indirectItem && indirectItem.visible) {
+                  return item.try(possibleVerb, indirectItem);
+                }
+              } else {
+                return item.try(possibleVerb);
               }
-            } else {
-              return item.try(possibleVerb);
             }
           }
         }
@@ -112,17 +125,18 @@ export class Parser {
         }
 
         // Is the item in the room and visible? Does it support the verb?
-        const item = room.accessibleItems[possibleItem];
+        const itemsWithName = room.accessibleItems[possibleItem]?.filter(
+          item => item.visible
+        );
 
-        if (item && item.visible) {
-          // The verb and item match so stop looking
-          this.recordItem(item, items, itemIndex);
+        if (itemsWithName?.length) {
+          this.recordItems(itemsWithName, items, itemIndex);
         } else {
           // Try items in the player's inventory instead
-          const inventoryItem = selectInventory().items[possibleItem];
+          const inventoryItems = selectInventory().items[possibleItem];
 
-          if (inventoryItem) {
-            this.recordItem(inventoryItem, items, itemIndex);
+          if (inventoryItems) {
+            this.recordItems(inventoryItems, items, itemIndex);
           }
         }
 
@@ -135,14 +149,14 @@ export class Parser {
     return items.map(itemEntry => itemEntry[0]);
   }
 
-  recordItem(item, items, itemIndex) {
+  recordItems(itemsWithName, items, itemIndex) {
     if (items.length) {
       if (itemIndex < items[0][1]) {
-        return items.unshift([item, itemIndex]);
+        return items.unshift([itemsWithName, itemIndex]);
       }
     }
 
-    return items.push([item, itemIndex]);
+    return items.push([itemsWithName, itemIndex]);
   }
 
   giveFeedback() {
@@ -208,11 +222,15 @@ export class Parser {
   }
 
   findActualVerbIn(itemMap) {
-    const items = Object.values(itemMap);
-    const itemWithVerb = items.find(item => item.verbs[this.registeredVerb]);
+    const itemArrays = Object.values(itemMap);
 
-    if (itemWithVerb) {
-      return itemWithVerb.verbs[this.registeredVerb];
+    // Use normal for loop so we can return from inside it
+    for (let items of itemArrays) {
+      const itemWithVerb = items.find(item => item.verbs[this.registeredVerb]);
+
+      if (itemWithVerb) {
+        return itemWithVerb.verbs[this.registeredVerb];
+      }
     }
   }
 }
