@@ -139,9 +139,8 @@ export class Room extends Item {
   }
 
   revealVisibleItems() {
-    // TODO Does this work??
     const itemNames = Object.entries(this.accessibleItems)
-      .filter(([, item]) => item.visible)
+      .filter(([, itemsWithName]) => itemsWithName.find(item => item.visible))
       .map(([name]) => name);
 
     getStore().dispatch(itemsRevealed(itemNames));
