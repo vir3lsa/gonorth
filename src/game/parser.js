@@ -66,31 +66,32 @@ export class Parser {
           const itemsWithName = items[0];
 
           if (itemsWithName.length > 1) {
-            // Multiple items with the same name/alias
-            // TODO The message will work for the primary item, but not the
-            // secondary item as it isn't recorded
-            return getStore().dispatch(
-              changeInteraction(
-                new Append(`Which ${this.registeredItem} do you mean?`)
-              )
-            );
-          } else {
-            const item = itemsWithName[0];
-            this.roomItem = item || this.roomItem;
+            return this.handleDuplicateAliases();
+          }
 
-            if (item && item.visible && item.verbs[possibleVerb]) {
-              this.actualVerb = item.verbs[possibleVerb];
-              this.verbSupported = true;
+          const item = itemsWithName[0];
+          this.roomItem = item || this.roomItem;
 
-              if (this.actualVerb.prepositional) {
-                const indirectItem = items[1];
+          if (item && item.visible && item.verbs[possibleVerb]) {
+            this.actualVerb = item.verbs[possibleVerb];
+            this.verbSupported = true;
+
+            if (this.actualVerb.prepositional) {
+              const indirectItemsWithName = items[1];
+
+              if (indirectItemsWithName) {
+                if (indirectItemsWithName.length > 1) {
+                  return this.handleDuplicateAliases();
+                }
+
+                const indirectItem = indirectItemsWithName[0];
 
                 if (indirectItem && indirectItem.visible) {
                   return item.try(possibleVerb, indirectItem);
                 }
-              } else {
-                return item.try(possibleVerb);
               }
+            } else {
+              return item.try(possibleVerb);
             }
           }
         }
@@ -232,5 +233,14 @@ export class Parser {
         return itemWithVerb.verbs[this.registeredVerb];
       }
     }
+  }
+
+  handleDuplicateAliases() {
+    // Multiple items with the same name/alias
+    // TODO The message will work for the primary item, but not the
+    // secondary item as it isn't recorded
+    return getStore().dispatch(
+      changeInteraction(new Append(`Which ${this.registeredItem} do you mean?`))
+    );
   }
 }

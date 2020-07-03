@@ -138,6 +138,11 @@ export class Room extends Item {
     return chain;
   }
 
+  /**
+   * Add visible items in the room to the list of globally registered item names
+   * that it's possible to refer to. You can't refer to an item until you've
+   * encountered it.
+   */
   revealVisibleItems() {
     const itemNames = Object.entries(this.accessibleItems)
       .filter(([, itemsWithName]) => itemsWithName.find(item => item.visible))
