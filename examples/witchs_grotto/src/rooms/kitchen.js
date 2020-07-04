@@ -32,7 +32,9 @@ const cabinetDoor = new Door(
   "It's just as decrepit as the rest of the cabinet but still just about in working order.",
   false,
   false,
-  "You find purchase on the corner of the door as there's no handle, and pull it open with a creak."
+  "You find purchase on the corner of the door as there's no handle, and pull it open with a creak.",
+  null,
+  ["door"]
 );
 
 cabinetDoor.verbs["open"].onSuccess.renderNexts = false;
@@ -80,7 +82,9 @@ const ovenDoor = new Door(
   "Like the rest of the oven, the door is charcoal black and appears to be made of solid iron.",
   false,
   false,
-  "You yank the handle and the door swings open with a clang."
+  "You yank the handle and the door swings open with a clang.",
+  null,
+  ["door"]
 );
 
 const crawl = new Verb(
@@ -106,7 +110,9 @@ const sturdyDoor = new Door(
   "Remarkably, it appears to be made from a single massive piece of wood. There are scrape marks on the tiles from where it rubs them when it opens.",
   false,
   false,
-  "You reach up to the iron handle and give it a good yank. The door barely moves. You pull harder, leaning into it and it slowly but surely opens, making a loud squealing noise. When it's finally open, you let go, panting."
+  "You reach up to the iron handle and give it a good yank. The door barely moves. You pull harder, leaning into it and it slowly but surely opens, making a loud squealing noise. When it's finally open, you let go, panting.",
+  null,
+  ["sturdy", "door"]
 );
 
 kitchen.addItems(table, oven, ovenDoor, sturdyDoor, cabinet, cabinetDoor);

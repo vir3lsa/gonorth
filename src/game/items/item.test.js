@@ -170,4 +170,11 @@ describe("putting items", () => {
     expect(item.description).toBe("Man");
     expect(item.holdable).toBe(false);
   });
+
+  test("accessible items can share names", () => {
+    room.addItems(new Item("cat"), new Item("dog"), new Item("dog"));
+    const items = room.accessibleItems;
+    expect(items["cat"].length).toBe(1);
+    expect(items["dog"].length).toBe(2);
+  });
 });

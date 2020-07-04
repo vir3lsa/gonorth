@@ -22,6 +22,10 @@ const east = new Room("Scullery", "");
 const west = new Room("Pantry", "");
 const door = new Door("trapdoor", "", false);
 const chair = new Item("chair", "comfy", false, 0, new Verb("sit in"));
+const redBall = new Item("red ball", "It's a rouge ball");
+const blueBall = new Item("blue ball", "It's an azure ball");
+redBall.aliases = "ball";
+blueBall.aliases = "ball";
 chair.capacity = 5;
 chair.preposition = "in";
 const chairman = new Item("chair man", "impressive");
@@ -34,7 +38,7 @@ hall.setNorth(north);
 hall.setSouth(south);
 hall.setEast(east);
 hall.setWest(west);
-hall.addItems(door, chair, chairman, cushion);
+hall.addItems(door, chair, chairman, cushion, redBall, blueBall);
 
 expect.extend({
   toInclude(received, text) {
@@ -134,5 +138,11 @@ describe("parser", () => {
       inputTest("x room", "grand"));
     it("allows items to be put on the floor", () =>
       inputTest("put cushion on the floor", "You put the cushion in the Hall"));
+    it("asks for clarification of duplicate aliases", () =>
+      inputTest("x ball", "Which ball do you mean?"));
+    it("chooses the correct item", () =>
+      inputTest("x red ball", "It's a rouge ball"));
+    it("chooses the correct other item", () =>
+      inputTest("x blue ball", "It's an azure ball"));
   });
 });

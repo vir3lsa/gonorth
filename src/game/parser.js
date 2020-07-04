@@ -18,6 +18,7 @@ export class Parser {
     this.actualVerb = null;
     this.verbSupported = false;
     this.roomItem = null;
+    this.duplicateAliases = null;
   }
 
   parse() {
@@ -66,7 +67,8 @@ export class Parser {
           const itemsWithName = items[0];
 
           if (itemsWithName.length > 1) {
-            return this.handleDuplicateAliases();
+            this.duplicateAliases = itemsWithName;
+            continue;
           }
 
           const item = itemsWithName[0];
@@ -81,7 +83,8 @@ export class Parser {
 
               if (indirectItemsWithName) {
                 if (indirectItemsWithName.length > 1) {
-                  return this.handleDuplicateAliases();
+                  this.duplicateAliases = itemsWithName;
+                  continue;
                 }
 
                 const indirectItem = indirectItemsWithName[0];
@@ -186,10 +189,15 @@ export class Parser {
           }.`;
         }
       } else if (this.registeredItem) {
-        // The item exists elsewhere
-        message = `You don't see ${getArticle(this.registeredItem)} ${
-          this.registeredItem
-        } here.`;
+        if (this.duplicateAliases) {
+          // Player must be more specific
+          message = this.handleDuplicateAliases();
+        } else {
+          // The item exists elsewhere
+          message = `You don't see ${getArticle(this.registeredItem)} ${
+            this.registeredItem
+          } here.`;
+        }
       } else {
         // The item doesn't (yet) exist anywhere
         message = `You don't seem able to ${this.registeredVerb} that.`;
@@ -239,8 +247,6 @@ export class Parser {
     // Multiple items with the same name/alias
     // TODO The message will work for the primary item, but not the
     // secondary item as it isn't recorded
-    return getStore().dispatch(
-      changeInteraction(new Append(`Which ${this.registeredItem} do you mean?`))
-    );
+    return `Which ${this.registeredItem} do you mean?`;
   }
 }

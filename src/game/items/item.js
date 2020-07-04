@@ -442,9 +442,22 @@ export class Item {
     });
 
     // Add items inside this item's containers
-    [...this.uniqueItems].forEach(
-      item => (items = { ...items, ...item.accessibleItems })
-    );
+    [...this.uniqueItems].forEach(item => {
+      const newItems = item.accessibleItems;
+      Object.entries(newItems).forEach(([name, itemsWithName]) => {
+        if (items[name]) {
+          // Add new items with this name to existing list (whilst deduping)
+          itemsWithName.forEach(itemWithName => {
+            if (!items[name].includes(itemWithName)) {
+              items[name].push(itemWithName);
+            }
+          });
+        } else {
+          // Add a new entry
+          items[name] = [...itemsWithName];
+        }
+      });
+    });
 
     return items;
   }
