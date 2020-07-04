@@ -18,7 +18,9 @@ export class Parser {
     this.actualVerb = null;
     this.verbSupported = false;
     this.roomItem = null;
-    this.duplicateAliases = null;
+    this.duplicateAliasItems = null;
+    this.secondaryItemName = null;
+    this.duplicateAlias = null;
   }
 
   parse() {
@@ -67,7 +69,9 @@ export class Parser {
           const itemsWithName = items[0];
 
           if (itemsWithName.length > 1) {
-            this.duplicateAliases = itemsWithName;
+            // Primary item name is a duplicate
+            this.duplicateAliasItems = itemsWithName;
+            this.duplicateAlias = this.registeredItem;
             continue;
           }
 
@@ -83,7 +87,9 @@ export class Parser {
 
               if (indirectItemsWithName) {
                 if (indirectItemsWithName.length > 1) {
-                  this.duplicateAliases = itemsWithName;
+                  // Secondary item name is a duplicate
+                  this.duplicateAliasItems = indirectItemsWithName;
+                  this.duplicateAlias = this.secondaryItemName;
                   continue;
                 }
 
@@ -107,6 +113,7 @@ export class Parser {
   findRoomItems(tokens, verbEndIndex) {
     const room = selectRoom();
     const items = [];
+    const usedIndices = []; // Keep track of token indices we've found items at
 
     for (
       let numItemWords = tokens.length - verbEndIndex;
@@ -118,6 +125,11 @@ export class Parser {
         itemIndex <= tokens.length - numItemWords;
         itemIndex++
       ) {
+        if (usedIndices.includes(itemIndex)) {
+          // Don't try indices we've already found items at
+          continue;
+        }
+
         const endIndex = itemIndex + numItemWords;
         const possibleItemWords = tokens.slice(itemIndex, endIndex);
         const possibleItem = possibleItemWords.join(" ");
@@ -134,17 +146,30 @@ export class Parser {
         );
 
         if (itemsWithName?.length) {
-          this.recordItems(itemsWithName, items, itemIndex);
+          this.recordItems(
+            itemsWithName,
+            items,
+            itemIndex,
+            numItemWords,
+            usedIndices
+          );
         } else {
           // Try items in the player's inventory instead
           const inventoryItems = selectInventory().items[possibleItem];
 
           if (inventoryItems) {
-            this.recordItems(inventoryItems, items, itemIndex);
+            this.recordItems(
+              inventoryItems,
+              items,
+              itemIndex,
+              numItemWords,
+              usedIndices
+            );
           }
         }
 
         if (items.length > 1) {
+          this.secondaryItemName = possibleItem;
           return items.map(itemEntry => itemEntry[0]);
         }
       }
@@ -153,7 +178,12 @@ export class Parser {
     return items.map(itemEntry => itemEntry[0]);
   }
 
-  recordItems(itemsWithName, items, itemIndex) {
+  recordItems(itemsWithName, items, itemIndex, numItemWords, usedIndices) {
+    // Record indices of this item so we don't try to find other items there
+    for (let i = itemIndex; i < itemIndex + numItemWords; i++) {
+      usedIndices.push(i);
+    }
+
     if (items.length) {
       if (itemIndex < items[0][1]) {
         return items.unshift([itemsWithName, itemIndex]);
@@ -173,10 +203,15 @@ export class Parser {
         }
 
         if (this.verbSupported) {
-          // Prepositional verb missing a second item
-          message = `${toTitleCase(this.registeredVerb)} the ${
-            this.registeredItem
-          } ${this.actualVerb.interrogative}?`;
+          if (this.duplicateAliasItems && this.secondaryItemName) {
+            // Player must be more specific
+            message = this.handleDuplicateAliases();
+          } else {
+            // Prepositional verb missing a second item
+            message = `${toTitleCase(this.registeredVerb)} the ${
+              this.registeredItem
+            } ${this.actualVerb.interrogative}?`;
+          }
         } else if (this.actualVerb && this.actualVerb.prepositional) {
           // Prepositional verb with missing (or unsupported) first item
           message = `You can't ${this.registeredVerb} that ${
@@ -189,7 +224,7 @@ export class Parser {
           }.`;
         }
       } else if (this.registeredItem) {
-        if (this.duplicateAliases) {
+        if (this.duplicateAliasItems) {
           // Player must be more specific
           message = this.handleDuplicateAliases();
         } else {
@@ -244,9 +279,6 @@ export class Parser {
   }
 
   handleDuplicateAliases() {
-    // Multiple items with the same name/alias
-    // TODO The message will work for the primary item, but not the
-    // secondary item as it isn't recorded
-    return `Which ${this.registeredItem} do you mean?`;
+    return `Which ${this.duplicateAlias} do you mean?`;
   }
 }

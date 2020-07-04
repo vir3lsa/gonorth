@@ -22,10 +22,16 @@ const east = new Room("Scullery", "");
 const west = new Room("Pantry", "");
 const door = new Door("trapdoor", "", false);
 const chair = new Item("chair", "comfy", false, 0, new Verb("sit in"));
-const redBall = new Item("red ball", "It's a rouge ball");
-const blueBall = new Item("blue ball", "It's an azure ball");
+const redBall = new Item("red ball", "It's a rouge ball", true);
+const blueBall = new Item("blue ball", "It's an azure ball", true);
+const redBox = new Item("red box");
+const blueBox = new Item("blue box");
 redBall.aliases = "ball";
 blueBall.aliases = "ball";
+redBox.aliases = "box";
+blueBox.aliases = "box";
+redBox.capacity = 5;
+blueBox.capacity = 5;
 chair.capacity = 5;
 chair.preposition = "in";
 const chairman = new Item("chair man", "impressive");
@@ -38,7 +44,16 @@ hall.setNorth(north);
 hall.setSouth(south);
 hall.setEast(east);
 hall.setWest(west);
-hall.addItems(door, chair, chairman, cushion, redBall, blueBall);
+hall.addItems(
+  door,
+  chair,
+  chairman,
+  cushion,
+  redBall,
+  blueBall,
+  redBox,
+  blueBox
+);
 
 expect.extend({
   toInclude(received, text) {
@@ -144,5 +159,9 @@ describe("parser", () => {
       inputTest("x red ball", "It's a rouge ball"));
     it("chooses the correct other item", () =>
       inputTest("x blue ball", "It's an azure ball"));
+    it("asks for clarification of duplicate secondary aliases", () =>
+      inputTest("put red ball in box", "Which box do you mean?"));
+    it("chooses correct secondary item", () =>
+      inputTest("put red ball in red box", "red ball in the red box"));
   });
 });
