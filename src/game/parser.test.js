@@ -163,5 +163,11 @@ describe("parser", () => {
       inputTest("put red ball in box", "Which box do you mean?"));
     it("chooses correct secondary item", () =>
       inputTest("put red ball in red box", "red ball in the red box"));
+    it("chooses correct other secondary item", () =>
+      inputTest("put red ball in blue box", "red ball in the blue box"));
+    it("mentions primary duplicate alias first", () =>
+      inputTest("put ball in box", "Which ball do you mean?"));
+    it("mentions primary duplicate if secondary is defined", () =>
+      inputTest("put ball in red box", "Which ball do you mean?"));
   });
 });

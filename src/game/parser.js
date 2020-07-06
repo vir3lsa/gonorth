@@ -19,7 +19,6 @@ export class Parser {
     this.verbSupported = false;
     this.roomItem = null;
     this.duplicateAliasItems = null;
-    this.secondaryItemName = null;
     this.duplicateAlias = null;
   }
 
@@ -63,17 +62,10 @@ export class Parser {
           }
         }
 
-        const items = this.findRoomItems(tokens, verbEndIndex);
+        const itemDetails = this.findRoomItems(tokens, verbEndIndex);
 
-        if (items && items.length) {
-          const itemsWithName = items[0];
-
-          if (itemsWithName.length > 1) {
-            // Primary item name is a duplicate
-            this.duplicateAliasItems = itemsWithName;
-            this.duplicateAlias = this.registeredItem;
-            continue;
-          }
+        if (itemDetails && itemDetails.length) {
+          const { alias, itemsWithName } = itemDetails[0];
 
           const item = itemsWithName[0];
           this.roomItem = item || this.roomItem;
@@ -81,26 +73,36 @@ export class Parser {
           if (item && item.visible && item.verbs[possibleVerb]) {
             this.actualVerb = item.verbs[possibleVerb];
             this.verbSupported = true;
+            let indirectItemsWithName, indirectItem, indirectAlias;
+            let validCombination = false;
 
             if (this.actualVerb.prepositional) {
-              const indirectItemsWithName = items[1];
+              indirectAlias = itemDetails[1]?.alias;
+              indirectItemsWithName = itemDetails[1]?.itemsWithName;
 
               if (indirectItemsWithName) {
-                if (indirectItemsWithName.length > 1) {
-                  // Secondary item name is a duplicate
-                  this.duplicateAliasItems = indirectItemsWithName;
-                  this.duplicateAlias = this.secondaryItemName;
-                  continue;
-                }
-
-                const indirectItem = indirectItemsWithName[0];
+                indirectItem = indirectItemsWithName[0];
 
                 if (indirectItem && indirectItem.visible) {
-                  return item.try(possibleVerb, indirectItem);
+                  validCombination = true;
                 }
               }
             } else {
-              return item.try(possibleVerb);
+              validCombination = true;
+            }
+
+            if (validCombination) {
+              if (itemsWithName.length > 1) {
+                // Primary item name is a duplicate
+                this.recordDuplicates(itemsWithName, alias);
+                continue;
+              } else if (indirectItemsWithName?.length > 1) {
+                // Secondary item name is a duplicate
+                this.recordDuplicates(indirectItemsWithName, indirectAlias);
+                continue;
+              }
+
+              return item.try(possibleVerb, indirectItem);
             }
           }
         }
@@ -110,9 +112,16 @@ export class Parser {
     return this.giveFeedback();
   }
 
+  recordDuplicates(itemsWithName, name) {
+    if (!this.duplicateAlias) {
+      this.duplicateAliasItems = itemsWithName;
+      this.duplicateAlias = name;
+    }
+  }
+
   findRoomItems(tokens, verbEndIndex) {
     const room = selectRoom();
-    const items = [];
+    const itemDetails = [];
     const usedIndices = []; // Keep track of token indices we've found items at
 
     for (
@@ -134,63 +143,66 @@ export class Parser {
         const possibleItemWords = tokens.slice(itemIndex, endIndex);
         const possibleItem = possibleItemWords.join(" ");
 
-        if (!items.length) {
+        if (!itemDetails.length) {
           // Is the first item registered globally?
           const itemExists = selectItemNames().has(possibleItem);
           this.registeredItem = itemExists ? possibleItem : this.registeredItem;
         }
 
         // Is the item in the room and visible? Does it support the verb?
-        const itemsWithName = room.accessibleItems[possibleItem]?.filter(
+        let itemsWithName = room.accessibleItems[possibleItem]?.filter(
           item => item.visible
         );
 
+        if (!itemsWithName?.length) {
+          // Try items in the player's inventory instead
+          itemsWithName = selectInventory().items[possibleItem];
+        }
+
         if (itemsWithName?.length) {
           this.recordItems(
+            possibleItem,
             itemsWithName,
-            items,
+            itemDetails,
             itemIndex,
             numItemWords,
             usedIndices
           );
-        } else {
-          // Try items in the player's inventory instead
-          const inventoryItems = selectInventory().items[possibleItem];
-
-          if (inventoryItems) {
-            this.recordItems(
-              inventoryItems,
-              items,
-              itemIndex,
-              numItemWords,
-              usedIndices
-            );
-          }
         }
 
-        if (items.length > 1) {
-          this.secondaryItemName = possibleItem;
-          return items.map(itemEntry => itemEntry[0]);
+        if (itemDetails.length > 1) {
+          // this.secondaryItemName = possibleItem;
+          return itemDetails;
+          // return itemDetails.map(itemEntry => itemEntry[0]);
         }
       }
     }
 
-    return items.map(itemEntry => itemEntry[0]);
+    // return itemDetails.map(itemEntry => itemEntry[0]);
+    return itemDetails;
   }
 
-  recordItems(itemsWithName, items, itemIndex, numItemWords, usedIndices) {
+  recordItems(
+    alias,
+    itemsWithName,
+    itemDetails,
+    itemIndex,
+    numItemWords,
+    usedIndices
+  ) {
     // Record indices of this item so we don't try to find other items there
     for (let i = itemIndex; i < itemIndex + numItemWords; i++) {
       usedIndices.push(i);
     }
 
-    if (items.length) {
-      if (itemIndex < items[0][1]) {
-        return items.unshift([itemsWithName, itemIndex]);
+    if (itemDetails.length) {
+      if (itemIndex < itemDetails[0].itemIndex) {
+        // console.log("SHIFTING" + itemsWithName[0].name);
+        return itemDetails.unshift({ alias, itemsWithName, itemIndex });
       }
     }
 
-    return items.push([itemsWithName, itemIndex]);
+    return itemDetails.push({ alias, itemsWithName, itemIndex });
   }
 
   giveFeedback() {
@@ -202,16 +214,14 @@ export class Parser {
           this.findActualVerb();
         }
 
-        if (this.verbSupported) {
-          if (this.duplicateAliasItems && this.secondaryItemName) {
-            // Player must be more specific
-            message = this.handleDuplicateAliases();
-          } else {
-            // Prepositional verb missing a second item
-            message = `${toTitleCase(this.registeredVerb)} the ${
-              this.registeredItem
-            } ${this.actualVerb.interrogative}?`;
-          }
+        if (this.duplicateAliasItems) {
+          // Player must be more specific
+          message = this.handleDuplicateAliases();
+        } else if (this.verbSupported) {
+          // Prepositional verb missing a second item
+          message = `${toTitleCase(this.registeredVerb)} the ${
+            this.registeredItem
+          } ${this.actualVerb.interrogative}?`;
         } else if (this.actualVerb && this.actualVerb.prepositional) {
           // Prepositional verb with missing (or unsupported) first item
           message = `You can't ${this.registeredVerb} that ${
@@ -224,15 +234,10 @@ export class Parser {
           }.`;
         }
       } else if (this.registeredItem) {
-        if (this.duplicateAliasItems) {
-          // Player must be more specific
-          message = this.handleDuplicateAliases();
-        } else {
-          // The item exists elsewhere
-          message = `You don't see ${getArticle(this.registeredItem)} ${
-            this.registeredItem
-          } here.`;
-        }
+        // The item exists elsewhere
+        message = `You don't see ${getArticle(this.registeredItem)} ${
+          this.registeredItem
+        } here.`;
       } else {
         // The item doesn't (yet) exist anywhere
         message = `You don't seem able to ${this.registeredVerb} that.`;
