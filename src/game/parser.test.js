@@ -14,46 +14,20 @@ const consoleIO = require("../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let game;
-const hall = new Room("Hall", "grand");
-const north = new Room("Garden", "");
-const south = new Room("Kitchen", "");
-const east = new Room("Scullery", "");
-const west = new Room("Pantry", "");
-const door = new Door("trapdoor", "", false);
-const chair = new Item("chair", "comfy", false, 0, new Verb("sit in"));
-const redBall = new Item("red ball", "It's a rouge ball", true);
-const blueBall = new Item("blue ball", "It's an azure ball", true);
-const redBox = new Item("red box");
-const blueBox = new Item("blue box");
-redBall.aliases = "ball";
-blueBall.aliases = "ball";
-redBox.aliases = "box";
-blueBox.aliases = "box";
-redBox.capacity = 5;
-blueBox.capacity = 5;
-chair.capacity = 5;
-chair.preposition = "in";
-const chairman = new Item("chair man", "impressive");
-const cushion = new Item("cushion", "plush", true, 2);
-new Verb("jump on"); // Should add verb to global registry
-door.aliases = ["hatch", "trap door", "door"];
-door.getVerb("open").addAliases("give a shove to");
-
-hall.setNorth(north);
-hall.setSouth(south);
-hall.setEast(east);
-hall.setWest(west);
-hall.addItems(
+let game,
+  hall,
+  north,
+  south,
+  east,
+  west,
   door,
   chair,
-  chairman,
-  cushion,
   redBall,
   blueBall,
   redBox,
-  blueBox
-);
+  blueBox,
+  chairman,
+  cushion;
 
 expect.extend({
   toInclude(received, text) {
@@ -92,6 +66,46 @@ const inputTest = async (input, expectedOutput) => {
 describe("parser", () => {
   describe("directions", () => {
     beforeEach(() => {
+      hall = new Room("Hall", "grand");
+      north = new Room("Garden", "");
+      south = new Room("Kitchen", "");
+      east = new Room("Scullery", "");
+      west = new Room("Pantry", "");
+      door = new Door("trapdoor", "", false);
+      chair = new Item("chair", "comfy", false, 0, new Verb("sit in"));
+      redBall = new Item("red ball", "It's a rouge ball", true);
+      blueBall = new Item("blue ball", "It's an azure ball", true);
+      redBox = new Item("red box");
+      blueBox = new Item("blue box");
+      redBall.aliases = "ball";
+      blueBall.aliases = "ball";
+      redBox.aliases = "box";
+      blueBox.aliases = "box";
+      redBox.capacity = 5;
+      blueBox.capacity = 5;
+      chair.capacity = 5;
+      chair.preposition = "in";
+      chairman = new Item("chair man", "impressive");
+      cushion = new Item("cushion", "plush", true, 2);
+      new Verb("jump on"); // Should add verb to global registry
+      door.aliases = ["hatch", "trap door", "door"];
+      door.getVerb("open").addAliases("give a shove to");
+
+      hall.setNorth(north);
+      hall.setSouth(south);
+      hall.setEast(east);
+      hall.setWest(west);
+      hall.addItems(
+        door,
+        chair,
+        chairman,
+        cushion,
+        redBall,
+        blueBall,
+        redBox,
+        blueBox
+      );
+
       game = initGame("The Giant's Castle", false);
       getStore().dispatch(newGame(game, true));
       goToRoom(hall);
@@ -143,9 +157,12 @@ describe("parser", () => {
       inputTest("put cushion", "Put the cushion where?"));
     it("gives feedback when the second item isn't a container, deferring to verb", () =>
       inputTest("put cushion in chair man", "can't put the cushion"));
-    it("allows interaction with items inside other items", () => {
-      inputTest("put cushion in chair", "You put the cushion in the chair");
-      inputTest("take cushion", "You take the cushion");
+    it("allows interaction with items inside other items", async () => {
+      await inputTest(
+        "put cushion in chair",
+        "You put the cushion in the chair"
+      );
+      await inputTest("take cushion", "the cushion");
     });
     it("allows rooms to be referred to by name", () =>
       inputTest("x hall", "grand"));
