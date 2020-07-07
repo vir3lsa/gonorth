@@ -9,6 +9,9 @@ import {
   selectKeywords
 } from "../utils/selectors";
 import { toTitleCase, getArticle } from "../utils/textFunctions";
+import { Option } from "./interactions/option";
+import { ActionChain } from "../utils/actionChain";
+import { OptionGraph } from "./interactions/optionGraph";
 
 export class Parser {
   constructor(input) {
@@ -18,6 +21,7 @@ export class Parser {
     this.actualVerb = null;
     this.verbSupported = false;
     this.roomItem = null;
+    this.indirectItem = null;
     this.duplicateAliasItems = null;
     this.duplicateAlias = null;
   }
@@ -84,6 +88,7 @@ export class Parser {
                 indirectItem = indirectItemsWithName[0];
 
                 if (indirectItem && indirectItem.visible) {
+                  this.indirectItem = indirectItem;
                   validCombination = true;
                 }
               }
@@ -171,14 +176,11 @@ export class Parser {
         }
 
         if (itemDetails.length > 1) {
-          // this.secondaryItemName = possibleItem;
           return itemDetails;
-          // return itemDetails.map(itemEntry => itemEntry[0]);
         }
       }
     }
 
-    // return itemDetails.map(itemEntry => itemEntry[0]);
     return itemDetails;
   }
 
@@ -216,7 +218,7 @@ export class Parser {
 
         if (this.duplicateAliasItems) {
           // Player must be more specific
-          message = this.handleDuplicateAliases();
+          return this.handleDuplicateAliases();
         } else if (this.verbSupported) {
           // Prepositional verb missing a second item
           message = `${toTitleCase(this.registeredVerb)} the ${
@@ -284,6 +286,28 @@ export class Parser {
   }
 
   handleDuplicateAliases() {
-    return `Which ${this.duplicateAlias} do you mean?`;
+    const options = this.duplicateAliasItems.reduce(
+      (acc, item, i) => ({
+        ...acc,
+        [item.name]: {
+          id: `option_${i}`,
+          actions: () => item.try(this.actualVerb.name, this.indirectItem)
+        }
+      }),
+      {}
+    );
+
+    options["Cancel"] = {
+      id: "cancel"
+    };
+
+    const optionGraph = new OptionGraph({
+      id: "disambiguation",
+      actions: `Which ${this.duplicateAlias} do you mean?`,
+      options
+    });
+
+    // TODO Bug in ActionChain that means options are rendered even though OptionChain.renderOptions is false
+    return optionGraph.commence().chain();
   }
 }
