@@ -26,16 +26,9 @@ export default function(state = initialState, action) {
       const interaction = action.payload;
 
       if (interaction instanceof Append && state.interaction.currentPage) {
-        interaction.currentPage = `${state.interaction.currentPage}\n\n${interaction.currentPage}`;
-
-        if (
-          !interaction.options &&
-          interaction.renderOptions &&
-          !state.interaction.nextButtonRendered
-        ) {
-          // Copy concrete options (not 'Next') from previous interaction
-          interaction.options = state.interaction.options;
-        }
+        interaction.currentPage = `${state.interaction.currentPage}\n\n${
+          interaction.currentPage
+        }`;
 
         if (
           typeof interaction.renderNextButton === "undefined" &&

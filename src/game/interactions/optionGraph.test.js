@@ -5,6 +5,7 @@ import { newGame } from "../../redux/gameActions";
 import { OptionGraph } from "./optionGraph";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { selectTurn } from "../../utils/selectors";
+import { Verb } from "../verbs/verb";
 
 expect.extend({
   toInclude(received, text) {
@@ -23,6 +24,7 @@ consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
 let game, optionGraph, x;
+const doIt = new Verb("do it", true, () => x++);
 
 const graph = {
   id: "alpha",
@@ -50,6 +52,10 @@ const graph = {
       id: "three",
       noEndTurn: true,
       actions: "bye"
+    },
+    four: {
+      id: "four",
+      actions: () => doIt.attempt()
     }
   }
 };
@@ -146,4 +152,9 @@ test("start node can be set by id", () => {
   optionGraph.commence().chain();
   expect(selectOptions()[0].label).toBe("three");
   expect(selectOptions()[1].label).toBe("four");
+});
+
+test("optionGraph exits if a node attempts a verb but has no options", async () => {
+  await selectOptions()[3].action();
+  expect(selectOptions()).toBeNull();
 });

@@ -7,6 +7,7 @@ export const cupboard = new Room(
 );
 
 cupboard.options = [
+  // TODO Fix this
   new Option("Leave", () => cupboard.go("north")),
   new Option("Peek", () => {
     const noone =

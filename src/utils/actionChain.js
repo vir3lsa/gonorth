@@ -11,7 +11,6 @@ export class ActionChain {
   constructor(...actions) {
     this.actions = actions;
     this.renderNexts = true;
-    this.renderOptions = true;
     this.postScript = null;
     this.failed = false;
     this.helpers = {
@@ -68,9 +67,7 @@ export class ActionChain {
     const interactionType = clearPage ? Interaction : Append;
 
     return getStore().dispatch(
-      changeInteraction(
-        new interactionType(text, options, nextIfNoOptions, this.renderOptions)
-      )
+      changeInteraction(new interactionType(text, options, nextIfNoOptions))
     );
   }
 
