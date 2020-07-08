@@ -33,6 +33,7 @@ export class Event {
   set action(action) {
     const actionArray = Array.isArray(action) ? action : [action];
     this._action = new ActionChain(...actionArray);
+    this._action.renderOptions = true;
   }
 
   get action() {

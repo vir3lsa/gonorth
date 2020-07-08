@@ -31,6 +31,15 @@ export default function(state = initialState, action) {
         }`;
 
         if (
+          !interaction.options &&
+          interaction.renderOptions &&
+          !state.interaction.nextButtonRendered
+        ) {
+          // Copy concrete options (not 'Next') from previous interaction
+          interaction.options = state.interaction.options;
+        }
+
+        if (
           typeof interaction.renderNextButton === "undefined" &&
           !(interaction instanceof AppendInput)
         ) {

@@ -137,8 +137,8 @@ const downstairsSounds = new RandomText(
 addEvent(
   new Event(
     () => {
+      console.log(selectRoom().name);
       if (
-        selectRoom().name in
         [
           "Kitchen",
           "Bedroom",
@@ -146,8 +146,10 @@ addEvent(
           "Dining Room",
           "Entrance Hall",
           "Pantry",
-          "South Hall"
-        ]
+          "South Hall",
+          "Staircase",
+          "inside oven"
+        ].some(roomName => roomName === selectRoom().name)
       ) {
         return upstairsSounds;
       } else {

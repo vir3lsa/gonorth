@@ -45,13 +45,3 @@ test("No options are shown if attempting verb", async () => {
   await chain.chain();
   expect(getStore().getState().game.interaction.options).toBeNull();
 });
-
-test("No options are shown if attempting verb", async () => {
-  let x = 1;
-  const doIt = new Verb("do it", true, () => x++);
-  const chain = new ActionChain(() => doIt.attempt());
-  chain.options = new Option("one");
-  chain.renderOptions = false;
-  await chain.chain();
-  expect(getStore().getState().game.interaction.options).toBeNull();
-});
