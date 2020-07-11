@@ -14,9 +14,9 @@ expect.extend({
     return {
       message: () =>
         `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
-      pass
+      pass,
     };
-  }
+  },
 });
 
 const selectCurrentPage = () =>
@@ -41,7 +41,7 @@ beforeEach(() => {
 
 test("items can have variable descriptions", () => {
   let looks = 0;
-  const clock = new Item("clock", item => {
+  const clock = new Item("clock", (item) => {
     looks++;
     if (looks === 1) {
       return "It's 12 o'clock";
@@ -176,5 +176,76 @@ describe("putting items", () => {
     const items = room.accessibleItems;
     expect(items["cat"].length).toBe(1);
     expect(items["dog"].length).toBe(2);
+  });
+});
+
+describe("aliases", () => {
+  test("item name is split into aliases", () => {
+    const item = new Item("shiny pebble");
+    expect(item.aliases).toEqual(["shiny", "pebble"]);
+  });
+
+  test("aliases are split into more aliases", () => {
+    const item = new Item(
+      "stone",
+      "",
+      true,
+      1,
+      [],
+      ["shiny pebble", "gleaming rock"]
+    );
+    expect(item.aliases).toEqual([
+      "shiny",
+      "pebble",
+      "shiny pebble",
+      "gleaming",
+      "rock",
+      "gleaming rock",
+    ]);
+  });
+
+  test("aliases can be overridden", () => {
+    const item = new Item("shiny pebble");
+    item.aliases = ["red", "ball"];
+    expect(item.aliases).toEqual(["red", "ball"]);
+  });
+
+  test("aliases can be added to", () => {
+    const item = new Item("shiny pebble");
+    item.addAliases("gleaming rock");
+    expect(item.aliases).toEqual([
+      "shiny",
+      "pebble",
+      "gleaming",
+      "rock",
+      "gleaming rock",
+    ]);
+  });
+
+  test("common words aren't added as aliases", () => {
+    const item = new Item("The Lord of the Rings");
+    expect(item.aliases).toEqual(["lord", "rings"]);
+  });
+
+  test("duplicate aliases aren't added", () => {
+    const item = new Item("shiny pebble");
+    item.addAliases("gleaming pebble");
+    expect(item.aliases).toEqual([
+      "shiny",
+      "pebble",
+      "gleaming",
+      "gleaming pebble",
+    ]);
+  });
+
+  test("aliases initialised to empty array", () => {
+    const item = new Item("watch");
+    expect(item.aliases).toEqual([]);
+  });
+
+  test("aliases are compared to lower-case name", () => {
+    const item = new Item("Cuthbert");
+    item.addAliases("cuthbert");
+    expect(item.aliases).toEqual([]);
   });
 });

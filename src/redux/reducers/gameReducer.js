@@ -2,7 +2,7 @@ import * as type from "../gameActionTypes";
 import {
   Interaction,
   Append,
-  AppendInput
+  AppendInput,
 } from "../../game/interactions/interaction";
 
 const initialState = {
@@ -15,10 +15,10 @@ const initialState = {
   itemNames: new Set(),
   actionChainPromise: null,
   events: [],
-  keywords: {}
+  keywords: {},
 };
 
-export default function(state = initialState, action) {
+export default function (state = initialState, action) {
   switch (action.type) {
     case type.NEW_GAME:
       return { ...state, ...action.payload };
@@ -26,9 +26,7 @@ export default function(state = initialState, action) {
       const interaction = action.payload;
 
       if (interaction instanceof Append && state.interaction.currentPage) {
-        interaction.currentPage = `${state.interaction.currentPage}\n\n${
-          interaction.currentPage
-        }`;
+        interaction.currentPage = `${state.interaction.currentPage}\n\n${interaction.currentPage}`;
 
         if (
           !interaction.options &&
@@ -36,6 +34,7 @@ export default function(state = initialState, action) {
           !state.interaction.nextButtonRendered
         ) {
           // Copy concrete options (not 'Next') from previous interaction
+          // Required e.g. by Events, which append text at indeterminate times
           interaction.options = state.interaction.options;
         }
 
@@ -60,13 +59,13 @@ export default function(state = initialState, action) {
         ...state,
         itemNames: new Set([
           ...state.itemNames,
-          ...action.payload.map(i => i.toLowerCase())
-        ])
+          ...action.payload.map((i) => i.toLowerCase()),
+        ]),
       };
     case type.CHAIN_STARTED:
       return {
         ...state,
-        actionChainPromise: state.actionChainPromise || action.payload
+        actionChainPromise: state.actionChainPromise || action.payload,
       };
     case type.CHAIN_ENDED:
       const actionChainPromise =

@@ -14,7 +14,7 @@ import {
   addEvent,
   selectPlayer,
   addKeyword,
-  Verb
+  Verb,
 } from "../../../lib/gonorth";
 import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
@@ -37,14 +37,13 @@ setIntro(
 
 // setStartingRoom(cellar);
 // setStartingRoom(flue);
-// setStartingRoom(cupboard);
 // setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
 // setStartingRoom(nook);
 // setStartingRoom(southHall);
 // setStartingRoom(diningRoom);
-// setStartingRoom(pantry);
-setStartingRoom(kitchen);
+setStartingRoom(pantry);
+// setStartingRoom(kitchen);
 // setStartingRoom(entranceHall);
 
 if (typeof document !== "undefined") {
@@ -58,8 +57,8 @@ addKeyword(
     true,
     () => {
       const words = [...selectPlayer().uniqueItems]
-        .filter(item => item.magicWord)
-        .map(item => item.name);
+        .filter((item) => item.magicWord)
+        .map((item) => item.name);
 
       if (words.length) {
         return `You bring to mind all the magic words, charms and incantations you've learned. You know:\n\n${words.join(
@@ -148,8 +147,8 @@ addEvent(
           "Pantry",
           "South Hall",
           "Staircase",
-          "inside oven"
-        ].some(roomName => roomName === selectRoom().name)
+          "inside oven",
+        ].some((roomName) => roomName === selectRoom().name)
       ) {
         return upstairsSounds;
       } else {
@@ -159,7 +158,7 @@ addEvent(
     () => selectRoom() && Math.random() * 20 > 19,
     0,
     TIMEOUT_TURNS,
-    x => x,
+    (x) => x,
     true
   )
 );
