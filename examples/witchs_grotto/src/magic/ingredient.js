@@ -70,5 +70,6 @@ export class Ingredient extends Item {
     grind.makePrepositional("with what");
     grind.addAliases("crush");
     this.addVerb(grind);
+    this.addAliases("ingredient");
   }
 }

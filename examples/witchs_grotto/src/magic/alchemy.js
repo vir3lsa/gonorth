@@ -370,6 +370,7 @@ export class Potion extends Item {
     pour.makePrepositional("on what");
 
     this.addVerbs(drink, pour);
+    this.addAliases("potion");
   }
 }
 

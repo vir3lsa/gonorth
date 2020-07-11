@@ -25,7 +25,7 @@ export const cauldron = new Item("cauldron", () => {
 
   return basic;
 });
-cauldron.aliases = ["pot", "container"];
+cauldron.addAliases("pot", "container");
 
 describeCauldronContents = () => {
   const ingredientsAdded = Object.values(cauldron.items).find(itemsWithName =>
@@ -51,8 +51,10 @@ describeCauldronContents = () => {
 cauldron.capacity = 100;
 cauldron.itemsCanBeSeen = false;
 
-export const contents = new Item("contents", () => describeCauldronContents());
-contents.aliases = ["potion", "liquid"];
+export const contents = new Item("cauldron contents", () =>
+  describeCauldronContents()
+);
+contents.aliases = ["contents", "potion", "liquid"];
 contents.addVerb(
   new Verb(
     "take",
@@ -86,7 +88,7 @@ const ladle = new Item(
   true,
   7
 );
-ladle.aliases = ["spoon"];
+ladle.addAliases("spoon");
 
 ladle.roomListing =
   "Hanging on a metal bar that extends from one side of the iron pot and loops over it to rejoin the other side is a heavy-duty ladle used for stirring and spooning out the contents.";
@@ -200,10 +202,9 @@ const extinguish = newVerb({
 fire.addVerbs(ignite, extinguish);
 
 const cover = new Item(
-  "cover",
+  "fire cover",
   "A metal cover that can be pulled over the fire to cut off its air supply and extinguish it. Fortunately, the handles are wooden."
 );
-cover.aliases = ["fire cover"];
 cover.addVerb(
   newVerb({
     name: "close",

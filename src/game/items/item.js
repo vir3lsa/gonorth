@@ -5,7 +5,7 @@ import { selectInventory } from "../../utils/selectors";
 import {
   getBasicItemList,
   toTitleCase,
-  getArticle,
+  getArticle
 } from "../../utils/textFunctions";
 import { getStore } from "../../redux/storeRegistry";
 import { itemsRevealed } from "../../redux/gameActions";
@@ -48,7 +48,7 @@ export class Item {
 
     this.aliases = [];
     this.createAliases(name);
-    aliases.forEach((alias) => this.createAliases(alias));
+    aliases.forEach(alias => this.createAliases(alias));
 
     this.addVerb(
       new Verb(
@@ -82,7 +82,7 @@ export class Item {
               `You take the ${this.name}.`,
               `You pick up the ${this.name}.`,
               `You grab the ${this.name}.`
-            ),
+            )
           ],
           () => {
             if (!this.container.itemsCanBeSeen) {
@@ -110,15 +110,19 @@ export class Item {
             return other.addItem(this);
           },
           (helper, other) =>
-            `You put the ${this.name} ${other.preposition} the ${other.name}.`,
+            `You put the ${this.name} ${other.preposition} the ${other.name}.`
         ],
         (helper, other) => {
           if (other === this) {
-            return `You can't put the ${this.name} ${other.preposition} itself. That would be nonsensical.`;
+            return `You can't put the ${this.name} ${
+              other.preposition
+            } itself. That would be nonsensical.`;
           } else if (other.canHoldItems) {
             return `There's no room ${other.preposition} the ${other.name}.`;
           } else {
-            return `You can't put the ${this.name} ${other.preposition} the ${other.name}.`;
+            return `You can't put the ${this.name} ${other.preposition} the ${
+              other.name
+            }.`;
           }
         },
         ["place", "drop"]
@@ -150,7 +154,7 @@ export class Item {
   }
 
   addVerbs(...verbs) {
-    verbs.forEach((verb) => this.addVerb(verb));
+    verbs.forEach(verb => this.addVerb(verb));
   }
 
   addVerb(verb) {
@@ -166,9 +170,9 @@ export class Item {
     return this._verbs[name];
   }
 
-  _addAliasesToContainer() {
-    if (this._container && this.aliases) {
-      this.aliases.forEach((alias) => {
+  _addAliasesToContainer(aliases) {
+    if (this._container && aliases) {
+      aliases.forEach(alias => {
         const existing = this._container.items[alias.toLowerCase()];
         if (existing) {
           existing.push(this);
@@ -185,7 +189,7 @@ export class Item {
   set verbs(verbs) {
     this._verbs = {};
     const verbArray = Array.isArray(verbs) ? verbs : [verbs];
-    verbArray.forEach((verb) => this.addVerb(verb));
+    verbArray.forEach(verb => this.addVerb(verb));
   }
 
   /**
@@ -193,7 +197,7 @@ export class Item {
    */
   set container(container) {
     this._container = container;
-    this._addAliasesToContainer();
+    this._addAliasesToContainer(this.aliases);
   }
 
   get container() {
@@ -210,7 +214,7 @@ export class Item {
   set aliases(aliases) {
     const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
     this._aliases = aliasArray;
-    this._addAliasesToContainer();
+    this._addAliasesToContainer(this.aliases);
   }
 
   /**
@@ -227,7 +231,7 @@ export class Item {
   }
 
   addItems(...items) {
-    items.forEach((item) => this.addItem(item));
+    items.forEach(item => this.addItem(item));
   }
 
   /**
@@ -268,7 +272,7 @@ export class Item {
 
     // Remove the item from the array of items with its name
     this.items[name] = this.items[name].filter(
-      (itemWithName) => itemWithName !== item
+      itemWithName => itemWithName !== item
     );
 
     // Remove the array if it's empty
@@ -281,7 +285,7 @@ export class Item {
 
     // Remove aliases of the item if we're not already removing an alias
     if (!alias) {
-      item.aliases.forEach((alias) => {
+      item.aliases.forEach(alias => {
         this.removeItem(item, alias);
       });
     }
@@ -302,19 +306,21 @@ export class Item {
   revealItems() {
     if (!this.itemsRevealed && this.container && this.itemsCanBeSeen) {
       debug(`${this.name}: Revealing items`);
-      this.hidesItems.forEach((item) => {
+      this.hidesItems.forEach(item => {
         if (item.holdable && this.canHoldItems) {
           debug(`${this.name}: Adding holdable item ${item.name} to self`);
           this.addItem(item);
         } else {
           debug(
-            `${this.name}: Adding item ${item.name} to parent container ${this.container.name} because either it isn't holdable or I am not a container`
+            `${this.name}: Adding item ${item.name} to parent container ${
+              this.container.name
+            } because either it isn't holdable or I am not a container`
           );
           this.container.addItem(item); // Don't want non-holdable item to be listed
         }
       });
       getStore().dispatch(
-        itemsRevealed(this.hidesItems.map((item) => item.name))
+        itemsRevealed(this.hidesItems.map(item => item.name))
       );
       this.itemsRevealed = true;
     }
@@ -336,7 +342,7 @@ export class Item {
     this._items = items;
     this.uniqueItems = new Set(
       ...Object.values(this._items).reduce((acc, itemsWithName) => {
-        itemsWithName.forEach((item) => acc.push(item));
+        itemsWithName.forEach(item => acc.push(item));
         return acc;
       }, [])
     );
@@ -357,9 +363,7 @@ export class Item {
 
   get basicItemList() {
     return getBasicItemList(
-      [...this.uniqueItems].filter(
-        (item) => !item.roomListing && !item.doNotList
-      )
+      [...this.uniqueItems].filter(item => !item.roomListing && !item.doNotList)
     );
   }
 
@@ -390,8 +394,8 @@ export class Item {
     const itemList = this.basicItemList;
     const uniqueItemList = [...this.uniqueItems];
     const roomListings = uniqueItemList
-      .filter((item) => item.roomListing)
-      .map((item) => item.roomListing);
+      .filter(item => item.roomListing)
+      .map(item => item.roomListing);
 
     if (roomListings.length) {
       description += roomListings.join(" ");
@@ -420,7 +424,7 @@ export class Item {
 
     // Copy our item arrays into this new object
     Object.keys(this.items).forEach(
-      (name) => (items[name] = [...this.items[name]])
+      name => (items[name] = [...this.items[name]])
     );
 
     const itemsWithName = items[this.name.toLowerCase()];
@@ -431,7 +435,7 @@ export class Item {
       items[this.name.toLowerCase()] = [this];
     }
 
-    this.aliases.forEach((alias) => {
+    this.aliases.forEach(alias => {
       const itemsWithName = items[alias.toLowerCase()];
 
       if (itemsWithName) {
@@ -442,12 +446,12 @@ export class Item {
     });
 
     // Add items inside this item's containers
-    [...this.uniqueItems].forEach((item) => {
+    [...this.uniqueItems].forEach(item => {
       const newItems = item.accessibleItems;
       Object.entries(newItems).forEach(([name, itemsWithName]) => {
         if (items[name]) {
           // Add new items with this name to existing list (whilst deduping)
-          itemsWithName.forEach((itemWithName) => {
+          itemsWithName.forEach(itemWithName => {
             if (!items[name].includes(itemWithName)) {
               items[name].push(itemWithName);
             }
@@ -465,13 +469,14 @@ export class Item {
   // Get a flat array of all of this item's items (including those with duplicate aliases)
   get itemArray() {
     return Object.values(this.items).reduce((acc, itemsWithName) => {
-      itemsWithName.forEach((item) => acc.push(item));
+      itemsWithName.forEach(item => acc.push(item));
       return acc;
     }, []);
   }
 
   addAliases(...aliases) {
-    aliases.forEach((alias) => this.createAliases(alias));
+    const newAliases = aliases.forEach(alias => this.createAliases(alias));
+    this._addAliasesToContainer(newAliases);
   }
 
   /*
@@ -479,20 +484,24 @@ export class Item {
    * Ignores certain common words.
    */
   createAliases(alias) {
+    let newAliases = [];
     const lcAlias = alias.toLowerCase();
     const aliases = lcAlias
       .split(/\s/)
-      .filter((token) => token.length)
-      .filter((token) => !this.aliases.some((word) => word === token))
-      .filter((token) => !commonWords.some((word) => word === token));
+      .filter(token => token.length)
+      .filter(token => !this.aliases.some(word => word === token))
+      .filter(token => !commonWords.some(word => word === token));
 
     // Only add if the alias has actually been split
     if (aliases[0] !== lcAlias) {
-      this.aliases = [...this.aliases, ...aliases];
+      newAliases = [...aliases];
     }
 
     if (lcAlias !== this.name.toLowerCase()) {
-      this.aliases.push(lcAlias);
+      newAliases.push(lcAlias);
     }
+
+    this.aliases = [...this.aliases, ...newAliases];
+    return newAliases;
   }
 }
