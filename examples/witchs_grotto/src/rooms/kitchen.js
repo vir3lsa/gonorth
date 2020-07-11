@@ -33,8 +33,7 @@ const cabinetDoor = new Door(
   false,
   false,
   "You find purchase on the corner of the door as there's no handle, and pull it open with a creak.",
-  null,
-  ["door"]
+  null
 );
 
 cabinetDoor.verbs["open"].onSuccess.renderNexts = false;
@@ -83,8 +82,7 @@ const ovenDoor = new Door(
   false,
   false,
   "You yank the handle and the door swings open with a clang.",
-  null,
-  ["door"]
+  null
 );
 
 const crawl = new Verb(
@@ -95,7 +93,7 @@ const crawl = new Verb(
     "Just as you pull your feet in behind you, you hear a noise from the kitchen. As you begin to turn around there's a bone-chilling cackle and the oven door slams shut, trapping you inside.",
     "There's a squeal as another door in the oven that you hadn't noticed is opened. It must be in a chamber below you. There's a noise like sandpaper being rubbed against something and within seconds the cloying aroma of coal smoke tickles your nostrils.",
     "The witch must have lit the fire in the compartment at the bottom of the oven.",
-    () => goToRoom(insideOven)
+    () => goToRoom(insideOven),
   ],
   "The oven door's closed.",
   ["crawl", "enter", "go into", "hide"]
@@ -112,7 +110,7 @@ const sturdyDoor = new Door(
   false,
   "You reach up to the iron handle and give it a good yank. The door barely moves. You pull harder, leaning into it and it slowly but surely opens, making a loud squealing noise. When it's finally open, you let go, panting.",
   null,
-  ["sturdy", "door"]
+  ["sturdy"]
 );
 
 kitchen.addItems(table, oven, ovenDoor, sturdyDoor, cabinet, cabinetDoor);

@@ -42,8 +42,8 @@ setIntro(
 // setStartingRoom(nook);
 // setStartingRoom(southHall);
 // setStartingRoom(diningRoom);
-setStartingRoom(pantry);
-// setStartingRoom(kitchen);
+// setStartingRoom(pantry);
+setStartingRoom(kitchen);
 // setStartingRoom(entranceHall);
 
 if (typeof document !== "undefined") {
