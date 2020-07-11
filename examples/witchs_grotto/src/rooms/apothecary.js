@@ -39,7 +39,7 @@ const bureau = new Item(
   "bureau",
   "It's a beautiful oak writing desk lacquered with a rich, dark varnish. There are wide drawers beneath the worktop."
 );
-bureau.aliases = ["desk"];
+bureau.addAliases("desk");
 bureau.itemsCanBeSeen = false;
 bureau.capacity = 10;
 bureau.preposition = "on";
@@ -48,7 +48,7 @@ const drawers = new Item(
   "drawers",
   "There are three drawers in total, stacked beneath the desk's writing surface, to the right of where one would sit. Each is fitted with an ornate bronze handle."
 );
-drawers.aliases = ["drawer"];
+drawers.addAliases("drawer");
 drawers.addVerb(
   new Verb(
     "open",
@@ -69,7 +69,7 @@ const grimoire = new Item(
 );
 grimoire.roomListing =
   "One in particular catches your eye, however, emblazened in gold leaf with the word *Grimoire*.";
-grimoire.aliases = ["book"];
+grimoire.addAliases("book");
 
 const stopReading = {
   actions: "You close the grimoire."
@@ -180,7 +180,7 @@ const bookShelf = new Item(
 );
 
 bookShelf.capacity = 2;
-bookShelf.aliases = ["library", "books", "bookshelf"];
+bookShelf.addAliases("library", "books", "bookshelf");
 bookShelf.hidesItems = grimoire;
 bookShelf.itemsCanBeSeen = false;
 bookShelf.preposition = "on";
@@ -189,7 +189,7 @@ const apparatus = new Item(
   "filling apparatus",
   "There's a spout above the cauldron from which a variety of fluids can be emitted. It's connected to a pipe that creeps around the corners of the fireplace and the apothecary itself before splitting off into three separate tubes. At the point the pipes converge there's a rotating dial with a marker that can be pointed at each of the inlets. There's a master valve just below the dial to control the flow of liquid."
 );
-apparatus.aliases = ["apparatus", "pipes"];
+apparatus.addAliases("pipes");
 
 const masterValve = new Item(
   "valve",
@@ -198,7 +198,7 @@ const masterValve = new Item(
       masterValve.open ? "open" : "closed"
     }.`
 );
-masterValve.aliases = ["crank"];
+masterValve.addAliases("crank");
 masterValve.open = false;
 
 const dial = new Item(
@@ -330,7 +330,7 @@ const witchHazel = new Ingredient("Witch Hazel", "placeholder");
 const wormwood = new Ingredient("Wormwood", "placeholder");
 
 herbarium.capacity = 20;
-herbarium.aliases = ["vials", "jars", "bottles", "ingredients"];
+herbarium.addAliases("vials", "jars", "bottles", "ingredients");
 herbarium.hidesItems = [
   adderVenom,
   alfalfa,
@@ -383,7 +383,6 @@ const woodwormPotion = new Potion(
   "Organic Dissolution Accelerator",
   "It's thick, bright green and has a powerful chemical odour."
 );
-woodwormPotion.aliases = ["organic", "dissolution", "accelerator"];
 
 const woodwormProcedure = new Procedure(
   {
@@ -429,7 +428,7 @@ const strengthPotion = new Potion(
   "Elixir of Might",
   "It's a deep purple colour, flecked with gold."
 );
-strengthPotion.aliases = ["strength"];
+strengthPotion.addAliases("strength");
 
 const strengthProcedure = new Procedure(
   {
@@ -521,7 +520,7 @@ const matchbook = new Item(
   true,
   0.5
 );
-matchbook.aliases = ["matches", "match"];
+matchbook.addAliases("matches", "match");
 matchbook.preposition = "with";
 
 const tornPage = new Item(
@@ -537,7 +536,7 @@ Recite the Lunar Incantation.`,
     "Scibbled in the margin are the words of the Lunar Incantation. You commit them to memory."
   )
 );
-tornPage.aliases = ["torn", "page"];
+tornPage.addAliases("paper");
 
 alchemy.addProcedures(mendingProcedure, woodwormProcedure, strengthProcedure);
 
@@ -604,7 +603,7 @@ const hinges = new Item("hinges", () => {
     return "The hinges are are a mess of red rust and have almost completely worn through. They look very weak.";
   }
 });
-hinges.aliases = ["hinge"];
+hinges.addAliases("hinge");
 
 const padlock = new Item("padlock", () => {
   if (ironGate.broken) {
@@ -613,7 +612,7 @@ const padlock = new Item("padlock", () => {
     return "The padlock has certainly seen better days. There's no part of it that isn't covered in rust.";
   }
 });
-padlock.aliases = ["lock"];
+padlock.addAliases("lock");
 
 ironGate.verbs.examine.onSuccess.insertAction(
   () => {
