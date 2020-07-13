@@ -329,7 +329,7 @@ const witchHazel = new Ingredient("Witch Hazel", "placeholder");
 
 const wormwood = new Ingredient("Wormwood", "placeholder");
 
-herbarium.capacity = 20;
+herbarium.capacity = 22;
 herbarium.addAliases("vials", "jars", "bottles", "ingredients");
 herbarium.hidesItems = [
   adderVenom,
@@ -355,7 +355,6 @@ herbarium.hidesItems = [
   witchHazel,
   wormwood
 ];
-herbarium.itemsCanBeSeen = false;
 
 const mendingPotion = new Potion(
   "Elixir of Mending",

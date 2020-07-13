@@ -280,8 +280,11 @@ export class Item {
       delete this.items[name];
     }
 
-    this.uniqueItems.delete(item);
-    item.container = null;
+    if (this.uniqueItems.has(item)) {
+      this.uniqueItems.delete(item);
+      item.container = null;
+      this.free += item.size;
+    }
 
     // Remove aliases of the item if we're not already removing an alias
     if (!alias) {
