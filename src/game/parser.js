@@ -159,9 +159,11 @@ export class Parser {
           item => item.visible
         );
 
-        if (!itemsWithName?.length) {
-          // Try items in the player's inventory instead
-          itemsWithName = selectInventory().items[possibleItem];
+        // Try items in the player's inventory as well
+        const inventoryItems = selectInventory().items[possibleItem];
+
+        if (inventoryItems) {
+          itemsWithName = [...itemsWithName, ...inventoryItems];
         }
 
         if (itemsWithName?.length) {

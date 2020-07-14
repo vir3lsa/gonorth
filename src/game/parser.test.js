@@ -35,19 +35,23 @@ expect.extend({
     return {
       message: () =>
         `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
-      pass,
+      pass
     };
-  },
+  }
 });
 
 const directionTest = async (input, expectedRoom) => {
   const actionPromise = new Parser(input).parse();
-  setTimeout(() => getStore().getState().game.interaction.options[0].action());
+  setTimeout(() =>
+    getStore()
+      .getState()
+      .game.interaction.options[0].action()
+  );
   await actionPromise;
   expect(game.room.name).toBe(expectedRoom);
 };
 
-const openDoorTest = (input) => {
+const openDoorTest = input => {
   new Parser(input).parse();
   expect(door.open).toBe(true);
 };
@@ -183,5 +187,9 @@ describe("parser", () => {
       inputTest("put ball in box", "Which ball do you mean?"));
     it("mentions primary duplicate if secondary is defined", () =>
       inputTest("put ball in red box", "Which ball do you mean?"));
+    it("disambiguates when duplicates are in the room and the inventory", async () => {
+      await inputTest("take red ball", "the red ball");
+      await inputTest("x ball", "Which ball do you mean?");
+    });
   });
 });
