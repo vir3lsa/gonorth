@@ -41,7 +41,10 @@ const mendingProcedure = new Procedure(
         ordered: false,
         steps: [
           { type: STEP_WATER, value: 0.5 },
-          { type: STEP_INGREDIENTS, value: [dryadToenails, alfalfa, whiteSage] }
+          {
+            type: STEP_INGREDIENTS,
+            value: [dryadToenails.name, alfalfa.name, whiteSage.name]
+          }
         ]
       },
       { type: STEP_HEAT, value: 3, leniency: 3 }
@@ -54,7 +57,7 @@ const woodwormProcedure = new Procedure(
     ordered: true,
     steps: [
       { type: STEP_WATER, value: 1 },
-      { type: STEP_INGREDIENTS, value: [cockroachSaliva, horehound] },
+      { type: STEP_INGREDIENTS, value: [cockroachSaliva.name, horehound.name] },
       {
         type: STEP_STIR,
         value: 3,
@@ -64,7 +67,7 @@ const woodwormProcedure = new Procedure(
           "The mixture turns a deep red."
         )
       },
-      { type: STEP_INGREDIENTS, value: [wormwood] }
+      { type: STEP_INGREDIENTS, value: [wormwood.name] }
     ]
   },
   woodwormPotion
@@ -74,9 +77,9 @@ const anotherProcedure = new Procedure(
     ordered: true,
     steps: [
       { type: STEP_WATER, value: 0.25 },
-      { type: STEP_INGREDIENTS, value: [horehound] },
+      { type: STEP_INGREDIENTS, value: [horehound.name] },
       { type: STEP_STIR, value: 1, leniency: 1 },
-      { type: STEP_INGREDIENTS, value: [wormwood] }
+      { type: STEP_INGREDIENTS, value: [wormwood.name] }
     ]
   },
   anotherPotion
@@ -126,7 +129,7 @@ test("it deep copies procedures", () => {
 test("it removes ingredient from candidate after it's added to cauldron", () => {
   alchemy.addIngredient(dryadToenails);
   expect(alchemy.candidates[0].procedure.steps[0].steps[1].value).not.toInclude(
-    dryadToenails
+    dryadToenails.name
   );
 });
 

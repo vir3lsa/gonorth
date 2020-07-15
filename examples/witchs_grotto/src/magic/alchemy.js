@@ -171,7 +171,7 @@ class Alchemy {
       } else if (stepToConsider.type === stepType) {
         switch (stepType) {
           case STEP_INGREDIENTS:
-            if (stepToConsider.value.includes(ingredient)) {
+            if (stepToConsider.value.includes(ingredient.name)) {
               matchingStep = stepToConsider;
             }
             break;
@@ -199,7 +199,7 @@ class Alchemy {
         case STEP_INGREDIENTS:
           // Remove the matching ingredient from the step
           matchingStep.value = matchingStep.value.filter(
-            item => item !== ingredient
+            item => item !== ingredient.name
           );
 
           if (!matchingStep.value.length) {
@@ -225,6 +225,8 @@ class Alchemy {
           this.stirLeniency = matchingStep.leniency || 0;
           this.handleNumericStep(1, matchingStep, steps);
           break;
+        default:
+          console.error(`alchemy: Unrecognised step type: ${stepType}`);
       }
     } else if (matchingGroup) {
       if (!matchingGroup.steps.length) {

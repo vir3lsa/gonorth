@@ -29,6 +29,7 @@ import { potionEffects, DRINK } from "../magic/potionEffects";
 import { lowerSpiral } from "./lowerSpiral";
 import { pestleAndMortar } from "../magic/pestleAndMortar";
 import { cauldron, contents, tap, fire } from "../magic/cauldron";
+import { MagicWord } from "../magic/magicWord";
 
 export const apothecary = new Room(
   "Apothecary",
@@ -369,7 +370,10 @@ const mendingProcedure = new Procedure(
         ordered: false,
         steps: [
           { type: STEP_WATER, value: 1 },
-          { type: STEP_INGREDIENTS, value: [dryadToenails, alfalfa, whiteSage] }
+          {
+            type: STEP_INGREDIENTS,
+            value: [dryadToenails.name, alfalfa.name, whiteSage.name]
+          }
         ]
       },
       { type: STEP_HEAT, value: 3 }
@@ -390,7 +394,7 @@ const woodwormProcedure = new Procedure(
       { type: STEP_WATER, value: 0.5 },
       {
         type: STEP_INGREDIENTS,
-        value: [cockroachSaliva, horehound],
+        value: [cockroachSaliva.name, horehound.name],
         text: new CyclicText(
           "It quickly dissolves into the water.",
           "It falls into the water creating a dirty brown mixture."
@@ -413,7 +417,7 @@ const woodwormProcedure = new Procedure(
       },
       {
         type: STEP_INGREDIENTS,
-        value: [wormwood],
+        value: [wormwood.name],
         text:
           "As the leaves drop into the ruddy mixture it suddenly shifts through shades of orange and yellow before finally settling on a luminous green. There's a strong smell to accompany the change and tendrils of steam are rising from the surface.",
         short: "luminous green with a chemical smell"
@@ -445,7 +449,7 @@ const strengthProcedure = new Procedure(
         steps: [
           {
             type: STEP_INGREDIENTS,
-            value: [adderVenom],
+            value: [adderVenom.name],
             text:
               "The venom immediately splits the mixture, turning it into a slimy mess of reds and yellows.",
             short: "split, with slimy reds and yellows"
@@ -455,7 +459,7 @@ const strengthProcedure = new Procedure(
       },
       {
         type: STEP_INGREDIENTS,
-        value: [astragalus],
+        value: [astragalus.name],
         text:
           "As the astragalus hits the boiling liquid, a cloud of blue smoke billows from the surface.",
         short: "billowing blue smoke"
@@ -482,7 +486,7 @@ const strengthProcedure = new Procedure(
       },
       {
         type: STEP_INGREDIENTS,
-        value: [valerian],
+        value: [valerian.name],
         text: "A sweet smell emanates from the cauldron.",
         short: "smooth, silky, and purple, with a sweet scent."
       },
@@ -536,6 +540,17 @@ Recite the Lunar Incantation.`,
   )
 );
 tornPage.addAliases("paper");
+tornPage.verbs["examine"].onSuccess.insertAction(() => {
+  if (!selectPlayer().items["Lunar Incantation"]) {
+    selectPlayer().addItem(
+      new MagicWord(
+        "Lunar Incantation",
+        [],
+        "You visualise a bright full moon and, under the gaze of that single terrible eye, recite the words of the"
+      )
+    );
+  }
+});
 
 alchemy.addProcedures(mendingProcedure, woodwormProcedure, strengthProcedure);
 
