@@ -5,7 +5,8 @@ import {
   STEP_HEAT,
   STEP_WATER,
   STEP_STIR,
-  Potion
+  Potion,
+  STEP_FAT
 } from "./alchemy";
 import { Ingredient } from "./ingredient";
 import { CyclicText, Item } from "../../../../src/gonorth";
@@ -89,7 +90,7 @@ const spiritProcedure = new Procedure(
     ordered: true,
     spirit: ["moon"],
     steps: [
-      { type: STEP_WATER, value: 0.25, text: "The water is dark." },
+      { type: STEP_FAT, value: 0.25 },
       { type: STEP_INGREDIENTS, value: [horehound.name] },
       { type: STEP_STIR, value: 1, leniency: 1 },
       { type: STEP_INGREDIENTS, value: [wormwood.name] }
@@ -98,31 +99,53 @@ const spiritProcedure = new Procedure(
   anotherPotion
 );
 
+const moonstone = new Item("moonstone", "shiny", true, 1);
+moonstone.spirit = "moon";
+
 const pentagram = new Item("pentagram");
 pentagram.capacity = 5;
 const alchemy = new Alchemy(pentagram);
-alchemy.addProcedures(mendingProcedure, woodwormProcedure, anotherProcedure);
+alchemy.addProcedures(
+  mendingProcedure,
+  woodwormProcedure,
+  anotherProcedure,
+  spiritProcedure
+);
 
 function addIngredients(...ingredients) {
   ingredients.forEach(ingredient => alchemy.addIngredient(ingredient));
 }
 
 function addWater(times) {
+  let text;
   for (let i = 0; i < times; i++) {
-    alchemy.addWater();
+    text = alchemy.addWater();
   }
+  return text;
+}
+
+function addFat(times) {
+  let text;
+  for (let i = 0; i < times; i++) {
+    text = alchemy.addFat();
+  }
+  return text;
 }
 
 function addHeat(times) {
+  let text;
   for (let i = 0; i < times; i++) {
-    alchemy.addHeat();
+    text = alchemy.addHeat();
   }
+  return text;
 }
 
 function stir(times) {
+  let text;
   for (let i = 0; i < times; i++) {
-    alchemy.stir();
+    text = alchemy.stir();
   }
+  return text;
 }
 
 function followMendingProcedure() {
@@ -278,4 +301,13 @@ test("follows steps after leniency", () => {
   expect(alchemy.potion).toBe(anotherPotion);
 });
 
-test("gives correct text when required spirit is present", () => {});
+test("matches step when required spirit is present", () => {
+  pentagram.addItem(moonstone);
+  addFat(1);
+  expect(alchemy.candidates[0].procedure.steps.length).toBe(3);
+});
+
+test("does not match step when required spirit is not present", () => {
+  addFat(1);
+  expect(alchemy.candidates.length).toBe(0);
+});

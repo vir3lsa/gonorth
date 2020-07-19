@@ -103,7 +103,7 @@ export class Alchemy {
     this.stepText = null;
 
     const candidates = this.candidates.filter(cand =>
-      this.findMatchingStep(cand.procedure, stepType, ingredient)
+      this.findMatchingStep(cand.procedure, stepType, ingredient, null)
     );
 
     if (candidates.length && this.liquidLevel && this.ingredientsAdded) {
@@ -150,9 +150,10 @@ export class Alchemy {
     this.candidates = candidates;
   }
 
-  findMatchingStep(group, stepType, ingredient) {
+  findMatchingStep(group, stepType, ingredient, spirit) {
     const ordered = group.ordered;
     const steps = group.steps;
+    const requiredSpirit = group.spirit || spirit;
     const numStepsToConsider = ordered ? 1 : steps.length;
     let stepToConsider, matchingStep, matchingGroup;
 
@@ -161,12 +162,24 @@ export class Alchemy {
       return false;
     }
 
+    if (this.findSpirit() !== requiredSpirit) {
+      // Spirit must be correct or no steps can match
+      return false;
+    }
+
     for (let i = 0; i < numStepsToConsider; i++) {
       stepToConsider = steps[i];
 
       if (stepToConsider.hasOwnProperty("ordered")) {
         // recurse through the subgroup
-        if (this.findMatchingStep(stepToConsider, stepType, ingredient)) {
+        if (
+          this.findMatchingStep(
+            stepToConsider,
+            stepType,
+            ingredient,
+            requiredSpirit
+          )
+        ) {
           matchingGroup = stepToConsider;
           break;
         }
@@ -336,6 +349,10 @@ export class Alchemy {
     }
 
     return "The fire heats the cauldron.";
+  }
+
+  findSpirit() {
+    return this.spiritContainer.items.map(item => item.spirit);
   }
 }
 
