@@ -22,14 +22,14 @@ import {
   Potion,
   STEP_STIR,
   STEP_BLOOD,
-  STEP_FAT,
-  alchemy
+  STEP_FAT
 } from "../magic/alchemy";
 import { potionEffects, DRINK } from "../magic/potionEffects";
 import { lowerSpiral } from "./lowerSpiral";
 import { pestleAndMortar } from "../magic/pestleAndMortar";
-import { cauldron, contents, tap, fire } from "../magic/cauldron";
+import { alchemy, cauldron, contents, tap, fire } from "../magic/cauldron";
 import { MagicWord } from "../magic/magicWord";
+import { pentagram } from "../magic/pentagram";
 
 export const apothecary = new Room(
   "Apothecary",
@@ -331,7 +331,7 @@ const witchHazel = new Ingredient("Witch Hazel", "placeholder");
 const wormwood = new Ingredient("Wormwood", "placeholder");
 
 herbarium.capacity = 22;
-herbarium.addAliases("vials", "jars", "bottles", "ingredients");
+herbarium.addAliases("vials", "jars", "bottles", "ingredients", "herbs");
 herbarium.hidesItems = [
   adderVenom,
   alfalfa,
@@ -672,7 +672,8 @@ apothecary.addItems(
   tap,
   fire,
   bureau,
-  ironGate
+  ironGate,
+  pentagram
 );
 
 apothecary.setEast(

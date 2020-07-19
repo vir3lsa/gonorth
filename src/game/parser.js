@@ -9,8 +9,6 @@ import {
   selectKeywords
 } from "../utils/selectors";
 import { toTitleCase, getArticle } from "../utils/textFunctions";
-import { Option } from "./interactions/option";
-import { ActionChain } from "../utils/actionChain";
 import { OptionGraph } from "./interactions/optionGraph";
 
 export class Parser {
@@ -155,9 +153,9 @@ export class Parser {
         }
 
         // Is the item in the room and visible? Does it support the verb?
-        let itemsWithName = room.accessibleItems[possibleItem]?.filter(
-          item => item.visible
-        );
+        let itemsWithName =
+          room.accessibleItems[possibleItem]?.filter(item => item.visible) ||
+          [];
 
         // Try items in the player's inventory as well
         const inventoryItems = selectInventory().items[possibleItem];

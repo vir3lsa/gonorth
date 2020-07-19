@@ -1,5 +1,5 @@
 import {
-  alchemy,
+  Alchemy,
   Procedure,
   STEP_INGREDIENTS,
   STEP_HEAT,
@@ -8,7 +8,7 @@ import {
   Potion
 } from "./alchemy";
 import { Ingredient } from "./ingredient";
-import { CyclicText } from "../../../../src/gonorth";
+import { CyclicText, Item } from "../../../../src/gonorth";
 
 expect.extend({
   toInclude(received, value) {
@@ -84,7 +84,23 @@ const anotherProcedure = new Procedure(
   },
   anotherPotion
 );
+const spiritProcedure = new Procedure(
+  {
+    ordered: true,
+    spirit: ["moon"],
+    steps: [
+      { type: STEP_WATER, value: 0.25, text: "The water is dark." },
+      { type: STEP_INGREDIENTS, value: [horehound.name] },
+      { type: STEP_STIR, value: 1, leniency: 1 },
+      { type: STEP_INGREDIENTS, value: [wormwood.name] }
+    ]
+  },
+  anotherPotion
+);
 
+const pentagram = new Item("pentagram");
+pentagram.capacity = 5;
+const alchemy = new Alchemy(pentagram);
 alchemy.addProcedures(mendingProcedure, woodwormProcedure, anotherProcedure);
 
 function addIngredients(...ingredients) {
@@ -261,3 +277,5 @@ test("follows steps after leniency", () => {
   addIngredients(wormwood);
   expect(alchemy.potion).toBe(anotherPotion);
 });
+
+test("gives correct text when required spirit is present", () => {});

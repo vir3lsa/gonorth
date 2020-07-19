@@ -9,7 +9,11 @@ import {
   TIMEOUT_TURNS
 } from "../../../../lib/gonorth";
 import { Ingredient } from "./ingredient";
-import { alchemy } from "./alchemy";
+import { Alchemy } from "./alchemy";
+import { pentagram } from "./pentagram";
+
+// Our alchemy instance for the apothecary
+export const alchemy = new Alchemy(pentagram);
 
 let describeCauldronContents;
 

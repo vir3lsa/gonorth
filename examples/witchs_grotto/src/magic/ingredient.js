@@ -1,6 +1,5 @@
 import { Item, Verb, selectPlayer } from "../../../../lib/gonorth";
-import { alchemy } from "./alchemy";
-import { cauldron } from "./cauldron";
+import { alchemy, cauldron } from "./cauldron";
 import { pestleAndMortar } from "./pestleAndMortar";
 
 export class Ingredient extends Item {

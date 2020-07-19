@@ -7,6 +7,7 @@ import {
   selectTurn
 } from "../../../../lib/gonorth";
 import { potionEffects, DRINK } from "./potionEffects";
+import { pentagram } from "./pentagram";
 
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
@@ -31,8 +32,9 @@ const inert = new RandomText(
   "The contents sit dully in the pot. There's no evidence of anything happening."
 );
 
-class Alchemy {
-  constructor() {
+export class Alchemy {
+  constructor(spiritContainer) {
+    this.spiritContainer = spiritContainer;
     this.procedures = [];
     this.flush();
   }
@@ -375,5 +377,3 @@ export class Potion extends Item {
     this.addAliases("potion");
   }
 }
-
-export const alchemy = new Alchemy();
