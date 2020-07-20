@@ -150,10 +150,9 @@ export class Alchemy {
     this.candidates = candidates;
   }
 
-  findMatchingStep(group, stepType, ingredient, spirit) {
+  findMatchingStep(group, stepType, ingredient) {
     const ordered = group.ordered;
     const steps = group.steps;
-    const requiredSpirit = group.spirit || spirit;
     const numStepsToConsider = ordered ? 1 : steps.length;
     let stepToConsider, matchingStep, matchingGroup;
 
@@ -162,7 +161,7 @@ export class Alchemy {
       return false;
     }
 
-    if (this.findSpirit() !== requiredSpirit) {
+    if (group.spirit && !this.doesSpiritMatch(group.spirit)) {
       // Spirit must be correct or no steps can match
       return false;
     }
@@ -172,14 +171,7 @@ export class Alchemy {
 
       if (stepToConsider.hasOwnProperty("ordered")) {
         // recurse through the subgroup
-        if (
-          this.findMatchingStep(
-            stepToConsider,
-            stepType,
-            ingredient,
-            requiredSpirit
-          )
-        ) {
+        if (this.findMatchingStep(stepToConsider, stepType, ingredient)) {
           matchingGroup = stepToConsider;
           break;
         }
@@ -351,8 +343,21 @@ export class Alchemy {
     return "The fire heats the cauldron.";
   }
 
-  findSpirit() {
-    return this.spiritContainer.items.map(item => item.spirit);
+  doesSpiritMatch(requiredSpirit) {
+    const spirit = [...this.spiritContainer.uniqueItems].map(
+      item => item.spirit
+    );
+
+    if (spirit.length !== requiredSpirit.length) {
+      return false;
+    }
+
+    // Find the first required spirit that's not in the actual spirit. If we find none then spirit is correct.
+    const missingSpirit = requiredSpirit.find(
+      required => spirit.find(actual => actual === required) === undefined
+    );
+
+    return !Boolean(missingSpirit);
   }
 }
 

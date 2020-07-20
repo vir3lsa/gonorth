@@ -156,6 +156,9 @@ function followMendingProcedure() {
 
 beforeEach(() => {
   alchemy.flush();
+  if (pentagram.uniqueItems.size) {
+    [...pentagram.uniqueItems].forEach(item => pentagram.removeItem(item));
+  }
 });
 
 test("it deep copies procedures", () => {
