@@ -7,7 +7,6 @@ import {
   selectTurn
 } from "../../../../lib/gonorth";
 import { potionEffects, DRINK } from "./potionEffects";
-import { pentagram } from "./pentagram";
 
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";

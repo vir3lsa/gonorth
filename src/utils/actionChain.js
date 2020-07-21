@@ -45,6 +45,7 @@ export class ActionChain {
     );
   }
 
+  /* Insert an action at the beginning of the chain. */
   insertAction(action) {
     this._actions.unshift(
       this.toChainableFunction(action, 0, [action, ...this._actions])
@@ -55,6 +56,7 @@ export class ActionChain {
     actions.reverse().forEach(action => this.insertAction(action));
   }
 
+  /* Add an action to the end of the chain. */
   addAction(action) {
     this._actions.push(
       this.toChainableFunction(action, this._actions.length - 1, [

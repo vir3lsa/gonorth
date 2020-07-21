@@ -8,3 +8,10 @@ export const pentagram = new Item(
 pentagram.addAliases("five pointed star");
 pentagram.capacity = 5;
 pentagram.preposition = "on";
+
+pentagram.verbs.examine.onSuccess.addAction(() => {
+  let spiritText = `Emanating from the pentagram and filling the whole room is a spirit of ${[
+    ...pentagram.uniqueItems
+  ].map(item => item.spirit)}`;
+  return spiritText;
+});

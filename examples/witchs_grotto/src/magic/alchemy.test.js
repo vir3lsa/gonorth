@@ -98,9 +98,28 @@ const spiritProcedure = new Procedure(
   },
   anotherPotion
 );
+const spirit2Procedure = new Procedure(
+  {
+    ordered: true,
+    spirit: ["moon", "fire"],
+    steps: [
+      { type: STEP_FAT, value: 0.25 },
+      { type: STEP_INGREDIENTS, value: [horehound.name] },
+      { type: STEP_STIR, value: 1, leniency: 1 },
+      { type: STEP_INGREDIENTS, value: [wormwood.name] }
+    ]
+  },
+  anotherPotion
+);
 
 const moonstone = new Item("moonstone", "shiny", true, 1);
 moonstone.spirit = "moon";
+
+const firestone = new Item("firestone", "hot", true, 1);
+firestone.spirit = "fire";
+
+const bloodstone = new Item("bloodstone", "red", true, 1);
+bloodstone.spirit = "blood";
 
 const pentagram = new Item("pentagram");
 pentagram.capacity = 5;
@@ -109,7 +128,8 @@ alchemy.addProcedures(
   mendingProcedure,
   woodwormProcedure,
   anotherProcedure,
-  spiritProcedure
+  spiritProcedure,
+  spirit2Procedure
 );
 
 function addIngredients(...ingredients) {
@@ -307,10 +327,24 @@ test("follows steps after leniency", () => {
 test("matches step when required spirit is present", () => {
   pentagram.addItem(moonstone);
   addFat(1);
+  expect(alchemy.candidates.length).toBe(1);
   expect(alchemy.candidates[0].procedure.steps.length).toBe(3);
 });
 
 test("does not match step when required spirit is not present", () => {
+  addFat(1);
+  expect(alchemy.candidates.length).toBe(0);
+});
+
+test("matches step with multiple spirit requirements", () => {
+  pentagram.addItems(moonstone, firestone);
+  addFat(1);
+  expect(alchemy.candidates.length).toBe(1);
+  expect(alchemy.candidates[0].procedure.steps.length).toBe(3);
+});
+
+test("does not match if too many spirit items are present", () => {
+  pentagram.addItems(moonstone, bloodstone);
   addFat(1);
   expect(alchemy.candidates.length).toBe(0);
 });
