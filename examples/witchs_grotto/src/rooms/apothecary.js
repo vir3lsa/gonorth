@@ -663,6 +663,13 @@ hinges.addVerb(breakVerb);
 // Have to add gate to adjacent room here to avoid circular dependencies
 lowerSpiral.addItem(ironGate);
 
+// TESTING SPIRIT - REMOVE!
+const moonstone = new Item("moonstone", "moon", true, 1);
+moonstone.spirit = "moon";
+
+const firestone = new Item("firestone", "fire", true, 1);
+firestone.spirit = "fire";
+
 apothecary.addItems(
   bookShelf,
   herbarium,
@@ -673,7 +680,9 @@ apothecary.addItems(
   fire,
   bureau,
   ironGate,
-  pentagram
+  pentagram,
+  moonstone,
+  firestone
 );
 
 apothecary.setEast(

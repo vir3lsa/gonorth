@@ -44,3 +44,17 @@ export function toTitleCase(text) {
 export function getArticle(name) {
   return `a${vowels.includes(name.toLowerCase()[0]) ? "n" : ""}`;
 }
+
+export function englishList(elements) {
+  return elements.reduce((list, element, index) => {
+    let newList = `${list}${element}`;
+
+    if (index < elements.length - 2) {
+      newList += ", ";
+    } else if (index < elements.length - 1) {
+      newList += " and ";
+    }
+
+    return newList;
+  }, "");
+}
