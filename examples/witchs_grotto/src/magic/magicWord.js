@@ -1,4 +1,5 @@
 import { Verb, Item } from "../../../../lib/gonorth";
+import { alchemy } from "./cauldron";
 
 export class MagicWord extends Item {
   constructor(name, aliases, sayingDescription) {
@@ -8,12 +9,13 @@ export class MagicWord extends Item {
     this.doNotList = true; // Hides word from normal inventory check
     this._verbs = {};
     this.addVerb(
-      new Verb("say", true, `${sayingDescription} ${name}.`, null, [
-        "speak",
-        "intone",
-        "recite",
-        "chant"
-      ])
+      new Verb(
+        "say",
+        true,
+        [() => alchemy.sayWords(name), `${sayingDescription} ${name}.`],
+        null,
+        ["speak", "intone", "recite", "chant"]
+      )
     );
   }
 }

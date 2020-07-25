@@ -30,6 +30,7 @@ import { pestleAndMortar } from "../magic/pestleAndMortar";
 import { alchemy, cauldron, contents, tap, fire } from "../magic/cauldron";
 import { MagicWord } from "../magic/magicWord";
 import { pentagram } from "../magic/pentagram";
+import { dolittleProcedure } from "../magic/dolittleDecoction";
 
 export const apothecary = new Room(
   "Apothecary",
@@ -565,7 +566,12 @@ tornPage.verbs["examine"].onSuccess.insertAction(() => {
   }
 });
 
-alchemy.addProcedures(mendingProcedure, woodwormProcedure, strengthProcedure);
+alchemy.addProcedures(
+  mendingProcedure,
+  woodwormProcedure,
+  strengthProcedure,
+  dolittleProcedure
+);
 
 potionEffects.add(
   woodwormPotion,
@@ -676,6 +682,10 @@ hinges.addVerb(breakVerb);
 // Have to add gate to adjacent room here to avoid circular dependencies
 lowerSpiral.addItem(ironGate);
 
+// TESTING (remove)
+const moonstone = new Item("moonstone", "moony", true);
+moonstone.spirit = "moon";
+
 apothecary.addItems(
   bookShelf,
   herbarium,
@@ -686,7 +696,9 @@ apothecary.addItems(
   fire,
   bureau,
   ironGate,
-  pentagram
+  pentagram,
+  moonstone,
+  tornPage
 );
 
 apothecary.setEast(

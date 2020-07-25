@@ -14,6 +14,7 @@ export const STEP_STIR = "stir";
 export const STEP_WATER = "water";
 export const STEP_FAT = "fat";
 export const STEP_BLOOD = "blood";
+export const STEP_WORDS = "words";
 
 const errors = new CyclicText(
   "The cauldron's contents become dull and grey. This doesn't seem right.",
@@ -98,6 +99,11 @@ export class Alchemy {
     return this.stepText;
   }
 
+  sayWords(word) {
+    this.processStep(word);
+    return this.stepText;
+  }
+
   processStep(stepType, ingredient) {
     this.stepText = null;
 
@@ -177,6 +183,7 @@ export class Alchemy {
       } else if (stepToConsider.type === stepType) {
         switch (stepType) {
           case STEP_INGREDIENTS:
+          case STEP_WORDS:
             if (stepToConsider.value.includes(ingredient.name)) {
               matchingStep = stepToConsider;
             }
