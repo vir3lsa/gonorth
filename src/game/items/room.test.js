@@ -74,11 +74,23 @@ describe("Room", () => {
       const table = new Item("table", "");
       table.preposition = "on";
       table.capacity = 10;
+      table.itemsVisibleFromRoom = true;
       table.addItems(item1, item2);
       hall.addItem(table);
       expect(hall.itemListings).toInclude(
         "On the table there's a candlestick and an apple."
       );
+    });
+
+    it("does not list items contained by other items when not visible", () => {
+      const item1 = new Item("candlestick", "", true);
+      const table = new Item("table", "");
+      table.preposition = "on";
+      table.capacity = 10;
+      table.itemsVisibleFromRoom = false;
+      table.addItems(item1);
+      hall.addItem(table);
+      expect(hall.itemListings).toEqual("");
     });
   });
 
