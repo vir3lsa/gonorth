@@ -36,14 +36,15 @@ export class Item {
     this.container = null;
     this.verbs = verbs;
     this.hidesItems = hidesItems;
-    this.roomListing = null;
+    this.roomListing = null; // Should possibly rename 'containerListing'
     this.items = {};
     this.uniqueItems = new Set();
     this.canHoldItems = false;
     this.capacity = -1;
     this.free = -1;
     this.preposition = "in";
-    this.itemsCanBeSeen = true;
+    this.itemsVisibleFromRoom = false;
+    this.itemsVisibleFromSelf = true;
     this.doNotList = false;
 
     this.aliases = [];
@@ -67,7 +68,7 @@ export class Item {
           () => {
             const inventory = selectInventory();
             return (
-              this.container.itemsCanBeSeen &&
+              this.container.itemsVisibleFromSelf &&
               this.container !== inventory &&
               (inventory.capacity === -1 || this.size < inventory.free)
             );
@@ -85,7 +86,7 @@ export class Item {
             )
           ],
           () => {
-            if (!this.container.itemsCanBeSeen) {
+            if (!this.container.itemsVisibleFromSelf) {
               return "You can't see that.";
             } else if (this.container !== selectInventory()) {
               return `You don't have enough room for the ${this.name}.`;
@@ -307,7 +308,7 @@ export class Item {
    * to this item's container e.g. adds hidden items to the room.
    */
   revealItems() {
-    if (!this.itemsRevealed && this.container && this.itemsCanBeSeen) {
+    if (!this.itemsRevealed && this.container && this.itemsVisibleFromSelf) {
       debug(`${this.name}: Revealing items`);
       this.hidesItems.forEach(item => {
         if (item.holdable && this.canHoldItems) {
@@ -373,7 +374,7 @@ export class Item {
   getFullDescription() {
     let description = this.description;
 
-    if (this.itemsCanBeSeen) {
+    if (this.itemsVisibleFromSelf) {
       if (Object.keys(this.items).length) {
         debug(`Items can be seen so adding them to ${this.name} description.`);
       }

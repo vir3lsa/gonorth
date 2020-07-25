@@ -53,7 +53,6 @@ describeCauldronContents = () => {
 };
 
 cauldron.capacity = 100;
-cauldron.itemsCanBeSeen = false;
 
 export const contents = new Item("cauldron contents", () =>
   describeCauldronContents()

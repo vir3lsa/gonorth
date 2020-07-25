@@ -1,10 +1,4 @@
-import {
-  Room,
-  Item,
-  Verb,
-  RandomText,
-  selectInventory
-} from "../../../../lib/gonorth";
+import { Room, Item, selectInventory } from "../../../../lib/gonorth";
 import { nook } from "./nook";
 
 export const diningRoom = new Room(
@@ -43,7 +37,7 @@ fruit.verbs["take"].onSuccess = [
 ];
 
 table.aliases = "dining table";
-table.itemsCanBeSeen = true;
+table.itemsVisibleFromRoom = true;
 table.capacity = 20;
 table.preposition = "on";
 table.addItem(fruit);

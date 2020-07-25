@@ -25,7 +25,7 @@ const cabinet = new Item(
   "It's made of grey, dirty wood and comes up to your shoulders. It looks as though it's seen better days, with nails visible between the various panels where it's gradually coming apart. There's a single door taking up most of the front."
 );
 cabinet.capacity = 8;
-cabinet.itemsCanBeSeen = false;
+cabinet.itemsVisibleFromSelf = false;
 
 const cabinetDoor = new Door(
   "cabinet door",
@@ -38,7 +38,7 @@ const cabinetDoor = new Door(
 
 cabinetDoor.verbs["open"].onSuccess.renderNexts = false;
 cabinetDoor.verbs["open"].onSuccess.addAction(() => {
-  cabinet.itemsCanBeSeen = true;
+  cabinet.itemsVisibleFromSelf = true;
   cabinet.revealItems();
 
   const cabinetItemsDescription = cabinet.heldItemsDescription;
@@ -47,7 +47,7 @@ cabinetDoor.verbs["open"].onSuccess.addAction(() => {
   }
 });
 cabinetDoor.verbs["close"].onSuccess.insertAction(
-  () => (cabinet.itemsCanBeSeen = false)
+  () => (cabinet.itemsVisibleFromSelf = false)
 );
 
 cabinet.addVerb(cabinetDoor.verbs["open"]); // "open cabinet" should work
@@ -59,6 +59,7 @@ const moonStone = new Ingredient(
 );
 moonStone.article = "a";
 moonStone.aliases = ["moon stone", "pearl", "stone"];
+moonStone.spirit = "moon";
 
 cabinet.hidesItems = moonStone;
 
@@ -93,7 +94,7 @@ const crawl = new Verb(
     "Just as you pull your feet in behind you, you hear a noise from the kitchen. As you begin to turn around there's a bone-chilling cackle and the oven door slams shut, trapping you inside.",
     "There's a squeal as another door in the oven that you hadn't noticed is opened. It must be in a chamber below you. There's a noise like sandpaper being rubbed against something and within seconds the cloying aroma of coal smoke tickles your nostrils.",
     "The witch must have lit the fire in the compartment at the bottom of the oven.",
-    () => goToRoom(insideOven),
+    () => goToRoom(insideOven)
   ],
   "The oven door's closed.",
   ["crawl", "enter", "go into", "hide"]

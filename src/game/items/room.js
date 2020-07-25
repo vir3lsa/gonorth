@@ -174,14 +174,14 @@ export class Room extends Item {
 
     [...this.uniqueItems]
       .filter(item => Object.keys(item.items).length)
-      .filter(container => container.itemsCanBeSeen)
+      .filter(container => container.itemsVisibleFromRoom)
       .forEach(container => {
         debug(`Listing ${container.name}'s items as they are visible.`);
         const describedItems = [];
         Object.values(container.items).forEach(itemsWithName =>
           itemsWithName
             .filter(item => item.roomListing)
-            .forEach(describedItems.push)
+            .forEach(item => describedItems.push(item))
         );
         debug(`Found ${describedItems.length} item(s) with room listings.`);
         const roomListings = describedItems

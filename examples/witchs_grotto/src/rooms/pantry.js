@@ -5,7 +5,7 @@ import {
   Verb,
   OptionGraph,
   RandomText,
-  SequentialText,
+  SequentialText
 } from "../../../../lib/gonorth";
 import { southHall } from "./southHall";
 import { witch } from "./garden";
@@ -35,7 +35,7 @@ const cupboardGraphRaw = {
     Leave: {
       id: "leave",
       actions:
-        "You quietly slip out of the cupboard, trying not to let the door squeak.",
+        "You quietly slip out of the cupboard, trying not to let the door squeak."
     },
     Peek: {
       id: "peek",
@@ -46,13 +46,13 @@ const cupboardGraphRaw = {
           "You peer furtively round the side of the door and quickly recoil. The witch is in the room. You hold your breath."
         );
         return witch.container.name === "Pantry" ? watchOut : noone;
-      },
+      }
     },
     Wait: {
       id: "wait",
-      actions: "You hold your breath and wait, praying no-one finds you here.",
-    },
-  },
+      actions: "You hold your breath and wait, praying no-one finds you here."
+    }
+  }
 };
 
 cupboardGraphRaw.options.Peek.options = cupboardGraphRaw.options;
@@ -83,7 +83,6 @@ const shelves = new Item(
 );
 shelves.aliases = "shelf";
 shelves.hidesItems = crowSkull;
-shelves.itemsCanBeSeen = false;
 shelves.capacity = 5;
 shelves.preposition = "on";
 

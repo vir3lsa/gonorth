@@ -41,7 +41,6 @@ const bureau = new Item(
   "It's a beautiful oak writing desk lacquered with a rich, dark varnish. There are wide drawers beneath the worktop."
 );
 bureau.addAliases("desk");
-bureau.itemsCanBeSeen = false;
 bureau.capacity = 10;
 bureau.preposition = "on";
 
@@ -62,6 +61,13 @@ drawers.capacity = 5;
 
 bureau.hidesItems = [drawers, pestleAndMortar];
 
+const scrap = new Item(
+  "scrap of paper",
+  "It's a crumpled scrap of paper that's been torn from a book. A note is scrawled on it in loopy handywriting:\n\nInvoking spirit - place items on pentagram",
+  true,
+  1
+);
+
 const grimoire = new Item(
   "grimoire",
   "It's a sturdy tome bound in wrinkly black leather. The word *Grimoire* adorns the front and spine, embossed and finished with decorative gold leaf. There are no other markings. It looks like it holds *secrets*.",
@@ -71,6 +77,7 @@ const grimoire = new Item(
 grimoire.roomListing =
   "One in particular catches your eye, however, emblazened in gold leaf with the word *Grimoire*.";
 grimoire.addAliases("book");
+grimoire.addItem(scrap);
 
 const stopReading = {
   actions: "You close the grimoire."
@@ -168,6 +175,13 @@ grimoire.addVerb(
     true,
     [
       "You carefully open the dusty tome, the spine creaking as you prise the yellowing pages apart. Scanning through the contents, most of it doesn't make any sense to you. You do understand the word *Potions*, though, so you flip to the corresponding page.",
+      () => {
+        if (grimoire.items["scrap"]) {
+          grimoire.removeItem(scrap);
+          apothecary.addItem(scrap);
+          return "As you do so, a scrap of yellowing paper falls from between the pages and flutters softly to the floor.";
+        }
+      },
       () => readGrimoire.commence()
     ],
     [],
@@ -183,7 +197,6 @@ const bookShelf = new Item(
 bookShelf.capacity = 2;
 bookShelf.addAliases("library", "books", "bookshelf");
 bookShelf.hidesItems = grimoire;
-bookShelf.itemsCanBeSeen = false;
 bookShelf.preposition = "on";
 
 const apparatus = new Item(
@@ -533,8 +546,8 @@ const tornPage = new Item(
 
 ## Essence of Moon
 
-Start with a mixture of two parts fat to one part water.  
-Add a single moonstone.  
+Invoke the spirit of the moon.
+Prepare a mixture of two parts fat to one part water.
 Recite the Lunar Incantation.`,
     "Scibbled in the margin are the words of the Lunar Incantation. You commit them to memory."
   )
@@ -663,13 +676,6 @@ hinges.addVerb(breakVerb);
 // Have to add gate to adjacent room here to avoid circular dependencies
 lowerSpiral.addItem(ironGate);
 
-// TESTING SPIRIT - REMOVE!
-const moonstone = new Item("moonstone", "moon", true, 1);
-moonstone.spirit = "moon";
-
-const firestone = new Item("firestone", "fire", true, 1);
-firestone.spirit = "fire";
-
 apothecary.addItems(
   bookShelf,
   herbarium,
@@ -680,9 +686,7 @@ apothecary.addItems(
   fire,
   bureau,
   ironGate,
-  pentagram,
-  moonstone,
-  firestone
+  pentagram
 );
 
 apothecary.setEast(
