@@ -55,10 +55,10 @@ describe("Room", () => {
   describe("description", () => {
     it("prints item room listing", () => {
       const item = new Item("candlestick", "ornate silver");
-      item.roomListing =
+      item.containerListing =
         "There's an ornate silver candle holder on a side table";
       hall.addItem(item);
-      expect(hall.itemListings).toInclude(item.roomListing);
+      expect(hall.itemListings).toInclude(item.containerListing);
     });
 
     it("lists holdable items with no room listing", () => {

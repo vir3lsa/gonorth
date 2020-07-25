@@ -17,7 +17,7 @@ const fruit = new Item(
   true,
   1
 );
-fruit.roomListing =
+fruit.containerListing =
   "In the middle of the table is a large assortment of fruit. All shapes, sizes and colours, there are varieties here you don't even know the names of.";
 
 fruit.verbs["take"].onSuccess = [

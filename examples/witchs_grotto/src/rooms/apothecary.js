@@ -74,7 +74,7 @@ const grimoire = new Item(
   true,
   1
 );
-grimoire.roomListing =
+grimoire.containerListing =
   "One in particular catches your eye, however, emblazened in gold leaf with the word *Grimoire*.";
 grimoire.addAliases("book");
 grimoire.addItem(scrap);

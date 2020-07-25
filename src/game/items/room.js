@@ -157,9 +157,9 @@ export class Room extends Item {
     const plainList = []; // Items with no room listing
 
     this.uniqueItems.forEach(item => {
-      if (item.roomListing) {
+      if (item.containerListing) {
         debug(`Using ${item.name}'s room listing.`);
-        description += `${item.roomListing} `;
+        description += `${item.containerListing} `;
       } else if (item.holdable) {
         debug(`Will simply list ${item.name} as it is holdable.`);
         plainList.push(item); // We'll list this item separately
@@ -180,18 +180,18 @@ export class Room extends Item {
         const describedItems = [];
         Object.values(container.items).forEach(itemsWithName =>
           itemsWithName
-            .filter(item => item.roomListing)
+            .filter(item => item.containerListing)
             .forEach(item => describedItems.push(item))
         );
         debug(`Found ${describedItems.length} item(s) with room listings.`);
-        const roomListings = describedItems
-          .map(item => item.roomListing)
+        const containerListings = describedItems
+          .map(item => item.containerListing)
           .join(" ");
         const titleCasePrep = toTitleCase(container.preposition);
         const list = container.basicItemList;
 
         description += description.length ? "\n\n" : "";
-        description += roomListings;
+        description += containerListings;
 
         if (list.length) {
           debug("Found a basic list of items");

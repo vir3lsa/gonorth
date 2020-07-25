@@ -36,7 +36,7 @@ export class Item {
     this.container = null;
     this.verbs = verbs;
     this.hidesItems = hidesItems;
-    this.roomListing = null; // Should possibly rename 'containerListing'
+    this.containerListing = null;
     this.items = {};
     this.uniqueItems = new Set();
     this.canHoldItems = false;
@@ -77,7 +77,7 @@ export class Item {
             () => {
               this.container.removeItem(this);
               selectInventory().addItem(this);
-              this.roomListing = null;
+              this.containerListing = null;
             },
             new RandomText(
               `You take the ${this.name}.`,
@@ -106,7 +106,7 @@ export class Item {
           (other.free === -1 || this.size <= other.free),
         [
           (helper, other) => {
-            this.roomListing = null;
+            this.containerListing = null;
             this.container.removeItem(this);
             return other.addItem(this);
           },
@@ -330,12 +330,12 @@ export class Item {
     }
   }
 
-  get roomListing() {
-    return this._roomListing;
+  get containerListing() {
+    return this._containerListing;
   }
 
-  set roomListing(listing) {
-    this._roomListing = listing;
+  set containerListing(listing) {
+    this._containerListing = listing;
   }
 
   get items() {
@@ -367,7 +367,9 @@ export class Item {
 
   get basicItemList() {
     return getBasicItemList(
-      [...this.uniqueItems].filter(item => !item.roomListing && !item.doNotList)
+      [...this.uniqueItems].filter(
+        item => !item.containerListing && !item.doNotList
+      )
     );
   }
 
@@ -397,12 +399,12 @@ export class Item {
     let description = "";
     const itemList = this.basicItemList;
     const uniqueItemList = [...this.uniqueItems];
-    const roomListings = uniqueItemList
-      .filter(item => item.roomListing)
-      .map(item => item.roomListing);
+    const containerListings = uniqueItemList
+      .filter(item => item.containerListing)
+      .map(item => item.containerListing);
 
-    if (roomListings.length) {
-      description += roomListings.join(" ");
+    if (containerListings.length) {
+      description += containerListings.join(" ");
     }
 
     if (itemList.length) {

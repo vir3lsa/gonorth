@@ -93,7 +93,7 @@ const ladle = new Item(
 );
 ladle.addAliases("spoon");
 
-ladle.roomListing =
+ladle.containerListing =
   "Hanging on a metal bar that extends from one side of the iron pot and loops over it to rejoin the other side is a heavy-duty ladle used for stirring and spooning out the contents.";
 ladle.preposition = "with";
 
