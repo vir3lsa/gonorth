@@ -100,7 +100,7 @@ export class Alchemy {
   }
 
   sayWords(word) {
-    this.processStep(word);
+    this.processStep(STEP_WORDS, word);
     return this.stepText;
   }
 
@@ -210,6 +210,7 @@ export class Alchemy {
 
       switch (stepType) {
         case STEP_INGREDIENTS:
+        case STEP_WORDS:
           // Remove the matching ingredient from the step
           matchingStep.value = matchingStep.value.filter(
             item => item !== ingredient.name

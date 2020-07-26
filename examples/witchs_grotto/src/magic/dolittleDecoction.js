@@ -1,5 +1,4 @@
 import { Potion, Procedure, STEP_FAT, STEP_WATER, STEP_WORDS } from "./alchemy";
-import { alchemy } from "./cauldron";
 
 const dolittleDecoction = new Potion(
   "Dolittle Decoction",
@@ -22,7 +21,7 @@ export const dolittleProcedure = new Procedure(
         type: STEP_WORDS,
         value: ["Lunar Incantation"],
         text:
-          "As you utter the last word, a sudden hush falls over the entire room, as though your eyes are stuffed with cotton wool. You sense a Lunar presence."
+          "As you utter the last word, a sudden hush falls over the entire room, as though your ears are stuffed with cotton wool. You sense a Lunar presence."
       }
     ]
   },

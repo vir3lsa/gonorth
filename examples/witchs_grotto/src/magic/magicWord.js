@@ -12,7 +12,8 @@ export class MagicWord extends Item {
       new Verb(
         "say",
         true,
-        [() => alchemy.sayWords(name), `${sayingDescription} ${name}.`],
+        // Nested array components are concatenated
+        [[`${sayingDescription} ${name}.`, () => alchemy.sayWords(this)]],
         null,
         ["speak", "intone", "recite", "chant"]
       )
