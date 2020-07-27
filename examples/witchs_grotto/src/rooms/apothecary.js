@@ -686,6 +686,30 @@ lowerSpiral.addItem(ironGate);
 const moonstone = new Item("moonstone", "moony", true);
 moonstone.spirit = "moon";
 
+const fruit = new Ingredient("piece of fruit", "fruity", true);
+fruit.article = "a";
+const crowSkullPowder = new Ingredient("crow skull powder", "powdery", true);
+
+const slip = new Item(
+  "slip of paper",
+  'It\'s a small piece of lined paper, evidently torn from a notebook. On it is scribbled the heading "Charm of the Beast" followed by a series of words that you hastily commit to memory.',
+  true,
+  0.5
+);
+slip.aliases = ["slip", "paper", "page"];
+slip.verbs["examine"].onSuccess.insertAction(() => {
+  if (!selectPlayer().items["Charm of the Beast"]) {
+    selectPlayer().addItem(
+      new MagicWord(
+        "Charm of the Beast",
+        ["beast", "beastly"],
+        "Consulting your memory, you carefully recite the"
+      )
+    );
+  }
+});
+// TESTING (end)
+
 apothecary.addItems(
   bookShelf,
   herbarium,
@@ -698,7 +722,11 @@ apothecary.addItems(
   ironGate,
   pentagram,
   moonstone,
-  tornPage
+  tornPage,
+  fruit,
+  crowSkullPowder,
+  slip,
+  matchbook
 );
 
 apothecary.setEast(

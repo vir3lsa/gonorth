@@ -171,7 +171,7 @@ const unlitDesc =
   "There's a small stack of logs beneath the cauldron that will do very nicely as fuel for a fire. If only you had something to light one with.";
 
 export const fire = new Item("fire", unlitDesc);
-fire.aliases = ["space", "logs", "kindling", "fire"];
+fire.aliases = ["space", "logs", "kindling"];
 
 const ignite = newVerb({
   name: "light",
@@ -205,9 +205,10 @@ const extinguish = newVerb({
 fire.addVerbs(ignite, extinguish);
 
 const cover = new Item(
-  "fire cover",
+  "cover",
   "A metal cover that can be pulled over the fire to cut off its air supply and extinguish it. Fortunately, the handles are wooden."
 );
+cover.aliases = ["fire cover"];
 cover.addVerb(
   newVerb({
     name: "close",

@@ -184,7 +184,11 @@ export class Alchemy {
         switch (stepType) {
           case STEP_INGREDIENTS:
           case STEP_WORDS:
-            if (stepToConsider.value.includes(ingredient.name)) {
+            if (
+              stepToConsider.value.some(
+                value => value.toLowerCase() === ingredient.name.toLowerCase()
+              )
+            ) {
               matchingStep = stepToConsider;
             }
             break;

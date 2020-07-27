@@ -5,7 +5,7 @@ import { pestleAndMortar } from "./pestleAndMortar";
 export class Ingredient extends Item {
   constructor(name, description) {
     super(name, description, true, 1);
-    this.article = "";
+    this.article = "some";
     this.verbs.put.onSuccess = [
       (helper, other) => {
         if (other === cauldron) {
@@ -22,9 +22,9 @@ export class Ingredient extends Item {
         }
       },
       (helper, other) => {
-        const text = `You put some ${this.name} ${other.preposition} the ${
-          other.name
-        }.`;
+        const text = `You put ${this.article} ${this.name} ${
+          other.preposition
+        } the ${other.name}.`;
 
         if (other === cauldron) {
           const alchemyText = alchemy.addIngredient(this);
