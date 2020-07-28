@@ -6,7 +6,8 @@ import {
   RandomText,
   newVerb,
   addEvent,
-  TIMEOUT_TURNS
+  TIMEOUT_TURNS,
+  Event
 } from "../../../../lib/gonorth";
 import { Ingredient } from "./ingredient";
 import { Alchemy } from "./alchemy";
@@ -228,6 +229,7 @@ cauldron.hidesItems = [cover];
 
 addEvent(
   new Event(
+    "heat cauldron",
     () => alchemy.addHeat(),
     () => fire.lit,
     0,

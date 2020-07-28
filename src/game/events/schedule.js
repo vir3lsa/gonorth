@@ -96,6 +96,7 @@ export class Schedule {
       }
 
       const event = new Event(
+        `schedule event ${index}`,
         eventBuilder.actions,
         condition,
         eventBuilder.delay,

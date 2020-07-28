@@ -242,6 +242,7 @@ dial.addVerb(
 );
 
 const flow = new Event(
+  "fluid flow",
   () => {
     if (dial.liquid === "water") {
       return alchemy.addWater();

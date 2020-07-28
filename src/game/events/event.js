@@ -12,6 +12,7 @@ export const CANCELLED = "CANCELLED";
 
 export class Event {
   constructor(
+    name,
     action = [],
     condition,
     timeout,
@@ -19,6 +20,7 @@ export class Event {
     onComplete = () => {},
     recurring = false
   ) {
+    this.name = name;
     this.action = action;
     this.condition = condition;
     this.timeout = timeout || 0;

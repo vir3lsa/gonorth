@@ -144,6 +144,7 @@ pale.capacity = 3;
 pale.preposition = "in";
 
 const waterMonster = new Event(
+  "water monster",
   () => {
     let text;
     [...water.uniqueItems].forEach(item => {

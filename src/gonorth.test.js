@@ -91,30 +91,30 @@ describe("Game class", () => {
 
   describe("events", () => {
     it("triggers events with no condition and no timeout immediately", () => {
-      eventTest(new Event(() => x++), () => x === 1);
+      eventTest(new Event("", () => x++), () => x === 1);
     });
 
     it("triggers events with no timeout when the condition is met", () => {
       x = 10;
-      eventTest(new Event(() => x++, () => x === 10), () => x === 11);
+      eventTest(new Event("", () => x++, () => x === 10), () => x === 11);
     });
 
     it("does not trigger events when the condition is not met", () => {
-      eventTest(new Event(() => x++, () => x === 10), () => x === 0);
+      eventTest(new Event("", () => x++, () => x === 10), () => x === 0);
     });
 
     it("does not trigger timed events immediately", () => {
-      const event = new Event(() => x++, true, 1000, TIMEOUT_MILLIS);
+      const event = new Event("", () => x++, true, 1000, TIMEOUT_MILLIS);
       eventTest(event, () => x === 0);
     });
 
     it("does not trigger count down events immediately", () => {
-      const event = new Event(() => x++, true, 5, TIMEOUT_TURNS);
+      const event = new Event("", () => x++, true, 5, TIMEOUT_TURNS);
       eventTest(event, () => x === 0);
     });
 
     it("triggers timed events after the timeout has passed", () => {
-      addEvent(new Event(() => x++, true, 10, TIMEOUT_MILLIS));
+      addEvent(new Event("", () => x++, true, 10, TIMEOUT_MILLIS));
       handleTurnEnd();
       return new Promise(resolve =>
         setTimeout(() => {
@@ -125,7 +125,7 @@ describe("Game class", () => {
     });
 
     it("triggers count down events after the required turns have passed", async () => {
-      addEvent(new Event(() => x++, true, 2, TIMEOUT_TURNS));
+      addEvent(new Event("", () => x++, true, 2, TIMEOUT_TURNS));
       await handleTurnEnd();
       await handleTurnEnd();
       await handleTurnEnd();
@@ -133,13 +133,13 @@ describe("Game class", () => {
     });
 
     it("chains events", () => {
-      const event = new Event([() => x++, () => y++]);
+      const event = new Event("", [() => x++, () => y++]);
       eventTest(event, () => x === 1 && y === 1);
     });
 
     it("waits for a chain to finish before triggering", async () => {
       new Verb("verb", true, ["one", "two"]).attempt();
-      const promise = new Event(() => x++).trigger();
+      const promise = new Event("", () => x++).trigger();
       expect(x).toBe(0);
       clickNext();
       await promise;
@@ -149,8 +149,8 @@ describe("Game class", () => {
     it("triggers waiting events in the right order", async () => {
       new Verb("verb", true, ["one", "two"]).attempt();
       x = 1;
-      const p1 = new Event(() => x++).trigger();
-      const p2 = new Event(() => (x *= 3)).trigger();
+      const p1 = new Event("", () => x++).trigger();
+      const p2 = new Event("", () => (x *= 3)).trigger();
       expect(x).toBe(1);
       clickNext();
       await p1;
@@ -159,7 +159,7 @@ describe("Game class", () => {
     });
 
     it("calls onComplete when the event completes", async () => {
-      const event = new Event(() => x++);
+      const event = new Event("", () => x++);
       event.onComplete = () => x++;
       addEvent(event);
       await handleTurnEnd();

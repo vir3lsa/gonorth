@@ -135,6 +135,7 @@ const downstairsSounds = new RandomText(
 
 addEvent(
   new Event(
+    "environment sounds",
     () => {
       console.log(selectRoom().name);
       if (
