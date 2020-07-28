@@ -1,3 +1,4 @@
+import { CyclicText } from "../../../../lib/gonorth";
 import {
   Potion,
   Procedure,
@@ -8,7 +9,6 @@ import {
   STEP_HEAT,
   STEP_STIR
 } from "./alchemy";
-import { CyclicText } from "../../../../src/game/interactions/text";
 
 const dolittleDecoction = new Potion(
   "Dolittle Decoction",
@@ -31,7 +31,7 @@ export const dolittleProcedure = new Procedure(
         type: STEP_WORDS,
         value: ["Lunar Incantation"],
         text:
-          "As you utter the last word, a sudden hush falls over the entire room, as though your ears are stuffed with cotton wool. You sense a Lunar presence."
+          "As you utter the last word, a sudden hush falls over the entire room, as though your ears have been stuffed with cotton wool. You sense a Lunar presence."
       },
       {
         ordered: false,
@@ -48,7 +48,7 @@ export const dolittleProcedure = new Procedure(
             text:
               "The fruit sinks to the bottom, releasing small bubbles that rise and gently disturb the surface."
           },
-          { type: STEP_HEAT, value: 6, leniency: 4 },
+          { type: STEP_HEAT, value: 2, leniency: 4 },
           { type: STEP_STIR, value: 2 }
         ]
       },
@@ -87,7 +87,7 @@ export const dolittleProcedure = new Procedure(
         ]
       },
       { type: STEP_HEAT, value: 1, leniency: 4 },
-      { type: STEP_WORDS, value: "beastly incantation" }
+      { type: STEP_WORDS, value: ["beastly incantation"] }
     ]
   },
   dolittleDecoction

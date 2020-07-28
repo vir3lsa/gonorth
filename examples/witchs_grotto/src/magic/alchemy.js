@@ -217,7 +217,7 @@ export class Alchemy {
         case STEP_WORDS:
           // Remove the matching ingredient from the step
           matchingStep.value = matchingStep.value.filter(
-            item => item !== ingredient.name
+            item => item.toLowerCase() !== ingredient.name.toLowerCase()
           );
 
           if (!matchingStep.value.length) {
