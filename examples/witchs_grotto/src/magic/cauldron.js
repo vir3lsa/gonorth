@@ -117,6 +117,7 @@ const stirGraphRaw = {
     "Keep stirring": null,
     "Stop stirring": {
       id: "stop",
+      noEndTurn: true,
       actions: stopStirringText
     }
   }

@@ -48,11 +48,10 @@ export const dolittleProcedure = new Procedure(
             text:
               "The fruit sinks to the bottom, releasing small bubbles that rise and gently disturb the surface."
           },
-          { type: STEP_HEAT, value: 2, leniency: 4 },
-          { type: STEP_STIR, value: 2 }
+          { type: STEP_HEAT, value: 2, leniency: 5 },
+          { type: STEP_STIR, value: 2, leniency: 2 }
         ]
       },
-      { type: STEP_HEAT, value: 1, leniency: 4 },
       {
         ordered: false,
         steps: [
@@ -61,12 +60,11 @@ export const dolittleProcedure = new Procedure(
             value: 2,
             text: new CyclicText("one", "two"),
             short: new CyclicText("one", "two"),
-            leniency: 1
+            leniency: 2
           },
           { type: STEP_HEAT, value: 2, leniency: 4 }
         ]
       },
-      { type: STEP_HEAT, value: 1, leniency: 4 },
       {
         type: STEP_INGREDIENTS,
         value: ["crow skull powder"],
@@ -86,8 +84,13 @@ export const dolittleProcedure = new Procedure(
           { type: STEP_HEAT, value: 2, leniency: 4 }
         ]
       },
-      { type: STEP_HEAT, value: 1, leniency: 4 },
-      { type: STEP_WORDS, value: ["beastly incantation"] }
+      {
+        type: STEP_WORDS,
+        value: ["charm of the beast"],
+        text:
+          "A sound like a guttural roar eminates from the bubbling cauldron as its contents take on the colour and consistency of custard. It would almost look delicious if it weren't for the smell.",
+        short: "thick and yellow like custard"
+      }
     ]
   },
   dolittleDecoction
