@@ -46,14 +46,14 @@ const crossStitch = new Item(
   "cross-stitch",
   `It looks home-made, but you can hardly imagine the witch, terrible as she is, sitting down with needle and thread and producing such a jolly piece. It depicts a menagerie of animals, as well as the words:
 
-| Dolittle Decoction                           |
-|:--------------------------------------------:|
-| ***                                          |
-| Start by concocting the Essence of Moon.     |
-| Add devil's claw and some worm-eaten fruit.  |
-| Apply heat and stir until the bubbling stops.|
-| Add crushed crow skull powder and stir in.   |
-| Intone the Beastly Incantation.              |`,
+| Dolittle Decoction                                 |
+|:--------------------------------------------------:|
+| ***                                                |
+| Start by concocting the Essence of Moon.           |
+| Add devil's claw and some worm-eaten fruit.        |
+| Apply heat and stir until a mirrored surface forms.|
+| Add crushed crow skull powder and stir in fully.   |
+| Intone the Beastly Incantation.                    |`,
   true
 );
 crossStitch.aliases = ["cross"];
