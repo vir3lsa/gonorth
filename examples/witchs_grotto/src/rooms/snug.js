@@ -1,4 +1,12 @@
-import { Room, Npc, Verb, selectPlayer } from "../../../../lib/gonorth";
+import {
+  Room,
+  Npc,
+  Verb,
+  selectPlayer,
+  OptionGraph,
+  RandomText,
+} from "../../../../lib/gonorth";
+import { Potion } from "../magic/alchemy";
 
 export const snug = new Room(
   "Snug",
@@ -11,14 +19,36 @@ const cat = new Npc(
 );
 cat.aliases = ["cat"];
 
+const leave = {
+  id: "leave",
+  actions: new RandomText(
+    `"Sorry, sir. I've got to go."`,
+    `"I just remembered I have to do something!"`,
+    `"I'll be back later. Bye!"`
+  ),
+  noEndTurn: true,
+};
+const catGreeting = {
+  id: "greeting",
+  actions: `Nervously wringing your hands, you politely address the cat.\n\n"Umm, excuse me little cat. Could you-"\n\nBefore you can get any further the cat cuts you off mid-sentence.\n\n"Odin's whiskers, it speaks! Wonder of wonders, can it wash itself too?"`,
+  options: {
+    Leave: leave,
+  },
+};
+const catGraph = new OptionGraph(catGreeting);
+
 const speak = new Verb(
   "speak",
   () => selectPlayer().dolittle,
-  "placeholder",
-  "Clearing your throat, you politely address the cat.\n\n\"Hello, Mr Pussycat, sir. Err... or Madam. I'm Genevieve.\"\n\nThe cat regards you for a long while. You'd swear it had an eyebrow raised if it had eyebrows. Then it lets out a single weary meaow, before closing its eyes and resting its chin back on its front paws. You feel as though you've been dismissed.",
+  () => catGraph.commence(),
+  `Clearing your throat, you politely address the cat.\n\n"Hello, Mr Pussycat, sir. Err... or Madam. I'm Genevieve."\n\nThe cat regards you for a long while. You'd swear it had an eyebrow raised if it had eyebrows. Then it lets out a single weary meaow, before closing its eyes and resting its chin back on its front paws. You feel as though you've been dismissed.`,
   ["talk", "question", "ask", "tell"]
 );
 
 cat.addVerb(speak);
 
-snug.addItems(cat);
+// TESTING (remove)
+const dolittle = new Potion("Dolittle Decoction");
+// TESTING (end)
+
+snug.addItems(cat, dolittle);

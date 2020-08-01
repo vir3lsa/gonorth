@@ -14,7 +14,7 @@ import {
   addEvent,
   selectPlayer,
   addKeyword,
-  Verb
+  Verb,
 } from "../../../lib/gonorth";
 import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
@@ -24,7 +24,7 @@ import { apothecary, strengthTimer } from "./rooms/apothecary";
 import { RandomText } from "../../../lib/game/interactions/text";
 import { selectRoom } from "../../../lib/gonorth";
 import { lowerSpiral } from "./rooms/lowerSpiral";
-import { nook } from "./rooms/nook";
+import { snug } from "./rooms/snug";
 import { southHall } from "./rooms/southHall";
 import { diningRoom } from "./rooms/diningRoom";
 import { kitchen } from "./rooms/kitchen";
@@ -37,9 +37,9 @@ setIntro(
 
 // setStartingRoom(cellar);
 // setStartingRoom(flue);
-setStartingRoom(apothecary);
+// setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
-// setStartingRoom(nook);
+setStartingRoom(snug);
 // setStartingRoom(southHall);
 // setStartingRoom(diningRoom);
 // setStartingRoom(pantry);
@@ -57,8 +57,8 @@ addKeyword(
     true,
     () => {
       const words = [...selectPlayer().uniqueItems]
-        .filter(item => item.magicWord)
-        .map(item => item.name);
+        .filter((item) => item.magicWord)
+        .map((item) => item.name);
 
       if (words.length) {
         return `You bring to mind all the magic words, charms and incantations you've learned. You know:\n\n${words.join(
@@ -148,8 +148,8 @@ addEvent(
           "Pantry",
           "South Hall",
           "Staircase",
-          "inside oven"
-        ].some(roomName => roomName === selectRoom().name)
+          "inside oven",
+        ].some((roomName) => roomName === selectRoom().name)
       ) {
         return upstairsSounds;
       } else {
@@ -159,7 +159,7 @@ addEvent(
     () => selectRoom() && Math.random() * 20 > 19,
     0,
     TIMEOUT_TURNS,
-    x => x,
+    (x) => x,
     true
   )
 );

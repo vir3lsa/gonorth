@@ -1,5 +1,5 @@
 import { Room, Item, selectInventory } from "../../../../lib/gonorth";
-import { nook } from "./nook";
+import { snug } from "./snug";
 
 export const diningRoom = new Room(
   "Dining Room",
@@ -33,7 +33,7 @@ fruit.verbs["take"].onSuccess = [
       );
     }
   },
-  "You lean across the huge table and select a particularly juicy looking piece of fresh fruit."
+  "You lean across the huge table and select a particularly juicy looking piece of fresh fruit.",
 ];
 
 table.aliases = "dining table";
@@ -78,10 +78,10 @@ const beadCurtain = new Item(
 beadCurtain.aliases = ["curtain", "beads", "moon and stars", "moon", "stars"];
 
 diningRoom.addItem(beadCurtain);
-nook.addItem(beadCurtain);
+snug.addItem(beadCurtain);
 
 diningRoom.setWest(
-  nook,
+  snug,
   true,
   "Parting the bead strands with your hands, you split the image of the moon in two and pass through, causing the beads to rattle gently."
 );
