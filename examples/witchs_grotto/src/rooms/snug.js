@@ -5,6 +5,7 @@ import {
   selectPlayer,
   OptionGraph,
   RandomText,
+  SequentialText
 } from "../../../../lib/gonorth";
 import { Potion } from "../magic/alchemy";
 
@@ -19,23 +20,48 @@ const cat = new Npc(
 );
 cat.aliases = ["cat"];
 
-const leave = {
-  id: "leave",
-  actions: new RandomText(
-    `"Sorry, sir. I've got to go."`,
-    `"I just remembered I have to do something!"`,
-    `"I'll be back later. Bye!"`
-  ),
-  noEndTurn: true,
-};
-const catGreeting = {
-  id: "greeting",
-  actions: `Nervously wringing your hands, you politely address the cat.\n\n"Umm, excuse me little cat. Could you-"\n\nBefore you can get any further the cat cuts you off mid-sentence.\n\n"Odin's whiskers, it speaks! Wonder of wonders, can it wash itself too?"`,
-  options: {
-    Leave: leave,
+const catTalkNodes = [
+  {
+    id: "greeting",
+    actions: new SequentialText(
+      `Nervously wringing your hands, you politely address the cat.\n\n"Umm, excuse me little cat. I hope you-"`,
+      `Before you can get any further the cat cuts you off mid-sentence.\n\n"Odin's whiskers, it speaks! Wonder of wonders, can it wash itself too?"`
+    ),
+    options: {
+      "Of course": "ofCourseCanWash",
+      "I'm Genevieve": "introduce",
+      Leave: "leave"
+    }
   },
-};
-const catGraph = new OptionGraph(catGreeting);
+  {
+    id: "ofCourseCanWash",
+    actions: new SequentialText(
+      `"Of course I know how to wash myself!" You cry indignantly. "Mother makes me wash in the stream twice a week!"`,
+      `"Sarcasm isn't lost on you, I see," replies the cat, rolling its eyes. "Never mind. How is it you believe I can be of assistance to you?"`
+    ),
+    options: {
+      "Don't understand": "leave",
+      "I'm Genevieve": "introduce"
+    }
+  },
+  {
+    id: "introduce",
+    actions: new SequentialText(
+      "Hello...sir. My name's Genevieve. I think the lady that lives here wants to eat me and I really must get home. Can you help me, sir?"
+    )
+  },
+  {
+    id: "leave",
+    actions: new RandomText(
+      `"Sorry, sir. I've got to go."`,
+      `"I just remembered I have to do something!"`,
+      `"I'll be back later. Bye!"`
+    ),
+    noEndTurn: true
+  }
+];
+
+const catGraph = new OptionGraph(...catTalkNodes);
 
 const speak = new Verb(
   "speak",

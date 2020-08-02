@@ -25,40 +25,40 @@ const cupboardItem = new Door(
   "You reach up and yank the ornate handle of the cupboard door. There's a small *squeak* as it swings open."
 );
 
-const cupboardGraphRaw = {
-  id: "cupboard",
-  actions: new SequentialText(
-    "There's a small step up as you climb into the cupboard.",
-    "A cobweb attaches to your face as you climb inside, but you ignore it and pull the door shut behind you. It's dark and dusty in here and there's an assortment of items on the floor under an old dust sheet that you try to avoid falling over. There's just enough of a gap around the edge of the door to peek out into the room beyond."
-  ),
-  options: {
-    Leave: {
-      id: "leave",
-      actions:
-        "You quietly slip out of the cupboard, trying not to let the door squeak."
+const cupboardNodes = [
+  {
+    id: "cupboard",
+    actions: new SequentialText(
+      "There's a small step up as you climb into the cupboard.",
+      "A cobweb attaches to your face as you climb inside, but you ignore it and pull the door shut behind you. It's dark and dusty in here and there's an assortment of items on the floor under an old dust sheet that you try to avoid falling over. There's just enough of a gap around the edge of the door to peek out into the room beyond."
+    ),
+    options: { Leave: "leave", Peek: "peek", Wait: "wait" }
+  },
+  {
+    id: "leave",
+    actions:
+      "You quietly slip out of the cupboard, trying not to let the door squeak."
+  },
+  {
+    id: "peek",
+    actions: () => {
+      const noone =
+        "You put your eye to the crack at the side of the door. There doesn't appear to be anyone out there.";
+      const watchOut = new RandomText(
+        "You peer furtively round the side of the door and quickly recoil. The witch is in the room. You hold your breath."
+      );
+      return witch.container.name === "Pantry" ? watchOut : noone;
     },
-    Peek: {
-      id: "peek",
-      actions: () => {
-        const noone =
-          "You put your eye to the crack at the side of the door. There doesn't appear to be anyone out there.";
-        const watchOut = new RandomText(
-          "You peer furtively round the side of the door and quickly recoil. The witch is in the room. You hold your breath."
-        );
-        return witch.container.name === "Pantry" ? watchOut : noone;
-      }
-    },
-    Wait: {
-      id: "wait",
-      actions: "You hold your breath and wait, praying no-one finds you here."
-    }
+    options: { Leave: "leave", Peek: "peek", Wait: "wait" }
+  },
+  {
+    id: "wait",
+    actions: "You hold your breath and wait, praying no-one finds you here.",
+    options: { Leave: "leave", Peek: "peek", Wait: "wait" }
   }
-};
+];
 
-cupboardGraphRaw.options.Peek.options = cupboardGraphRaw.options;
-cupboardGraphRaw.options.Wait.options = cupboardGraphRaw.options;
-
-const cupboardGraph = new OptionGraph(cupboardGraphRaw);
+const cupboardGraph = new OptionGraph(...cupboardNodes);
 
 cupboardItem.addVerb(
   new Verb(

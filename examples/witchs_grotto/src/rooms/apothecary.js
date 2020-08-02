@@ -11,7 +11,7 @@ import {
   CyclicText,
   SequentialText,
   Door,
-  Schedule,
+  Schedule
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 import {
@@ -22,7 +22,7 @@ import {
   Potion,
   STEP_STIR,
   STEP_BLOOD,
-  STEP_FAT,
+  STEP_FAT
 } from "../magic/alchemy";
 import { potionEffects, DRINK } from "../magic/potionEffects";
 import { lowerSpiral } from "./lowerSpiral";
@@ -80,96 +80,86 @@ grimoire.containerListing =
 grimoire.addAliases("book");
 grimoire.addItem(scrap);
 
-const stopReading = {
-  actions: "You close the grimoire.",
-  noEndTurn: true,
-};
-
-const mendingPage = {
-  id: "mending",
-  actions:
-    "## Elixir of Mending\n\nGot something that's broken or smashed into bits? One drop of this potion, it's instantly fixed!\n\n### Ingredients\n\n* 3 dryad toenails\n* 1 handful of alfalfa leaves\n* 1 bundle white sage\n\n### Process\n\n* Start with a water base (a full pot)\n* Add the ingredients\n* Gently heat and stir until the mixture turns purple",
-  options: {
-    "Next page": "woodworm",
-    "Stop reading": stopReading,
+const grimoireNodes = [
+  {
+    id: "mending",
+    actions:
+      "## Elixir of Mending\n\nGot something that's broken or smashed into bits? One drop of this potion, it's instantly fixed!\n\n### Ingredients\n\n* 3 dryad toenails\n* 1 handful of alfalfa leaves\n* 1 bundle white sage\n\n### Process\n\n* Start with a water base (a full pot)\n* Add the ingredients\n* Gently heat and stir until the mixture turns purple",
+    options: {
+      "Next page": "woodworm",
+      "Stop reading": "stopReading"
+    }
   },
-};
-
-const woodwormPage = {
-  id: "woodworm",
-  actions: `## Organic Dissolution Accelerator\n\nTrees and wood and flesh and bone, turn to soup and slush and foam.
-
-Ingredients      | Process
-:----------------|:------------------------------------------
-Cockroach saliva | Half fill the pot with cold water
-Wormwood         | Add the cockroach saliva and the horehound
-Horehound        | Stir until the colour changes
-|                | Add the wormwood`,
-  options: {
-    "Next page": "invisibility",
-    "Previous page": "mending",
-    "Stop reading": stopReading,
+  {
+    id: "woodworm",
+    actions: `## Organic Dissolution Accelerator\n\nTrees and wood and flesh and bone, turn to soup and slush and foam.
+  
+  Ingredients      | Process
+  :----------------|:------------------------------------------
+  Cockroach saliva | Half fill the pot with cold water
+  Wormwood         | Add the cockroach saliva and the horehound
+  Horehound        | Stir until the colour changes
+  |                | Add the wormwood`,
+    options: {
+      "Next page": "invisibility",
+      "Previous page": "mending",
+      "Stop reading": "stopReading"
+    }
   },
-};
-
-const invisibilityPage = {
-  id: "invisibility",
-  actions:
-    "## Auto-Refractive Tincture\n\nWant to be sneaky or cause a real fright? This marvellous tincture will hide you from sight.\n\n### Ingredients\n\n* A sample of foamed oak\n* A cup of burdock root\n* A sprinkling of devil's claw\n* A thimble of newt eyes\n\n### Process\n\n* Work from a basis of animal fat\n* Add the foamed oak and bring the mixture to the boil\n* Add the burdock root and the devil's claw and remove the heat\n* Utter an incantation of binding\n* Finally, add the newt eyes",
-  options: {
-    "Next page": "strength",
-    "Previous page": "woodworm",
-    "Stop reading": stopReading,
+  {
+    id: "invisibility",
+    actions:
+      "## Auto-Refractive Tincture\n\nWant to be sneaky or cause a real fright? This marvellous tincture will hide you from sight.\n\n### Ingredients\n\n* A sample of foamed oak\n* A cup of burdock root\n* A sprinkling of devil's claw\n* A thimble of newt eyes\n\n### Process\n\n* Work from a basis of animal fat\n* Add the foamed oak and bring the mixture to the boil\n* Add the burdock root and the devil's claw and remove the heat\n* Utter an incantation of binding\n* Finally, add the newt eyes",
+    options: {
+      "Next page": "strength",
+      "Previous page": "woodworm",
+      "Stop reading": "stopReading"
+    }
   },
-};
-
-const strengthPage = {
-  id: "strength",
-  actions: `## Elixir of Might\n\nIf bullies and monsters are threatening you, And all that you've tried is wrong, Then brew this elixir I'm begging of you, You'll be so incredibly strong!
-    
-Ingredients      | Process
-:----------------|:-----------------------------------------------------------------------
-Fat              | Half fill the pot with equal parts fat and blood
-Blood            | Add the adder venom and bring the mixture to the boil
-Astragalus       | Add the astragalus and stir until the brew turns the colour of amethyst
-Valerian         | Add the valerian and keep stirring until gold flecks appear
-Adder venom      |`,
-  options: {
-    "Next page": "sleep",
-    "Previous page": "invisibility",
-    "Stop reading": stopReading,
+  {
+    id: "strength",
+    actions: `## Elixir of Might\n\nIf bullies and monsters are threatening you, And all that you've tried is wrong, Then brew this elixir I'm begging of you, You'll be so incredibly strong!
+      
+  Ingredients      | Process
+  :----------------|:-----------------------------------------------------------------------
+  Fat              | Half fill the pot with equal parts fat and blood
+  Blood            | Add the adder venom and bring the mixture to the boil
+  Astragalus       | Add the astragalus and stir until the brew turns the colour of amethyst
+  Valerian         | Add the valerian and keep stirring until gold flecks appear
+  Adder venom      |`,
+    options: {
+      "Next page": "sleep",
+      "Previous page": "invisibility",
+      "Stop reading": "stopReading"
+    }
   },
-};
-
-const sleepPage = {
-  id: "sleep",
-  actions:
-    "## Sleeping Draught\n\nIf you're tired and grumpy and up all the night, just sip on this brew, you'll be out like a light.\n\n### Ingredients\n\n* A pinch of mandrake root, powdered\n* A handful of sage - your choice of colour\n* half a pint of slug mucus\n\nProcess\n\n* One\n* Two\n* Three",
-  options: {
-    "Next page": "catseye",
-    "Previous page": "strength",
-    "Stop reading": stopReading,
+  {
+    id: "sleep",
+    actions:
+      "## Sleeping Draught\n\nIf you're tired and grumpy and up all the night, just sip on this brew, you'll be out like a light.\n\n### Ingredients\n\n* A pinch of mandrake root, powdered\n* A handful of sage - your choice of colour\n* half a pint of slug mucus\n\nProcess\n\n* One\n* Two\n* Three",
+    options: {
+      "Next page": "catseye",
+      "Previous page": "strength",
+      "Stop reading": "stopReading"
+    }
   },
-};
-
-const catseyePage = {
-  id: "catseye",
-  actions:
-    "## Feline Sight\n\nPlaceholder rhyme\n\n### Ingredients\n\n* 1 clump of a black cat's fur",
-  options: {
-    "Previous page": "sleep",
-    "Stop reading": stopReading,
+  {
+    id: "catseye",
+    actions:
+      "## Feline Sight\n\nPlaceholder rhyme\n\n### Ingredients\n\n* 1 clump of a black cat's fur",
+    options: {
+      "Previous page": "sleep",
+      "Stop reading": "stopReading"
+    }
   },
-};
+  {
+    id: "stopReading",
+    actions: "You close the grimoire.",
+    noEndTurn: true
+  }
+];
 
-const readGrimoire = new OptionGraph(
-  mendingPage,
-  woodwormPage,
-  invisibilityPage,
-  strengthPage,
-  sleepPage,
-  catseyePage
-);
+const readGrimoire = new OptionGraph(...grimoireNodes);
 
 grimoire.addVerb(
   new Verb(
@@ -184,7 +174,7 @@ grimoire.addVerb(
           return "As you do so, a scrap of yellowing paper falls from between the pages and flutters softly to the floor.";
         }
       },
-      () => readGrimoire.commence(),
+      () => readGrimoire.commence()
     ],
     [],
     ["open"]
@@ -235,9 +225,9 @@ dial.addVerb(
           ? (dial.liquid = "blood")
           : (dial.liquid = "water");
       },
-      () => `You turn the dial to point at the ${dial.liquid} inlet pipe.`,
+      () => `You turn the dial to point at the ${dial.liquid} inlet pipe.`
     ],
-    (x) => x,
+    x => x,
     ["rotate", "spin", "switch"]
   )
 );
@@ -256,7 +246,7 @@ const flow = new Event(
   () => selectRoom() === apothecary && masterValve.open,
   0,
   TIMEOUT_TURNS,
-  (x) => x,
+  x => x,
   true
 );
 
@@ -268,7 +258,7 @@ masterValve.addVerbs(
     () => !masterValve.open,
     [
       () => (masterValve.open = true),
-      "You grab the crank wheel with both hands and heave it in an anticlockwise direction. After yanking it around a few times you hear liquid start to flow through the pipe before splashing into the cauldron moments later.",
+      "You grab the crank wheel with both hands and heave it in an anticlockwise direction. After yanking it around a few times you hear liquid start to flow through the pipe before splashing into the cauldron moments later."
     ],
     "The valve is already open as far as it'll go."
   ),
@@ -278,7 +268,9 @@ masterValve.addVerbs(
     [
       () => (masterValve.open = false),
       () =>
-        `You spin the valve wheel back in the other direction to shut off the flow. Sure enough, the sound of rushing liquid ceases and the flow of ${dial.liquid} into the cauldron trickles to a stop.`,
+        `You spin the valve wheel back in the other direction to shut off the flow. Sure enough, the sound of rushing liquid ceases and the flow of ${
+          dial.liquid
+        } into the cauldron trickles to a stop.`
     ],
     "The valve is already closed."
   )
@@ -368,7 +360,7 @@ herbarium.hidesItems = [
   vervain,
   whiteSage,
   witchHazel,
-  wormwood,
+  wormwood
 ];
 
 const mendingPotion = new Potion(
@@ -386,12 +378,12 @@ const mendingProcedure = new Procedure(
           { type: STEP_WATER, value: 1 },
           {
             type: STEP_INGREDIENTS,
-            value: [dryadToenails.name, alfalfa.name, whiteSage.name],
-          },
-        ],
+            value: [dryadToenails.name, alfalfa.name, whiteSage.name]
+          }
+        ]
       },
-      { type: STEP_HEAT, value: 3 },
-    ],
+      { type: STEP_HEAT, value: 3 }
+    ]
   },
   mendingPotion
 );
@@ -413,7 +405,7 @@ const woodwormProcedure = new Procedure(
           "It quickly dissolves into the water.",
           "It falls into the water creating a dirty brown mixture."
         ),
-        short: new CyclicText("no potion just yet", "a dirty brown colour"),
+        short: new CyclicText("no potion just yet", "a dirty brown colour")
       },
       {
         type: STEP_STIR,
@@ -427,16 +419,16 @@ const woodwormProcedure = new Procedure(
           "beginning to react, but it's still just a brown sludge",
           "brown, thick and gloopy",
           "thick and gloopy and deep crimson in colour"
-        ),
+        )
       },
       {
         type: STEP_INGREDIENTS,
         value: [wormwood.name],
         text:
           "As the leaves drop into the ruddy mixture it suddenly shifts through shades of orange and yellow before finally settling on a luminous green. There's a strong smell to accompany the change and tendrils of steam are rising from the surface.",
-        short: "luminous green with a chemical smell",
-      },
-    ],
+        short: "luminous green with a chemical smell"
+      }
+    ]
   },
   woodwormPotion
 );
@@ -455,8 +447,8 @@ const strengthProcedure = new Procedure(
         ordered: false,
         steps: [
           { type: STEP_BLOOD, value: 0.25 },
-          { type: STEP_FAT, value: 0.25 },
-        ],
+          { type: STEP_FAT, value: 0.25 }
+        ]
       },
       {
         ordered: false,
@@ -466,17 +458,17 @@ const strengthProcedure = new Procedure(
             value: [adderVenom.name],
             text:
               "The venom immediately splits the mixture, turning it into a slimy mess of reds and yellows.",
-            short: "split, with slimy reds and yellows",
+            short: "split, with slimy reds and yellows"
           },
-          { type: STEP_HEAT, value: 10, leniency: 4 },
-        ],
+          { type: STEP_HEAT, value: 10, leniency: 4 }
+        ]
       },
       {
         type: STEP_INGREDIENTS,
         value: [astragalus.name],
         text:
           "As the astragalus hits the boiling liquid, a cloud of blue smoke billows from the surface.",
-        short: "billowing blue smoke",
+        short: "billowing blue smoke"
       },
       { type: STEP_HEAT, value: 1, leniency: 4 },
       {
@@ -493,16 +485,16 @@ const strengthProcedure = new Procedure(
               "smooth, silky and orange",
               "smooth, silky and purple"
             ),
-            leniency: 1,
+            leniency: 1
           },
-          { type: STEP_HEAT, value: 2, leniency: 4 },
-        ],
+          { type: STEP_HEAT, value: 2, leniency: 4 }
+        ]
       },
       {
         type: STEP_INGREDIENTS,
         value: [valerian.name],
         text: "A sweet smell emanates from the cauldron.",
-        short: "smooth, silky, and purple, with a sweet scent.",
+        short: "smooth, silky, and purple, with a sweet scent."
       },
       { type: STEP_HEAT, value: 1, leniency: 4 },
       {
@@ -521,12 +513,12 @@ const strengthProcedure = new Procedure(
               "deep alien purple",
               "purple with flecks of gold"
             ),
-            leniency: 1,
+            leniency: 1
           },
-          { type: STEP_HEAT, value: 3, leniency: 10 },
-        ],
-      },
-    ],
+          { type: STEP_HEAT, value: 3, leniency: 10 }
+        ]
+      }
+    ]
   },
   strengthPotion
 );
@@ -663,7 +655,7 @@ const breakVerb = new Verb(
   [
     () => (ironGate.broken = true),
     "Flexing your bulging muscles, you grab hold of the iron bars of the gate and pull with all your might. It turns out all your might wasn't required as the padlock and hinges snap easily under the force of your exaggerated strength and you topple backwards, landing clumsily with the gate on top of you.",
-    "You get up, dust yourself off, and lean the liberated gate against the wall.",
+    "You get up, dust yourself off, and lean the liberated gate against the wall."
   ],
   () => {
     if (ironGate.broken) {

@@ -26,44 +26,43 @@ consoleIO.showOptions = jest.fn();
 let game, optionGraph, x;
 const doIt = new Verb("do it", true, () => x++);
 
-const graph = {
-  id: "alpha",
-  actions: "goat",
-  options: {
-    one: {
-      id: "beta",
-      actions: "lamb",
-      options: {
-        three: {
-          id: "gamma",
-          actions: [() => x++, "sheep"]
-        },
-        four: {
-          id: "delta",
-          actions: "rabbit"
-        }
-      }
-    },
-    two: {
-      id: "epsilon",
-      actions: "falcon"
-    },
-    three: {
-      id: "three",
-      noEndTurn: true,
-      actions: "bye"
-    },
-    four: {
-      id: "four",
-      actions: () => doIt.attempt()
-    }
+const graphNodes = [
+  {
+    id: "alpha",
+    actions: "goat",
+    options: { one: "beta", two: "epsilon", three: "three", four: "four" }
+  },
+  { id: "beta", actions: "lamb", options: { three: "gamma", four: "delta" } },
+  { id: "epsilon", actions: "falcon" },
+  { id: "three", noEndTurn: true, actions: "bye" },
+  { id: "four", actions: () => doIt.attempt() },
+  {
+    id: "gamma",
+    actions: [() => x++, "sheep"]
+  },
+  {
+    id: "delta",
+    actions: "rabbit"
   }
-};
+];
 
-const nodes = [
-  { id: "cat", actions: "cat", options: { dog: "dog", sheep: "sheep" } },
-  { id: "dog", actions: "dog", options: { cat: "cat", sheep: "sheep" } },
-  { id: "sheep", actions: "sheep", options: { cat: "cat", dog: "dog" } }
+const speechNodes = [
+  {
+    id: "hello",
+    actions: "hello",
+    options: { question: "question", compliment: "compliment", bye: "bye" }
+  },
+  {
+    id: "question",
+    actions: "question",
+    options: { question: "question", compliment: "compliment", bye: "bye" }
+  },
+  {
+    id: "compliment",
+    actions: "compliment",
+    options: { question: "question", compliment: "compliment", bye: "bye" }
+  },
+  { id: "bye", actions: "bye" }
 ];
 
 beforeEach(async () => {
@@ -72,7 +71,7 @@ beforeEach(async () => {
 
   // Pretend we're in the browser
   game = initGame("Jolly Capers", false);
-  optionGraph = new OptionGraph(graph);
+  optionGraph = new OptionGraph(...graphNodes);
   x = 0;
   getStore().dispatch(newGame(game, true, false));
   await optionGraph.commence().chain();
@@ -111,11 +110,11 @@ test("optionGraph carries out additional actions", async () => {
 });
 
 test("optionGraph presents nodes by ID", () => {
-  expect(optionGraph.getNode("alpha")).toBe(graph);
-  expect(optionGraph.getNode("beta")).toBe(graph.options.one);
-  expect(optionGraph.getNode("gamma")).toBe(graph.options.one.options.three);
-  expect(optionGraph.getNode("delta")).toBe(graph.options.one.options.four);
-  expect(optionGraph.getNode("epsilon")).toBe(graph.options.two);
+  expect(optionGraph.getNode("alpha")).toStrictEqual(graphNodes[0]);
+  expect(optionGraph.getNode("beta")).toStrictEqual(graphNodes[1]);
+  expect(optionGraph.getNode("gamma")).toStrictEqual(graphNodes[5]);
+  expect(optionGraph.getNode("delta")).toStrictEqual(graphNodes[6]);
+  expect(optionGraph.getNode("epsilon")).toStrictEqual(graphNodes[2]);
 });
 
 test("optionGraph doesn't end the turn for some options", async () => {
@@ -128,16 +127,6 @@ test("optionGraph does end the turn for most options", async () => {
   const turn = selectTurn();
   await selectOptions()[0].action();
   expect(selectTurn()).toBe(turn + 1);
-});
-
-test("nodes can be referenced by id", async () => {
-  const graph = new OptionGraph(...nodes);
-  await graph.commence().chain();
-  let option = selectOptions()[0];
-  expect(option.label).toBe("dog");
-  await option.action();
-  option = selectOptions()[1];
-  expect(option.label).toBe("sheep");
 });
 
 test("start node can be set", () => {
@@ -157,4 +146,42 @@ test("start node can be set by id", () => {
 test("optionGraph exits if a node attempts a verb but has no options", async () => {
   await selectOptions()[3].action();
   expect(selectOptions()).toBeNull();
+});
+
+test("optionGraph repeats nodes by default", async () => {
+  const graph = new OptionGraph(...speechNodes);
+  await graph.commence().chain();
+  await selectOptions()[0].action();
+  expect(selectOptions().length).toBe(3);
+  expect(selectOptions()[0].label).toBe("question");
+});
+
+test("optionGraph does not repeat nodes if instructed", async () => {
+  const graph = new OptionGraph(...speechNodes);
+  graph.allowRepeats = false;
+  await graph.commence().chain();
+  await selectOptions()[0].action();
+  expect(selectOptions().length).toBe(2);
+  expect(selectOptions()[0].label).not.toBe("question");
+});
+
+test("individual nodes can opt to not repeat", async () => {
+  const nodes = [...speechNodes];
+  nodes[1].allowRepeats = false;
+  const graph = new OptionGraph(...nodes);
+  await graph.commence().chain();
+  await selectOptions()[0].action();
+  expect(selectOptions().length).toBe(2);
+  expect(selectOptions()[0].label).not.toBe("question");
+});
+
+test("individual nodes can opt to repeat", async () => {
+  const nodes = [...speechNodes];
+  nodes[1].allowRepeats = true;
+  const graph = new OptionGraph(...nodes);
+  graph.allowRepeats = false;
+  await graph.commence().chain();
+  await selectOptions()[0].action();
+  expect(selectOptions().length).toBe(3);
+  expect(selectOptions()[0].label).toBe("question");
 });

@@ -3,11 +3,20 @@ import { Option } from "./option";
 
 export class OptionGraph {
   constructor(...nodes) {
-    this.nodes = nodes;
+    this.nodes = nodes.map(node => ({ ...node })); // Shallow copy nodes
     this.startNode = nodes[0];
     this.flattened = {};
+    this.allowRepeats = true;
 
     this.reindex();
+  }
+
+  get allowRepeats() {
+    return this._allowRepeats;
+  }
+
+  set allowRepeats(allowRepeats) {
+    this._allowRepeats = allowRepeats;
   }
 
   reindex() {
@@ -56,30 +65,48 @@ export class OptionGraph {
   }
 
   activateNode(node) {
+    node.visited = true;
+
     let { actions, options } = node;
     let optionObjects;
 
     actions = Array.isArray(actions) ? actions : [actions];
 
     if (options) {
-      optionObjects = Object.entries(options).map(([choice, value]) => {
-        let node = value;
+      optionObjects = Object.entries(options)
+        .map(([choice, value]) => {
+          let optionId = value;
+          let optionNode;
 
-        if (typeof node === "string") {
-          // Treat as an ID reference
-          node = this.flattened[node];
+          if (typeof optionId === "string") {
+            // Treat as an ID reference
+            optionNode = this.flattened[optionId];
 
-          if (!node) {
-            throw Error(`Can't find node with id ${value}`);
+            if (!optionNode) {
+              throw Error(`Can't find node with id ${optionId}`);
+            }
+          } else {
+            throw Error(
+              "Option graph node options must refer to node IDs, not object references."
+            );
           }
-        }
 
-        return new Option(
-          choice,
-          () => this.activateNode(node),
-          !node.noEndTurn
-        );
-      });
+          if (
+            !optionNode.visited ||
+            optionNode.allowRepeats ||
+            (this.allowRepeats && optionNode.allowRepeats === undefined)
+          ) {
+            return new Option(
+              choice,
+              () => this.activateNode(optionNode),
+              !optionNode.noEndTurn
+            );
+          }
+
+          // No option
+          return undefined;
+        })
+        .filter(option => option);
     }
 
     const chain = new ActionChain(...actions);

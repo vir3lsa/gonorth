@@ -286,26 +286,32 @@ export class Parser {
   }
 
   handleDuplicateAliases() {
-    const options = this.duplicateAliasItems.reduce(
-      (acc, item, i) => ({
-        ...acc,
-        [item.name]: {
-          id: `option_${i}`,
-          actions: () => item.try(this.actualVerb.name, this.indirectItem)
-        }
-      }),
-      {}
-    );
+    const options = {};
+    const nodes = [];
 
-    options["Cancel"] = {
+    this.duplicateAliasItems.forEach((item, i) => {
+      const id = `option_${i}`;
+      options[item.name] = id;
+      nodes.push({
+        id,
+        actions: () => item.try(this.actualVerb.name, this.indirectItem)
+      });
+    });
+
+    // Add a cancel option
+    options["Cancel"] = "cancel";
+    nodes.push({
       id: "cancel"
-    };
+    });
 
-    const optionGraph = new OptionGraph({
+    // Add the root node
+    nodes.unshift({
       id: "disambiguation",
       actions: `Which ${this.duplicateAlias} do you mean?`,
       options
     });
+
+    const optionGraph = new OptionGraph(...nodes);
 
     // TODO Bug in ActionChain that means options are rendered even though OptionChain.renderOptions is false
     return optionGraph.commence().chain();

@@ -53,22 +53,23 @@ export function createKeywords() {
     "Satisfied everything's in order, you consider what to do next."
   );
 
-  const waitGraphRaw = {
-    id: "wait",
-    actions: waitText,
-    options: {
-      "Keep waiting": null,
-      "Stop waiting": {
-        id: "stop",
-        noEndTurn: true,
-        actions: stopWaitingText
+  const waitNodes = [
+    {
+      id: "wait",
+      actions: waitText,
+      options: {
+        "Keep waiting": "wait",
+        "Stop waiting": "stop"
       }
+    },
+    {
+      id: "stop",
+      noEndTurn: true,
+      actions: stopWaitingText
     }
-  };
+  ];
 
-  waitGraphRaw.options["Keep waiting"] = waitGraphRaw;
-  const waitGraph = new OptionGraph(waitGraphRaw);
-
+  const waitGraph = new OptionGraph(...waitNodes);
   const wait = new Verb("wait", true, waitGraph.commence(), [], [], true);
 
   addKeyword(inventoryVerb);

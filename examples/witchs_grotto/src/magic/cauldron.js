@@ -110,21 +110,23 @@ const stopStirringText = new RandomText(
   "You put the ladle, still dripping, on the floor."
 );
 
-const stirGraphRaw = {
-  id: "stir",
-  actions: [[stirText, () => alchemy.stir()]],
-  options: {
-    "Keep stirring": null,
-    "Stop stirring": {
-      id: "stop",
-      noEndTurn: true,
-      actions: stopStirringText
+const stirNodes = [
+  {
+    id: "stir",
+    actions: [[stirText, () => alchemy.stir()]],
+    options: {
+      "Keep stirring": "stir",
+      "Stop stirring": "stop"
     }
+  },
+  {
+    id: "stop",
+    noEndTurn: true,
+    actions: stopStirringText
   }
-};
+];
 
-stirGraphRaw.options["Keep stirring"] = stirGraphRaw;
-const stirGraph = new OptionGraph(stirGraphRaw);
+const stirGraph = new OptionGraph(...stirNodes);
 
 const stir = new Verb(
   "stir",
