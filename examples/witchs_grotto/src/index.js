@@ -37,9 +37,9 @@ setIntro(
 
 // setStartingRoom(cellar);
 // setStartingRoom(flue);
-setStartingRoom(apothecary);
+// setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
-// setStartingRoom(snug);
+setStartingRoom(snug);
 // setStartingRoom(southHall);
 // setStartingRoom(diningRoom);
 // setStartingRoom(pantry);
@@ -57,8 +57,8 @@ addKeyword(
     true,
     () => {
       const words = [...selectPlayer().uniqueItems]
-        .filter(item => item.magicWord)
-        .map(item => item.name);
+        .filter((item) => item.magicWord)
+        .map((item) => item.name);
 
       if (words.length) {
         return `You bring to mind all the magic words, charms and incantations you've learned. You know:\n\n${words.join(
@@ -149,7 +149,7 @@ addEvent(
           "South Hall",
           "Staircase",
           "inside oven"
-        ].some(roomName => roomName === selectRoom().name)
+        ].some((roomName) => roomName === selectRoom().name)
       ) {
         return upstairsSounds;
       } else {
@@ -159,7 +159,7 @@ addEvent(
     () => selectRoom() && Math.random() * 20 > 19,
     0,
     TIMEOUT_TURNS,
-    x => x,
+    (x) => x,
     true
   )
 );

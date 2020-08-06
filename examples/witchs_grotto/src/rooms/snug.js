@@ -20,6 +20,7 @@ const cat = new Npc(
 );
 cat.aliases = ["cat"];
 
+let catName;
 const catTalkNodes = [
   {
     id: "greeting",
@@ -41,14 +42,85 @@ const catTalkNodes = [
     ),
     options: {
       "Don't understand": "leave",
-      "I'm Genevieve": "introduce"
+      "I'm Genevieve": "introduce",
+      Leave: "leave"
     }
   },
   {
     id: "introduce",
     actions: new SequentialText(
-      "Hello...sir. My name's Genevieve. I think the lady that lives here wants to eat me and I really must get home. Can you help me, sir?"
-    )
+      `"Umm. My name's Genevieve. I think the lady that lives here wants to eat me and I really must get home. Can you help me, pussycat?"`,
+      `The cat regards you for a moment, seemingly wrestling with indecision, before replying, "Well, Genevieve, that's quite the predicament, isn't it? Quite the predicament indeed. Yes, our dear Mildred is prey to certain...predilictions. Quite unbecoming, truth be told, but we're all slaves to our vices, aren't we?"`,
+      `The cat pauses, as if expecting a response. When none is forthcoming, it continues, "What am I saying? You're much too young to know what I'm talking about. Anyway, about your getting home. Locked the door, has she? Yes, she will do that, the mean old bat. Not sporting at all, that."`
+    ),
+    options: {
+      "Your name": "yourName",
+      "Find key": "leave",
+      "How to escape": "leave",
+      "Need fur": "leave",
+      Leave: "leave"
+    }
+  },
+  {
+    id: "yourName",
+    actions: new SequentialText(
+      `Before the cat can continue, you interject, "And what's your name, kitty, if you don't mind me asking?"`,
+      `"My name?" The cat clears its throat and its eyes dart around, as though embarrassed. "It's...Sir Cat. That'll have to do."`
+    ),
+    options: {
+      "Sir Cat it is": "sirCat",
+      "No, really": "noReally",
+      Leave: "leave"
+    }
+  },
+  {
+    id: "sirCat",
+    actions: [
+      () => {
+        catName = "Sir Cat";
+        return null;
+      },
+      () =>
+        `"Nice to meet you, ${catName}."\n\nThe cat appears to wince, then nods for you to go on.`
+    ],
+    options: {
+      "Find key": "leave",
+      "How to escape": "leave",
+      "Need fur": "leave",
+      Leave: "leave"
+    }
+  },
+  {
+    id: "noReally",
+    actions: [
+      () => {
+        catName = "Mister Snugglesworth";
+        return null;
+      },
+      new SequentialText(
+        `"You're not fooling me, *Sir Cat*," you say with a smirk. "What's your *real* name?"`,
+        `The cat sighs audibly. "Very well," it says. "It's Mister Snugglesworth."`
+      )
+    ],
+    options: {
+      Giggle: "leave",
+      "Find key": "leave",
+      "How to escape": "leave",
+      "Need fur": "leave",
+      Leave: "leave"
+    }
+  },
+  {
+    id: "spokeBefore",
+    actions: new SequentialText(
+      `"I spoke to you before and you ignored me!" you protest.`,
+      `The cat snorts. "That, my dear girl, was not speaking. That was inane two-legger babble at its most nonsensical. I'd assumed there was no hope at all for you, I must admit, but here we are, conversing for all the world like two civilised creatures. Who'd have thought you had it in you all along, eh? So no more of that absurd furless drivel, please."`
+    ),
+    options: {
+      "Not drivel!": "notDrivel",
+      "I'm Genevieve": "introduce",
+      Leave: "leave"
+    }
   },
   {
     id: "leave",
@@ -67,7 +139,17 @@ const speak = new Verb(
   "speak",
   () => selectPlayer().dolittle,
   () => catGraph.commence(),
-  `Clearing your throat, you politely address the cat.\n\n"Hello, Mr Pussycat, sir. Err... or Madam. I'm Genevieve."\n\nThe cat regards you for a long while. You'd swear it had an eyebrow raised if it had eyebrows. Then it lets out a single weary meaow, before closing its eyes and resting its chin back on its front paws. You feel as though you've been dismissed.`,
+  [
+    () => {
+      catGraph.getNode("greeting").options["Spoke to you before"] =
+        "spokeBefore";
+      return null;
+    },
+    new SequentialText(
+      `Clearing your throat, you politely address the cat.\n\n"Hello, Mr Pussycat, sir. Err... or Madam. I'm Genevieve."`,
+      `The cat regards you for a long while. You'd swear it had an eyebrow raised if it had eyebrows. Then it lets out a single weary meaow, before closing its eyes and resting its chin back on its front paws. You feel as though you've been dismissed.`
+    )
+  ],
   ["talk", "question", "ask", "tell"]
 );
 
