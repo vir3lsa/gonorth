@@ -55,7 +55,7 @@ const catTalkNodes = [
     ),
     options: {
       "Your name": "yourName",
-      "Find key": "leave",
+      "Find key": "findKey",
       "How to escape": "leave",
       "Need fur": "leave",
       Leave: "leave"
@@ -84,7 +84,7 @@ const catTalkNodes = [
         `"Nice to meet you, ${catName}."\n\nThe cat appears to wince, then nods for you to go on.`
     ],
     options: {
-      "Find key": "leave",
+      "Find key": "findKey",
       "How to escape": "leave",
       "Need fur": "leave",
       Leave: "leave"
@@ -103,8 +103,35 @@ const catTalkNodes = [
       )
     ],
     options: {
-      Giggle: "leave",
-      "Find key": "leave",
+      Giggle: "giggle",
+      "Find key": "findKey",
+      "How to escape": "leave",
+      "Need fur": "leave",
+      Leave: "leave"
+    }
+  },
+  {
+    id: "giggle",
+    actions: new SequentialText(
+      `Unable to help yourself, you let out a short, delighted peel of laughter before stifling it with a hurried hand over your mouth.`,
+      `"Oh, so you find my moniker amusing, do you, *Jenner Veev*? What if I told you yours sounds like something from a bad periodical?"`,
+      `"Sorry!" you rescue. "It's really a very lovely name, sir."`,
+      `${catName} eyes you suspiciously. "Yes. Well. Where were we?"`
+    ),
+    options: {
+      "Find key": "findKey",
+      "How to escape": "leave",
+      "Need fur": "leave",
+      Leave: "leave"
+    }
+  },
+  {
+    id: "findKey",
+    actions: new SequentialText(
+      `Do you know where...Mildred...keeps the key, ${catName}?`,
+      `${catName} shakes his head emphatically, his white whiskers swishing back and forth. "You can forget that idea straight away, Jenner. She keeps the key on her all the time and there's no way you'd be able to snatch it, I'm afraid to say. Use that oversized two-legger brain of yours to find another solution."`
+    ),
+    options: {
       "How to escape": "leave",
       "Need fur": "leave",
       Leave: "leave"
