@@ -41,7 +41,18 @@ const catTalkNodes = [
       `"Sarcasm isn't lost on you, I see," replies the cat, rolling its eyes. "Never mind. How is it you believe I can be of assistance to you?"`
     ),
     options: {
-      "Don't understand": "leave",
+      "Don't understand": "dontUnderstand",
+      "I'm Genevieve": "introduce",
+      Leave: "leave"
+    }
+  },
+  {
+    id: "dontUnderstand",
+    actions: new SequentialText(
+      `"I don't know what that means," you reply, sorrowfully. "Sar-chasm?"`,
+      `"No matter, no matter," says the cat. "I'll try to restrain myself from dazzling you with verbiage from now on. Now, what do we call you?"`
+    ),
+    options: {
       "I'm Genevieve": "introduce",
       Leave: "leave"
     }
