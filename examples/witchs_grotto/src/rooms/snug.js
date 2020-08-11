@@ -149,6 +149,27 @@ const catTalkNodes = [
     }
   },
   {
+    id: "escape",
+    actions: new SequentialText(
+      `"Like I said, ${catName}, I really need to get home. Mother will give me a scalding already and if I get much later..." You make your eyes big and round. "You must know how to get out of here. Please - help me."`,
+      `"Hmm, yes, well." He appears to think for a moment, his eyes narrowing to aquamarine slits. "There *might* be a way. But...hmm."`,
+      `"Would you fetch me a book from the library in the apothecary? My memory's not what it was and I wouldn't wish to lead you astray. You'll see it at once. It's bound in green leather and it's called 'Druidic Peoples and their Customs'. Ah, but it's written in Felinsish. You speak it...but do you read it?"`
+    ),
+    options: {
+      "Feli-what?": "felinsish",
+      Okay: "leave"
+    }
+  },
+  {
+    id: "felinsish",
+    actions: new SequentialText(
+      `"I speak...what?"`,
+      `The cat looks genuinely incredulous. "Felinsish, dear girl! The only language of truly civilised creatures, a high bar for linguistic expressivity and a hallmark for *culture*." He practically coughs the last word out. "The language we're conversing in at this very moment!"`,
+      `"I thought you were speaking English!" you gasp, taken aback.`,
+      `"Inglish! Inglish she says. Pah! Perish the thought, girl. I'd sooner take a dip in the nearest pond than soil my mouth with that revolting two-legger claptrap."`
+    )
+  },
+  {
     id: "spokeBefore",
     actions: new SequentialText(
       `"I spoke to you before and you ignored me!" you protest.`,
