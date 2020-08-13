@@ -157,7 +157,7 @@ const catTalkNodes = [
     ),
     options: {
       "Feli-what?": "felinsish",
-      Okay: "leave"
+      Okay: "willFind"
     }
   },
   {
@@ -167,6 +167,24 @@ const catTalkNodes = [
       `The cat looks genuinely incredulous. "Felinsish, dear girl! The only language of truly civilised creatures, a high bar for linguistic expressivity and a hallmark for *culture*." He practically coughs the last word out. "The language we're conversing in at this very moment!"`,
       `"I thought you were speaking English!" you gasp, taken aback.`,
       `"Inglish! Inglish she says. Pah! Perish the thought, girl. I'd sooner take a dip in the nearest pond than soil my mouth with that revolting two-legger claptrap."`
+    ),
+    options: {
+      "Take offence": "takeOffence",
+      Okay: "willFind"
+    }
+  },
+  {
+    id: "takeOffence",
+    actions: `On seeing your hurt expression the cat says, "Oh, come now, girl, I didn't mean... I have a terrible habit of running my mouth off and saying things I don't mean. Cheer up - you're one of us now! You're *talking*. No need for tears, eh?"`,
+    options: {
+      Okay: "willFind"
+    }
+  },
+  {
+    id: "willFind",
+    actions: new SequentialText(
+      `"Okay, ${catName}," you say, uncertainly. "I'll see if I can find the book."`,
+      `"That's the spirit! There's the vivacity little girls are famed for! Come back to me when you've found it and we'll see what we can do about your...situation." ${catName} attempts a smile but only succeeds in baring his fangs.`
     )
   },
   {
@@ -176,7 +194,6 @@ const catTalkNodes = [
       `The cat snorts. "That, my dear girl, was not speaking. That was inane two-legger babble at its most nonsensical. I'd assumed there was no hope at all for you, I must admit, but here we are, conversing for all the world like two civilised creatures. Who'd have thought you had it in you all along, eh? So no more of that absurd furless drivel, please."`
     ),
     options: {
-      "Not drivel!": "notDrivel",
       "I'm Genevieve": "introduce",
       Leave: "leave"
     }
