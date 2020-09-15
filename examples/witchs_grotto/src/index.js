@@ -30,7 +30,7 @@ import { diningRoom } from "./rooms/diningRoom";
 import { kitchen } from "./rooms/kitchen";
 import { entranceHall } from "./rooms/entranceHall";
 
-initGame("The Witch's Grotto", "Rich Locke", true);
+initGame("The Lady of Bramble Wood", "Rich Locke", true);
 setIntro(
   "Now's your chance. Quickly! Make your escape whilst the witch is out."
 );
