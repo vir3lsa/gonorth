@@ -76,7 +76,7 @@ const catTalkNodes = [
     id: "yourName",
     actions: new SequentialText(
       `Before the cat can continue, you interject, "And what's your name, kitty, if you don't mind me asking?"`,
-      `"My name?" The cat clears its throat and its eyes dart around, as though embarrassed. "It's...Sir Cat. That'll have to do."`
+      `"My name?" The cat clears its throat and its eyes dart around, as though embarrassed. "It's Sir...Cat. That'll have to do."`
     ),
     options: {
       "Sir Cat it is": "sirCat",
@@ -110,7 +110,7 @@ const catTalkNodes = [
       },
       new SequentialText(
         `"You're not fooling me, *Sir Cat*," you say with a smirk. "What's your *real* name?"`,
-        `The cat sighs audibly. "Very well," it says. "It's Mister Snugglesworth."`
+        `The cat sighs audibly. "Very well," it says with an air of resignation. "It's Mister Snugglesworth."`
       )
     ],
     options: {
@@ -123,12 +123,13 @@ const catTalkNodes = [
   },
   {
     id: "giggle",
-    actions: new SequentialText(
-      `Unable to help yourself, you let out a short, delighted peel of laughter before stifling it with a hurried hand over your mouth.`,
-      `"Oh, so you find my moniker amusing, do you, *Jenner Veev*? What if I told you yours sounds like something from a bad periodical?"`,
-      `"Sorry!" you rescue. "It's really a very lovely name, sir."`,
-      `${catName} eyes you suspiciously. "Yes. Well. Where were we?"`
-    ),
+    actions: () =>
+      new SequentialText(
+        `Unable to help yourself, you let out a short, delighted peel of laughter before stifling it with a hurried hand over your mouth.`,
+        `"Oh, so you find my moniker amusing, do you, *Jenner Veev*? What if I told you yours sounds like something from a bad periodical?"`,
+        `"Sorry!" you rescue. "It's really a very lovely name, sir."`,
+        `${catName} eyes you suspiciously. "Yes. Well. Where were we?"`
+      ),
     options: {
       "Find key": "findKey",
       "How to escape": "leave",
@@ -138,10 +139,11 @@ const catTalkNodes = [
   },
   {
     id: "findKey",
-    actions: new SequentialText(
-      `Do you know where...Mildred...keeps the key, ${catName}?`,
-      `${catName} shakes his head emphatically, his white whiskers swishing back and forth. "You can forget that idea straight away, Jenner. She keeps the key on her all the time and there's no way you'd be able to snatch it, I'm afraid to say. Use that oversized two-legger brain of yours to find another solution."`
-    ),
+    actions: () =>
+      new SequentialText(
+        `Do you know where...Mildred...keeps the key, ${catName}?`,
+        `${catName} shakes his head emphatically, his white whiskers swishing back and forth. "You can forget that idea straight away, Jenner. She keeps the key on her all the time and there's no way you'd be able to snatch it, I'm afraid to say. Use that oversized two-legger brain of yours to find another solution."`
+      ),
     options: {
       "How to escape": "leave",
       "Need fur": "leave",
@@ -150,11 +152,12 @@ const catTalkNodes = [
   },
   {
     id: "escape",
-    actions: new SequentialText(
-      `"Like I said, ${catName}, I really need to get home. Mother will give me a scalding already and if I get much later..." You make your eyes big and round. "You must know how to get out of here. Please - help me."`,
-      `"Hmm, yes, well." He appears to think for a moment, his eyes narrowing to aquamarine slits. "There *might* be a way. But...hmm."`,
-      `"Would you fetch me a book from the library in the apothecary? My memory's not what it was and I wouldn't wish to lead you astray. You'll see it at once. It's bound in green leather and it's called 'Druidic Peoples and their Customs'. Ah, but it's written in Felinsish. You speak it...but do you read it?"`
-    ),
+    actions: () =>
+      new SequentialText(
+        `"Like I said, ${catName}, I really need to get home. Mother will give me a scalding already and if I get much later..." You make your eyes big and round. "You must know how to get out of here. Please - help me."`,
+        `"Hmm, yes, well." He appears to think for a moment, his eyes narrowing to aquamarine slits. "There *might* be a way. But...hmm."`,
+        `"Would you fetch me a book from the library in the apothecary? My memory's not what it was and I wouldn't wish to lead you astray. You'll see it at once. It's bound in green leather and it's called 'Druidic Peoples and their Customs'. Ah, but it's written in Felinsish. You speak it...but do you read it?"`
+      ),
     options: {
       "Feli-what?": "felinsish",
       Okay: "willFind"
@@ -182,10 +185,11 @@ const catTalkNodes = [
   },
   {
     id: "willFind",
-    actions: new SequentialText(
-      `"Okay, ${catName}," you say, uncertainly. "I'll see if I can find the book."`,
-      `"That's the spirit! There's the vivacity little girls are famed for! Come back to me when you've found it and we'll see what we can do about your...situation." ${catName} attempts a smile but only succeeds in baring his fangs.`
-    )
+    actions: () =>
+      new SequentialText(
+        `"Okay, ${catName}," you say, uncertainly. "I'll see if I can find the book."`,
+        `"That's the spirit! There's the vivacity little girls are famed for! Come back to me when you've found it and we'll see what we can do about your...situation." ${catName} attempts a smile but only succeeds in baring his fangs.`
+      )
   },
   {
     id: "spokeBefore",
