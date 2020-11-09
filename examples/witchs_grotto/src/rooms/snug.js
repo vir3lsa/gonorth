@@ -110,7 +110,7 @@ const catTalkNodes = [
       },
       new SequentialText(
         `"You're not fooling me, *Sir Cat*," you say with a smirk. "What's your *real* name?"`,
-        `The cat sighs audibly. "Very well," it says with an air of resignation. "It's Mister Snugglesworth."`
+        `The cat sighs audibly. "Very well," it says with an air of resignation. "Mister Snugglesworth, at your service."`
       )
     ],
     options: {
@@ -145,7 +145,7 @@ const catTalkNodes = [
         `${catName} shakes his head emphatically, his white whiskers swishing back and forth. "You can forget that idea straight away, Jenner. She keeps the key on her all the time and there's no way you'd be able to snatch it, I'm afraid to say. Use that oversized two-legger brain of yours to find another solution."`
       ),
     options: {
-      "How to escape": "leave",
+      "How to escape": "escape",
       "Need fur": "leave",
       Leave: "leave"
     }
@@ -178,7 +178,7 @@ const catTalkNodes = [
   },
   {
     id: "takeOffence",
-    actions: `On seeing your hurt expression the cat says, "Oh, come now, girl, I didn't mean... I have a terrible habit of running my mouth off and saying things I don't mean. Cheer up - you're one of us now! You're *talking*. No need for tears, eh?"`,
+    actions: `On seeing your hurt expression the cat says, "Oh, come now, girl, I didn't mean... I have a terrible habit of running my mouth off and getting myself into trouble. Cheer up - you're one of us now! You're *talking*. No need for tears, eh?"`,
     options: {
       Okay: "willFind"
     }
@@ -227,7 +227,7 @@ const speak = new Verb(
     },
     new SequentialText(
       `Clearing your throat, you politely address the cat.\n\n"Hello, Mr Pussycat, sir. Err... or Madam. I'm Genevieve."`,
-      `The cat regards you for a long while. You'd swear it had an eyebrow raised if it had eyebrows. Then it lets out a single weary meaow, before closing its eyes and resting its chin back on its front paws. You feel as though you've been dismissed.`
+      `The cat regards you for a long while. You'd swear it had an eyebrow raised if not for the fact it doesn't have eyebrows. Then it lets out a single weary meaow, before closing its eyes and resting its chin back on its front paws. You feel as though you've been dismissed.`
     )
   ],
   ["talk", "question", "ask", "tell"]
