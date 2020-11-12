@@ -20,7 +20,7 @@ const cat = new Npc(
 );
 cat.aliases = ["cat"];
 
-let catName;
+let catName = "Sir";
 const catTalkNodes = [
   {
     id: "greeting",
@@ -67,8 +67,8 @@ const catTalkNodes = [
     options: {
       "Your name": "yourName",
       "Find key": "findKey",
-      "How to escape": "leave",
-      "Need fur": "leave",
+      "How to escape": "escape",
+      "Need fur": "needFur",
       Leave: "leave"
     }
   },
@@ -76,19 +76,19 @@ const catTalkNodes = [
     id: "yourName",
     actions: new SequentialText(
       `Before the cat can continue, you interject, "And what's your name, kitty, if you don't mind me asking?"`,
-      `"My name?" The cat clears its throat and its eyes dart around, as though embarrassed. "It's Sir...Cat. That'll have to do."`
+      `"My name?" The cat clears its throat and its eyes dart around, as though embarrassed. "It's Mister...Cat. That'll have to do."`
     ),
     options: {
-      "Sir Cat it is": "sirCat",
+      "Mister Cat it is": "misterCat",
       "No, really": "noReally",
       Leave: "leave"
     }
   },
   {
-    id: "sirCat",
+    id: "misterCat",
     actions: [
       () => {
-        catName = "Sir Cat";
+        catName = "Mister Cat";
         return null;
       },
       () =>
@@ -96,8 +96,8 @@ const catTalkNodes = [
     ],
     options: {
       "Find key": "findKey",
-      "How to escape": "leave",
-      "Need fur": "leave",
+      "How to escape": "escape",
+      "Need fur": "needFur",
       Leave: "leave"
     }
   },
@@ -109,15 +109,15 @@ const catTalkNodes = [
         return null;
       },
       new SequentialText(
-        `"You're not fooling me, *Sir Cat*," you say with a smirk. "What's your *real* name?"`,
+        `"You're not fooling me, *Mister Cat*," you say with a smirk. "What's your *real* name?"`,
         `The cat sighs audibly. "Very well," it says with an air of resignation. "Mister Snugglesworth, at your service."`
       )
     ],
     options: {
       Giggle: "giggle",
       "Find key": "findKey",
-      "How to escape": "leave",
-      "Need fur": "leave",
+      "How to escape": "escape",
+      "Need fur": "needFur",
       Leave: "leave"
     }
   },
@@ -132,8 +132,8 @@ const catTalkNodes = [
       ),
     options: {
       "Find key": "findKey",
-      "How to escape": "leave",
-      "Need fur": "leave",
+      "How to escape": "escape",
+      "Need fur": "needFur",
       Leave: "leave"
     }
   },
@@ -146,7 +146,7 @@ const catTalkNodes = [
       ),
     options: {
       "How to escape": "escape",
-      "Need fur": "leave",
+      "Need fur": "needFur",
       Leave: "leave"
     }
   },
@@ -160,7 +160,8 @@ const catTalkNodes = [
       ),
     options: {
       "Feli-what?": "felinsish",
-      Okay: "willFind"
+      Okay: "willFind",
+      "Need fur": "needFur"
     }
   },
   {
@@ -173,7 +174,8 @@ const catTalkNodes = [
     ),
     options: {
       "Take offence": "takeOffence",
-      Okay: "willFind"
+      Okay: "willFind",
+      "Need fur": "needFur"
     }
   },
   {
@@ -188,7 +190,7 @@ const catTalkNodes = [
     actions: () =>
       new SequentialText(
         `"Okay, ${catName}," you say, uncertainly. "I'll see if I can find the book."`,
-        `"That's the spirit! There's the vivacity little girls are famed for! Come back to me when you've found it and we'll see what we can do about your...situation." ${catName} attempts a smile but only succeeds in baring his fangs.`
+        `"That's the spirit! There's the vivacity little girls are famed for! Come back to me when you've found it and we'll see what we can do about your...situation." He attempts a smile but only succeeds in baring his fangs.`
       )
   },
   {
@@ -201,6 +203,18 @@ const catTalkNodes = [
       "I'm Genevieve": "introduce",
       Leave: "leave"
     }
+  },
+  {
+    id: "needFur",
+    actions: () =>
+      new SequentialText(
+        `"Please, ${catName}, could I have some of your fur?" you ask in your meekest voice.`,
+        `The cat tilts its head back and guffaws. "Don't be daft, Jenner! You're not a cat. How could you hope to grow fur like mine?"`,
+        `You stare at him meaningfully. He continues laughing but, on seeing your expression, abruptly stops.`,
+        `"Oh," he says. "Oh no."`,
+        `"Please!" you counter, elongating the vowel.`,
+        `"Tell you what. Mildred has a bag of cat treats. Most delicious stuff I've ever tasted - Lord knows where she got it. Keeps it somewhere in her bedroom, I'm sure. Help an old mog out and fetch it for me, would you? Only I can't manage the stairs, you see. Bring me the treats and you can have some fur."`
+      )
   },
   {
     id: "leave",
