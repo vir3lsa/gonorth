@@ -37,9 +37,9 @@ setIntro(
 
 // setStartingRoom(cellar);
 // setStartingRoom(flue);
-// setStartingRoom(apothecary);
+setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
-setStartingRoom(snug);
+// setStartingRoom(snug);
 // setStartingRoom(southHall);
 // setStartingRoom(diningRoom);
 // setStartingRoom(pantry);

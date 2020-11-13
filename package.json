@@ -7,8 +7,8 @@
     "build": "babel src --out-dir lib --ignore '**/*.test.js' --source-maps 'inline'",
     "test": "jest",
     "coverage": "jest --coverage",
-    "play-grotto": "webpack-dev-server --config 'examples/witchs_grotto/webpack.config.web.js'",
-    "play-grotto-server": "webpack --config 'examples/witchs_grotto/webpack.config.server.js' && node examples/witchs_grotto/dist-server/main.js",
+    "start:grotto": "webpack-dev-server --config 'examples/witchs_grotto/webpack.config.web.js'",
+    "start:grotto-server": "webpack --config 'examples/witchs_grotto/webpack.config.server.js' && node examples/witchs_grotto/dist-server/main.js",
     "postinstall": "patch-package"
   },
   "keywords": [],

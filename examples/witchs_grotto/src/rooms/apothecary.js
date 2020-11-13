@@ -181,6 +181,16 @@ grimoire.addVerb(
   )
 );
 
+const druidicPeoples = new Item(
+  "Druidic Peoples and Their Customs",
+  "A relatively slim book in a plain green cover that's faded with age, the corners somewhat worn down. 'Druidic Peoples and Their Customs' was evidently written by an E. M. Pondsmith, judging by the name embossed on the front in letters almost as large as those of the title itself.",
+  true,
+  1
+);
+druidicPeoples.containerListing =
+  "Searching along the rows of books, you eventually spot the one you're looking for tucked between two much larger volumes. 'Druidic Peoples and Their Customs' peeks out at you, the words on the spine looking simultaneously familiar and strange to your eyes.";
+druidicPeoples.addAliases("book, druid");
+
 const bookShelf = new Item(
   "book shelf",
   "The shelves are full of ancient leather-bound books in dark greens, reds and blues. Most of them have titles written in a language you can't even identify, much less read and understand."
@@ -188,7 +198,7 @@ const bookShelf = new Item(
 
 bookShelf.capacity = 2;
 bookShelf.addAliases("library", "books", "bookshelf");
-bookShelf.hidesItems = grimoire;
+bookShelf.hidesItems = [grimoire, druidicPeoples];
 bookShelf.preposition = "on";
 
 const apparatus = new Item(
@@ -227,7 +237,7 @@ dial.addVerb(
       },
       () => `You turn the dial to point at the ${dial.liquid} inlet pipe.`
     ],
-    x => x,
+    (x) => x,
     ["rotate", "spin", "switch"]
   )
 );
@@ -246,7 +256,7 @@ const flow = new Event(
   () => selectRoom() === apothecary && masterValve.open,
   0,
   TIMEOUT_TURNS,
-  x => x,
+  (x) => x,
   true
 );
 
@@ -268,9 +278,7 @@ masterValve.addVerbs(
     [
       () => (masterValve.open = false),
       () =>
-        `You spin the valve wheel back in the other direction to shut off the flow. Sure enough, the sound of rushing liquid ceases and the flow of ${
-          dial.liquid
-        } into the cauldron trickles to a stop.`
+        `You spin the valve wheel back in the other direction to shut off the flow. Sure enough, the sound of rushing liquid ceases and the flow of ${dial.liquid} into the cauldron trickles to a stop.`
     ],
     "The valve is already closed."
   )
