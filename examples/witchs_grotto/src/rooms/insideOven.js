@@ -8,8 +8,6 @@ import {
   getRoom,
   TIMEOUT_TURNS,
   TIMEOUT_MILLIS,
-  Interaction,
-  SequentialText,
   goToRoom
 } from "../../../../lib/gonorth";
 import { flue, setInsideOven } from "./flue";

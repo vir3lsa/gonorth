@@ -26,4 +26,4 @@ flue.options = [
 ];
 
 // Do this to avoid circular dependencies
-export const setInsideOven = room => (insideOven = room);
+export const setInsideOven = (room) => (insideOven = room);
