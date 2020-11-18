@@ -8,6 +8,7 @@ import {
   SequentialText
 } from "../../../../lib/gonorth";
 import { Potion } from "../magic/alchemy";
+import { bookShelf, druidicPeoples } from "./apothecary/bookshelf";
 
 export const snug = new Room(
   "Snug",
@@ -153,7 +154,7 @@ const catTalkNodes = [
   {
     id: "escape",
     actions: [
-      () => (selectPlayer().searchingDruidic = true),
+      () => bookShelf.hidesItems.push(druidicPeoples),
       () =>
         new SequentialText(
           `"Like I said, ${catName}, I really need to get home. Mother will give me a scalding already and if I get much later..." You make your eyes big and round. "You must know how to get out of here. Please - help me."`,

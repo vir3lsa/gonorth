@@ -134,12 +134,14 @@ druidicPeoples.containerListing =
   "Searching along the rows of books, you eventually spot the one you're looking for tucked between two much larger volumes. 'Druidic Peoples and Their Customs' peeks out at you, the words on the spine looking simultaneously familiar and strange to your eyes.";
 druidicPeoples.addAliases("book, druid");
 
-export const bookShelf = new Item(
+const bookShelf = new Item(
   "book shelf",
   "The shelves are full of ancient leather-bound books in dark greens, reds and blues. Most of them have titles written in a language you can't even identify, much less read and understand."
 );
 
 bookShelf.capacity = 2;
 bookShelf.addAliases("library", "books", "bookshelf");
-bookShelf.hidesItems = [grimoire, druidicPeoples];
+bookShelf.hidesItems = [grimoire];
 bookShelf.preposition = "on";
+
+export { bookShelf, druidicPeoples };

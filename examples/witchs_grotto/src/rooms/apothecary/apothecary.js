@@ -31,6 +31,7 @@ import { MagicWord } from "../../magic/magicWord";
 import { pentagram } from "../../magic/pentagram";
 import { dolittleProcedure } from "../../magic/dolittleDecoction";
 import { bookShelf } from "./bookshelf";
+import { snug } from "../snug";
 
 export const apothecary = new Room(
   "Apothecary",
