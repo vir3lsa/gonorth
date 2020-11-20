@@ -79,19 +79,23 @@ export class Item {
               selectInventory().addItem(this);
               this.containerListing = null;
             },
-            new RandomText(
-              `You take the ${this.name}.`,
-              `You pick up the ${this.name}.`,
-              `You grab the ${this.name}.`
-            )
+            () => {
+              const article = this.properNoun ? "" : "the ";
+              return new RandomText(
+                `You take ${article}${this.name}.`,
+                `You pick up ${article}${this.name}.`,
+                `You grab ${article}${this.name}.`
+              );
+            }
           ],
           () => {
+            const article = this.properNoun ? "" : "the ";
             if (!this.container.itemsVisibleFromSelf) {
               return "You can't see that.";
             } else if (this.container !== selectInventory()) {
-              return `You don't have enough room for the ${this.name}.`;
+              return `You don't have enough room for ${article}${this.name}.`;
             } else {
-              return `You're already carrying the ${this.name}!`;
+              return `You're already carrying ${article}${this.name}!`;
             }
           },
           ["pick up", "steal", "grab", "hold"]
@@ -110,16 +114,19 @@ export class Item {
             this.container.removeItem(this);
             return other.addItem(this);
           },
-          (helper, other) =>
-            `You put the ${this.name} ${other.preposition} the ${other.name}.`
+          (helper, other) => {
+            const article = this.properNoun ? "" : "the ";
+            return `You put ${article}${this.name} ${other.preposition} the ${other.name}.`;
+          }
         ],
         (helper, other) => {
+          const article = this.properNoun ? "" : "the ";
           if (other === this) {
-            return `You can't put the ${this.name} ${other.preposition} itself. That would be nonsensical.`;
+            return `You can't put ${article}${this.name} ${other.preposition} itself. That would be nonsensical.`;
           } else if (other.canHoldItems) {
             return `There's no room ${other.preposition} the ${other.name}.`;
           } else {
-            return `You can't put the ${this.name} ${other.preposition} the ${other.name}.`;
+            return `You can't put ${article}${this.name} ${other.preposition} the ${other.name}.`;
           }
         },
         ["place", "drop"]

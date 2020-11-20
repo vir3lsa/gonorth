@@ -133,6 +133,19 @@ const druidicPeoples = new Item(
 druidicPeoples.containerListing =
   "Searching along the rows of books, you eventually spot the one you're looking for tucked between two much larger volumes. 'Druidic Peoples and Their Customs' peeks out at you, the words on the spine looking simultaneously familiar and strange to your eyes.";
 druidicPeoples.addAliases("book, druid");
+druidicPeoples.addVerb(
+  new Verb(
+    "read",
+    true,
+    [
+      "You open the book and peer inside at the tiny text covering its pages. Squinting, you can certainly read the words, but the book uses such scholarly language you can make neither head nor tail of it."
+    ],
+    [],
+    ["open"]
+  )
+);
+druidicPeoples.article = "";
+druidicPeoples.properNoun = true;
 
 const bookShelf = new Item(
   "book shelf",

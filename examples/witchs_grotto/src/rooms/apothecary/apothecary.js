@@ -563,3 +563,7 @@ apothecary.setEast(
   "Glancing at the evidence of your physical might leaning against the wall you step casually through the gateway.",
   "The gate is locked with a large, albeit rusty, padlock."
 );
+
+/* TEST TEST TEST */
+apothecary.setSouth(snug, true, "TEMP TEST");
+/* TEST TEST TEST */
