@@ -131,9 +131,30 @@ export class Item {
         },
         ["place", "drop"]
       );
-      putVerb.makePrepositional("where");
 
+      putVerb.makePrepositional("where");
       this.addVerb(putVerb);
+
+      // Give always fails - override for special cases
+      const giveVerb = new Verb(
+        "give",
+        () => false,
+        [],
+        (helper, other) => {
+          const article = this.properNoun ? "" : "the ";
+          if (other === this) {
+            return `You can't give ${article}${this.name} to itself. Obviously.`;
+          } else if (other.isNpc) {
+            return `It doesn't look like ${other.name} wants ${article}${this.name}.`;
+          } else {
+            return `You know you can't give ${article}${this.name} to the ${other.name}. So just stop it.`;
+          }
+        },
+        ["offer", "pass", "show"]
+      );
+
+      giveVerb.makePrepositional("to whom");
+      this.addVerb(giveVerb);
     }
   }
 

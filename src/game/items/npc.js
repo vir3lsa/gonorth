@@ -9,6 +9,7 @@ import { processEvent } from "../../utils/eventUtils";
 export class Npc extends Item {
   constructor(name, description) {
     super(name, description || `${name} is unremarkable.`, false);
+    this.isNpc = true; // Avoids circular dependency in item.js
     this.encounters = [];
     this.article = "";
   }

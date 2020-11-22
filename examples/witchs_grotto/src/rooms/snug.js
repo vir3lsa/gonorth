@@ -16,7 +16,7 @@ export const snug = new Room(
 );
 
 const cat = new Npc(
-  "Mr Snugglesworth",
+  "the cat",
   "The cat's fur is inky black, like a moonless sky. It's curled up in the richly-upholstered armchair and appears to be soundly asleep, but as you approach it slyly peers at you throught slitted eyelids. The eyes gleam like opalescent fire, a keen intelligence lurking behind them."
 );
 cat.aliases = ["cat"];
@@ -90,6 +90,7 @@ const catTalkNodes = [
     actions: [
       () => {
         catName = "Mister Cat";
+        cat.name = "Mister Cat";
         return null;
       },
       () =>
@@ -107,6 +108,7 @@ const catTalkNodes = [
     actions: [
       () => {
         catName = "Mister Snugglesworth";
+        cat.name = "Mister Snugglesworth";
         return null;
       },
       new SequentialText(
