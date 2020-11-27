@@ -147,6 +147,10 @@ druidicPeoples.addVerb(
 druidicPeoples.article = "";
 druidicPeoples.properNoun = true;
 
+druidicPeoples.verbs.give.test = (helper, other) =>
+  other.aliases.includes("cat");
+druidicPeoples.verbs.give.onSuccess = [() => "Smashing, smashing, smashing!"];
+
 const bookShelf = new Item(
   "book shelf",
   "The shelves are full of ancient leather-bound books in dark greens, reds and blues. Most of them have titles written in a language you can't even identify, much less read and understand."
