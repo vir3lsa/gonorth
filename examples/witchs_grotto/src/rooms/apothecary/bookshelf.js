@@ -4,6 +4,7 @@ import {
   OptionGraph,
   selectRoom
 } from "../../../../../lib/gonorth";
+import { catGraph } from "../snug/cat";
 
 const scrap = new Item(
   "scrap of paper",
@@ -149,7 +150,7 @@ druidicPeoples.properNoun = true;
 
 druidicPeoples.verbs.give.test = (helper, other) =>
   other.aliases.includes("cat");
-druidicPeoples.verbs.give.onSuccess = [() => "Smashing, smashing, smashing!"];
+druidicPeoples.verbs.give.onSuccess = [() => catGraph.commence("giveBook")];
 
 const bookShelf = new Item(
   "book shelf",

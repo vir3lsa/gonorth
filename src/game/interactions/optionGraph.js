@@ -3,7 +3,7 @@ import { Option } from "./option";
 
 export class OptionGraph {
   constructor(...nodes) {
-    this.nodes = nodes.map(node => ({ ...node })); // Shallow copy nodes
+    this.nodes = nodes.map((node) => ({ ...node })); // Shallow copy nodes
     this.startNode = nodes[0];
     this.flattened = {};
     this.allowRepeats = true;
@@ -21,7 +21,7 @@ export class OptionGraph {
 
   reindex() {
     this.flattened = {};
-    this.nodes.forEach(node => this.recordNodeIds(node));
+    this.nodes.forEach((node) => this.recordNodeIds(node));
   }
 
   recordNodeIds(node) {
@@ -35,13 +35,13 @@ export class OptionGraph {
     }
 
     if (node && node.options) {
-      Object.values(node.options).forEach(node => this.recordNodeIds(node));
+      Object.values(node.options).forEach((node) => this.recordNodeIds(node));
     }
   }
 
   addNodes(...nodes) {
     this.nodes.push(...nodes);
-    this.nodes.forEach(node => this.recordNodeIds(node));
+    this.nodes.forEach((node) => this.recordNodeIds(node));
   }
 
   getNode(id) {
@@ -60,8 +60,8 @@ export class OptionGraph {
     }
   }
 
-  commence() {
-    return this.activateNode(this.startNode);
+  commence(id) {
+    return this.activateNode(this.getNode(id) || this.startNode);
   }
 
   activateNode(node) {
@@ -106,7 +106,7 @@ export class OptionGraph {
           // No option
           return undefined;
         })
-        .filter(option => option);
+        .filter((option) => option);
     }
 
     const chain = new ActionChain(...actions);
