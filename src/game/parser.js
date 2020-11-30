@@ -25,10 +25,7 @@ export class Parser {
   }
 
   parse() {
-    const tokens = this.input
-      .trim()
-      .toLowerCase()
-      .split(/\s+/);
+    const tokens = this.input.trim().toLowerCase().split(/\s+/);
 
     const room = selectRoom();
 
@@ -154,7 +151,7 @@ export class Parser {
 
         // Is the item in the room and visible? Does it support the verb?
         let itemsWithName =
-          room.accessibleItems[possibleItem]?.filter(item => item.visible) ||
+          room.accessibleItems[possibleItem]?.filter((item) => item.visible) ||
           [];
 
         // Try items in the player's inventory as well
@@ -226,14 +223,10 @@ export class Parser {
           } ${this.actualVerb.interrogative}?`;
         } else if (this.actualVerb && this.actualVerb.prepositional) {
           // Prepositional verb with missing (or unsupported) first item
-          message = `You can't ${this.registeredVerb} that ${
-            this.roomItem.preposition
-          } the ${this.registeredItem}.`;
+          message = `You can't ${this.registeredVerb} that ${this.roomItem.preposition} the ${this.registeredItem}.`;
         } else {
           // The item's in the room but doesn't support the verb
-          message = `You can't see how to ${this.registeredVerb} the ${
-            this.registeredItem
-          }.`;
+          message = `You can't see how to ${this.registeredVerb} the ${this.registeredItem}.`;
         }
       } else if (this.registeredItem) {
         // The item exists elsewhere
@@ -277,7 +270,9 @@ export class Parser {
 
     // Use normal for loop so we can return from inside it
     for (let items of itemArrays) {
-      const itemWithVerb = items.find(item => item.verbs[this.registeredVerb]);
+      const itemWithVerb = items.find(
+        (item) => item.verbs[this.registeredVerb]
+      );
 
       if (itemWithVerb) {
         return itemWithVerb.verbs[this.registeredVerb];

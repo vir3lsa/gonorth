@@ -12,6 +12,7 @@ export class Npc extends Item {
     this.isNpc = true; // Avoids circular dependency in item.js
     this.encounters = [];
     this.article = "";
+    this.preposition = "to";
   }
 
   async go(direction) {
