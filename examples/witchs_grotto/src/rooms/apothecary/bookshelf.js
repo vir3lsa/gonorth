@@ -133,7 +133,7 @@ const druidicPeoples = new Item(
 );
 druidicPeoples.containerListing =
   "Searching along the rows of books, you eventually spot the one you're looking for tucked between two much larger volumes. 'Druidic Peoples and Their Customs' peeks out at you, the words on the spine looking simultaneously familiar and strange to your eyes.";
-druidicPeoples.addAliases("book, druid");
+druidicPeoples.addAliases("book", "druid");
 druidicPeoples.addVerb(
   new Verb(
     "read",
@@ -163,3 +163,7 @@ bookShelf.hidesItems = [grimoire];
 bookShelf.preposition = "on";
 
 export { bookShelf, druidicPeoples };
+
+/* TEST TEST TEST */
+bookShelf.addItem(druidicPeoples);
+/* TEST TEST TEST */
