@@ -223,7 +223,7 @@ const catTalkNodes = [
         `"That's it!" he cries. "I knew you could do it, Jenner. I could tell you meant business the moment I saw you."`,
         `With surprising dexterity for a creature with no fingers, ${catName} picks up the book and starts flicking through the pages, muttering to himself.`,
         `"No...no, this isn't it...Druidic customs...architectural practices...getting warmer...let's see...hmm...ritual chambers...aha!"`,
-        `"Yes, this is it," he purrs. "Druidic Ritual Labyrinths and Subterranean Spaces. The Druids constructed passageways and vaults underground in order to be closer to the Earth. Sites of particular arcane power would be selected for their natural magical ubandance. Many of these labyrinths still exist today, lying in partial ruin beneath our forests and other wild places. An unwary explorer might fall into one of these pitch black mazes and become hopelessly lost without suitable gear to help her navigate these twisted halls."`
+        `"Yes, this is it," he purrs. "Druidic Ritual Labyrinths and Subterranean Spaces. The Druids constructed passageways and vaults underground in order to be closer to the Earth. Sites of particular arcane power would be selected for their natural magical ubandance. Many of these labyrinths still exist today, lying in partial ruin beneath our forests and other wild places. An unwary explorer might fall into one of these pitch black mazes and become hopelessly lost without suitable gear to help her navigate these Stygian halls."`
       )
   },
   {
