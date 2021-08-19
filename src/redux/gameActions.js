@@ -9,16 +9,16 @@ import {
 import { Parser } from "../game/parser";
 import { AppendInput, Append } from "../game/interactions/interaction";
 
-const selectInBrowser = state => state.game.inBrowser;
-const selectDebugMode = state => state.game.debugMode;
-const selectPlayerInput = state => state.game.playerInput;
+const selectInBrowser = (state) => state.game.inBrowser;
+const selectDebugMode = (state) => state.game.debugMode;
+const selectPlayerInput = (state) => state.game.playerInput;
 
 export const newGame = (game, inBrowser, debugMode) => ({
   type: type.NEW_GAME,
   payload: { game, inBrowser, debugMode }
 });
 
-export const changeInteraction = interaction => (dispatch, getState) => {
+export const changeInteraction = (interaction) => (dispatch, getState) => {
   const state = getState();
   const inBrowser = selectInBrowser(state);
   const debugMode = selectDebugMode(state);
@@ -56,7 +56,12 @@ export const changeInteraction = interaction => (dispatch, getState) => {
   return interaction.promise;
 };
 
-export const receivePlayerInput = input => (dispatch, getState) => {
+export const changeImage = (image) => ({
+  type: type.CHANGE_IMAGE,
+  payload: image
+});
+
+export const receivePlayerInput = (input) => (dispatch, getState) => {
   dispatch({
     type: type.RECEIVE_INPUT,
     payload: input
@@ -81,32 +86,32 @@ export const nextTurn = () => ({
   type: type.NEXT_TURN
 });
 
-export const verbCreated = names => ({
+export const verbCreated = (names) => ({
   type: type.VERB_CREATED,
   payload: names
 });
 
-export const itemsRevealed = itemNames => ({
+export const itemsRevealed = (itemNames) => ({
   type: type.ITEMS_REVEALED,
   payload: itemNames
 });
 
-export const chainStarted = promise => ({
+export const chainStarted = (promise) => ({
   type: type.CHAIN_STARTED,
   payload: promise
 });
 
-export const chainEnded = promise => ({
+export const chainEnded = (promise) => ({
   type: type.CHAIN_ENDED,
   payload: promise
 });
 
-export const addEvent = event => ({
+export const addEvent = (event) => ({
   type: type.ADD_EVENT,
   payload: event
 });
 
-export const addKeywords = keywords => ({
+export const addKeywords = (keywords) => ({
   type: type.ADD_KEYWORDS,
   keywords
 });

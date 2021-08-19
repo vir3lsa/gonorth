@@ -2,7 +2,7 @@ import * as type from "../gameActionTypes";
 import {
   Interaction,
   Append,
-  AppendInput,
+  AppendInput
 } from "../../game/interactions/interaction";
 
 const initialState = {
@@ -10,12 +10,13 @@ const initialState = {
   inBrowser: false,
   debugMode: false,
   interaction: new Interaction("Loading..."),
+  image: null,
   lastChange: Date.now(),
   verbNames: {},
   itemNames: new Set(),
   actionChainPromise: null,
   events: [],
-  keywords: {},
+  keywords: {}
 };
 
 export default function (state = initialState, action) {
@@ -47,6 +48,8 @@ export default function (state = initialState, action) {
       }
 
       return { ...state, interaction, lastChange: Date.now() };
+    case type.CHANGE_IMAGE:
+      return { ...state, image: action.payload };
     case type.RECEIVE_INPUT:
       return { ...state, playerInput: action.payload };
     case type.NEXT_TURN:
@@ -59,13 +62,13 @@ export default function (state = initialState, action) {
         ...state,
         itemNames: new Set([
           ...state.itemNames,
-          ...action.payload.map((i) => i.toLowerCase()),
-        ]),
+          ...action.payload.map((i) => i.toLowerCase())
+        ])
       };
     case type.CHAIN_STARTED:
       return {
         ...state,
-        actionChainPromise: state.actionChainPromise || action.payload,
+        actionChainPromise: state.actionChainPromise || action.payload
       };
     case type.CHAIN_ENDED:
       const actionChainPromise =

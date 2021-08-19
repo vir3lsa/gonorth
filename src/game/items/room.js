@@ -2,7 +2,7 @@ import { getStore } from "../../redux/storeRegistry";
 import { Door } from "./door";
 import { GoVerb } from "../verbs/verb";
 import { Item } from "./item";
-import { itemsRevealed } from "../../redux/gameActions";
+import { itemsRevealed, changeImage } from "../../redux/gameActions";
 import { preferPaged } from "../../utils/dynamicDescription";
 import { ActionChain } from "../../utils/actionChain";
 import { goToRoom } from "../../gonorth";
@@ -30,6 +30,15 @@ export class Room extends Item {
     return this._options;
   }
 
+  set image(image) {
+    this._image = new Image();
+    this._image.src = image;
+  }
+
+  get image() {
+    return this._image;
+  }
+
   addAdjacentRoom(room, directionName, navigable, onSuccess, failureText) {
     let test = navigable;
 
@@ -54,7 +63,7 @@ export class Room extends Item {
     };
 
     // Map each of the direction aliases to the direction object
-    aliases.forEach(alias => {
+    aliases.forEach((alias) => {
       this.adjacentRooms[alias] = directionObject;
     });
 
@@ -128,7 +137,10 @@ export class Room extends Item {
    * Get the ActionChain (including any options) associated with going to this room.
    */
   get actionChain() {
-    const chain = new ActionChain(this.description);
+    const chain = new ActionChain(
+      () => changeImage(this._image),
+      this.description
+    );
     chain.options = this.options;
 
     if (this.itemListings) {
@@ -145,7 +157,7 @@ export class Room extends Item {
    */
   revealVisibleItems() {
     const itemNames = Object.entries(this.accessibleItems)
-      .filter(([, itemsWithName]) => itemsWithName.find(item => item.visible))
+      .filter(([, itemsWithName]) => itemsWithName.find((item) => item.visible))
       .map(([name]) => name);
 
     getStore().dispatch(itemsRevealed(itemNames));
@@ -156,7 +168,7 @@ export class Room extends Item {
     let description = "";
     const plainList = []; // Items with no room listing
 
-    this.uniqueItems.forEach(item => {
+    this.uniqueItems.forEach((item) => {
       if (item.containerListing) {
         debug(`Using ${item.name}'s room listing.`);
         description += `${item.containerListing} `;
@@ -165,27 +177,25 @@ export class Room extends Item {
         plainList.push(item); // We'll list this item separately
       } else {
         debug(
-          `${
-            item.name
-          } is not holdable and doesn't have a room listing so won't be listed.`
+          `${item.name} is not holdable and doesn't have a room listing so won't be listed.`
         );
       }
     });
 
     [...this.uniqueItems]
-      .filter(item => Object.keys(item.items).length)
-      .filter(container => container.itemsVisibleFromRoom)
-      .forEach(container => {
+      .filter((item) => Object.keys(item.items).length)
+      .filter((container) => container.itemsVisibleFromRoom)
+      .forEach((container) => {
         debug(`Listing ${container.name}'s items as they are visible.`);
         const describedItems = [];
-        Object.values(container.items).forEach(itemsWithName =>
+        Object.values(container.items).forEach((itemsWithName) =>
           itemsWithName
-            .filter(item => item.containerListing)
-            .forEach(item => describedItems.push(item))
+            .filter((item) => item.containerListing)
+            .forEach((item) => describedItems.push(item))
         );
         debug(`Found ${describedItems.length} item(s) with room listings.`);
         const containerListings = describedItems
-          .map(item => item.containerListing)
+          .map((item) => item.containerListing)
           .join(" ");
         const titleCasePrep = toTitleCase(container.preposition);
         const list = container.basicItemList;
@@ -196,9 +206,7 @@ export class Room extends Item {
         if (list.length) {
           debug("Found a basic list of items");
           description += description.length ? "\n\n" : "";
-          description += `${titleCasePrep} the ${
-            container.name
-          } there's ${list}.`;
+          description += `${titleCasePrep} the ${container.name} there's ${list}.`;
         }
       });
 
