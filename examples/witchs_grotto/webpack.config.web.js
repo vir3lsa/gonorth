@@ -9,5 +9,17 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, "dist-web")
+  },
+  module: {
+    rules: [
+      {
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          {
+            loader: "file-loader"
+          }
+        ]
+      }
+    ]
   }
 };

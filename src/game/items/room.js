@@ -31,8 +31,9 @@ export class Room extends Item {
   }
 
   set image(image) {
-    this._image = new Image();
-    this._image.src = image;
+    this._image = image;
+    // this._image = new Image();
+    // this._image.src = image;
   }
 
   get image() {
@@ -138,7 +139,7 @@ export class Room extends Item {
    */
   get actionChain() {
     const chain = new ActionChain(
-      () => changeImage(this._image),
+      () => getStore().dispatch(changeImage(this._image)),
       this.description
     );
     chain.options = this.options;

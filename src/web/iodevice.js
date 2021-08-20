@@ -1,25 +1,38 @@
 import React, { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { connect } from "react-redux";
-import { animateScroll } from "react-scroll";
+import { animateScroll, Element, scroller } from "react-scroll";
 import { DecisionBar } from "./decisionBar";
 import { ParserBar } from "./parserBar";
+import { SceneImage } from "./sceneImage";
 
-const IODevice = props => {
+const IODevice = (props) => {
   const { interaction } = props;
 
   useEffect(
     () =>
-      animateScroll.scrollToBottom({
+      scroller.scrollTo("scrollTarget", {
         smooth: "easeInQuad",
-        duration: 1500
+        duration: 1500,
+        containerId: "scrollPane"
       }),
     [interaction.currentPage]
   );
 
   return (
-    <div>
-      <ReactMarkdown source={interaction.currentPage} className="gonorth" />
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        flex: 1,
+        margin: "8px"
+      }}
+    >
+      <SceneImage />
+      <div id="scrollPane" style={{ flex: 2, overflow: "auto" }}>
+        <ReactMarkdown source={interaction.currentPage} className="gonorth" />
+        <Element name="scrollTarget" />
+      </div>
       {interaction.options && interaction.options.length ? (
         <DecisionBar options={interaction.options} />
       ) : (
@@ -29,7 +42,7 @@ const IODevice = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     interaction: state.game.interaction
   };

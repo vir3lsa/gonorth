@@ -2,10 +2,21 @@ html {
   background: #333;
   font-family: "masaakiregular";
   color: #cc9;
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
 }
 
 h1 {
   font-family: "8-bit_operator_scregular";
+}
+
+#container {
+  height: 100%;
+  display: flex;
 }
 
 .gonorth h6 {

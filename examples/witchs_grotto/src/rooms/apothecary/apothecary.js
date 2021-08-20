@@ -32,11 +32,14 @@ import { pentagram } from "../../magic/pentagram";
 import { dolittleProcedure } from "../../magic/dolittleDecoction";
 import { bookShelf } from "./bookshelf";
 import { snug } from "../snug";
+import roomImage from "./apothecary.png";
 
 export const apothecary = new Room(
   "Apothecary",
   "You seem to be in some kind of apothecary or decoction room. There's an enormous open fireplace mostly filled by a large black cauldron. Above it there's an arrangement of pipes that looks as though it's used to fill the cauldron with liquid.\n\nOne wall of the room is lined with shelf upon shelf of vials, jars and bottles. Most but not all have dusty labels with incomprehensible things scrawled on them. Another wall is hidden behind rows and rows of leather-bound books.\n\nOn the cold flagstones under foot there's a pentagram smeared in something brown and old-looking. Behind that there's a wooden bureau strewn with yellowing bits of paper.\n\nThere's an iron gate to the east."
 );
+
+apothecary.image = roomImage;
 
 const bureau = new Item(
   "bureau",

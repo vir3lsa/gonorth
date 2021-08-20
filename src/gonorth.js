@@ -28,7 +28,6 @@ function initGame(title, author, debugMode) {
   game.author = author;
   game.debugMode = debugMode;
   game.container = null;
-  game.author = null;
   game.introActions = new ActionChain(() => goToStartingRoom());
   game.schedules = [];
   game._startingRoom = new Room(

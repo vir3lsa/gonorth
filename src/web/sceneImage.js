@@ -1,8 +1,20 @@
 import React, { useRef, useEffect } from "react";
 import { connect } from "react-redux";
 
-const SceneImage = (props) => {
-  return <div background={props.image.src}></div>;
+const SceneImageInner = (props) => {
+  return (
+    <div
+      style={{
+        backgroundImage: `url(${props.image})`,
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        width: "100%",
+        flex: 1,
+        marginBottom: "8px"
+      }}
+    ></div>
+  );
 };
 
 const mapStateToProps = (state) => {
@@ -11,4 +23,4 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default connect(mapStateToProps)(SceneImage);
+export const SceneImage = connect(mapStateToProps)(SceneImageInner);
