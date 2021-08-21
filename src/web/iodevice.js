@@ -25,7 +25,8 @@ const IODevice = (props) => {
         display: "flex",
         flexDirection: "column",
         flex: 1,
-        margin: "8px"
+        margin: "8px",
+        maxWidth: "100vh"
       }}
     >
       <SceneImage />

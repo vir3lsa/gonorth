@@ -10,9 +10,9 @@ const SceneImageInner = (props) => {
         backgroundSize: "cover",
         backgroundPosition: "center",
         imageRendering: "pixelated",
-        width: "100%",
-        flex: 1,
-        marginBottom: "8px"
+        height: props.image ? "49vw" : 0,
+        maxHeight: "50%",
+        marginBottom: props.image ? "8px" : 0
       }}
     ></div>
   );
