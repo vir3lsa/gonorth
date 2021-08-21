@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React from "react";
 import { connect } from "react-redux";
 
 const SceneImageInner = (props) => {
@@ -9,6 +9,7 @@ const SceneImageInner = (props) => {
         backgroundRepeat: "no-repeat",
         backgroundSize: "cover",
         backgroundPosition: "center",
+        imageRendering: "pixelated",
         width: "100%",
         flex: 1,
         marginBottom: "8px"
