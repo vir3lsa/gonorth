@@ -212,7 +212,9 @@ const catTalkNodes = [
         `You stare at him meaningfully. He continues laughing but, on seeing your expression, abruptly stops.`,
         `"Oh," he says. "Oh no."`,
         `"Please!" you counter, elongating the vowel.`,
-        `"Tell you what. Mildred has a bag of cat treats. Most delicious stuff I've ever tasted - Lord knows where she got it. Keeps it somewhere in her bedroom, I'm sure. Help an old mog out and fetch it for me, would you? Only I can't manage the stairs, you see. Bring me the treats and you can have some fur."`
+        `"Let me get this straight," he says. "You want to cut off some of *my* fur for...what reason exactly? Do I sense a touch of jealousy, perhaps? You wish you had a sleek, lustrous coat like mine but, seeing as you can't, you'll settle for ruining mine instead. Is that it?"`,
+        `"Please, ${catName}! I need it! To help me escape!" You jump up and down to emphasise the point.`,
+        `His expression softens suddenly, leading you to believe the previous indignance was nothing but melodrama all along. "Tell you what, Jenner. Mildred has a bag of cat treats. Most delicious stuff I've ever tasted - Lord knows where she got it. Keeps it somewhere in her bedroom, I'm sure. Help an old mog out and fetch it for me, would you? Only I can't manage the stairs, you see. Bring me the treats and you can have some fur."`
       )
   },
   {
@@ -225,8 +227,34 @@ const catTalkNodes = [
         `"No...no, this isn't it...Druidic customs...architectural practices...getting warmer...let's see...hmm...ritual chambers...aha!"`,
         `"Yes, this is it," he purrs. "Druidic Ritual Labyrinths and Subterranean Spaces. The Druids constructed passageways and vaults underground in order to be closer to the Earth. Sites of particular arcane power would be selected for their natural magical ubandance. Many of these labyrinths still exist today, lying in partial ruin beneath our forests and mountains. An unwary explorer might fall into one of these pitch black mazes and become hopelessly lost without suitable gear to help her navigate the Stygian halls."`,
         `You look at ${catName} blankly. "I don't understand."`,
-        `"Jenner, this *house* is built on a site of arcane power. It helps Mildred...do her witchy stuff. I don't pretend to understand it. The point is, I'd bet my last catnip biscuit there are druidic ruins in this same spot. If you can find a way into them, you're practically home and dry! There's sure to be another entrance in the woods somewhere. Make your way to that and you're free."`
+        `"Jenner, this *house* is built on a site of arcane power. It helps Mildred...do her witchy stuff. I don't pretend to understand it. The point is, I'd bet my last catnip biscuit there are druidic ruins in this same spot. If you can find a way into them, you're practically home and dry! There's sure to be a way out of the tunnels in the woods somewhere. Make your way to that and you're free."`
+      ),
+    options: {
+      "Okay": "labyrinthOkay",
+      "Where": "whereEntrance",
+      "Need fur": "needFur"
+    }
+  },
+  {
+    id: "labyrinthOkay",
+    actions: () =>
+      new SequentialText(
+        `"Thank you, ${catName}," you say, with genuine gratitude. "I'll go and find this labberinse."`,
+        `"Lab-y-rinth," ${catName} corrects you, not unkindly.`,
+        `"Yes. Labyrint. Bye!"`
       )
+  },
+  {
+    id: "whereEntrance",
+    actions: () =>
+      new SequentialText(
+        `"So there's a way into the ruins from this house? Where?" you ask, a small candle of hope flickering to life in your mind.`,
+        `"The Druids built their labyrinths underground so...I'd start by looking in the deepest, darkest parts of the house you can find."`
+      ),
+    options: {
+      "Okay": "labyrinthOkay",
+      "Need fur": "needFur"
+    }
   },
   {
     id: "leave",
