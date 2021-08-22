@@ -16,6 +16,7 @@ import { Verb } from "./game/verbs/verb";
 import { receiveInput } from "./utils/inputReceiver";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event } from "./game/events/event";
 import { handleTurnEnd } from "./utils/lifecycle";
+import { Parser } from "./game/parser";
 
 const title = "Space Auctioneer 2";
 
@@ -75,7 +76,9 @@ describe("Game class", () => {
    * Going to starting room shouldn't increment turn.
    * Turn should only increment once at the very end of the chain.
    * End turn should therefore be 2.
-   * In Node 12 it ends on 3?? Why?
+   * Using the 'receiveInput' method also causes the turn to increment, which is correct because
+   * a new turn should start each time the player does something. We're not testing that here
+   * though, so using Parser directly, which doesn't increment the turn.
    */
   it("increments the turn at the end of a chain", async () => {
     room.addVerb(new Verb("shimmy", true, ["one", "two", "three"]));
@@ -85,7 +88,7 @@ describe("Game class", () => {
       await clickNext();
       await clickNext();
     });
-    await receiveInput("shimmy");
+    await new Parser("shimmy").parse();
     expect(selectTurn()).toBe(2);
   });
 

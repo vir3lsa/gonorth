@@ -35,8 +35,8 @@ const selectCurrentPage = () =>
 
 const selectInteraction = () => getStore().getState().game.interaction;
 
-const clickNextAndWait = () => {
-  clickNext();
+const clickNextAndWait = async () => {
+  await clickNext();
   return selectInteraction().promise;
 };
 
