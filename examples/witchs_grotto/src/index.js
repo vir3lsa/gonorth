@@ -29,6 +29,7 @@ import { southHall } from "./rooms/southHall";
 import { diningRoom } from "./rooms/diningRoom";
 import { kitchen } from "./rooms/kitchen";
 import { entranceHall } from "./rooms/entranceHall";
+import { staircase } from "./rooms/staircase";
 
 initGame("The Lady of Bramble Wood", "Rich Locke", true);
 setIntro(
@@ -37,7 +38,7 @@ setIntro(
 
 // setStartingRoom(cellar);
 // setStartingRoom(flue);
-setStartingRoom(apothecary);
+// setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
 // setStartingRoom(snug);
 // setStartingRoom(southHall);
@@ -45,6 +46,7 @@ setStartingRoom(apothecary);
 // setStartingRoom(pantry);
 // setStartingRoom(kitchen);
 // setStartingRoom(entranceHall);
+setStartingRoom(staircase);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");

@@ -214,7 +214,19 @@ const catTalkNodes = [
         `"Please!" you counter, elongating the vowel.`,
         `"Let me get this straight," he says. "You want to cut off some of *my* fur for...what reason exactly? Do I sense a touch of jealousy, perhaps? You wish you had a sleek, lustrous coat like mine but, seeing as you can't, you'll settle for ruining mine instead. Is that it?"`,
         `"Please, ${catName}! I need it! To help me escape!" You jump up and down to emphasise the point.`,
-        `His expression softens suddenly, leading you to believe the previous indignance was nothing but melodrama all along. "Tell you what, Jenner. Mildred has a bag of cat treats. Most delicious stuff I've ever tasted - Lord knows where she got it. Keeps it somewhere in her bedroom, I'm sure. Help an old mog out and fetch it for me, would you? Only I can't manage the stairs, you see. Bring me the treats and you can have some fur."`
+        `His expression softens suddenly, leading you to believe the previous indignance was nothing but melodrama all along. "Tell you what, Jenner. Mildred has a bag of cat treats. Most delicious stuff I've ever tasted - Lord knows where she got it. Keeps it somewhere in her bedroom, I'm sure. Help an old mog out and fetch it for me, would you? Only I can't manage the stairs, you see. Bring me the treats and you can have some fur. Just a few tufts, mind!"`
+      ),
+      options: {
+        "Will find treats": "okayTreats",
+        "How to escape": "escape"
+      }
+  },
+  {
+    id: "okayTreats",
+    actions: () =>
+      new SequentialText(
+        `"Oh, thank you, ${catName}! I'll go and find the treats for you. Just wait there, okay?"`,
+        `"I'm not going anywhere, Jenner, don't worry. Hurry back now." He lifts a paw as if to wave it, then thinks better of it.`
       )
   },
   {
@@ -252,8 +264,7 @@ const catTalkNodes = [
         `"The Druids built their labyrinths underground so...I'd start by looking in the deepest, darkest parts of the house you can find."`
       ),
     options: {
-      "Okay": "labyrinthOkay",
-      "Need fur": "needFur"
+      "Okay": "labyrinthOkay"
     }
   },
   {
