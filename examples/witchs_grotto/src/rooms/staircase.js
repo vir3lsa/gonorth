@@ -9,7 +9,11 @@ const defaultDescriptions = new RandomText(
   "As you climb, you wonder how you'd have missed something this tall in the forest. You feel as though you must be up in the clouds by now."
 );
 
+let facingBackwards = false;
+
 export const staircase = new Room("Staircase", () => {
+  facingBackwards = false;
+  staircase.setUp(staircase, true, null, null, false);
   staircase.stage++;
 
   switch (staircase.stage) {
@@ -59,8 +63,6 @@ const writing = new Item(
 );
 writing.aliases = ["writing", "message"];
 
-let facingBackwards = false;
-
 const turnAround = new Verb(
   "turn around",
   () => true,
@@ -70,13 +72,13 @@ const turnAround = new Verb(
 
       if (facingBackwards) {
         staircase.setUp(
-        bedroom,
-        true,
-        [
-          "You carefully lift your left foot and place it on the step above the one you\'re on, all whilst continuing to look backwards down the stairs. Then, you transfer your weight to your left leg and carefully repeat the process with your right foot, lifting it onto the next step behind you. One by one, you reverse your way up the steps. After the tenth step you lift your foot to find the eleventh and nearly fall over when your foot finds nothing but air. Instead, it comes down hard on...carpet? You take an excited peek over your shoulder - there are no more stairs! You've reached the top at last.",
-          () => (staircase.stage = 0)
-        ],
-        null,
+          bedroom,
+          true,
+          [
+            "You carefully lift your left foot and place it on the step above the one you\'re on, all whilst continuing to look backwards down the stairs. Then, you transfer your weight to your left leg and carefully repeat the process with your right foot, lifting it onto the next step behind you. One by one, you reverse your way up the steps. After the tenth step you lift your foot to find the eleventh and nearly fall over when your foot finds nothing but air. Instead, it comes down hard on...carpet? You take an excited peek over your shoulder - there are no more stairs! You've reached the top at last.",
+            () => (staircase.stage = 0)
+          ],
+          null,
         false);
       } else {
         staircase.setUp(staircase, true, null, null, false);

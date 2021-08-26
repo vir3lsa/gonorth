@@ -30,6 +30,7 @@ import { diningRoom } from "./rooms/diningRoom";
 import { kitchen } from "./rooms/kitchen";
 import { entranceHall } from "./rooms/entranceHall";
 import { staircase } from "./rooms/staircase";
+import { bedroom } from "./rooms/bedroom";
 
 initGame("The Lady of Bramble Wood", "Rich Locke", true);
 setIntro(
@@ -46,7 +47,8 @@ setIntro(
 // setStartingRoom(pantry);
 // setStartingRoom(kitchen);
 // setStartingRoom(entranceHall);
-setStartingRoom(staircase);
+// setStartingRoom(staircase);
+setStartingRoom(bedroom);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
