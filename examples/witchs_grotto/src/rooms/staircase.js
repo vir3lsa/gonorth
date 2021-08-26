@@ -72,7 +72,10 @@ const turnAround = new Verb(
         staircase.setUp(
         bedroom,
         true,
-        "You carefully lift your left foot and place it on the step above the one you\'re on, all whilst continuing to look backwards down the stairs. Then, you transfer your weight to your left leg and carefully repeat the process with your right foot, lifting it onto the next step behind you. One by one, you reverse your way up the steps. After the tenth step you lift your foot to find the eleventh and nearly fall over when your foot finds nothing but air. Instead, it comes down hard on...carpet? You take an excited peek over your shoulder - there are no more stairs! You've reached the top at last.",
+        [
+          "You carefully lift your left foot and place it on the step above the one you\'re on, all whilst continuing to look backwards down the stairs. Then, you transfer your weight to your left leg and carefully repeat the process with your right foot, lifting it onto the next step behind you. One by one, you reverse your way up the steps. After the tenth step you lift your foot to find the eleventh and nearly fall over when your foot finds nothing but air. Instead, it comes down hard on...carpet? You take an excited peek over your shoulder - there are no more stairs! You've reached the top at last.",
+          () => (staircase.stage = 0)
+        ],
         null,
         false);
       } else {

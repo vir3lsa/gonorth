@@ -1,4 +1,5 @@
 import { Room, Door, selectPlayer } from "../../../../lib/gonorth";
+import { bedroom } from "./bedroom";
 import { staircase } from "./staircase";
 import { upperSpiral } from "./upperSpiral";
 
@@ -42,3 +43,8 @@ southHall.setSouth(
   "You step through the doorway.",
   "Rickety as it may be, it's still a door, and it's still closed. Much as you'd like to, you can't simply pass through it."
 );
+
+const leaveBedroomText = "Turning your back on the bed chamber, you start descending the long spiral staircase. After a single revolution, however, the stairs straighten out and you find yourself back in the Southern hall.";
+
+bedroom.setDown(southHall, true, leaveBedroomText, null, false);
+bedroom.setWest(southHall, true, leaveBedroomText, null, false);
