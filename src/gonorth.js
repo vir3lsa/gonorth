@@ -149,6 +149,7 @@ export {
   selectTurn,
   selectPlayer
 } from "./utils/selectors";
+export { Effects } from "./utils/effects";
 export { ActionChain } from "./utils/actionChain";
 export { addKeyword } from "./game/verbs/keywords";
 export {

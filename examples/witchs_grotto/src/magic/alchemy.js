@@ -6,7 +6,7 @@ import {
   Verb,
   selectTurn
 } from "../../../../lib/gonorth";
-import { potionEffects, DRINK } from "./potionEffects";
+import { potionEffects, DRINK } from "./magicEffects";
 
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
@@ -53,11 +53,11 @@ export class Alchemy {
     this.stirLeniency = 0;
     this.ingredientsAdded = false;
     this.errorMessageOnTurn = -1;
-    this.candidates = this.procedures.map(proc => this.copyProcedure(proc));
+    this.candidates = this.procedures.map((proc) => this.copyProcedure(proc));
   }
 
   addProcedures(...procedures) {
-    procedures.forEach(procedure => {
+    procedures.forEach((procedure) => {
       this.procedures.push(procedure);
       this.candidates.push(this.copyProcedure(procedure));
     });
@@ -107,7 +107,7 @@ export class Alchemy {
   processStep(stepType, ingredient) {
     this.stepText = null;
 
-    const candidates = this.candidates.filter(cand =>
+    const candidates = this.candidates.filter((cand) =>
       this.findMatchingStep(cand.procedure, stepType, ingredient, null)
     );
 
@@ -186,7 +186,7 @@ export class Alchemy {
           case STEP_WORDS:
             if (
               stepToConsider.value.some(
-                value => value.toLowerCase() === ingredient.name.toLowerCase()
+                (value) => value.toLowerCase() === ingredient.name.toLowerCase()
               )
             ) {
               matchingStep = stepToConsider;
@@ -217,7 +217,7 @@ export class Alchemy {
         case STEP_WORDS:
           // Remove the matching ingredient from the step
           matchingStep.value = matchingStep.value.filter(
-            item => item.toLowerCase() !== ingredient.name.toLowerCase()
+            (item) => item.toLowerCase() !== ingredient.name.toLowerCase()
           );
 
           if (!matchingStep.value.length) {
@@ -249,7 +249,10 @@ export class Alchemy {
     } else if (matchingGroup) {
       if (!matchingGroup.steps.length) {
         // Remove the empty group
-        steps.splice(steps.findIndex(step => step === matchingGroup), 1);
+        steps.splice(
+          steps.findIndex((step) => step === matchingGroup),
+          1
+        );
       }
     }
 
@@ -257,7 +260,10 @@ export class Alchemy {
   }
 
   removeStep(steps, matchingStep) {
-    steps.splice(steps.findIndex(step => step === matchingStep), 1);
+    steps.splice(
+      steps.findIndex((step) => step === matchingStep),
+      1
+    );
   }
 
   handleNumericStep(amount, matchingStep, steps) {
@@ -273,14 +279,14 @@ export class Alchemy {
     return new Procedure(
       {
         ...proc.procedure,
-        steps: this.copySteps(proc.procedure.steps)
+        steps: this.copySteps(proc.procedure.steps),
       },
       proc.potion // No need to deep copy the potion
     );
   }
 
   copySteps(steps) {
-    return steps.map(step => {
+    return steps.map((step) => {
       const stepCopy = { ...step };
 
       if (stepCopy.hasOwnProperty("ordered")) {
@@ -356,7 +362,7 @@ export class Alchemy {
 
   doesSpiritMatch(requiredSpirit) {
     const spirit = [...this.spiritContainer.uniqueItems].map(
-      item => item.spirit
+      (item) => item.spirit
     );
 
     if (spirit.length !== requiredSpirit.length) {
@@ -365,7 +371,7 @@ export class Alchemy {
 
     // Find the first required spirit that's not in the actual spirit. If we find none then spirit is correct.
     const missingSpirit = requiredSpirit.find(
-      required => spirit.find(actual => actual === required) === undefined
+      (required) => spirit.find((actual) => actual === required) === undefined
     );
 
     return !Boolean(missingSpirit);
@@ -383,12 +389,19 @@ export class Potion extends Item {
   constructor(name, description) {
     super(name, description, true, 1);
 
+    potionEffects.add(
+      this,
+      DRINK,
+      false,
+      `Other than leaving a foul taste in your mouth and the vague feeling of regret in your heart, there's no discernible effect from drinking the ${name}.`
+    );
+
     const drink = new Verb(
       "drink",
-      () => potionEffects.hasEffect(this, DRINK),
+      () => potionEffects.isSuccessful(this, DRINK),
       [
         () => this.container.removeItem(this),
-        () => potionEffects.apply(this, DRINK)
+        () => potionEffects.apply(this, DRINK),
       ],
       () => potionEffects.apply(this, DRINK),
       ["swallow"]
@@ -396,10 +409,10 @@ export class Potion extends Item {
 
     const pour = new Verb(
       "pour",
-      (helper, other) => potionEffects.hasEffect(this, other),
+      (helper, other) => potionEffects.isSuccessful(this, other),
       [
         () => this.container.removeItem(this),
-        (helper, other) => potionEffects.apply(this, other)
+        (helper, other) => potionEffects.apply(this, other),
       ],
       (helper, other) => potionEffects.apply(this, other),
       ["tip", "apply"]

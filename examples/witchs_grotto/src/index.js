@@ -39,7 +39,7 @@ setIntro(
 
 // setStartingRoom(cellar);
 // setStartingRoom(flue);
-// setStartingRoom(apothecary);
+setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
 // setStartingRoom(snug);
 // setStartingRoom(southHall);
@@ -48,7 +48,7 @@ setIntro(
 // setStartingRoom(kitchen);
 // setStartingRoom(entranceHall);
 // setStartingRoom(staircase);
-setStartingRoom(bedroom);
+// setStartingRoom(bedroom);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");

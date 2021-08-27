@@ -9,9 +9,9 @@ import {
   STEP_HEAT,
   STEP_STIR,
 } from "./alchemy";
-import { potionEffects, DRINK } from "./potionEffects";
+import { potionEffects, DRINK } from "./magicEffects";
 
-const dolittleDecoction = new Potion(
+export const dolittleDecoction = new Potion(
   "Dolittle Decoction",
   "It's thick like treacle but a bright sickly green."
 );
@@ -31,8 +31,7 @@ export const dolittleProcedure = new Procedure(
       {
         type: STEP_WORDS,
         value: ["Lunar Incantation"],
-        text:
-          "As you utter the last word, a sudden hush falls over the entire room, as though your ears have been stuffed with cotton wool. You sense a Lunar presence.",
+        text: "As you utter the last word, a sudden hush falls over the entire room, as though your ears have been stuffed with cotton wool. You sense a Lunar presence.",
       },
       {
         ordered: false,
@@ -40,14 +39,12 @@ export const dolittleProcedure = new Procedure(
           {
             type: STEP_INGREDIENTS,
             value: ["devil's claw"],
-            text:
-              "The claw-like dried fruits float on the surface of the mixture.",
+            text: "The claw-like dried fruits float on the surface of the mixture.",
           },
           {
             type: STEP_INGREDIENTS,
             value: ["piece of fruit"],
-            text:
-              "The fruit sinks to the bottom, releasing small bubbles that rise and gently disturb the surface.",
+            text: "The fruit sinks to the bottom, releasing small bubbles that rise and gently disturb the surface.",
           },
           { type: STEP_HEAT, value: 2, leniency: 5 },
           {
@@ -81,8 +78,7 @@ export const dolittleProcedure = new Procedure(
       {
         type: STEP_INGREDIENTS,
         value: ["crow skull powder"],
-        text:
-          "The image of your face in the surface of the mixture is obscured by the powder.",
+        text: "The image of your face in the surface of the mixture is obscured by the powder.",
       },
       { type: STEP_HEAT, value: 1, leniency: 4 },
       {
@@ -107,8 +103,7 @@ export const dolittleProcedure = new Procedure(
       {
         type: STEP_WORDS,
         value: ["charm of the beast"],
-        text:
-          "A sound like a guttural roar eminates from the bubbling cauldron and you realise with surprise that it was your own reflection, now in the form of a lion, that roared.",
+        text: "A sound like a guttural roar eminates from the bubbling cauldron and you realise with surprise that it was your own reflection, now in the form of a lion, that roared.",
         short: "reflecting your face in lion form",
       },
     ],
