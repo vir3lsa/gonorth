@@ -31,6 +31,7 @@ export class Verb {
     this.object = object;
     this._parent = null;
     this.prepositional = false;
+    this.prepositionOptional = false;
     this.interrogative = null;
 
     this.helpers = {
@@ -144,8 +145,9 @@ export class Verb {
     }
   }
 
-  makePrepositional(interrogative) {
+  makePrepositional(interrogative, prepositionOptional) {
     this.prepositional = true;
+    this.prepositionOptional = prepositionOptional;
     this.interrogative = interrogative;
   }
 

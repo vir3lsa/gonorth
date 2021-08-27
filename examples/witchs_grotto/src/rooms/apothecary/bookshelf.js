@@ -148,7 +148,7 @@ druidicPeoples.addVerb(
 druidicPeoples.article = "";
 druidicPeoples.properNoun = true;
 
-druidicPeoples.verbs.give.test = (helper, other) =>
+druidicPeoples.verbs.give.test = (helper, item, other) =>
   other.aliases.includes("cat");
 druidicPeoples.verbs.give.onSuccess = [() => catGraph.commence("giveBook")];
 

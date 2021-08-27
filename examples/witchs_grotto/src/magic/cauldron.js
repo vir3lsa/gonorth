@@ -130,7 +130,7 @@ const stirGraph = new OptionGraph(...stirNodes);
 
 const stir = new Verb(
   "stir",
-  (helper, other) => other === ladle,
+  (helper, item, other) => other === ladle,
   stirGraph.commence(),
   "That won't be any good for stirring.",
   ["mix"],

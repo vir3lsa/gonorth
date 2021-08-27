@@ -7,7 +7,7 @@ export class Ingredient extends Item {
     super(name, description, true, 1);
     this.article = "";
     this.verbs.put.onSuccess = [
-      (helper, other) => {
+      (helper, item, other) => {
         if (other === cauldron) {
           const name = `some ${this.name}`;
           if (!other.items[name.toLowerCase()]) {
@@ -21,7 +21,7 @@ export class Ingredient extends Item {
           return other.addItem(this);
         }
       },
-      (helper, other) => {
+      (helper, item, other) => {
         const text = `You put ${this.article.length ? this.article : "some"} ${
           this.name
         } ${other.preposition} the ${other.name}.`;
@@ -32,7 +32,7 @@ export class Ingredient extends Item {
         }
 
         return text;
-      }
+      },
     ];
     this.verbs.put.addAliases("add");
 

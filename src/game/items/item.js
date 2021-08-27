@@ -104,22 +104,22 @@ export class Item {
 
       const putVerb = new Verb(
         "put",
-        (helper, other) =>
+        (helper, item, other) =>
           other !== this &&
           other.canHoldItems &&
           (other.free === -1 || this.size <= other.free),
         [
-          (helper, other) => {
+          (helper, item, other) => {
             this.containerListing = null;
             this.container.removeItem(this);
             return other.addItem(this);
           },
-          (helper, other) => {
+          (helper, item, other) => {
             const article = this.properNoun ? "" : "the ";
             return `You put ${article}${this.name} ${other.preposition} the ${other.name}.`;
           }
         ],
-        (helper, other) => {
+        (helper, item, other) => {
           const article = this.properNoun ? "" : "the ";
           if (other === this) {
             return `You can't put ${article}${this.name} ${other.preposition} itself. That would be nonsensical.`;
@@ -140,7 +140,7 @@ export class Item {
         "give",
         () => false,
         [],
-        (helper, other) => {
+        (helper, item, other) => {
           const article = this.properNoun ? "" : "the ";
           if (other === this) {
             return `You can't give ${article}${this.name} to itself. Obviously.`;
@@ -251,7 +251,7 @@ export class Item {
     const verb = this.verbs[verbName.toLowerCase()];
 
     if (verb) {
-      return verb.attempt(...args);
+      return verb.attempt(this, ...args);
     }
   }
 

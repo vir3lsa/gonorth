@@ -86,6 +86,8 @@ export class Parser {
                   this.indirectItem = indirectItem;
                   validCombination = true;
                 }
+              } else if (this.actualVerb.prepositionOptional) {
+                validCombination = true;
               }
             } else {
               validCombination = true;
