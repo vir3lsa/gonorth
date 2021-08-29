@@ -183,8 +183,7 @@ describe("parser", () => {
       inputTest("put red ball in red box", "red ball in the red box"));
     it("chooses correct other secondary item", () =>
       inputTest("put red ball in blue box", "red ball in the blue box"));
-    it("mentions primary duplicate alias first", () =>
-      inputTest("put ball in box", "Which ball do you mean?"));
+    it("bails if both items are ambiguous", () => inputTest("put ball in box", "You need to be more specific."));
     it("mentions primary duplicate if secondary is defined", () =>
       inputTest("put ball in red box", "Which ball do you mean?"));
     it("disambiguates when duplicates are in the room and the inventory", async () => {

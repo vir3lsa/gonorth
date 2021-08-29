@@ -99,10 +99,15 @@ export class Parser {
               if (itemsWithName.length > 1) {
                 // Primary item name is a duplicate
                 this.recordDuplicates(itemsWithName, alias, true);
-                return this.giveFeedback();
-              } else if (indirectItemsWithName?.length > 1) {
+              }
+
+              if (indirectItemsWithName?.length > 1) {
                 // Secondary item name is a duplicate
                 this.recordDuplicates(indirectItemsWithName, indirectAlias, false);
+              }
+
+              if (itemsWithName.length > 1 || indirectItemsWithName?.length > 1) {
+                // If we have any duplicates we need to disambiguate.
                 return this.giveFeedback();
               }
 
@@ -290,7 +295,7 @@ export class Parser {
   handleDuplicateAliases() {
     if (this.tooManyDuplicates) {
       // We're not even going to try to handle this situation. Too complicated.
-      return "You need to be more specific.";
+      return getStore().dispatch(changeInteraction(new Append("You need to be more specific.")));
     }
 
     const options = {};
