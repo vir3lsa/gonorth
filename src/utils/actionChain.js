@@ -59,9 +59,9 @@ export class ActionChain {
   /* Add an action to the end of the chain. */
   addAction(action) {
     this._actions.push(
-      this.toChainableFunction(action, this._actions.length - 1, [
+      this.toChainableFunction(action, this._actions.length, [
+        ...this._actions,
         action,
-        ...this._actions
       ])
     );
   }

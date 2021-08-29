@@ -35,7 +35,7 @@ export class Verb {
     this.interrogative = null;
 
     this.helpers = {
-      object: this.object
+      object: this.object,
     };
 
     // Call test setter
@@ -54,6 +54,10 @@ export class Verb {
 
   set name(name) {
     this._name = name.trim().toLowerCase();
+  }
+
+  get test() {
+    return this._test;
   }
 
   /**
@@ -91,7 +95,7 @@ export class Verb {
 
   _addAliasesToParent() {
     if (this._parent && this._aliases) {
-      this._aliases.forEach(alias => {
+      this._aliases.forEach((alias) => {
         this._parent.verbs[alias] = this;
       });
     }

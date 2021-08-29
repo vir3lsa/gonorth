@@ -70,7 +70,7 @@ export class Item {
             return (
               this.container.itemsVisibleFromSelf &&
               this.container !== inventory &&
-              (inventory.capacity === -1 || this.size < inventory.free)
+              (inventory.capacity === -1 || this.size <= inventory.free)
             );
           },
           [
@@ -90,11 +90,12 @@ export class Item {
           ],
           () => {
             const article = this.properNoun ? "" : "the ";
+            const inventory = selectInventory();
             if (!this.container.itemsVisibleFromSelf) {
               return "You can't see that.";
-            } else if (this.container !== selectInventory()) {
+            } else if (this.container !== inventory && inventory.capacity > -1 && this.size > inventory.free) {
               return `You don't have enough room for ${article}${this.name}.`;
-            } else {
+            } else if (this.container === inventory) {
               return `You're already carrying ${article}${this.name}!`;
             }
           },
@@ -264,6 +265,11 @@ export class Item {
    * @param {Item} item The item to add.
    */
   addItem(item) {
+    if (this.uniqueItems.has(item)) {
+      debug(`Not adding ${item.name} to ${this.name} as it's already present.`);
+      return;
+    }
+
     const name = item.name.toLowerCase();
 
     if (!name) {
