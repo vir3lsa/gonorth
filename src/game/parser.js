@@ -22,6 +22,8 @@ export class Parser {
     this.indirectItem = null;
     this.duplicateAliasItems = null;
     this.duplicateAlias = null;
+    this.duplicateItemIsPrimary = true;
+    this.tooManyDuplicates = false;
   }
 
   parse() {
@@ -96,12 +98,12 @@ export class Parser {
             if (validCombination) {
               if (itemsWithName.length > 1) {
                 // Primary item name is a duplicate
-                this.recordDuplicates(itemsWithName, alias);
-                continue;
+                this.recordDuplicates(itemsWithName, alias, true);
+                return this.giveFeedback();
               } else if (indirectItemsWithName?.length > 1) {
                 // Secondary item name is a duplicate
-                this.recordDuplicates(indirectItemsWithName, indirectAlias);
-                continue;
+                this.recordDuplicates(indirectItemsWithName, indirectAlias, false);
+                return this.giveFeedback();
               }
 
               return item.try(possibleVerb, indirectItem);
@@ -114,10 +116,13 @@ export class Parser {
     return this.giveFeedback();
   }
 
-  recordDuplicates(itemsWithName, name) {
+  recordDuplicates(itemsWithName, name, isPrimary) {
     if (!this.duplicateAlias) {
       this.duplicateAliasItems = itemsWithName;
       this.duplicateAlias = name;
+      this.duplicateItemIsPrimary = isPrimary
+    } else {
+      this.tooManyDuplicates = true;
     }
   }
 
@@ -283,6 +288,11 @@ export class Parser {
   }
 
   handleDuplicateAliases() {
+    if (this.tooManyDuplicates) {
+      // We're not even going to try to handle this situation. Too complicated.
+      return "You need to be more specific.";
+    }
+
     const options = {};
     const nodes = [];
 
@@ -291,7 +301,13 @@ export class Parser {
       options[item.name] = id;
       nodes.push({
         id,
-        actions: () => item.try(this.actualVerb.name, this.indirectItem)
+        actions: () =>  {
+          if (this.duplicateItemIsPrimary) {
+            return item.try(this.actualVerb.name, this.indirectItem);
+          } else {
+            return this.roomItem.try(this.actualVerb.name, item);
+          }
+        }
       });
     });
 

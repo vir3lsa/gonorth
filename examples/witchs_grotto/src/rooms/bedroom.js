@@ -49,6 +49,9 @@ const dresser = new Item(
   "Painted a bright white, the dressing table is a lovely thing. All elegant curves, clean lines, and filigreed brass handles, it wouldn't look out of place as the prize exhibit of an antique salesman's shop. Arguably even more beguiling is the silvery mirror adorning the dresser's top, gleaming despite the dim light."
 );
 dresser.addAliases("dressing table", "dressing", "table");
+dresser.canHoldItems = true;
+dresser.preposition = "on";
+dresser.capacity = 5;
 dresser.addVerb(examine);
 
 const mirror = new Item(
