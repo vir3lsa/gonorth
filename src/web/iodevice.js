@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import ReactMarkdown from "react-markdown";
 import { connect } from "react-redux";
-import { animateScroll, Element, scroller } from "react-scroll";
+import { Element, scroller } from "react-scroll";
 import { DecisionBar } from "./decisionBar";
 import { ParserBar } from "./parserBar";
 import { SceneImage } from "./sceneImage";
@@ -14,7 +14,8 @@ const IODevice = (props) => {
       scroller.scrollTo("scrollTarget", {
         smooth: "easeInQuad",
         duration: 1500,
-        containerId: "scrollPane"
+        containerId: "scrollPane",
+        ignoreCancelEvents: true
       }),
     [interaction.currentPage]
   );

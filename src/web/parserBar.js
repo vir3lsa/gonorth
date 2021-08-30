@@ -9,7 +9,7 @@ const maxHistory = 500;
 
 history[0] = "";
 
-const captureInput = event => {
+const captureInput = (event) => {
   if (event.key === "Enter" && reactionTimePassed()) {
     const value = event.target.value;
 

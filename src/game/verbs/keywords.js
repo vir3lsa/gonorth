@@ -1,7 +1,8 @@
 import { Verb, GoVerb } from "./verb";
-import { selectInventory } from "../../utils/selectors";
+import { selectGame, selectInventory } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
 import { OptionGraph } from "../interactions/optionGraph";
+import { getHelpText } from "../../gonorth";
 
 const keywords = {};
 
@@ -21,7 +22,7 @@ export function createKeywords() {
     () => {
       const inventory = selectInventory();
 
-      if (!inventory.itemArray.filter(item => !item.doNotList).length) {
+      if (!inventory.itemArray.filter((item) => !item.doNotList).length) {
         return "You're not holding anything.";
       }
 
@@ -72,6 +73,15 @@ export function createKeywords() {
   const waitGraph = new OptionGraph(...waitNodes);
   const wait = new Verb("wait", true, waitGraph.commence(), [], [], true);
 
+  const help = new Verb(
+    "help",
+    true,
+    getHelpText(),
+    null,
+    ["assist", "h", "instructions", "instruct", "welcome"],
+    true
+  );
+
   addKeyword(inventoryVerb);
   addKeyword(north);
   addKeyword(south);
@@ -80,6 +90,7 @@ export function createKeywords() {
   addKeyword(up);
   addKeyword(down);
   addKeyword(wait);
+  addKeyword(help);
 }
 
 export function addKeyword(keyword) {
