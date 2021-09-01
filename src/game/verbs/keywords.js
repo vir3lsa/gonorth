@@ -1,8 +1,9 @@
 import { Verb, GoVerb } from "./verb";
-import { selectGame, selectInventory } from "../../utils/selectors";
+import { selectInventory } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
 import { OptionGraph } from "../interactions/optionGraph";
-import { getHelpText } from "../../gonorth";
+import { getHelp } from "../../gonorth";
+import { getKeywordsTable } from "../../utils/defaultHelp";
 
 const keywords = {};
 
@@ -30,7 +31,8 @@ export function createKeywords() {
     },
     null,
     ["i", "holding", "carrying"],
-    true
+    true,
+    "Inspect the items you're carrying."
   );
 
   const north = new GoVerb("North", directionAliases["north"], true);
@@ -71,15 +73,26 @@ export function createKeywords() {
   ];
 
   const waitGraph = new OptionGraph(...waitNodes);
-  const wait = new Verb("wait", true, waitGraph.commence(), [], [], true);
+  const wait = new Verb("wait", true, waitGraph.commence(), [], [], true, "Allow time to pass.");
 
   const help = new Verb(
     "help",
     true,
-    getHelpText(),
+    getHelp(),
     null,
     ["assist", "h", "instructions", "instruct", "welcome"],
-    true
+    true,
+    "Display help pages."
+  );
+
+  const keywordsVerb = new Verb(
+    "keywords",
+    true,
+    () => getKeywordsTable(),
+    null,
+    ["keyword", "key word", "key words"],
+    true,
+    "Display keywords list."
   );
 
   addKeyword(inventoryVerb);
@@ -91,6 +104,7 @@ export function createKeywords() {
   addKeyword(down);
   addKeyword(wait);
   addKeyword(help);
+  addKeyword(keywordsVerb);
 }
 
 export function addKeyword(keyword) {
@@ -99,4 +113,8 @@ export function addKeyword(keyword) {
 
 export function getKeyword(name) {
   return keywords[name];
+}
+
+export function getKeywords() {
+  return keywords;
 }

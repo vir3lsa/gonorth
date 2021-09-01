@@ -23,19 +23,22 @@ export class Verb {
     onFailure = [],
     aliases = [],
     isKeyword = false,
+    description = "",
     object = null
   ) {
     this.name = name;
     this.isKeyword = isKeyword;
+    this.doNotList = !isKeyword;
     this.aliases = aliases || [];
     this.object = object;
     this._parent = null;
     this.prepositional = false;
     this.prepositionOptional = false;
     this.interrogative = null;
+    this.description = description;
 
     this.helpers = {
-      object: this.object,
+      object: this.object
     };
 
     // Call test setter
@@ -166,7 +169,7 @@ export class Verb {
 
 export class GoVerb extends Verb {
   constructor(name, aliases, isKeyword = false) {
-    const getAdjacent = name => selectRoom().adjacentRooms[name.toLowerCase()];
+    const getAdjacent = (name) => selectRoom().adjacentRooms[name.toLowerCase()];
     super(
       name,
       () => {
@@ -176,21 +179,18 @@ export class GoVerb extends Verb {
       () => {
         const adjacentRoom = getAdjacent(name);
         const goActionChain = selectRoom().go(name);
-        const onSuccess = (adjacentRoom && adjacentRoom.onSuccess) || [
-          `Going ${name}.`
-        ];
+        const onSuccess = (adjacentRoom && adjacentRoom.onSuccess) || [`Going ${name}.`];
 
         goActionChain.insertActions(...onSuccess);
         return goActionChain;
       },
       () => {
         const adjacentRoom = getAdjacent(name);
-        return (
-          (adjacentRoom && adjacentRoom.failureText) || "You can't go that way."
-        );
+        return (adjacentRoom && adjacentRoom.failureText) || "You can't go that way.";
       },
       aliases,
-      isKeyword
+      isKeyword,
+      `Travel ${name}.`
     );
   }
 }

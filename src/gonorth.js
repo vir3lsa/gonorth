@@ -33,7 +33,7 @@ function initGame(title, author, debugMode) {
   game.schedules = [];
   game._startingRoom = new Room("Empty Room", "The room is completely devoid of anything interesting.");
   game.player = new Item("player", "You look as you normally do.", false);
-  game.helpText = defaultHelp;
+  game.help = defaultHelp;
 
   createKeywords();
 
@@ -118,12 +118,12 @@ function setInventoryCapacity(size) {
   game.player.capacity = size;
 }
 
-function getHelpText() {
-  return game.helpText;
+function getHelp() {
+  return game.help;
 }
 
-function setHelpText(text) {
-  game.helpText = text;
+function setHelp(help) {
+  game.help = help;
 }
 
 export { Room } from "./game/items/room";
@@ -154,6 +154,6 @@ export {
   addEvent,
   addSchedule,
   setInventoryCapacity,
-  getHelpText,
-  setHelpText
+  getHelp,
+  setHelp
 };

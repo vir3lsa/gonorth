@@ -36,6 +36,18 @@ ol {
   font-size: 1.3em;
 }
 
+table {
+  width: 100%;
+}
+
+th {
+  padding-bottom: 0.8em;
+}
+
+td {
+  padding-right: 0.8em;
+}
+
 button.MuiButton-outlinedPrimary {
   color: white;
   font-family: "masaakiregular";

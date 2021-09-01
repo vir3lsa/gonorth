@@ -92,6 +92,7 @@ const turnAround = new Verb(
   null,
   ["turn back", "about turn", "about face"],
   true);
+turnAround.doNotList = true;
 
 addKeyword(turnAround);
 

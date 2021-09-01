@@ -60,9 +60,7 @@ addKeyword(
     "recall",
     true,
     () => {
-      const words = [...selectPlayer().uniqueItems]
-        .filter((item) => item.magicWord)
-        .map((item) => item.name);
+      const words = [...selectPlayer().uniqueItems].filter((item) => item.magicWord).map((item) => item.name);
 
       if (words.length) {
         return `You bring to mind all the magic words, charms and incantations you've learned. You know:\n\n${words.join(
@@ -74,7 +72,8 @@ addKeyword(
     },
     null,
     ["remember", "magic", "words"],
-    true
+    true,
+    "Recall magic words you've learnt."
   )
 );
 
