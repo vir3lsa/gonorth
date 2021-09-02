@@ -7,6 +7,7 @@ export class OptionGraph {
     this.startNode = nodes[0];
     this.flattened = {};
     this.allowRepeats = true;
+    this.promise = new Promise(resolve => this.resolve = resolve);
 
     this.reindex();
   }
@@ -114,6 +115,7 @@ export class OptionGraph {
 
     if (!optionObjects) {
       chain.renderOptions = false; // Allow the graph to exit
+      this.resolve();
     }
 
     return chain;

@@ -7,6 +7,7 @@ import { Interaction, Append } from "../game/interactions/interaction";
 import { getStore } from "../redux/storeRegistry";
 import { Text, SequentialText } from "../game/interactions/text";
 import { OptionGraph } from "../game/interactions/optionGraph";
+import { Option } from "../game/interactions/option";
 
 export class ActionChain {
   constructor(...actions) {
@@ -123,12 +124,24 @@ export class ActionChain {
       } else if (value instanceof Interaction) {
         return getStore().dispatch(changeInteraction(value));
       } else if (value instanceof OptionGraph) {
-        return value.commence().chain(...args);
+        return this.handleOptionGraph(value, args, nextIfNoOptions);
       }
 
       // This is an arbitrary action that shouldn't create a new interaction
       return value;
     };
+  }
+
+  handleOptionGraph(optionGraph, args, nextIfNoOptions) {
+    return optionGraph
+      .commence()
+      .chain(...args)
+      .then(() => optionGraph.promise)
+      .then(() => {
+        if (nextIfNoOptions) {
+          return this.dispatchAppend("", null, nextIfNoOptions);
+        }
+      });
   }
 
   getPostScript() {

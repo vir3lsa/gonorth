@@ -85,7 +85,11 @@ function renderTopLevel() {
  */
 function setIntro(intro) {
   if (typeof intro === "string" || (Array.isArray(intro) && typeof intro[0] === "string")) {
-    game.introActions = new ActionChain(new PagedText(intro), () => goToStartingRoom());
+    game.introActions = new ActionChain(
+      new PagedText(intro),
+      () => getHelp(),
+      () => goToStartingRoom()
+    );
   } else {
     throw Error("Intro must be a string or a string array.");
   }

@@ -37,9 +37,9 @@ export const changeInteraction = (interaction) => (dispatch, getState) => {
       cancelActivePrompt();
     }
 
-    output(
-      `${!inBrowser ? "\n" : ""}${currentOutput}${!inBrowser ? "\n" : ""}`
-    );
+    if (currentOutput) {
+      output(`${!inBrowser ? "\n" : ""}${currentOutput}${!inBrowser ? "\n" : ""}`);
+    }
 
     if (inBrowser && currentOptions && currentOptions.length) {
       showOptions(currentOptions);

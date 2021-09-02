@@ -19,7 +19,7 @@ const optionNodes = [
       }, is a work of interactive fiction, meaning that for much of the game you will be presented with a text box asking "What do you want to do?" You should answer that question by typing commands into the box and pressing \`Enter\`. The game will do its best to interpret what you typed and act accordingly.`,
     options: {
       next: "help2",
-      "cancel help": "cancelHelp"
+      "cancel help": "haveFun"
     }
   },
   {
@@ -28,7 +28,7 @@ const optionNodes = [
     options: {
       next: "help3",
       previous: "help",
-      "cancel help": "cancelHelp"
+      "cancel help": "haveFun"
     }
   },
   {
@@ -37,7 +37,7 @@ const optionNodes = [
     options: {
       next: "help4",
       previous: "help2",
-      "cancel help": "cancelHelp"
+      "cancel help": "haveFun"
     }
   },
   {
@@ -46,7 +46,7 @@ const optionNodes = [
     options: {
       "red ball": "verbsAndAliases",
       "blue ball": "verbsAndAliases",
-      "cancel help": "cancelHelp"
+      "cancel help": "haveFun"
     }
   },
   {
@@ -55,7 +55,7 @@ const optionNodes = [
     options: {
       next: "verbsAndAliases2",
       previous: "help3",
-      "cancel help": "cancelHelp"
+      "cancel help": "haveFun"
     }
   },
   {
@@ -64,7 +64,7 @@ const optionNodes = [
     options: {
       next: "verbsAndAliases3",
       previous: "verbsAndAliases",
-      "cancel help": "cancelHelp"
+      "cancel help": "haveFun"
     }
   },
   {
@@ -73,7 +73,7 @@ const optionNodes = [
     options: {
       next: "keywords",
       previous: "verbsAndAliases2",
-      "cancel help": "cancelHelp"
+      "cancel help": "haveFun"
     }
   },
   {
@@ -82,7 +82,8 @@ const optionNodes = [
       `The game understands several keywords. Below is a list of these and some of their aliases:\n\n${getKeywordsTable()}\n\nThis is not a complete list - there are more for you to discover.`,
     options: {
       next: "hints",
-      previous: "verbsAndAliases3"
+      previous: "verbsAndAliases3",
+      "cancel help": "haveFun"
     }
   },
   {
@@ -90,21 +91,13 @@ const optionNodes = [
     actions: () =>
       `The aim of the game is to experiment, think logically and explore. If you find that you're stuck I recommend that you consider what your current objective is, what's standing in the way of you achieving it, and logically how that obstacle might be removed. If you've tried everything you can think of and you're still stuck you can get a hint with the "hint" keyword. This will also eventually give you the solution if you really want it, but I urge you to try to find it yourself. It'll be far more satisfying that way.`,
     options: {
-      next: "haveFun",
-      previous: "keywords",
-      "cancel help": "cancelHelp"
+      okay: "haveFun",
+      previous: "keywords"
     }
   },
   {
     id: "haveFun",
-    actions: `To view these help pages again, type "help".\n\nGood luck, and have fun.`,
-    options: {
-      okay: "cancelHelp",
-      previous: "hints"
-    }
-  },
-  {
-    id: "cancelHelp"
+    actions: `To view these help pages again, type "help".\n\nGood luck, and have fun.`
   }
 ];
 
