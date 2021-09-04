@@ -34,15 +34,11 @@ export class OptionGraph {
 
       this.flattened[node.id] = node;
     }
-
-    if (node && node.options) {
-      Object.values(node.options).forEach((node) => this.recordNodeIds(node));
-    }
   }
 
   addNodes(...nodes) {
     this.nodes.push(...nodes);
-    this.nodes.forEach((node) => this.recordNodeIds(node));
+    nodes.forEach((node) => this.recordNodeIds(node));
   }
 
   getNode(id) {
@@ -86,21 +82,20 @@ export class OptionGraph {
             if (!optionNode) {
               throw Error(`Can't find node with id ${optionId}`);
             }
-          } else {
-            throw Error(
-              "Option graph node options must refer to node IDs, not object references."
-            );
+          } else if (optionId) {
+            throw Error("Option graph node options must refer to node IDs or null, not object references.");
           }
 
           if (
+            !optionId ||
             !optionNode.visited ||
             optionNode.allowRepeats ||
             (this.allowRepeats && optionNode.allowRepeats === undefined)
           ) {
             return new Option(
               choice,
-              () => this.activateNode(optionNode),
-              !optionNode.noEndTurn
+              () => (optionId ? this.activateNode(optionNode) : null),
+              !optionId || !optionNode.noEndTurn
             );
           }
 

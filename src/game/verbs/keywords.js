@@ -2,7 +2,7 @@ import { Verb, GoVerb } from "./verb";
 import { selectInventory } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
 import { OptionGraph } from "../interactions/optionGraph";
-import { getHelp } from "../../gonorth";
+import { getHelp, giveHint } from "../../gonorth";
 import { getKeywordsTable } from "../../utils/defaultHelp";
 
 const keywords = {};
@@ -93,6 +93,16 @@ export function createKeywords() {
     ["keyword", "key word", "key words"],
     true,
     "Display keywords list."
+  );
+
+  const hint = new Verb(
+    "hint",
+    true,
+    () => giveHint(),
+    null,
+    ["hints", "clue", "clues"],
+    true,
+    "Get a hint on how to proceed."
   );
 
   addKeyword(inventoryVerb);

@@ -14,7 +14,9 @@ import {
   addEvent,
   selectPlayer,
   addKeyword,
-  Verb
+  Verb,
+  setHintNodeId,
+  selectRoom
 } from "../../../lib/gonorth";
 import { cellar } from "./rooms/cellar";
 import { pantry } from "./rooms/pantry";
@@ -22,7 +24,6 @@ import { witch } from "./rooms/garden";
 import { hottingUp } from "./rooms/insideOven";
 import { apothecary, strengthTimer } from "./rooms/apothecary";
 import { RandomText } from "../../../lib/game/interactions/text";
-import { selectRoom } from "../../../lib/gonorth";
 import { lowerSpiral } from "./rooms/lowerSpiral";
 import { snug } from "./rooms/snug";
 import { southHall } from "./rooms/southHall";
@@ -31,11 +32,11 @@ import { kitchen } from "./rooms/kitchen";
 import { entranceHall } from "./rooms/entranceHall";
 import { staircase } from "./rooms/staircase";
 import { bedroom } from "./rooms/bedroom";
+import { initHints } from "./utils/hints";
 
 initGame("The Lady of Bramble Wood", "Rich Locke", true);
-setIntro(
-  "Now's your chance. Quickly! Make your escape whilst the witch is out."
-);
+setIntro("Now's your chance. Quickly! Make your escape whilst the witch is out.");
+initHints("bedroom1");
 
 // setStartingRoom(cellar);
 // setStartingRoom(flue);

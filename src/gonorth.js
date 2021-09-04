@@ -18,7 +18,7 @@ import { ActionChain } from "./utils/actionChain";
 import { PagedText } from "./game/interactions/text";
 import { goToRoom } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
-import { defaultHelp } from "./utils/defaultHelp";
+import { defaultHelp, hintGraph } from "./utils/defaultHelp";
 
 initStore();
 
@@ -34,6 +34,8 @@ function initGame(title, author, debugMode) {
   game._startingRoom = new Room("Empty Room", "The room is completely devoid of anything interesting.");
   game.player = new Item("player", "You look as you normally do.", false);
   game.help = defaultHelp;
+  game.hintGraph = hintGraph;
+  game.hintNode = "default";
 
   createKeywords();
 
@@ -130,6 +132,18 @@ function setHelp(help) {
   game.help = help;
 }
 
+function giveHint() {
+  return game.hintGraph.commence(game.hintNode);
+}
+
+function addHintNodes(...nodes) {
+  game.hintGraph.addNodes(...nodes);
+}
+
+function setHintNodeId(nodeId) {
+  game.hintNode = nodeId;
+}
+
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door } from "./game/items/door";
@@ -159,5 +173,8 @@ export {
   addSchedule,
   setInventoryCapacity,
   getHelp,
-  setHelp
+  setHelp,
+  giveHint,
+  addHintNodes,
+  setHintNodeId
 };

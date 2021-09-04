@@ -1,4 +1,4 @@
-import { Room, Item, Verb, selectInventory } from "../../../../lib/gonorth";
+import { Room, Item, Verb, selectInventory, setHintNodeId } from "../../../../lib/gonorth";
 import { mirrorEffects } from "../magic/magicEffects";
 
 export const bedroom = new Room(
@@ -102,6 +102,7 @@ keepsakeBox.verbs.take.onFailure.addAction(() => {
 mirrorEffects.add(bedsideTable, mirror, true, [
   () => {
     if (!keepsakeBox.solidity) {
+      setHintNodeId("bedroomBox");
       return "The small table looks much the same as before when viewed in the mirror, but...there's something on top of it, where it was empty before. It looks like a wooden keepsake or jewellery box, not much larger than the hand, with brass hinges. It's closed.";
     }
 
@@ -121,7 +122,7 @@ mirrorEffects.add(bedsideTable, mirror, true, [
         return "You stare intently at the image of the box in the mirror, willing it into reality. You fix your gaze on every detail in turn, holding it in your mind such that you can recall each curve, line and shape without needing to look. There. You feel certain of the box's solidity now, sure that you could touch it, hold it.";
       });
     }
-  },
+  }
 ]);
 
 mirrorEffects.add(ball, mirror, true, "It's a frog!");
