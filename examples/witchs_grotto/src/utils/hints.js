@@ -1,4 +1,4 @@
-import { addHintNodes, setHintNodeId } from "../../../../lib/gonorth";
+import { addHintNodes, setHintNodeId, next, previous } from "../../../../lib/gonorth";
 
 const bedroomNodes = [
   {
@@ -6,7 +6,7 @@ const bedroomNodes = [
     actions: "Try looking at things differently.",
     options: {
       okay: null,
-      next: "bedroom2"
+      next
     }
   },
   {
@@ -14,8 +14,8 @@ const bedroomNodes = [
     actions: "Is there something in the room that will allow you to look at things differently?",
     options: {
       okay: null,
-      previous: "bedroom1",
-      next: "bedroom3"
+      previous,
+      next
     }
   },
   {

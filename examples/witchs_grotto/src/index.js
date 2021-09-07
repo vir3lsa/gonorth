@@ -42,14 +42,14 @@ initHints("bedroom1");
 // setStartingRoom(flue);
 // setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
-// setStartingRoom(snug);
+setStartingRoom(snug);
 // setStartingRoom(southHall);
 // setStartingRoom(diningRoom);
 // setStartingRoom(pantry);
 // setStartingRoom(kitchen);
 // setStartingRoom(entranceHall);
 // setStartingRoom(staircase);
-setStartingRoom(bedroom);
+// setStartingRoom(bedroom);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");

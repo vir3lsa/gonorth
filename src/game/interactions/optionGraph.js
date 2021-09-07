@@ -1,13 +1,16 @@
 import { ActionChain } from "../../utils/actionChain";
 import { Option } from "./option";
 
+export const next = "OptionGraph_next";
+export const previous = "OptionGraph_previous";
+
 export class OptionGraph {
   constructor(...nodes) {
     this.nodes = nodes.map((node) => ({ ...node })); // Shallow copy nodes
     this.startNode = nodes[0];
     this.flattened = {};
     this.allowRepeats = true;
-    this.promise = new Promise(resolve => this.resolve = resolve);
+    this.promise = new Promise((resolve) => (this.resolve = resolve));
 
     this.reindex();
   }
@@ -22,7 +25,22 @@ export class OptionGraph {
 
   reindex() {
     this.flattened = {};
-    this.nodes.forEach((node) => this.recordNodeIds(node));
+    this.nodes.forEach((node, index, nodes) => {
+      this.processOptions(node, index, nodes);
+      this.recordNodeIds(node);
+    });
+  }
+
+  processOptions(node, index, nodes) {
+    if (node && node.options) {
+      Object.entries(node.options).forEach(([label, value]) => {
+        if (value === next) {
+          node.options[label] = nodes[index + 1].id;
+        } else if (value === previous) {
+          node.options[label] = nodes[index - 1].id;
+        }
+      });
+    }
   }
 
   recordNodeIds(node) {
@@ -38,7 +56,10 @@ export class OptionGraph {
 
   addNodes(...nodes) {
     this.nodes.push(...nodes);
-    nodes.forEach((node) => this.recordNodeIds(node));
+    nodes.forEach((node, index) => {
+      this.processOptions(node, index, nodes);
+      this.recordNodeIds(node);
+    });
   }
 
   getNode(id) {

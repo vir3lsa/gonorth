@@ -80,6 +80,8 @@ const keepsakeBox = new Item(
   true,
   2
 );
+keepsakeBox.open = false;
+keepsakeBox.locked = true;
 keepsakeBox.addAliases("jewellery");
 keepsakeBox.addVerb(examine);
 
@@ -124,6 +126,34 @@ mirrorEffects.add(bedsideTable, mirror, true, [
     }
   }
 ]);
+
+keepsakeBox.addVerb(
+  new Verb(
+    "open",
+    () => !keepsakeBox.locked && !keepsakeBox.open,
+    [
+      "You open the lid of the box with no resistance at all. It smoothly folds back on its hinges and comes to a stop at a little before 180 degrees from its starting point.",
+      () => (keepsakeBox.open = true)
+    ],
+    () => {
+      if (keepsakeBox.open) {
+        return "The box is already open.";
+      } else if (keepsakeBox.locked) {
+        return "The lid won't budge, though you can't see what's holding it closed. Magic, you wonder?";
+      }
+    }
+  )
+);
+
+keepsakeBox.addVerb(
+  new Verb("unlock", false, null, () => {
+    if (keepsakeBox.locked) {
+      return "You can't see how to unlock it. There's no keyhole and no obvious clasp holding it shut. Must be some kind of magical charm.";
+    } else {
+      return "The keepsake box is already unlocked.";
+    }
+  })
+);
 
 mirrorEffects.add(ball, mirror, true, "It's a frog!");
 
