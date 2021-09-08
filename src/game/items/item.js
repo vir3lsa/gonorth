@@ -459,10 +459,10 @@ export class Item {
     // Add this item, its aliases and the items it contains
     let items = {};
 
-    // Copy our item arrays into this new object
-    Object.keys(this.items).forEach(
-      (name) => (items[name] = [...this.items[name]])
-    );
+    if (this.itemsVisibleFromSelf) {
+      // Copy our item arrays into this new object
+      Object.keys(this.items).forEach((name) => (items[name] = [...this.items[name]]));
+    }
 
     const itemsWithName = items[this.name.toLowerCase()];
 
@@ -482,23 +482,25 @@ export class Item {
       }
     });
 
-    // Add items inside this item's containers
-    [...this.uniqueItems].forEach((item) => {
-      const newItems = item.accessibleItems;
-      Object.entries(newItems).forEach(([name, itemsWithName]) => {
-        if (items[name]) {
-          // Add new items with this name to existing list (whilst deduping)
-          itemsWithName.forEach((itemWithName) => {
-            if (!items[name].includes(itemWithName)) {
-              items[name].push(itemWithName);
-            }
-          });
-        } else {
-          // Add a new entry
-          items[name] = [...itemsWithName];
-        }
+    if (this.itemsVisibleFromSelf) {
+      // Add items inside this item's containers
+      [...this.uniqueItems].forEach((item) => {
+        const newItems = item.accessibleItems;
+        Object.entries(newItems).forEach(([name, itemsWithName]) => {
+          if (items[name]) {
+            // Add new items with this name to existing list (whilst deduping)
+            itemsWithName.forEach((itemWithName) => {
+              if (!items[name].includes(itemWithName)) {
+                items[name].push(itemWithName);
+              }
+            });
+          } else {
+            // Add a new entry
+            items[name] = [...itemsWithName];
+          }
+        });
       });
-    });
+    }
 
     return items;
   }

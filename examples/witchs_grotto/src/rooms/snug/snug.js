@@ -9,7 +9,7 @@ export const snug = new Room(
 
 const memoCard = new Item(
   "memo card",
-  'It\'s about the size of your hand, with rounded corners and a glossy finish. It appears to be made of very high quality paper or vellum. On the face of the card is the heading "Here lies a secret" written in a swirly script. The large area beneath this is blank.',
+  'It\'s about the size of your hand, with rounded corners and a glossy finish. It appears to be made of very high quality paper or vellum. On the face of the card is the heading\n\n"Here lies a secret"\n\nwritten in a swirly script. The large area beneath the heading is blank.',
   true,
   0.5
 );
@@ -18,13 +18,13 @@ memoCard.addAliases("paper", "vellum", "parchment");
 
 const drawers = new Container(
   "chest of drawers",
-  null,
+  ["drawer"],
   "It's an unremarkable chest of drawers made from a dull grey wood. It's covered in knocks and scratches as though it's been through a lot.",
   "Rummaging through the open drawers, you find a lot of uninteresting junk including socks, cutlery and wicker place-mats.",
   6
 );
 
-drawers.addItem(memoCard);
+drawers.hidesItems = memoCard;
 drawers.openText = "The drawers slide smoothly open.";
 drawers.alreadyOpenText = "The drawers are already open.";
 drawers.closeText = "You push the drawers closed with a soft thud.";

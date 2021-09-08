@@ -7,20 +7,19 @@ import { selectInventory } from "../../utils/selectors";
 import { Room } from "./room";
 import { initGame, setInventoryCapacity } from "../../gonorth";
 import { selectOptions } from "../../utils/testSelectors";
+import { Container } from "../../../lib/gonorth";
 
 expect.extend({
   toInclude(received, text) {
     const pass = received.includes(text);
     return {
-      message: () =>
-        `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
-      pass,
+      message: () => `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
+      pass
     };
-  },
+  }
 });
 
-const selectCurrentPage = () =>
-  getStore().getState().game.interaction.currentPage;
+const selectCurrentPage = () => getStore().getState().game.interaction.currentPage;
 
 let game, room;
 
@@ -186,22 +185,8 @@ describe("aliases", () => {
   });
 
   test("aliases are split into more aliases", () => {
-    const item = new Item(
-      "stone",
-      "",
-      true,
-      1,
-      [],
-      ["shiny pebble", "gleaming rock"]
-    );
-    expect(item.aliases).toEqual([
-      "shiny",
-      "pebble",
-      "shiny pebble",
-      "gleaming",
-      "rock",
-      "gleaming rock",
-    ]);
+    const item = new Item("stone", "", true, 1, [], ["shiny pebble", "gleaming rock"]);
+    expect(item.aliases).toEqual(["shiny", "pebble", "shiny pebble", "gleaming", "rock", "gleaming rock"]);
   });
 
   test("aliases can be overridden", () => {
@@ -213,13 +198,7 @@ describe("aliases", () => {
   test("aliases can be added to", () => {
     const item = new Item("shiny pebble");
     item.addAliases("gleaming rock");
-    expect(item.aliases).toEqual([
-      "shiny",
-      "pebble",
-      "gleaming",
-      "rock",
-      "gleaming rock",
-    ]);
+    expect(item.aliases).toEqual(["shiny", "pebble", "gleaming", "rock", "gleaming rock"]);
   });
 
   test("common words aren't added as aliases", () => {
@@ -230,12 +209,7 @@ describe("aliases", () => {
   test("duplicate aliases aren't added", () => {
     const item = new Item("shiny pebble");
     item.addAliases("gleaming pebble");
-    expect(item.aliases).toEqual([
-      "shiny",
-      "pebble",
-      "gleaming",
-      "gleaming pebble",
-    ]);
+    expect(item.aliases).toEqual(["shiny", "pebble", "gleaming", "gleaming pebble"]);
   });
 
   test("aliases initialised to empty array", () => {
@@ -247,5 +221,26 @@ describe("aliases", () => {
     const item = new Item("Cuthbert");
     item.addAliases("cuthbert");
     expect(item.aliases).toEqual([]);
+  });
+});
+
+describe("containers", () => {
+  let ball, chest;
+
+  beforeEach(() => {
+    ball = new Item("ball", "red", true, 1);
+    chest = new Container("chest", null, "a large chest", "the lid is open", false);
+    chest.addItem(ball);
+    room.addItems(chest);
+  });
+
+  test("items can't be seen in closed containers", () => {
+    expect(Object.keys(chest.accessibleItems)).not.toContain("ball");
+  });
+
+  test("items can be seen in open containers", async () => {
+    await chest.try("open");
+    expect(Object.keys(chest.accessibleItems)).toContain("ball");
+    expect(chest.accessibleItems["ball"]).toContain(ball);
   });
 });
