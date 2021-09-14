@@ -6,17 +6,18 @@ import {
   STEP_WATER,
   STEP_STIR,
   Potion,
-  STEP_FAT
+  STEP_FAT,
+  STEP_WORDS
 } from "./alchemy";
 import { Ingredient } from "./ingredient";
 import { CyclicText, Item } from "../../../../src/gonorth";
+import { MagicWord } from "./magicWord";
 
 expect.extend({
   toInclude(received, value) {
     const pass = received.includes(value);
     return {
-      message: () =>
-        `expected '${received}' ${pass ? "not " : ""}to contain '${value}'`,
+      message: () => `expected '${received}' ${pass ? "not " : ""}to contain '${value}'`,
       pass
     };
   }
@@ -29,10 +30,7 @@ const cockroachSaliva = new Ingredient("cockroach saliva");
 const horehound = new Ingredient("horehound");
 const wormwood = new Ingredient("wormwood");
 const mendingPotion = new Potion("Elixir of Mending", "Mends stuff");
-const woodwormPotion = new Potion(
-  "Organic Dissolution Accelerator",
-  "Dissolves organics"
-);
+const woodwormPotion = new Potion("Organic Dissolution Accelerator", "Dissolves organics");
 const anotherPotion = new Potion("Another", "");
 const mendingProcedure = new Procedure(
   {
@@ -111,6 +109,10 @@ const spirit2Procedure = new Procedure(
   },
   anotherPotion
 );
+const magicWordProcedure = new Procedure({
+  ordered: true,
+  steps: [{ type: STEP_WORDS, value: ["abracadabra"], text: "Kaboom" }]
+});
 
 const moonstone = new Item("moonstone", "shiny", true, 1);
 moonstone.spirit = "moon";
@@ -129,11 +131,12 @@ alchemy.addProcedures(
   woodwormProcedure,
   anotherProcedure,
   spiritProcedure,
-  spirit2Procedure
+  spirit2Procedure,
+  magicWordProcedure
 );
 
 function addIngredients(...ingredients) {
-  ingredients.forEach(ingredient => alchemy.addIngredient(ingredient));
+  ingredients.forEach((ingredient) => alchemy.addIngredient(ingredient));
 }
 
 function addWater(times) {
@@ -177,22 +180,18 @@ function followMendingProcedure() {
 beforeEach(() => {
   alchemy.flush();
   if (pentagram.uniqueItems.size) {
-    [...pentagram.uniqueItems].forEach(item => pentagram.removeItem(item));
+    [...pentagram.uniqueItems].forEach((item) => pentagram.removeItem(item));
   }
 });
 
 test("it deep copies procedures", () => {
   expect(alchemy.candidates).toEqual(alchemy.procedures);
-  expect(alchemy.candidates[0].procedure.steps[0].steps[1]).not.toBe(
-    alchemy.procedures[0].procedure.steps[0].steps[1]
-  );
+  expect(alchemy.candidates[0].procedure.steps[0].steps[1]).not.toBe(alchemy.procedures[0].procedure.steps[0].steps[1]);
 });
 
 test("it removes ingredient from candidate after it's added to cauldron", () => {
   alchemy.addIngredient(dryadToenails);
-  expect(alchemy.candidates[0].procedure.steps[0].steps[1].value).not.toInclude(
-    dryadToenails.name
-  );
+  expect(alchemy.candidates[0].procedure.steps[0].steps[1].value).not.toInclude(dryadToenails.name);
 });
 
 test("it removes ingredients step from group once all ingredients are added", () => {
@@ -346,5 +345,20 @@ test("matches step with multiple spirit requirements", () => {
 test("does not match if too many spirit items are present", () => {
   pentagram.addItems(moonstone, bloodstone);
   addFat(1);
+  expect(alchemy.candidates.length).toBe(0);
+});
+
+test("matches correct magic word", () => {
+  alchemy.sayWords(new MagicWord("abracadabra"));
+  expect(alchemy.candidates.length).toBe(1);
+});
+
+test("gives magic word response", () => {
+  const response = alchemy.sayWords(new MagicWord("abracadabra"));
+  expect(response).toBe("Kaboom");
+});
+
+test("doesn't match wrong magic word", () => {
+  alchemy.sayWords(new MagicWord("alakazam"));
   expect(alchemy.candidates.length).toBe(0);
 });

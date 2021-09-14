@@ -47,9 +47,7 @@ export class Schedule {
 
       withDelay(delay, type) {
         if (type !== TIMEOUT_MILLIS && type !== TIMEOUT_TURNS) {
-          throw Error(
-            "Delay type must be one of 'TIMEOUT_MILLIS' and 'TIMEOUT_TURNS'"
-          );
+          throw Error("Delay type must be one of 'TIMEOUT_MILLIS' and 'TIMEOUT_TURNS'");
         }
 
         this.delay = delay;
@@ -107,10 +105,7 @@ export class Schedule {
         // Commence next event
         const nextInChain = nextEvent;
         event.onComplete = () => {
-          if (
-            (event.state === SUCCEEDED || this.continueOnFail) &&
-            !this.cancelled
-          ) {
+          if ((event.state === SUCCEEDED || this.continueOnFail) && !this.cancelled) {
             this.stage++;
             nextInChain.commence();
           }
@@ -126,6 +121,15 @@ export class Schedule {
 
   get currentEvent() {
     return this.events[this.stage];
+  }
+
+  /*
+   * Trigger the first event in the chain if the sequence hasn't already begun.
+   */
+  commence() {
+    if (this.stage === 0) {
+      this.currentEvent.commence();
+    }
   }
 
   cancel() {

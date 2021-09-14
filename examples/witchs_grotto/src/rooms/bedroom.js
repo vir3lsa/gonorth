@@ -1,5 +1,19 @@
-import { Room, Item, Verb, selectInventory, setHintNodeId } from "../../../../lib/gonorth";
+import { TIMEOUT_TURNS } from "../../../../lib/game/events/event";
+import {
+  Room,
+  Item,
+  Verb,
+  selectInventory,
+  setHintNodeId,
+  selectPlayer,
+  Schedule,
+  TIMEOUT_MILLIS,
+  inSameRoomAs,
+  SequentialText
+} from "../../../../lib/gonorth";
 import { mirrorEffects } from "../magic/magicEffects";
+import { MagicWord } from "../magic/magicWord";
+import { memoCard } from "./snug/snug";
 
 export const bedroom = new Room(
   "Bedroom",
@@ -155,6 +169,65 @@ keepsakeBox.addVerb(
   })
 );
 
+memoCard.addVerb(examine);
+mirrorEffects.add(memoCard, mirror, true, [
+  () => {
+    if (!selectPlayer().items["WOAIM"]) {
+      selectPlayer().addItem(
+        new MagicWord(
+          "WOAIM",
+          null,
+          'You try your best to say "WOAIM". You\'re not sure whether you pronounced it correctly.',
+          () => {}
+        )
+      );
+    }
+  },
+  `Your heart skips a beat. When you look at the card in the enchanted mirror, a word appears in block capitals:
+  ## WOAIM`
+]);
+
+const keepsakeBoxTimer = new Schedule.Builder()
+  .addEvent(() => {
+    keepsakeBox.locked = false;
+    return "There's an audible **click** from somewhere nearby.";
+  })
+  .withDelay(0, TIMEOUT_TURNS)
+  .addEvent(() => {
+    if (!keepsakeBox.open && !keepsakeBox.locked) {
+      keepsakeBox.locked = true;
+      if (inSameRoomAs(keepsakeBox)) {
+        return "There's another **click** from somewhere close. This one has a slightly different timbre to the first.";
+      }
+    }
+  })
+  .withDelay(20000, TIMEOUT_MILLIS)
+  .recurring()
+  .build();
+
+const miaowResults = new SequentialText(
+  '"Miiaaoow," you say, doing your very best cat impression. You fight the urge to shake your tail. Wait...you don\'t have a tail.',
+  'Making your voice is high-pitched and catlike as you possibly can, you let out an extremely convincing "Miiaaoow!" It\'s all you can do to keep yourself from purring afterwards.',
+  '"Miaow!" you protest. "Miaow, miaow, miaow!" That ought to get the message across.'
+);
+
+// Add miaow (almost) immediately so you can say it from the off.
+setTimeout(() =>
+  selectPlayer().addItem(
+    new MagicWord(
+      "MIAOW",
+      ["miow", "miao"],
+      miaowResults,
+      () => {
+        if (inSameRoomAs(keepsakeBox) && keepsakeBox.solidity >= 3) {
+          keepsakeBoxTimer.commence();
+        }
+      },
+      false
+    )
+  )
+);
+
 mirrorEffects.add(ball, mirror, true, "It's a frog!");
 
-bedroom.addItems(bedsideTable, ball, dresser, mirror);
+bedroom.addItems(bedsideTable, ball, dresser, mirror, /* test */ memoCard);

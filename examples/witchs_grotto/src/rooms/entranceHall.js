@@ -21,7 +21,7 @@ slip.verbs["examine"].onSuccess.insertAction(() => {
       new MagicWord(
         "Charm of the Beast",
         ["beast", "beastly"],
-        "Consulting your memory, you carefully recite the"
+        "Consulting your memory, you carefully recite the Charm of the Beast."
       )
     );
   }

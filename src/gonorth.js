@@ -162,6 +162,7 @@ export { selectInventory, selectRoom, selectTurn, selectPlayer } from "./utils/s
 export { Effects } from "./utils/effects";
 export { ActionChain } from "./utils/actionChain";
 export { addKeyword } from "./game/verbs/keywords";
+export { inSameRoomAs } from "./utils/sharedFunctions";
 export {
   initGame,
   attach,

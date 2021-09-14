@@ -1,4 +1,5 @@
-import { selectLastChange } from "./selectors";
+import { selectLastChange, selectPlayer, selectRoom } from "./selectors";
+import { Room } from "../game/items/room";
 
 const REACTION_MILLIS = 350;
 
@@ -6,4 +7,29 @@ const REACTION_MILLIS = 350;
 export function reactionTimePassed() {
   const millisElapsed = Date.now() - selectLastChange();
   return millisElapsed > REACTION_MILLIS;
+}
+
+/*
+ * Returns true if the item is in the same room as the player.
+ */
+export function inSameRoomAs(item) {
+  // If the item is in the player's inventory, return true immediately.
+  const inventoryItemsWithName = selectPlayer().items[item.name];
+  if (inventoryItemsWithName && inventoryItemsWithName.includes(item)) {
+    return true;
+  }
+
+  const room = selectRoom();
+  let possibleItemRoom = item.container;
+  let itemRoom;
+
+  while (possibleItemRoom !== null && !(possibleItemRoom instanceof Room)) {
+    possibleItemRoom = possibleItemRoom.container;
+  }
+
+  if (possibleItemRoom !== null) {
+    itemRoom = possibleItemRoom;
+  }
+
+  return room === itemRoom;
 }

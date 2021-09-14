@@ -42,14 +42,14 @@ initHints("bedroom1");
 // setStartingRoom(flue);
 // setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
-setStartingRoom(snug);
+// setStartingRoom(snug);
 // setStartingRoom(southHall);
 // setStartingRoom(diningRoom);
 // setStartingRoom(pantry);
 // setStartingRoom(kitchen);
 // setStartingRoom(entranceHall);
 // setStartingRoom(staircase);
-// setStartingRoom(bedroom);
+setStartingRoom(bedroom);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
@@ -61,7 +61,7 @@ addKeyword(
     "recall",
     true,
     () => {
-      const words = [...selectPlayer().uniqueItems].filter((item) => item.magicWord).map((item) => item.name);
+      const words = [...selectPlayer().uniqueItems].filter((item) => item.recall).map((item) => item.name);
 
       if (words.length) {
         return `You bring to mind all the magic words, charms and incantations you've learned. You know:\n\n${words.join(

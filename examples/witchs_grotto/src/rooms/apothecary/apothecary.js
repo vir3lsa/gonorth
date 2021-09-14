@@ -425,18 +425,13 @@ tornPage.verbs["examine"].onSuccess.insertAction(() => {
       new MagicWord(
         "Lunar Incantation",
         [],
-        "You visualise a bright full moon and, under the gaze of that single terrible eye, recite the words of the"
+        "You visualise a bright full moon and, under the gaze of that single terrible eye, recite the words of the Lunar Incantation."
       )
     );
   }
 });
 
-alchemy.addProcedures(
-  mendingProcedure,
-  woodwormProcedure,
-  strengthProcedure,
-  dolittleProcedure
-);
+alchemy.addProcedures(mendingProcedure, woodwormProcedure, strengthProcedure, dolittleProcedure);
 
 potionEffects.add(
   woodwormPotion,
@@ -465,9 +460,7 @@ potionEffects.add(
 
 export const strengthTimer = new Schedule.Builder()
   .withCondition(() => selectPlayer().strong)
-  .addEvent(
-    "You're feeling a little less...buff...than before. The strength potion's starting to wear off."
-  )
+  .addEvent("You're feeling a little less...buff...than before. The strength potion's starting to wear off.")
   .withDelay(10, TIMEOUT_TURNS)
   .addEvent(
     () => (selectPlayer().strong = false),
@@ -484,9 +477,7 @@ export const ironGate = new Door(
       return "The broken gate is leaning against the wall where you left it, after ripping it from its hinges.";
     } else {
       return `The wrought iron gate stands between you and ${
-        selectRoom().name === "Apothecary"
-          ? "a sharply curving corridor"
-          : "a cluttered-looking room"
+        selectRoom().name === "Apothecary" ? "a sharply curving corridor" : "a cluttered-looking room"
       } beyond. It's locked with a rusty padlock and is attached to the wall by two rusty hinges. All of these look like they could fail imminently.`;
     }
   },
@@ -528,7 +519,7 @@ const breakVerb = new Verb(
   [
     () => (ironGate.broken = true),
     "Flexing your bulging muscles, you grab hold of the iron bars of the gate and pull with all your might. It turns out all your might wasn't required as the padlock and hinges snap easily under the force of your exaggerated strength and you topple backwards, landing clumsily with the gate on top of you.",
-    "You get up, dust yourself off, and lean the liberated gate against the wall.",
+    "You get up, dust yourself off, and lean the liberated gate against the wall."
   ],
   () => {
     if (ironGate.broken) {
@@ -547,6 +538,16 @@ hinges.addVerb(breakVerb);
 // Have to add gate to adjacent room here to avoid circular dependencies
 lowerSpiral.addItem(ironGate);
 
+// TEST TEST TEST (moonstone belongs in kitchen)
+const moonStone = new Ingredient(
+  "pearl-like stone",
+  "It has a pearlesecent lustre that makes it somehow difficult to focus on. Slight imperfections in its surface resemble craters reminiscent of a full moon."
+);
+moonStone.article = "a";
+moonStone.aliases = ["moon stone", "pearl", "stone"];
+moonStone.spirit = "moon";
+// TEST TEST TEST
+
 apothecary.addItems(
   bookShelf,
   herbarium,
@@ -557,7 +558,10 @@ apothecary.addItems(
   fire,
   bureau,
   ironGate,
-  pentagram
+  pentagram,
+  // TEST
+  tornPage,
+  moonStone
 );
 
 apothecary.setEast(
