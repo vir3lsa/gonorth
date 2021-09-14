@@ -1,3 +1,4 @@
+import { createDynamicText } from "../../utils/dynamicDescription";
 import { Verb } from "../verbs/verb";
 import { Item } from "./item";
 
@@ -14,7 +15,16 @@ export class Container extends Item {
     holdable = false,
     size = 1
   ) {
-    super(name, () => (this.open ? openDescription : closedDescription), holdable, size, [], aliases || []);
+    const dynamicOpenDescription = createDynamicText(openDescription);
+    const dynamicClosedDescription = createDynamicText(closedDescription);
+    super(
+      name,
+      () => (this.open ? dynamicOpenDescription() : dynamicClosedDescription()),
+      holdable,
+      size,
+      [],
+      aliases || []
+    );
     this.canHoldItems = true;
     this.capacity = capacity;
     this.preposition = preposition;
@@ -41,7 +51,8 @@ export class Container extends Item {
       "close",
       () => this.open,
       [() => (this.open = false), () => (this.itemsVisibleFromSelf = false), () => this.closeText],
-      () => this.alreadyClosedText
+      () => this.alreadyClosedText,
+      ["shut"]
     );
 
     this.addVerbs(this.openVerb, this.closeVerb);

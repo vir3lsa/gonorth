@@ -9,7 +9,8 @@ import {
   Schedule,
   TIMEOUT_MILLIS,
   inSameRoomAs,
-  SequentialText
+  SequentialText,
+  Container
 } from "../../../../lib/gonorth";
 import { mirrorEffects } from "../magic/magicEffects";
 import { MagicWord } from "../magic/magicWord";
@@ -80,8 +81,9 @@ mirrorEffects.add(
   "You can't see much of the dresser in the mirror as the mirror is attached to it, but, what you can see by getting the angle just right is that the clean, white-painted, wooden surface has been replaced with what looks like dense foliage, as though the whole table is made from dark green leaves, gently swaying in some phantom breeze."
 );
 
-const keepsakeBox = new Item(
+const keepsakeBox = new Container(
   "keepsake box",
+  ["jewellery"],
   () => {
     if (keepsakeBox.solidity === 1) {
       return "The box is visible more as an impression or a shadow. If you look directly at it you can barely see it at all, but squint or turn your head to look at it from the corner of your eye and you can definitely make out that *something* is there. It's like the reflection of a reflection glimpsed in a window's glass.";
@@ -91,13 +93,20 @@ const keepsakeBox = new Item(
       return "It's completely solid now, giving no hint that it apparently materialised from thin air. It's a walnut keepsake box with a delicately engraved scene of a forest at night, complete with crescent moon, owl and cat. The corners are rounded and the two parts are connected with a pair of brass hinges. It's currently closed.";
     }
   },
+  "It's open!",
+  1,
+  "in",
   true,
-  2
+  false,
+  true,
+  1
 );
-keepsakeBox.open = false;
+
 keepsakeBox.locked = true;
-keepsakeBox.addAliases("jewellery");
 keepsakeBox.addVerb(examine);
+keepsakeBox.openText =
+  "You open the lid of the box with no resistance at all. It smoothly folds back on its hinges and comes to a stop at a little before 180 degrees from its starting point.";
+keepsakeBox.lockedText = "The lid won't budge, though you can't see what's holding it closed. Magic, you wonder?";
 
 const originalTest = keepsakeBox.verbs.take.test;
 keepsakeBox.verbs.take.test = () => originalTest() && keepsakeBox.solidity >= 3;
@@ -142,24 +151,6 @@ mirrorEffects.add(bedsideTable, mirror, true, [
 ]);
 
 keepsakeBox.addVerb(
-  new Verb(
-    "open",
-    () => !keepsakeBox.locked && !keepsakeBox.open,
-    [
-      "You open the lid of the box with no resistance at all. It smoothly folds back on its hinges and comes to a stop at a little before 180 degrees from its starting point.",
-      () => (keepsakeBox.open = true)
-    ],
-    () => {
-      if (keepsakeBox.open) {
-        return "The box is already open.";
-      } else if (keepsakeBox.locked) {
-        return "The lid won't budge, though you can't see what's holding it closed. Magic, you wonder?";
-      }
-    }
-  )
-);
-
-keepsakeBox.addVerb(
   new Verb("unlock", false, null, () => {
     if (keepsakeBox.locked) {
       return "You can't see how to unlock it. There's no keyhole and no obvious clasp holding it shut. Must be some kind of magical charm.";
@@ -168,6 +159,10 @@ keepsakeBox.addVerb(
     }
   })
 );
+
+// Ensure the box locks when you close it.
+keepsakeBox.verbs.close.onSuccess.insertActions(() => (keepsakeBox.locked = true));
+keepsakeBox.verbs.close.onSuccess.postScript = "The box emits a quiet **click**. It's locked again.";
 
 memoCard.addVerb(examine);
 mirrorEffects.add(memoCard, mirror, true, [
