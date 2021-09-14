@@ -106,7 +106,13 @@ keepsakeBox.locked = true;
 keepsakeBox.addVerb(examine);
 keepsakeBox.openText =
   "You open the lid of the box with no resistance at all. It smoothly folds back on its hinges and comes to a stop at a little before 180 degrees from its starting point.";
-keepsakeBox.lockedText = "The lid won't budge, though you can't see what's holding it closed. Magic, you wonder?";
+keepsakeBox.lockedText = () => {
+  if (keepsakeBox.solidity >= 3) {
+    return "The lid won't budge, though you can't see what's holding it closed. Magic, you wonder?";
+  } else {
+    return "When you reach out to touch the box, your fingers seem to pass straight through it, as though it's nothing but a mirage.";
+  }
+};
 
 keepsakeBox.addTest("take", () => keepsakeBox.solidity >= 3);
 keepsakeBox.addAction(

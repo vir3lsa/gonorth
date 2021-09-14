@@ -6,17 +6,6 @@ import { Item } from "./item";
 import { initGame } from "../../gonorth";
 import { Parser } from "../parser";
 
-expect.extend({
-  toInclude(received, text) {
-    const pass = received.includes(text);
-    return {
-      message: () =>
-        `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
-      pass
-    };
-  }
-});
-
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
@@ -25,13 +14,9 @@ consoleIO.showOptions = jest.fn();
 // Prevent console logging
 getStore().dispatch(newGame(initGame("test", false), true, false));
 
-const clickNext = () =>
-  getStore()
-    .getState()
-    .game.interaction.options[0].action();
+const clickNext = () => getStore().getState().game.interaction.options[0].action();
 
-const selectCurrentPage = () =>
-  getStore().getState().game.interaction.currentPage;
+const selectCurrentPage = () => getStore().getState().game.interaction.currentPage;
 
 const selectInteraction = () => getStore().getState().game.interaction;
 
@@ -55,8 +40,7 @@ describe("Room", () => {
   describe("description", () => {
     it("prints item room listing", () => {
       const item = new Item("candlestick", "ornate silver");
-      item.containerListing =
-        "There's an ornate silver candle holder on a side table";
+      item.containerListing = "There's an ornate silver candle holder on a side table";
       hall.addItem(item);
       expect(hall.itemListings).toInclude(item.containerListing);
     });
@@ -77,9 +61,7 @@ describe("Room", () => {
       table.itemsVisibleFromRoom = true;
       table.addItems(item1, item2);
       hall.addItem(table);
-      expect(hall.itemListings).toInclude(
-        "On the table there's a candlestick and an apple."
-      );
+      expect(hall.itemListings).toInclude("On the table there's a candlestick and an apple.");
     });
 
     it("does not list items contained by other items when not visible", () => {
@@ -160,26 +142,20 @@ describe("Room", () => {
     it("responds to custom directions", async () => {
       hall.addAdjacentRoom(east, "archway");
       const actionPromise = new Parser("archway").parse();
-      getStore()
-        .getState()
-        .game.interaction.options[0].action();
+      getStore().getState().game.interaction.options[0].action();
       await actionPromise;
       expect(game.room.name).toBe("Scullery");
     });
 
     it("informs player when a direction doesn't exist", () => {
       new Parser("east").parse();
-      expect(getStore().getState().game.interaction.currentPage).toBe(
-        "You can't go that way."
-      );
+      expect(getStore().getState().game.interaction.currentPage).toBe("You can't go that way.");
     });
 
     it("gives custom messages when a direction doesn't exist", () => {
       hall.setSouth(null, false, null, "You can't walk through walls");
       new Parser("south").parse();
-      expect(getStore().getState().game.interaction.currentPage).toBe(
-        "You can't walk through walls"
-      );
+      expect(getStore().getState().game.interaction.currentPage).toBe("You can't walk through walls");
     });
 
     it("prints a message when successfully going in a direction", () => {

@@ -7,17 +7,6 @@ import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { selectTurn } from "../../utils/selectors";
 import { Verb } from "../verbs/verb";
 
-expect.extend({
-  toInclude(received, text) {
-    const pass = received.includes(text);
-    return {
-      message: () =>
-        `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
-      pass
-    };
-  }
-});
-
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();

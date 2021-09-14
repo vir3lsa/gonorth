@@ -29,17 +29,6 @@ let game,
   chairman,
   cushion;
 
-expect.extend({
-  toInclude(received, text) {
-    const pass = received.includes(text);
-    return {
-      message: () =>
-        `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
-      pass
-    };
-  }
-});
-
 const directionTest = async (input, expectedRoom) => {
   const actionPromise = new Parser(input).parse();
   setTimeout(() =>

@@ -13,16 +13,6 @@ import { Ingredient } from "./ingredient";
 import { CyclicText, Item } from "../../../../src/gonorth";
 import { MagicWord } from "./magicWord";
 
-expect.extend({
-  toInclude(received, value) {
-    const pass = received.includes(value);
-    return {
-      message: () => `expected '${received}' ${pass ? "not " : ""}to contain '${value}'`,
-      pass
-    };
-  }
-});
-
 const dryadToenails = new Ingredient("dryadToenails");
 const alfalfa = new Ingredient("alfalfa");
 const whiteSage = new Ingredient("whiteSage");

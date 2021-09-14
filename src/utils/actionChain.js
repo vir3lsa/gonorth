@@ -93,43 +93,49 @@ export class ActionChain {
         throw Error("Custom options are only supported at the end of action chains.");
       }
 
-      if (value instanceof ActionChain) {
-        return value.chain(...args);
-      } else if (typeof value === "string") {
-        return this.dispatchAppend(`${value}${postScript}`, this.options, nextIfNoOptions, false);
-      } else if (Array.isArray(value)) {
-        // Each element is evaluated and concatenated
-        const concatenated = value
-          .map((text) => {
-            if (typeof text === "function") {
-              const result = text();
+      return this.handleValue(value, postScript, nextIfNoOptions, args);
+    };
+  }
 
-              if (result instanceof Text) {
-                return result.next();
-              }
+  handleValue(value, postScript, nextIfNoOptions, args) {
+    if (value instanceof ActionChain) {
+      return value.chain(...args);
+    } else if (typeof value === "string") {
+      return this.dispatchAppend(`${value}${postScript}`, this.options, nextIfNoOptions, false);
+    } else if (Array.isArray(value)) {
+      // Each element is evaluated and concatenated
+      const concatenated = value
+        .map((text) => {
+          if (typeof text === "function") {
+            const result = text();
 
-              return result || "";
-            } else if (text instanceof Text) {
-              return text.next();
+            if (result instanceof Text) {
+              return result.next();
             }
 
-            return text;
-          })
-          .join("\n\n");
-        return this.dispatchAppend(`${concatenated}${postScript}`, this.options, nextIfNoOptions, false);
-      } else if (value instanceof SequentialText) {
-        return this.expandSequentialText(value, this.options, nextIfNoOptions, postScript);
-      } else if (value instanceof Text) {
-        return this.dispatchAppend(`${value.next()}${postScript}`, this.options, nextIfNoOptions, value.paged);
-      } else if (value instanceof Interaction) {
-        return getStore().dispatch(changeInteraction(value));
-      } else if (value instanceof OptionGraph) {
-        return this.handleOptionGraph(value, args, nextIfNoOptions);
-      }
+            return result || "";
+          } else if (text instanceof Text) {
+            return text.next();
+          }
 
-      // This is an arbitrary action that shouldn't create a new interaction
-      return value;
-    };
+          return text;
+        })
+        .join("\n\n");
+      return this.dispatchAppend(`${concatenated}${postScript}`, this.options, nextIfNoOptions, false);
+    } else if (value instanceof SequentialText) {
+      return this.expandSequentialText(value, this.options, nextIfNoOptions, postScript);
+    } else if (value instanceof Text) {
+      return this.dispatchAppend(`${value.next()}${postScript}`, this.options, nextIfNoOptions, value.paged);
+    } else if (value instanceof Interaction) {
+      return getStore().dispatch(changeInteraction(value));
+    } else if (value instanceof OptionGraph) {
+      return this.handleOptionGraph(value, args, nextIfNoOptions);
+    } else if (typeof(value) === "function") {
+      return this.handleValue(value(this.helpers, ...args), postScript, nextIfNoOptions, args);
+    }
+
+    // This is an arbitrary action that shouldn't create a new interaction
+    return value;
   }
 
   handleOptionGraph(optionGraph, args, nextIfNoOptions) {

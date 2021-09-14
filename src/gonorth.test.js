@@ -185,6 +185,6 @@ describe("goNORTH", () => {
 
   it("Prints the game title", () => {
     play();
-    expect(consoleIO.output.mock.calls[0][0]).toBe("# Space Auctioneer 2");
+    expect(consoleIO.output.mock.calls[0][0]).toInclude("# Space Auctioneer 2");
   });
 });

@@ -7,19 +7,16 @@ import { selectInventory } from "../../utils/selectors";
 import { Room } from "./room";
 import { initGame, setInventoryCapacity } from "../../gonorth";
 import { selectOptions } from "../../utils/testSelectors";
-import { Container } from "../../../lib/gonorth";
-
-expect.extend({
-  toInclude(received, text) {
-    const pass = received.includes(text);
-    return {
-      message: () => `expected '${received}' ${pass ? "not " : ""}to contain '${text}'`,
-      pass
-    };
-  }
-});
+import { Container } from "./container";
 
 const selectCurrentPage = () => getStore().getState().game.interaction.currentPage;
+
+const clickNext = () => getStore().getState().game.interaction.options[0].action();
+
+const clickNextAndWait = () => {
+  clickNext();
+  return selectInteraction().promise;
+};
 
 let game, room;
 
@@ -62,7 +59,7 @@ it("Doesn't render a Next button for cyclic descriptions", () => {
 it("renders each page of sequential text then stops", async () => {
   const chair = new Item("chair", new SequentialText("a", "b"));
   chair.try("x");
-  setTimeout(() => selectOptions()[0].action());
+  setTimeout(async () => await clickNextAndWait());
   expect(selectOptions()).toBeNull();
 });
 
