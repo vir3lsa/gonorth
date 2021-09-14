@@ -256,4 +256,16 @@ describe("chainable actions", () => {
     expect(verb.aliases).toStrictEqual(["levitate"]);
     expect(verb.isKeyword).toBe(false);
   });
+
+  it("succeeds with multiple tests", async () => {
+    const verb = new Verb("jump", ["yes".length > 1, true !== false, (_, x) => x > 0], "you jump", "you fall");
+    await verb.attempt(1);
+    expect(selectCurrentPage()).toBe("you jump");
+  });
+
+  it("fails if just one test fails", async () => {
+    const verb = new Verb("jump", ["yes".length > 1, true !== false, (_, x) => x > 0], "you jump", "you fall");
+    await verb.attempt(0);
+    expect(selectCurrentPage()).toBe("you fall");
+  });
 });

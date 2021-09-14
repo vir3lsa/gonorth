@@ -108,21 +108,26 @@ keepsakeBox.openText =
   "You open the lid of the box with no resistance at all. It smoothly folds back on its hinges and comes to a stop at a little before 180 degrees from its starting point.";
 keepsakeBox.lockedText = "The lid won't budge, though you can't see what's holding it closed. Magic, you wonder?";
 
-const originalTest = keepsakeBox.verbs.take.test;
-keepsakeBox.verbs.take.test = () => originalTest() && keepsakeBox.solidity >= 3;
-keepsakeBox.verbs.take.onSuccess.addAction(
+keepsakeBox.addTest("take", () => keepsakeBox.solidity >= 3);
+keepsakeBox.addAction(
+  "take",
   "You half expect it to disappear or slip through your fingers as you reach for it, but it does neither. It feels sturdy and real, like a perfectly normal box."
 );
-keepsakeBox.verbs.take.onFailure.addAction(() => {
-  const inventory = selectInventory();
-  if (
-    keepsakeBox.container.itemsVisibleFromSelf &&
-    keepsakeBox.container !== inventory &&
-    (inventory.capacity === -1 || keepsakeBox.size <= inventory.free)
-  ) {
-    return "You try to pick it up but when you lean forward to do so your hand grasps at nothing but thin air. It's like trying to touch your index fingers together with one eye closed, or like the vain attempts of a cat to pounce on the patterns created by sunlight streaming through a glass bauble.";
-  }
-});
+keepsakeBox.addAction(
+  "take",
+  () => {
+    const inventory = selectInventory();
+    if (
+      keepsakeBox.container.itemsVisibleFromSelf &&
+      keepsakeBox.container !== inventory &&
+      (inventory.capacity === -1 || keepsakeBox.size <= inventory.free)
+    ) {
+      return "You try to pick it up but when you lean forward to do so your hand grasps at nothing but thin air. It's like trying to touch your index fingers together with one eye closed, or like the vain attempts of a cat to pounce on the patterns created by sunlight streaming through a glass bauble.";
+    }
+  },
+  true,
+  true
+);
 
 mirrorEffects.add(bedsideTable, mirror, true, [
   () => {
@@ -161,8 +166,8 @@ keepsakeBox.addVerb(
 );
 
 // Ensure the box locks when you close it.
-keepsakeBox.verbs.close.onSuccess.insertActions(() => (keepsakeBox.locked = true));
-keepsakeBox.verbs.close.onSuccess.postScript = "The box emits a quiet **click**. It's locked again.";
+keepsakeBox.addAction("close", () => (keepsakeBox.locked = true));
+keepsakeBox.addPostscript("close", "The box emits a quiet **click**. It's locked again.");
 
 memoCard.addVerb(examine);
 mirrorEffects.add(memoCard, mirror, true, [

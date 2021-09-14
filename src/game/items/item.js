@@ -1,12 +1,8 @@
-import { RandomText } from "../interactions/text";
+import { RandomText, Text } from "../interactions/text";
 import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
 import { selectInventory } from "../../utils/selectors";
-import {
-  getBasicItemList,
-  toTitleCase,
-  getArticle
-} from "../../utils/textFunctions";
+import { getBasicItemList, toTitleCase, getArticle } from "../../utils/textFunctions";
 import { getStore } from "../../redux/storeRegistry";
 import { itemsRevealed } from "../../redux/gameActions";
 import { debug } from "../../utils/consoleIO";
@@ -52,13 +48,12 @@ export class Item {
     aliases.forEach((alias) => this.createAliases(alias));
 
     this.addVerb(
-      new Verb(
-        "examine",
-        true,
-        [() => this.revealItems(), () => this.getFullDescription()],
-        null,
-        ["ex", "x", "look", "inspect"]
-      )
+      new Verb("examine", true, [() => this.revealItems(), () => this.getFullDescription()], null, [
+        "ex",
+        "x",
+        "look",
+        "inspect"
+      ])
     );
 
     if (this.holdable) {
@@ -105,10 +100,7 @@ export class Item {
 
       const putVerb = new Verb(
         "put",
-        (helper, item, other) =>
-          other !== this &&
-          other.canHoldItems &&
-          (other.free === -1 || this.size <= other.free),
+        (helper, item, other) => other !== this && other.canHoldItems && (other.free === -1 || this.size <= other.free),
         [
           (helper, item, other) => {
             this.containerListing = null;
@@ -193,7 +185,13 @@ export class Item {
   }
 
   getVerb(name) {
-    return this._verbs[name];
+    const verb = this.verbs[name.toLowerCase()];
+
+    if (!verb) {
+      throw Error(`No verb with the name "${name}" exists on the item "${this.name}"`);
+    }
+
+    return verb;
   }
 
   _addAliasesToContainer(aliases) {
@@ -302,9 +300,7 @@ export class Item {
     const name = alias ? alias : item.name.toLowerCase();
 
     // Remove the item from the array of items with its name
-    this.items[name] = this.items[name].filter(
-      (itemWithName) => itemWithName !== item
-    );
+    this.items[name] = this.items[name].filter((itemWithName) => itemWithName !== item);
 
     // Remove the array if it's empty
     if (!this.items[name].length) {
@@ -353,9 +349,7 @@ export class Item {
         }
       });
 
-      getStore().dispatch(
-        itemsRevealed(this.hidesItems.map((item) => item.name))
-      );
+      getStore().dispatch(itemsRevealed(this.hidesItems.map((item) => item.name)));
 
       this.hidesItems = [];
     }
@@ -397,11 +391,7 @@ export class Item {
   }
 
   get basicItemList() {
-    return getBasicItemList(
-      [...this.uniqueItems].filter(
-        (item) => !item.containerListing && !item.doNotList
-      )
-    );
+    return getBasicItemList([...this.uniqueItems].filter((item) => !item.containerListing && !item.doNotList));
   }
 
   getFullDescription() {
@@ -418,9 +408,7 @@ export class Item {
         description += `\n\n${heldItemsDescription}`;
       }
     } else if (Object.keys(this.items).length) {
-      debug(
-        `Items can't be seen so not including them in ${this.name} description.`
-      );
+      debug(`Items can't be seen so not including them in ${this.name} description.`);
     }
 
     return description;
@@ -440,10 +428,7 @@ export class Item {
 
     if (itemList.length) {
       const prep = toTitleCase(this.preposition);
-      const announceList =
-        uniqueItemList.length < 8
-          ? `there's ${itemList}.`
-          : `you see:\n\n${itemList}`;
+      const announceList = uniqueItemList.length < 8 ? `there's ${itemList}.` : `you see:\n\n${itemList}`;
       description += description.length ? "\n\n" : "";
       description += `${prep} the ${this.name} ${announceList}`;
     }
@@ -542,5 +527,44 @@ export class Item {
 
     this.aliases = [...this.aliases, ...newAliases];
     return newAliases;
+  }
+
+  _getActionChain(verbName, onFailure) {
+    const verb = this.getVerb(verbName);
+    return onFailure ? verb.onFailure : verb.onSuccess;
+  }
+
+  /*
+   * Adds an action to the specified verb. By default, functions are added to the beginning of the chain of on-success actions and
+   * anything else is added to the end.
+   */
+  addAction(verbName, action, onFailure, addToEnd) {
+    const actionChain = this._getActionChain(verbName, onFailure);
+
+    if (typeof addToEnd === "undefined") {
+      addToEnd = typeof action !== "function";
+    }
+
+    if (addToEnd) {
+      actionChain.addAction(action);
+    } else {
+      actionChain.insertAction(action);
+    }
+  }
+
+  /*
+   * Adds a postscript to the actions of the specified verb. By default, it's added to the on-success action chain.
+   */
+  addPostscript(verbName, text, onFailure = false) {
+    const actionChain = this._getActionChain(verbName, onFailure);
+    actionChain.postScript = text;
+  }
+
+  /*
+   * Adds a test to the specified verb.
+   */
+  addTest(verbName, test) {
+    const verb = this.getVerb(verbName);
+    verb.addTest(test);
   }
 }

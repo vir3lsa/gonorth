@@ -60,19 +60,25 @@ export class Verb {
   }
 
   get test() {
-    return this._test;
+    return this._tests;
   }
 
   /**
    * @param {boolean | ((helper) => boolean) | undefined} test
    */
   set test(test) {
+    this._tests = [];
+    const tests = Array.isArray(test) ? test : [test];
+    tests.forEach(itest => this.addTest(itest));
+  }
+
+  addTest(test) {
     if (typeof test === "undefined") {
-      this._test = () => true;
+      this._tests.push(() => true);
     } else if (typeof test === "boolean") {
-      this._test = () => test;
+      this._tests.push(() => test);
     } else {
-      this._test = test;
+      this._tests.push(test);
     }
   }
 
@@ -159,7 +165,10 @@ export class Verb {
   }
 
   attempt(...args) {
-    if (this._test(this.helpers, ...args)) {
+    // All tests must be successful for verb to proceed.
+    const success = this._tests.reduce((successAcc, test) => successAcc && test(this.helpers, ...args), true);
+
+    if (success) {
       return this.onSuccess.chain(...args);
     } else {
       return this.onFailure.chain(...args);
