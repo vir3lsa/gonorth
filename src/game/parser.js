@@ -167,7 +167,7 @@ export class Parser {
           [];
 
         // Try items in the player's inventory as well
-        const inventoryItems = selectInventory().items[possibleItem];
+        const inventoryItems = selectInventory().accessibleItems[possibleItem]?.filter((item) => item.visible);
 
         if (inventoryItems) {
           itemsWithName = [...itemsWithName, ...inventoryItems];

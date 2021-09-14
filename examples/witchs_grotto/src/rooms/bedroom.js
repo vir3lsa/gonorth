@@ -81,6 +81,31 @@ mirrorEffects.add(
   "You can't see much of the dresser in the mirror as the mirror is attached to it, but, what you can see by getting the angle just right is that the clean, white-painted, wooden surface has been replaced with what looks like dense foliage, as though the whole table is made from dark green leaves, gently swaying in some phantom breeze."
 );
 
+const biscuits = new Item(
+  "biscuits",
+  "They're a beige colour and smell faintly fishy. Each one is no larger than a tooth."
+);
+biscuits.doNotList = true;
+biscuits.addAliases("biscuit", "treat", "treats");
+biscuits.addVerb(
+  new Verb(
+    "eat",
+    true,
+    "You pop one of the biscuits into your mouth and crunch it up. Yep, it's definitely fish-flavoured. You swallow it with a grimace."
+  )
+);
+
+const paperBag = new Item(
+  "paper bag",
+  "It's a brown paper bag filled with what looks like small biscuits, the size of peas.",
+  true,
+  1
+);
+paperBag.addAliases("brown bag");
+paperBag.addAction("examine", () => paperBag.addItem(biscuits));
+biscuits.addVerb(paperBag.verbs.take); // "take biscuits" should take the bag.
+biscuits.addVerb(paperBag.verbs.put); // "put biscuits" should put the bag.
+
 const keepsakeBox = new Container(
   "keepsake box",
   ["jewellery"],
@@ -93,7 +118,7 @@ const keepsakeBox = new Container(
       return "It's completely solid now, giving no hint that it apparently materialised from thin air. It's a walnut keepsake box with a delicately engraved scene of a forest at night, complete with crescent moon, owl and cat. The corners are rounded and the two parts are connected with a pair of brass hinges. It's currently closed.";
     }
   },
-  "It's open!",
+  "The box lies open, its lid hinged back, revealing a rectangular compartment inside.",
   1,
   "in",
   true,
@@ -102,6 +127,7 @@ const keepsakeBox = new Container(
   1
 );
 
+keepsakeBox.hidesItems = paperBag;
 keepsakeBox.locked = true;
 keepsakeBox.addVerb(examine);
 keepsakeBox.openText =
