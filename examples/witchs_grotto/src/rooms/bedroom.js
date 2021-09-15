@@ -85,7 +85,6 @@ const biscuits = new Item(
   "biscuits",
   "They're a beige colour and smell faintly fishy. Each one is no larger than a tooth."
 );
-biscuits.doNotList = true;
 biscuits.addAliases("biscuit", "treat", "treats");
 biscuits.addVerb(
   new Verb(
@@ -102,7 +101,7 @@ const paperBag = new Item(
   1
 );
 paperBag.addAliases("brown bag");
-paperBag.addAction("examine", () => paperBag.addItem(biscuits));
+paperBag.hidesItems = biscuits;
 biscuits.addVerb(paperBag.verbs.take); // "take biscuits" should take the bag.
 biscuits.addVerb(paperBag.verbs.put); // "put biscuits" should put the bag.
 

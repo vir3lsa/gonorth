@@ -330,23 +330,15 @@ export class Item {
   }
 
   /**
-   * Adds holdable items this item hides to this item directly and non-holdable items
-   * to this item's container e.g. adds hidden items to the room.
+   * Adds items this item hides to self.
    */
   revealItems() {
     if (this.container && this.itemsVisibleFromSelf) {
       debug(`${this.name}: Revealing items`);
 
       this.hidesItems.forEach((item) => {
-        if (item.holdable && this.canHoldItems) {
-          debug(`${this.name}: Adding holdable item ${item.name} to self`);
-          this.addItem(item);
-        } else {
-          debug(
-            `${this.name}: Adding item ${item.name} to parent container ${this.container.name} because either it isn't holdable or I am not a container`
-          );
-          this.container.addItem(item); // Don't want non-holdable item to be listed
-        }
+        debug(`${this.name}: Adding item ${item.name} to self`);
+        this.addItem(item);
       });
 
       getStore().dispatch(itemsRevealed(this.hidesItems.map((item) => item.name)));
@@ -391,7 +383,9 @@ export class Item {
   }
 
   get basicItemList() {
-    return getBasicItemList([...this.uniqueItems].filter((item) => !item.containerListing && !item.doNotList));
+    return getBasicItemList(
+      [...this.uniqueItems].filter((item) => item.holdable && !item.containerListing && !item.doNotList)
+    );
   }
 
   getFullDescription() {

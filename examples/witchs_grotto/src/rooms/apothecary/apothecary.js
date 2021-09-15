@@ -103,7 +103,7 @@ dial.addVerb(
           ? (dial.liquid = "blood")
           : (dial.liquid = "water");
       },
-      () => `You turn the dial to point at the ${dial.liquid} inlet pipe.`,
+      () => `You turn the dial to point at the ${dial.liquid} inlet pipe.`
     ],
     (x) => x,
     ["rotate", "spin", "switch"]
@@ -136,7 +136,7 @@ masterValve.addVerbs(
     () => !masterValve.open,
     [
       () => (masterValve.open = true),
-      "You grab the crank wheel with both hands and heave it in an anticlockwise direction. After yanking it around a few times you hear liquid start to flow through the pipe before splashing into the cauldron moments later.",
+      "You grab the crank wheel with both hands and heave it in an anticlockwise direction. After yanking it around a few times you hear liquid start to flow through the pipe before splashing into the cauldron moments later."
     ],
     "The valve is already open as far as it'll go."
   ),
@@ -146,7 +146,7 @@ masterValve.addVerbs(
     [
       () => (masterValve.open = false),
       () =>
-        `You spin the valve wheel back in the other direction to shut off the flow. Sure enough, the sound of rushing liquid ceases and the flow of ${dial.liquid} into the cauldron trickles to a stop.`,
+        `You spin the valve wheel back in the other direction to shut off the flow. Sure enough, the sound of rushing liquid ceases and the flow of ${dial.liquid} into the cauldron trickles to a stop.`
     ],
     "The valve is already closed."
   )
@@ -159,17 +159,11 @@ const herbarium = new Item(
   "This must be the witch's herbarium. You have to admit it's an impressive sight. Multiple shelves line the walls, every inch filled with dusty glass jars, racks of vials, and stoppered bottles. They're all meticulously labelled with swirly handwritten names on paper sleeves, but many of them are indecipherable. You take a mental note of the ones you understand."
 );
 
-const adderVenom = new Ingredient(
-  "Adder venom",
-  "A stoppered bottle of slightly cloudy snake venom."
-);
+const adderVenom = new Ingredient("Adder venom", "A stoppered bottle of slightly cloudy snake venom.");
 
 const alfalfa = new Ingredient("Alfalfa", "A jar of dried alfalfa leaves.");
 
-const astragalus = new Ingredient(
-  "Astragalus",
-  "A bottle of astragalus root shavings."
-);
+const astragalus = new Ingredient("Astragalus", "A bottle of astragalus root shavings.");
 
 const bladderwrack = new Ingredient("Bladderwrack", "placeholder");
 
@@ -236,7 +230,7 @@ herbarium.hidesItems = [
   vervain,
   whiteSage,
   witchHazel,
-  wormwood,
+  wormwood
 ];
 
 const mendingPotion = new Potion(
@@ -254,12 +248,12 @@ const mendingProcedure = new Procedure(
           { type: STEP_WATER, value: 1 },
           {
             type: STEP_INGREDIENTS,
-            value: [dryadToenails.name, alfalfa.name, whiteSage.name],
-          },
-        ],
+            value: [dryadToenails.name, alfalfa.name, whiteSage.name]
+          }
+        ]
       },
-      { type: STEP_HEAT, value: 3 },
-    ],
+      { type: STEP_HEAT, value: 3 }
+    ]
   },
   mendingPotion
 );
@@ -281,7 +275,7 @@ const woodwormProcedure = new Procedure(
           "It quickly dissolves into the water.",
           "It falls into the water creating a dirty brown mixture."
         ),
-        short: new CyclicText("no potion just yet", "a dirty brown colour"),
+        short: new CyclicText("no potion just yet", "a dirty brown colour")
       },
       {
         type: STEP_STIR,
@@ -295,23 +289,20 @@ const woodwormProcedure = new Procedure(
           "beginning to react, but it's still just a brown sludge",
           "brown, thick and gloopy",
           "thick and gloopy and deep crimson in colour"
-        ),
+        )
       },
       {
         type: STEP_INGREDIENTS,
         value: [wormwood.name],
         text: "As the leaves drop into the ruddy mixture it suddenly shifts through shades of orange and yellow before finally settling on a luminous green. There's a strong smell to accompany the change and tendrils of steam are rising from the surface.",
-        short: "luminous green with a chemical smell",
-      },
-    ],
+        short: "luminous green with a chemical smell"
+      }
+    ]
   },
   woodwormPotion
 );
 
-const strengthPotion = new Potion(
-  "Elixir of Might",
-  "It's a deep purple colour, flecked with gold."
-);
+const strengthPotion = new Potion("Elixir of Might", "It's a deep purple colour, flecked with gold.");
 strengthPotion.addAliases("strength");
 
 const strengthProcedure = new Procedure(
@@ -322,8 +313,8 @@ const strengthProcedure = new Procedure(
         ordered: false,
         steps: [
           { type: STEP_BLOOD, value: 0.25 },
-          { type: STEP_FAT, value: 0.25 },
-        ],
+          { type: STEP_FAT, value: 0.25 }
+        ]
       },
       {
         ordered: false,
@@ -332,16 +323,16 @@ const strengthProcedure = new Procedure(
             type: STEP_INGREDIENTS,
             value: [adderVenom.name],
             text: "The venom immediately splits the mixture, turning it into a slimy mess of reds and yellows.",
-            short: "split, with slimy reds and yellows",
+            short: "split, with slimy reds and yellows"
           },
-          { type: STEP_HEAT, value: 10, leniency: 4 },
-        ],
+          { type: STEP_HEAT, value: 10, leniency: 4 }
+        ]
       },
       {
         type: STEP_INGREDIENTS,
         value: [astragalus.name],
         text: "As the astragalus hits the boiling liquid, a cloud of blue smoke billows from the surface.",
-        short: "billowing blue smoke",
+        short: "billowing blue smoke"
       },
       { type: STEP_HEAT, value: 1, leniency: 4 },
       {
@@ -354,20 +345,17 @@ const strengthProcedure = new Procedure(
               "The mixture is no longer split, but instead has taken on a smooth, silky texture and is orange in hue.",
               "The stirring and the heat are causing changes to the concoction. It's darkened to a deep purple."
             ),
-            short: new CyclicText(
-              "smooth, silky and orange",
-              "smooth, silky and purple"
-            ),
-            leniency: 1,
+            short: new CyclicText("smooth, silky and orange", "smooth, silky and purple"),
+            leniency: 1
           },
-          { type: STEP_HEAT, value: 2, leniency: 4 },
-        ],
+          { type: STEP_HEAT, value: 2, leniency: 4 }
+        ]
       },
       {
         type: STEP_INGREDIENTS,
         value: [valerian.name],
         text: "A sweet smell emanates from the cauldron.",
-        short: "smooth, silky, and purple, with a sweet scent.",
+        short: "smooth, silky, and purple, with a sweet scent."
       },
       { type: STEP_HEAT, value: 1, leniency: 4 },
       {
@@ -381,17 +369,13 @@ const strengthProcedure = new Procedure(
               "The purple colour is even deeper, like an alien sky at night.",
               "Tiny flecks of gold have appeared amongst the purple, catching the light as you stir."
             ),
-            short: new CyclicText(
-              "smooth and plastic-like",
-              "deep alien purple",
-              "purple with flecks of gold"
-            ),
-            leniency: 1,
+            short: new CyclicText("smooth and plastic-like", "deep alien purple", "purple with flecks of gold"),
+            leniency: 1
           },
-          { type: STEP_HEAT, value: 3, leniency: 10 },
-        ],
-      },
-    ],
+          { type: STEP_HEAT, value: 3, leniency: 10 }
+        ]
+      }
+    ]
   },
   strengthPotion
 );
@@ -561,7 +545,8 @@ apothecary.addItems(
   pentagram,
   // TEST
   tornPage,
-  moonStone
+  moonStone,
+  woodwormPotion
 );
 
 apothecary.setEast(
