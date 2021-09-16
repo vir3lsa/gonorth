@@ -132,7 +132,11 @@ export class Item {
       const giveVerb = new Verb(
         "give",
         () => false,
-        [],
+        (helper, item, other) => {
+          this.containerListing = null;
+          this.container.removeItem(this);
+          return other.addItem(this);
+        },
         (helper, item, other) => {
           const article = this.properNoun ? "" : "the ";
           if (other === this) {

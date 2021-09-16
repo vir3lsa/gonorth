@@ -1,4 +1,3 @@
-import { TIMEOUT_TURNS } from "../../../../lib/game/events/event";
 import {
   Room,
   Item,
@@ -8,13 +7,16 @@ import {
   selectPlayer,
   Schedule,
   TIMEOUT_MILLIS,
+  TIMEOUT_TURNS,
   inSameRoomAs,
   SequentialText,
   Container
 } from "../../../../lib/gonorth";
 import { mirrorEffects } from "../magic/magicEffects";
 import { MagicWord } from "../magic/magicWord";
+import { catGraph } from "./snug/cat";
 import { memoCard } from "./snug/snug";
+import { snug } from "./snug";
 
 export const bedroom = new Room(
   "Bedroom",
@@ -102,8 +104,11 @@ const paperBag = new Item(
 );
 paperBag.addAliases("brown bag");
 paperBag.hidesItems = biscuits;
+paperBag.verbs.give.test = (helper, item, other) => other.aliases.includes("cat");
+paperBag.addAction("give", () => catGraph.commence("giveTreats"), false, true);
 biscuits.addVerb(paperBag.verbs.take); // "take biscuits" should take the bag.
 biscuits.addVerb(paperBag.verbs.put); // "put biscuits" should put the bag.
+biscuits.addVerb(paperBag.verbs.give); // "give biscuits" should give the bag.
 
 const keepsakeBox = new Container(
   "keepsake box",
@@ -261,4 +266,8 @@ setTimeout(() =>
 
 mirrorEffects.add(ball, mirror, true, "It's a frog!");
 
-bedroom.addItems(bedsideTable, ball, dresser, mirror, /* test */ memoCard);
+bedroom.addItems(bedsideTable, ball, dresser, mirror, /* test */ paperBag);
+
+// TEST TEST TEST
+bedroom.setSouth(snug);
+// TEST TEST TEST

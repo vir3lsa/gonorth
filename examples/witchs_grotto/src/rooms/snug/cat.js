@@ -1,10 +1,12 @@
 import {
   Npc,
   Verb,
+  Item,
   selectPlayer,
   OptionGraph,
   RandomText,
-  SequentialText
+  SequentialText,
+  CyclicText
 } from "../../../../../lib/gonorth";
 import { bookShelf, druidicPeoples } from "../apothecary/bookshelf";
 
@@ -15,6 +17,17 @@ const cat = new Npc(
 cat.aliases = ["cat"];
 
 let catName = "Sir";
+
+const waitWhilstEatingText = new CyclicText(
+  "He's still eating happily. His whole head has disappeared inside the bag now.",
+  "He pauses as though he's finished, but then resumes the frenzied eating with renewed vigour.",
+  "He's showing no signs of slowing down. He must really love those treats.",
+  "Should you say something, you wonder? He must have surpassed various recommended daily amounts five times over by now."
+);
+
+const fur = new Item("clump of fur", "A clump of ink-black fur donated to you by an erudite feline.", true, 0);
+fur.addAliases("fur");
+
 const catTalkNodes = [
   {
     id: "greeting",
@@ -86,8 +99,7 @@ const catTalkNodes = [
         cat.name = "Mister Cat";
         return null;
       },
-      () =>
-        `"Nice to meet you, ${catName}."\n\nThe cat appears to wince, then nods for you to go on.`
+      () => `"Nice to meet you, ${catName}."\n\nThe cat appears to wince, then nods for you to go on.`
     ],
     options: {
       "Find key": "findKey",
@@ -216,10 +228,10 @@ const catTalkNodes = [
         `"Please, ${catName}! I need it! To help me escape!" You jump up and down to emphasise the point.`,
         `His expression softens suddenly, leading you to believe the previous indignance was nothing but melodrama all along. "Tell you what, Jenner. Mildred has a bag of cat treats. Most delicious stuff I've ever tasted - Lord knows where she got it. Keeps it somewhere in her bedroom, I'm sure. Help an old mog out and fetch it for me, would you? Only I can't manage the stairs, you see. Bring me the treats and you can have some fur. Just a few tufts, mind!"`
       ),
-      options: {
-        "Will find treats": "okayTreats",
-        "How to escape": "escape"
-      }
+    options: {
+      "Will find treats": "okayTreats",
+      "How to escape": "escape"
+    }
   },
   {
     id: "okayTreats",
@@ -242,8 +254,8 @@ const catTalkNodes = [
         `"Jenner, this *house* is built on a site of arcane power. It helps Mildred...do her witchy stuff. I don't pretend to understand it. The point is, I'd bet my last catnip biscuit there are druidic ruins in this same spot. If you can find a way into them, you're practically home and dry! There's sure to be a way out of the tunnels in the woods somewhere. Make your way to that and you're free."`
       ),
     options: {
-      "Okay": "labyrinthOkay",
-      "Where": "whereEntrance",
+      Okay: "labyrinthOkay",
+      Where: "whereEntrance",
       "Need fur": "needFur"
     }
   },
@@ -264,8 +276,57 @@ const catTalkNodes = [
         `"The Druids built their labyrinths underground so...I'd start by looking in the deepest, darkest parts of the house you can find."`
       ),
     options: {
-      "Okay": "labyrinthOkay"
+      Okay: "labyrinthOkay"
     }
+  },
+  {
+    id: "giveTreats",
+    actions: () =>
+      new SequentialText(
+        `${catName} sits bolt upright with a look of intense alertness on his feline face.\n\n"Jenner, you've excelled yourself," he says, seriously. "I knew my faith in you was well-placed. Now, if you'll just excuse me a moment..."`,
+        `With that, he buries his head inside the paper bag. A series of loud crunching, lip-smacking and purring sounds begins to emanate from it.`
+      ),
+    options: {
+      wait: "waitTreats"
+    }
+  },
+  {
+    id: "waitTreats",
+    actions: () => waitWhilstEatingText,
+    options: {
+      wait: "waitTreats",
+      ahem: "interruptTreats",
+      leave: "leave"
+    }
+  },
+  {
+    id: "interruptTreats",
+    actions: () =>
+      new SequentialText(
+        `You clear your throat. "Um, excuse me, ${catName}..."`,
+        `${catName} continues his ravenous consumption, showing no sign of having heard you.`,
+        `${catName}! you yell.\n\nHis head suddenly emerges from the bag, biscuit crumbs adorning his whiskers.\n\n"Hmm? What? Oh! Jenner! I almost forgot you were still here. What were we talking about again?"`
+      ),
+    options: {
+      fur: "furDeal",
+      leave: "leave"
+    }
+  },
+  {
+    id: "furDeal",
+    actions: [
+      () => selectPlayer().addItem(fur),
+      () =>
+        new SequentialText(
+          `"You were just saying how you'll give me some fur now I've got the treats for you, Sir," you say, mischievously.`,
+          `"Ah, yes. Quite right. A deal's a deal," he replies, turning his head to begin ferociously licking his back.`,
+          `Before long a sizeable clump of soot black fur has collected as a result of his grooming. With a surprisingly deft flick of his paw he plucks it from his back and proffers it to you with a look of satisfaction on his face.`,
+          `Trying not to let your faint disgust show, you take the fur from his outstretched paw. "Thank you, ${catName}."`,
+          `"Think nothing of it, Jenner. I only hope it aids you in your escape."`,
+          `"Me too. Goodbye, ${catName}."`,
+          `"Farewell, Jenner. It was a pleasure making your acquaintance. Good luck on your travels." With that, he returns his attention to the bag of cat treats.`
+        )
+    ]
   },
   {
     id: "leave",

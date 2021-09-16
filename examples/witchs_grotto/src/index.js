@@ -40,7 +40,7 @@ initHints("bedroom1");
 
 // setStartingRoom(cellar);
 // setStartingRoom(flue);
-setStartingRoom(apothecary);
+// setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
 // setStartingRoom(snug);
 // setStartingRoom(southHall);
@@ -49,7 +49,7 @@ setStartingRoom(apothecary);
 // setStartingRoom(kitchen);
 // setStartingRoom(entranceHall);
 // setStartingRoom(staircase);
-// setStartingRoom(bedroom);
+setStartingRoom(bedroom);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
