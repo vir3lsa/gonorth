@@ -89,8 +89,7 @@ const grimoireNodes = [
   },
   {
     id: "catseye",
-    actions:
-      "## Feline Sight\n\nPlaceholder rhyme\n\n### Ingredients\n\n* 1 clump of a black cat's fur",
+    actions: "## Philtre of Feline Vision\n\nPlaceholder rhyme\n\n### Ingredients\n\n* 1 clump of a black cat's fur",
     options: {
       "Previous page": "sleep",
       "Stop reading": "stopReading"

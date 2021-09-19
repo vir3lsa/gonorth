@@ -11,6 +11,7 @@ import {
   TIMEOUT_TURNS,
   addEvent
 } from "../../../../lib/gonorth";
+import { philtreOfFelineVision } from "../magic/philtreOfFelineSight";
 import { cellarNook } from "./cellarNook";
 import { kitchen } from "./kitchen";
 
@@ -111,12 +112,7 @@ water.canHoldItems = true;
 
 cellar.addItem(water);
 cellar.setWest(cellarNook, true);
-cellar.setNorth(
-  null,
-  false,
-  null,
-  "There's nothing but the cold stone wall that way. You can't walk through walls."
-);
+cellar.setNorth(null, false, null, "There's nothing but the cold stone wall that way. You can't walk through walls.");
 cellar.setSouth(
   null,
   false,
@@ -138,8 +134,7 @@ const pale = new Item(
   3
 );
 pale.aliases = ["rusty pale", "bucket"];
-pale.containerListing =
-  "There's a rusty pale lying on its side near the water's edge.";
+pale.containerListing = "There's a rusty pale lying on its side near the water's edge.";
 pale.capacity = 3;
 pale.preposition = "in";
 
@@ -147,14 +142,10 @@ const waterMonster = new Event(
   "water monster",
   () => {
     let text;
-    [...water.uniqueItems].forEach(item => {
+    [...water.uniqueItems].forEach((item) => {
       text = new RandomText(
-        `The water suddenly churns violently around the ${
-          item.name
-        }. When it's calm again, the ${item.name} is gone.`,
-        `With a loud splash and a spray of water the ${
-          item.name
-        } disappears. Was that the flick of a tail you glimpsed?`
+        `The water suddenly churns violently around the ${item.name}. When it's calm again, the ${item.name} is gone.`,
+        `With a loud splash and a spray of water the ${item.name} disappears. Was that the flick of a tail you glimpsed?`
       );
       water.removeItem(item);
     });
@@ -167,4 +158,4 @@ const waterMonster = new Event(
 waterMonster.recurring = true;
 addEvent(waterMonster);
 
-cellar.addItems(trapdoor, coalHatch, pale, steps, archway, ceiling, lightbulb);
+cellar.addItems(trapdoor, coalHatch, pale, steps, archway, ceiling, lightbulb, /* TEST */ philtreOfFelineVision);

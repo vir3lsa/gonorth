@@ -38,7 +38,7 @@ initGame("The Lady of Bramble Wood", "Rich Locke", true);
 setIntro("Now's your chance. Quickly! Make your escape whilst the witch is out.");
 initHints("bedroom1");
 
-// setStartingRoom(cellar);
+setStartingRoom(cellar);
 // setStartingRoom(flue);
 // setStartingRoom(apothecary);
 // setStartingRoom(lowerSpiral);
@@ -49,7 +49,7 @@ initHints("bedroom1");
 // setStartingRoom(kitchen);
 // setStartingRoom(entranceHall);
 // setStartingRoom(staircase);
-setStartingRoom(bedroom);
+// setStartingRoom(bedroom);
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");

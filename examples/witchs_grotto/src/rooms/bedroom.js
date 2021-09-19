@@ -16,7 +16,6 @@ import { mirrorEffects } from "../magic/magicEffects";
 import { MagicWord } from "../magic/magicWord";
 import { catGraph } from "./snug/cat";
 import { memoCard } from "./snug/snug";
-import { snug } from "./snug";
 
 export const bedroom = new Room(
   "Bedroom",
@@ -55,11 +54,6 @@ bedsideTable.canHoldItems = true;
 bedsideTable.preposition = "on";
 bedsideTable.capacity = 3;
 bedsideTable.addVerb(examine);
-
-// Temp
-const ball = new Item("ball", "It's a red ball.", true, 1);
-ball.addVerb(examine);
-// Temp
 
 const dresser = new Item(
   "dresser",
@@ -264,10 +258,4 @@ setTimeout(() =>
   )
 );
 
-mirrorEffects.add(ball, mirror, true, "It's a frog!");
-
-bedroom.addItems(bedsideTable, ball, dresser, mirror, /* test */ paperBag);
-
-// TEST TEST TEST
-bedroom.setSouth(snug);
-// TEST TEST TEST
+bedroom.addItems(bedsideTable, dresser, mirror);
