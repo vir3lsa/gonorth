@@ -57,11 +57,45 @@ const tunnelsNodes = [
   },
   {
     id: "tunnelDiode",
-    actions: "placeholder"
+    actions: () => {
+      if (traversal === forward) {
+        return new SequentialText(
+          "Being careful not to scrape your skin on the rough stone, you lower yourself over the edge of the near-vertical drop to minimise the distance you'll have to fall. With your arms at full stretch it's around three feet to the rubbly ground below you. When you're sure you're ready you let go with your fingers and drop, bending your knees to a squat as you land to soften the impact. Straigtening up, you slap your hands together to free them of dust.",
+          "The tunnel branches left and right in front of you. The way to the right is marked by an elaborately archivolted archway cut into the stone."
+        );
+      } else if (traversal === up) {
+        return "Rounding the corner, you come upon a junction in the tunnel. To the right is the vertical tunnel section you jumped down earlier. Ahead is an elaborately archivolted archway.";
+      } else {
+        return "Passing beneath an elaborately archivolted archway, you come upon a junction in the tunnel. To the left is the vertical tunnel section you jumped down earlier. Ahead, the tunnel continues.";
+      }
+    },
+    options: {
+      [traversal === forward ? "go left" : traversal === up ? "go back" : "go forward"]: "lowerPretzel",
+      [traversal === forward ? "go right" : traversal === up ? "go forward" : "go back"]: "topRightPretzel",
+      [traversal === forward ? "go back" : traversal === up ? "go right" : "go left"]: "verticalFail"
+    }
   },
   {
     id: "backToCellar",
     actions: ["You head back up the tunnel towards the cellar.", () => selectRoom().go("east")]
+  },
+  {
+    id: "verticalFail",
+    actions:
+      "Standing at the foot of the vertical wall in the tunnel, you crane your head back to see the top. You can't get anywhere near the lip when you jump and there's nothing you can grab onto on the wall itself. There's no going back that way. You turn around and head back to the tunnel junction.",
+    options: {
+      "go left": "lowerPretzel",
+      "go right": "topRightPretzel",
+      "go back": "verticalFail"
+    }
+  },
+  {
+    id: "lowerPretzel",
+    actions: "placeholder"
+  },
+  {
+    id: "topRightPretzel",
+    actions: "placeholder"
   }
 ];
 
