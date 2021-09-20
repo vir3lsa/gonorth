@@ -90,11 +90,17 @@ export class OptionGraph {
 
     actions = Array.isArray(actions) ? actions : [actions];
 
+    if (typeof options === "function") {
+      // If options is a function, evaluate it to get the options object.
+      options = options();
+    }
+
     if (options) {
       optionObjects = Object.entries(options)
         .map(([choice, value]) => {
           let optionId = value;
           let optionNode;
+          let optionActions = [];
 
           if (typeof optionId === "string") {
             // Treat as an ID reference
@@ -103,9 +109,25 @@ export class OptionGraph {
             if (!optionNode) {
               throw Error(`Can't find node with id ${optionId}`);
             }
+          } else if (value && value.node) {
+            // The option is an object rather than a simple node reference.
+            optionNode = this.flattened[value.node];
+
+            if (!optionNode) {
+              throw Error(`Can't find node with id ${value.node}`);
+            }
+
+            if (value.actions) {
+              // Get any actions associated with the option.
+              optionActions = Array.isArray(value.actions) ? value.actions : [value.actions];
+            }
           } else if (optionId) {
-            throw Error("Option graph node options must refer to node IDs or null, not object references.");
+            throw Error(
+              "Option graph node options must be null, refer to option IDs, or be objects with 'node' and 'actions' members."
+            );
           }
+
+          optionActions.push(() => (optionId ? this.activateNode(optionNode) : null));
 
           if (
             !optionId ||
@@ -113,11 +135,7 @@ export class OptionGraph {
             optionNode.allowRepeats ||
             (this.allowRepeats && optionNode.allowRepeats === undefined)
           ) {
-            return new Option(
-              choice,
-              () => (optionId ? this.activateNode(optionNode) : null),
-              !optionId || !optionNode.noEndTurn
-            );
+            return new Option(choice, optionActions, !optionId || !optionNode.noEndTurn);
           }
 
           // No option

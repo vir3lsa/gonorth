@@ -54,6 +54,38 @@ const speechNodes = [
   { id: "bye", actions: "bye" }
 ];
 
+const mazeNodes = [
+  {
+    id: "entrance",
+    actions: "you enter the labyrinth",
+    options: {
+      left: { node: "left", actions: () => x++ }
+    }
+  },
+  {
+    id: "left",
+    actions: "you go left"
+  }
+];
+
+const dynamicOptionsNodes = [
+  {
+    id: "start",
+    actions: "test",
+    options: () => ({
+      [x]: null
+    })
+  }
+];
+
+const nullOptionNodes = [
+  {
+    id: "start",
+    actions: "test",
+    options: { one: null }
+  }
+];
+
 beforeEach(async () => {
   unregisterStore();
   initStore();
@@ -173,4 +205,26 @@ test("individual nodes can opt to repeat", async () => {
   await selectOptions()[0].action();
   expect(selectOptions().length).toBe(3);
   expect(selectOptions()[0].label).toBe("question");
+});
+
+test("options can have actions", async () => {
+  const graph = new OptionGraph(...mazeNodes);
+  await graph.commence().chain();
+  await selectOptions()[0].action();
+  expect(selectCurrentPage()).toInclude("you go left");
+  expect(x).toBe(1);
+});
+
+test("options can be null", async () => {
+  const graph = new OptionGraph(...nullOptionNodes);
+  await graph.commence().chain();
+  await selectOptions()[0].action();
+  expect(selectCurrentPage()).toInclude("one");
+});
+
+test("options can be dynamic", async () => {
+  const graph = new OptionGraph(...dynamicOptionsNodes);
+  x = "10";
+  await graph.commence().chain();
+  expect(selectOptions()[0].label).toBe("10");
 });
