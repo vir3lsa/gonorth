@@ -59,12 +59,19 @@ const mazeNodes = [
     id: "entrance",
     actions: "you enter the labyrinth",
     options: {
-      left: { node: "left", actions: () => x++ }
+      left: { node: "left", actions: () => x++ },
+      right: { node: "right", actions: [() => x++, () => x++] },
+      stay: [() => x++, () => x++, "you stay"],
+      stayPut: { actions: () => x++ }
     }
   },
   {
     id: "left",
     actions: "you go left"
+  },
+  {
+    id: "right",
+    actions: "you go right"
   }
 ];
 
@@ -85,6 +92,11 @@ const nullOptionNodes = [
     options: { one: null }
   }
 ];
+
+const createGraph = (nodes) => {
+  const graph = new OptionGraph(...nodes);
+  return graph.commence().chain();
+};
 
 beforeEach(async () => {
   unregisterStore();
@@ -170,8 +182,7 @@ test("optionGraph exits if a node attempts a verb but has no options", async () 
 });
 
 test("optionGraph repeats nodes by default", async () => {
-  const graph = new OptionGraph(...speechNodes);
-  await graph.commence().chain();
+  await createGraph(speechNodes);
   await selectOptions()[0].action();
   expect(selectOptions().length).toBe(3);
   expect(selectOptions()[0].label).toBe("question");
@@ -189,8 +200,7 @@ test("optionGraph does not repeat nodes if instructed", async () => {
 test("individual nodes can opt to not repeat", async () => {
   const nodes = [...speechNodes];
   nodes[1].allowRepeats = false;
-  const graph = new OptionGraph(...nodes);
-  await graph.commence().chain();
+  await createGraph(nodes);
   await selectOptions()[0].action();
   expect(selectOptions().length).toBe(2);
   expect(selectOptions()[0].label).not.toBe("question");
@@ -208,23 +218,47 @@ test("individual nodes can opt to repeat", async () => {
 });
 
 test("options can have actions", async () => {
-  const graph = new OptionGraph(...mazeNodes);
-  await graph.commence().chain();
+  await createGraph(mazeNodes);
   await selectOptions()[0].action();
   expect(selectCurrentPage()).toInclude("you go left");
   expect(x).toBe(1);
 });
 
+test("options can have arrays of actions", async () => {
+  await createGraph(mazeNodes);
+  await selectOptions()[1].action();
+  expect(selectCurrentPage()).toInclude("you go right");
+  expect(x).toBe(2);
+});
+
+test("options can be arrays of actions and return to the same node", async () => {
+  await createGraph(mazeNodes);
+  const promise = selectOptions()[2].action();
+  setTimeout(() => selectOptions()[0].action());
+  await promise;
+  expect(selectCurrentPage()).toInclude("you stay");
+  expect(x).toBe(2);
+  expect(selectOptions().length).toBe(4);
+  expect(selectOptions()[0].label).toBe("left");
+});
+
+test("options with no node specified return to the same node", async () => {
+  await createGraph(mazeNodes);
+  await selectOptions()[3].action();
+  expect(selectCurrentPage()).toInclude("stayPut");
+  expect(x).toBe(1);
+  expect(selectOptions().length).toBe(4);
+  expect(selectOptions()[0].label).toBe("left");
+});
+
 test("options can be null", async () => {
-  const graph = new OptionGraph(...nullOptionNodes);
-  await graph.commence().chain();
+  await createGraph(nullOptionNodes);
   await selectOptions()[0].action();
   expect(selectCurrentPage()).toInclude("one");
 });
 
 test("options can be dynamic", async () => {
-  const graph = new OptionGraph(...dynamicOptionsNodes);
   x = "10";
-  await graph.commence().chain();
+  await createGraph(dynamicOptionsNodes);
   expect(selectOptions()[0].label).toBe("10");
 });

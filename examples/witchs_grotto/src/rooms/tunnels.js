@@ -1,4 +1,4 @@
-import { OptionGraph, selectRoom, SequentialText } from "../../../../lib/gonorth";
+import { OptionGraph, selectRoom, SequentialText, Room, goToRoom, Item, Door } from "../../../../lib/gonorth";
 
 const forward = "f";
 const reverse = "r";
@@ -9,11 +9,23 @@ const left = "left";
 const right = "right";
 
 let traversal = forward;
+let mouldRoom = new Room(
+  "Mould Room",
+  "The tiny room is dank and smelly, green mould growing on nearly every surface. The floor is cobbled and the mould and damp are making the stones slick and treacherous. The room's empty save for half a rotten barrel in one corner."
+);
+
+const ricketyDoor = new Door(
+  "rickety door",
+  "It's barely more than a few flimsy planks nailed together and a couple of rusty iron hinges.",
+  false,
+  false,
+  "The door swings open limply when you push it."
+);
 
 // Setter for traversal variable that deliberately doesn't return a value so we can use it inline to avoid messing up ActionChain.
 const setTraversal = (direction) => {
   traversal = direction;
-}
+};
 
 const direction = (direction) => {
   if (traversal === forward) {
@@ -116,7 +128,7 @@ const tunnelsNodes = [
         node: "crossroads",
         actions: () => setTraversal(up)
       },
-      "rickety door": "mouldRoom",
+      "open rickety door": () => ricketyDoor.getVerb("open").attempt(),
       [traversal === left ? "go back" : "narrow tunnel"]: {
         node: "tunnelDiode",
         actions: () => setTraversal(up)
@@ -133,7 +145,7 @@ const tunnelsNodes = [
   },
   {
     id: "mouldRoom",
-    actions: "placeholder"
+    actions: () => goToRoom(mouldRoom)
   }
 ];
 

@@ -82,13 +82,13 @@ export class OptionGraph {
     return this.activateNode(this.getNode(id) || this.startNode);
   }
 
-  activateNode(node) {
+  activateNode(node, performNodeActions = true) {
     node.visited = true;
 
     let { actions, options } = node;
     let optionObjects;
 
-    actions = Array.isArray(actions) ? actions : [actions];
+    actions = performNodeActions ? (Array.isArray(actions) ? actions : [actions]) : [""];
 
     if (typeof options === "function") {
       // If options is a function, evaluate it to get the options object.
@@ -98,36 +98,31 @@ export class OptionGraph {
     if (options) {
       optionObjects = Object.entries(options)
         .map(([choice, value]) => {
-          let optionId = value;
-          let optionNode;
+          let optionId = typeof value === "string" ? value : value ? value.node : null;
+          let optionNode = optionId && this.flattened[optionId];
           let optionActions = [];
+          const exit = !value || value.exit;
 
-          if (typeof optionId === "string") {
-            // Treat as an ID reference
-            optionNode = this.flattened[optionId];
-
-            if (!optionNode) {
-              throw Error(`Can't find node with id ${optionId}`);
-            }
-          } else if (value && value.node) {
-            // The option is an object rather than a simple node reference.
-            optionNode = this.flattened[value.node];
-
-            if (!optionNode) {
-              throw Error(`Can't find node with id ${value.node}`);
-            }
-
-            if (value.actions) {
-              // Get any actions associated with the option.
-              optionActions = Array.isArray(value.actions) ? value.actions : [value.actions];
-            }
-          } else if (optionId) {
-            throw Error(
-              "Option graph node options must be null, refer to option IDs, or be objects with 'node' and 'actions' members."
-            );
+          if (optionId && !optionNode) {
+            throw Error(`Can't find node with id ${optionId}`);
           }
 
-          optionActions.push(() => (optionId ? this.activateNode(optionNode) : null));
+          if (value && value.actions) {
+            // The option is an object rather than a simple node reference.
+            // Get any actions associated with the option.
+            optionActions = Array.isArray(value.actions) ? [...value.actions] : [value.actions];
+          } else if (Array.isArray(value)) {
+            optionActions = [...value];
+          } else if (typeof value === "function") {
+            optionActions = [value];
+          }
+
+          if (!optionId && !exit) {
+            // Return to the same node without repeating its actions.
+            optionActions.push(() => this.activateNode(node, false));
+          } else {
+            optionActions.push(() => (optionId ? this.activateNode(optionNode) : null));
+          }
 
           if (
             !optionId ||
