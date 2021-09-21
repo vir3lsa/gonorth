@@ -128,7 +128,16 @@ const tunnelsNodes = [
         node: "crossroads",
         actions: () => setTraversal(up)
       },
-      "open rickety door": () => ricketyDoor.getVerb("open").attempt(),
+      "open rickety door": { condition: () => !ricketyDoor.open, actions: () => ricketyDoor.getVerb("open").attempt() },
+      "close rickety door": {
+        condition: () => ricketyDoor.open,
+        actions: () => ricketyDoor.getVerb("close").attempt()
+      },
+      "enter room": {
+        condition: () => ricketyDoor.open,
+        actions: ["Passing the open door, you slip into the small room.", () => goToRoom(mouldRoom)],
+        exit: true
+      },
       [traversal === left ? "go back" : "narrow tunnel"]: {
         node: "tunnelDiode",
         actions: () => setTraversal(up)

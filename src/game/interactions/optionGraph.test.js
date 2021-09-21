@@ -93,6 +93,25 @@ const nullOptionNodes = [
   }
 ];
 
+const optionalOptionsNodes = [
+  {
+    id: "start",
+    actions: "test",
+    options: {
+      one: { condition: () => x < 5, actions: "one" },
+      two: { condition: () => x > 0, actions: "two" }
+    }
+  }
+];
+
+const exitOptionNodes = [
+  {
+    id: "start",
+    actions: "test",
+    options: { one: { actions: () => x++, exit: true } }
+  }
+];
+
 const createGraph = (nodes) => {
   const graph = new OptionGraph(...nodes);
   return graph.commence().chain();
@@ -261,4 +280,28 @@ test("options can be dynamic", async () => {
   x = "10";
   await createGraph(dynamicOptionsNodes);
   expect(selectOptions()[0].label).toBe("10");
+});
+
+test("optional options appear when condition is true", async () => {
+  x = 1;
+  await createGraph(optionalOptionsNodes);
+  expect(selectOptions().length).toBe(2);
+  expect(selectOptions()[0].label).toBe("one");
+  expect(selectOptions()[1].label).toBe("two");
+});
+
+test("optional options do not appear when condition is false", async () => {
+  await createGraph(optionalOptionsNodes);
+  expect(selectOptions().length).toBe(1);
+  expect(selectOptions()[0].label).toBe("one");
+  x = 5;
+  await createGraph(optionalOptionsNodes);
+  expect(selectOptions().length).toBe(1);
+  expect(selectOptions()[0].label).toBe("two");
+});
+
+test("options can explicitly exit the graph", async () => {
+  await createGraph(exitOptionNodes);
+  await selectOptions()[0].action();
+  expect(selectOptions()).toBeNull();
 });

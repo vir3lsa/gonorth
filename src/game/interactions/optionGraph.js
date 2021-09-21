@@ -98,6 +98,11 @@ export class OptionGraph {
     if (options) {
       optionObjects = Object.entries(options)
         .map(([choice, value]) => {
+          if (value && value.condition && !value.condition()) {
+            // Condition not met for this option to appear.
+            return undefined;
+          }
+
           let optionId = typeof value === "string" ? value : value ? value.node : null;
           let optionNode = optionId && this.flattened[optionId];
           let optionActions = [];
