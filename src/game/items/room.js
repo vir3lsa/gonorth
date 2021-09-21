@@ -77,7 +77,7 @@ export class Room extends Item {
   setNorth(room, navigable, onSuccess, failureText, addInverse = true) {
     this.addAdjacentRoom(room, "north", navigable, onSuccess, failureText);
 
-    if (addInverse && room) {
+    if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
       room.setSouth(this, navigable, onSuccess, failureText, false);
     }
@@ -86,7 +86,7 @@ export class Room extends Item {
   setSouth(room, navigable, onSuccess, failureText, addInverse = true) {
     this.addAdjacentRoom(room, "south", navigable, onSuccess, failureText);
 
-    if (addInverse && room) {
+    if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
       room.setNorth(this, navigable, onSuccess, failureText, false);
     }
@@ -95,7 +95,7 @@ export class Room extends Item {
   setEast(room, navigable, onSuccess, failureText, addInverse = true) {
     this.addAdjacentRoom(room, "east", navigable, onSuccess, failureText);
 
-    if (addInverse && room) {
+    if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
       room.setWest(this, navigable, onSuccess, failureText, false);
     }
@@ -104,7 +104,7 @@ export class Room extends Item {
   setWest(room, navigable, onSuccess, failureText, addInverse = true) {
     this.addAdjacentRoom(room, "west", navigable, onSuccess, failureText);
 
-    if (addInverse && room) {
+    if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
       room.setEast(this, navigable, onSuccess, failureText, false);
     }
@@ -113,7 +113,7 @@ export class Room extends Item {
   setUp(room, navigable, onSuccess, failureText, addInverse = true) {
     this.addAdjacentRoom(room, "up", navigable, onSuccess, failureText);
 
-    if (addInverse && room) {
+    if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
       room.setDown(this, navigable, onSuccess, failureText, false);
     }
@@ -122,7 +122,7 @@ export class Room extends Item {
   setDown(room, navigable, onSuccess, failureText, addInverse = true) {
     this.addAdjacentRoom(room, "down", navigable, onSuccess, failureText);
 
-    if (addInverse && room) {
+    if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
       room.setUp(this, navigable, onSuccess, failureText, false);
     }
@@ -131,7 +131,12 @@ export class Room extends Item {
   go(directionName) {
     const direction = directionName.toLowerCase();
     const adjacent = this.adjacentRooms[direction].room;
-    return goToRoom(adjacent);
+
+    if (adjacent instanceof Room) {
+      return goToRoom(adjacent);
+    } else if (typeof adjacent === "function") {
+      return adjacent();
+    }
   }
 
   /**

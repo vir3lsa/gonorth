@@ -185,14 +185,13 @@ export class GoVerb extends Verb {
         const adjacentRoom = getAdjacent(name);
         return adjacentRoom && adjacentRoom.test();
       },
-      () => {
-        const adjacentRoom = getAdjacent(name);
-        const goActionChain = selectRoom().go(name);
-        const onSuccess = (adjacentRoom && adjacentRoom.onSuccess) || [`Going ${name}.`];
-
-        goActionChain.insertActions(...onSuccess);
-        return goActionChain;
-      },
+      [
+        () => {
+          const adjacentRoom = getAdjacent(name);
+          return (adjacentRoom && adjacentRoom.onSuccess) || `Going ${name}.`;
+        },
+        () => selectRoom().go(name)
+      ],
       () => {
         const adjacentRoom = getAdjacent(name);
         return (adjacentRoom && adjacentRoom.failureText) || "You can't go that way.";

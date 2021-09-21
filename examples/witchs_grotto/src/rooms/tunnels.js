@@ -1,4 +1,5 @@
-import { OptionGraph, selectRoom, SequentialText, Room, goToRoom, Item, Door } from "../../../../lib/gonorth";
+import { OptionGraph, selectRoom, SequentialText, Room, goToRoom, Item, Door, Verb } from "../../../../lib/gonorth";
+import { Ingredient } from "../magic/ingredient";
 
 const forward = "f";
 const reverse = "r";
@@ -11,7 +12,7 @@ const right = "right";
 let traversal = forward;
 let mouldRoom = new Room(
   "Mould Room",
-  "The tiny room is dank and smelly, green mould growing on nearly every surface. The floor is cobbled and the mould and damp are making the stones slick and treacherous. The room's empty save for half a rotten barrel in one corner."
+  "The tiny room is dank and smelly, green mould growing on nearly every surface. The floor is cobbled and the mould and damp are making the stones slick and treacherous. The room's empty save for half a rotten barrel in one corner.\n\nThe rickety wooden door leads back into the tunnels to the South."
 );
 
 const ricketyDoor = new Door(
@@ -21,6 +22,43 @@ const ricketyDoor = new Door(
   false,
   "The door swings open limply when you push it."
 );
+
+const mould = new Ingredient(
+  "mould",
+  "It's slimy and green and smells strongly earthy. You can practically feel the spores taking root in your nasal cavity as you inhale."
+);
+
+mould.article = "some";
+
+const rottenBarrel = new Item(
+  "rotten barrel",
+  "It's standing on the jagged edges of the wooden staves that must have been broken when the barrel was somehow split in two, such that the open side is facing downwards. An animal or even a small person could hide beneath it if they were so inclined."
+);
+
+const barrelHideGraph = new OptionGraph({
+  id: "hide",
+  actions:
+    "You can see much of the dank chamber through gaps between the barrel's wooden staves. There's nothing there.",
+  options: {
+    wait: "hide",
+    leave: { exit: true, actions: "You lift the barrel and scramble out into the dimly lit room." }
+  }
+});
+
+rottenBarrel.addVerb(
+  new Verb(
+    "hide",
+    true,
+    [
+      "Scrabbling with your fingers to get a purchase on the underside of the barrel, you lift its surprising heft and awkwardly crawl beneath it. You let it drop back to the cobblestones with a rotten sounding thud, being careful not to trap your fingers.",
+      () => barrelHideGraph.commence()
+    ],
+    null,
+    ["enter"]
+  )
+);
+
+mouldRoom.addItems(ricketyDoor, mould, rottenBarrel);
 
 // Setter for traversal variable that deliberately doesn't return a value so we can use it inline to avoid messing up ActionChain.
 const setTraversal = (direction) => {
@@ -119,12 +157,17 @@ const tunnelsNodes = [
   },
   {
     id: "lowerPretzel",
-    actions: () =>
-      traversal === left
-        ? "The tunnel quickly turns to the right before becoming much narrower. At one point you have to turn sideways to squeeze through. When it opens out again there's a rickety wooden door to your right. The corridor curves to the right beyond the door."
-        : "Rounding the bend, there's a rickety wooden door to your left. Ahead, the tunnel narrows.",
+    actions: () => {
+      if (traversal === left) {
+        return "The tunnel quickly turns to the right before becoming much narrower. At one point you have to turn sideways to squeeze through. When it opens out again there's a rickety wooden door to your right. The corridor curves to the right beyond the door.";
+      } else if (traversal === right) {
+        return "Rounding the bend, there's a rickety wooden door to your left. Ahead, the tunnel narrows.";
+      } else {
+        return "Emerging from the damp room, the narrow stone tunnel gets even tighter to your left and curves sharply to your right, almost doubling back behind you.";
+      }
+    },
     options: () => ({
-      [traversal === left ? "round bend" : "go back"]: {
+      [traversal === left ? "round bend" : traversal === right ? "go back" : "round bend"]: {
         node: "crossroads",
         actions: () => setTraversal(up)
       },
@@ -135,12 +178,19 @@ const tunnelsNodes = [
       },
       "enter room": {
         condition: () => ricketyDoor.open,
-        actions: ["Passing the open door, you slip into the small room.", () => goToRoom(mouldRoom)],
+        actions: [
+          () => setTraversal(down),
+          "Passing the open door, you slip into the small room.",
+          () => goToRoom(mouldRoom)
+        ],
         exit: true
       },
       [traversal === left ? "go back" : "narrow tunnel"]: {
         node: "tunnelDiode",
-        actions: () => setTraversal(up)
+        actions: [
+          () => setTraversal(up),
+          "You squeeze into the narrow tunnel, holding your breath as you negotiate the most constricted part of it. After it widens out again, the tunnel curves to the left."
+        ]
       }
     })
   },
@@ -159,3 +209,5 @@ const tunnelsNodes = [
 ];
 
 export const tunnelsGraph = new OptionGraph(...tunnelsNodes);
+
+mouldRoom.setSouth(() => tunnelsGraph.commence("lowerPretzel"), ricketyDoor);
