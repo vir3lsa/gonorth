@@ -8,6 +8,7 @@ import { Room } from "./room";
 import { initGame, setInventoryCapacity } from "../../gonorth";
 import { selectOptions } from "../../utils/testSelectors";
 import { Container } from "./container";
+import { Verb } from "../../../src/game/verbs/verb";
 
 const selectCurrentPage = () => getStore().getState().game.interaction.currentPage;
 
@@ -98,6 +99,30 @@ test("items can't be picked up twice", async () => {
   await cup.try("take");
   await cup.try("take");
   expect(selectCurrentPage()).toInclude("already carrying");
+});
+
+test("items can be built with a builder", () => {
+  const pipe = new Item.Builder()
+    .withName("pipe")
+    .withDescription("This is not a pipe")
+    .makeHoldable()
+    .withSize(1)
+    .withAliases("pope")
+    .build();
+  expect(pipe.name).toBe("pipe");
+  expect(pipe.description).toBe("This is not a pipe");
+  expect(pipe.holdable).toBe(true);
+  expect(pipe.size).toBe(1);
+  expect(pipe.aliases).toInclude("pope");
+});
+
+test("items built with a builder have the correct verbs", () => {
+  const pipe = new Item.Builder().withName("pipe").makeHoldable().withVerbs(new Verb("smoke")).build();
+  expect(pipe.name).toBe("pipe");
+  expect(pipe.holdable).toBe(true);
+  expect(pipe.getVerb("examine")).not.toBeUndefined();
+  expect(pipe.getVerb("take")).not.toBeUndefined();
+  expect(pipe.getVerb("smoke")).not.toBeUndefined();
 });
 
 describe("putting items", () => {

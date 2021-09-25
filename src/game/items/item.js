@@ -9,8 +9,9 @@ import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 
 export function newItem(config) {
-  const item = new Item();
-  Object.entries(config).forEach(([key, value]) => (item[key] = value));
+  const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
+  const item = new Item(name, description, holdable, size, verbs, aliases, hidesItems);
+  Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
   return item;
 }
 
@@ -24,6 +25,7 @@ export class Item {
     aliases = [],
     hidesItems = []
   ) {
+    this.aliases = [];
     this.name = name;
     this.description = description;
     this.holdable = holdable;
@@ -43,8 +45,6 @@ export class Item {
     this.itemsVisibleFromSelf = true;
     this.doNotList = false;
 
-    this.aliases = [];
-    this.createAliases(name);
     aliases.forEach((alias) => this.createAliases(alias));
 
     this.addVerb(
@@ -162,6 +162,7 @@ export class Item {
   set name(name) {
     this._name = name;
     this.article = getArticle(name);
+    this.createAliases(name);
   }
 
   get description() {
@@ -564,5 +565,54 @@ export class Item {
   addTest(verbName, test) {
     const verb = this.getVerb(verbName);
     verb.addTest(test);
+  }
+
+  static get Builder() {
+    class Builder {
+      constructor() {
+        this.config = {};
+      }
+
+      withName(name) {
+        this.config.name = name;
+        return this;
+      }
+
+      withDescription(description) {
+        this.config.description = description;
+        return this;
+      }
+
+      makeHoldable() {
+        this.config.holdable = true;
+        return this;
+      }
+
+      withSize(size) {
+        this.config.size = size;
+        return this;
+      }
+
+      withVerbs(...verbs) {
+        this.config.verbs = verbs;
+        return this;
+      }
+
+      withAliases(...aliases) {
+        this.config.aliases = aliases;
+        return this;
+      }
+
+      hidesItems(...items) {
+        this.config.hidesItems = items;
+        return this;
+      }
+
+      build() {
+        return newItem(this.config);
+      }
+    }
+
+    return Builder;
   }
 }

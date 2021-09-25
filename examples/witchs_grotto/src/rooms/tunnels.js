@@ -60,6 +60,45 @@ rottenBarrel.addVerb(
 
 mouldRoom.addItems(ricketyDoor, mould, rottenBarrel);
 
+const carvedDoor = new Door(
+  "carved wooden door",
+  "The door is sturdy looking, the dark timber panels carved with ornamental patterns",
+  false,
+  false,
+  "Lifting an iron latch, you push the heavy door open. It squeaks slightly as it scrapes on the floor and jamb."
+);
+
+const wellRoom = new Room(
+  "Well Room",
+  "In the centre of the room there's a waist-high marble circle around a deep, black hole. Over the hole is a wrought-iron crank with a rope curled around it. One end of the rope descends into the hole and into blackness that even your magically-enhanced vision can't penetrate. You're looking at a well.\n\nThe way out is via the door behind you, to the West."
+);
+
+const wellGraph = new OptionGraph(
+  {
+    id: "start",
+    actions:
+      "First you hop up onto the marble ledge. Then, leaning out with the aid of the iron crossbar, you reach for the rope. Your heart skips a beat as your first attempt to grab it misses, causing you to lurch queasily above the inky maw of the well shaft. You catch the rope on the second attempt and draw it towards you. Grabbing it with your other hand, you swing out over the pit, trying not to look down. The ironwork frame gives a creak but it holds. You carefully lower yourself down the rope, hand over hand, until your head drops below the level of the marbel parapet.",
+    options: {
+      "descend further": "descend",
+      wait: "wait",
+      ascend: "leave"
+    }
+  },
+  { id: "descend" },
+  { id: "wait" },
+  { id: "leave" }
+);
+
+const well = new Item.Builder()
+  .withName("well")
+  .withDescription(
+    "The circular wall around the well shaft is constructed from gleaming white marble. At least, it would be gleaming if it weren't eneveloped by this Stygian darkness. A rope descends into the shaft before disappearing out of sight into the even greater pitch blackness lurking in its depths like some obliterating shroud. You wonder whether there's a bucket attached to the end.\n\nIt occurs to you that one could climb a little way down the rope, if one so wished, in order to hide from a pursuer."
+  )
+  .withVerbs(new Verb("hide", true, () => wellGraph.commence(), null, ["climb", "descend", "hang"]))
+  .build();
+
+wellRoom.addItems(carvedDoor, well);
+
 // Setter for traversal variable that deliberately doesn't return a value so we can use it inline to avoid messing up ActionChain.
 const setTraversal = (direction) => {
   traversal = direction;
@@ -196,18 +235,53 @@ const tunnelsNodes = [
   },
   {
     id: "topRightPretzel",
-    actions: "placeholder"
+    actions: () => {
+      if (traversal === up) {
+        return "Beyond the archway the tunnel becomes much less rough, instead suggesting grandeur, with interlocking octagonal and square floor tiles in a geometric pattern and elaborate mouldings near the floor and ceiling. Fluted half-columns line either side of the passage at regular intervals. You follow the corridor for some way until it turns to the left. It continues ahead of you.";
+      } else {
+        return "The passage twists again to the right, then stretches away, still lined with columns and baroque mouldings.";
+      }
+    },
+    options: () => ({
+      [traversal === up ? "continue" : "go back"]: { node: "topLeftPretzel", actions: () => setTraversal(down) },
+      [traversal === up ? "go back" : "continue"]: { node: "tunnelDiode", actions: () => setTraversal(down) }
+    })
+  },
+  {
+    id: "topLeftPretzel",
+    actions: () => {
+      if (traversal === down) {
+        return "The passage continues in the same fashion - all opulence and elegance. Did the Druids really build this? Or was this added later?\n\nYou follow the passage around to the left and come upon a carved wooden door set into the left wall. The tunnel continues ahead.";
+      } else {
+        return "The rough hewn tunnel abruptly loses its roughness as you traverse it, instead becoming ornate and opulent, with fluted columns and elaborate mouldings, geometric floor tiles and baroque flourishes. After a sharp turn to the left, you come upon a carved wooden door set into the right wall. The tunnel continues ahead.";
+      }
+    },
+    options: {
+      [traversal === down ? "continue" : "go back"]: { node: "crossroads", actions: () => setTraversal(left) },
+      "open carved door": { condition: () => !carvedDoor.open, actions: () => carvedDoor.getVerb("open").attempt() },
+      "close carved door": {
+        condition: () => carvedDoor.open,
+        actions: () => carvedDoor.getVerb("close").attempt()
+      },
+      "enter room": {
+        condition: () => carvedDoor.open,
+        actions: [
+          () => setTraversal(left),
+          "Passing the now open door, you cross the threshold into the room.",
+          () => goToRoom(wellRoom)
+        ],
+        exit: true
+      },
+      [traversal === down ? "go back" : "continue"]: { node: "topRightPretzel", actions: () => setTraversal(down) }
+    }
   },
   {
     id: "crossroads",
     actions: "placeholder"
-  },
-  {
-    id: "mouldRoom",
-    actions: () => goToRoom(mouldRoom)
   }
 ];
 
 export const tunnelsGraph = new OptionGraph(...tunnelsNodes);
 
 mouldRoom.setSouth(() => tunnelsGraph.commence("lowerPretzel"), ricketyDoor);
+wellRoom.setWest(() => tunnelsGraph.commence("topLeftPretzel"), carvedDoor);
