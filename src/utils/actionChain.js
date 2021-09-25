@@ -7,8 +7,36 @@ import { Interaction, Append } from "../game/interactions/interaction";
 import { getStore } from "../redux/storeRegistry";
 import { Text, SequentialText } from "../game/interactions/text";
 import { OptionGraph } from "../game/interactions/optionGraph";
-import { Option } from "../game/interactions/option";
 
+/*
+ * Class representing a chainable action. Additional config can be set for the action.
+ */
+export class Action {
+  constructor(action, renderNextButton) {
+    this.action = action;
+    this.renderNextButton = renderNextButton;
+  }
+
+  get action() {
+    return this._action;
+  }
+
+  set action(action) {
+    let actionFunction = action;
+
+    if (typeof actionFunction !== "function") {
+      actionFunction = () => action;
+    }
+
+    this._action = actionFunction;
+  }
+}
+
+/*
+ * Class representing a chain of actions. Actions can be in a variety of formats including strings, Texts, ActionChains, OptionGraphs
+ * and arrays and functions that resolve to any of these. Any text produced by actions will be presented to the player and a 'Next'
+ * button will usually be required to progress to the next action.
+ */
 export class ActionChain {
   constructor(...actions) {
     this.actions = actions;
@@ -76,10 +104,16 @@ export class ActionChain {
     }
 
     return (...args) => {
-      const value = actionFunction(this.helpers, ...args);
+      let value = actionFunction(this.helpers, ...args);
+      let renderNextForThisAction = true;
+
+      if (value instanceof Action) {
+        value = action.action();
+        renderNextForThisAction = action.renderNextButton;
+      }
 
       // Render next buttons? Calculate here to ensure this.renderNexts is set
-      const nextIfNoOptions = this.renderNexts && !lastAction;
+      const nextIfNoOptions = this.renderNexts && !lastAction && renderNextForThisAction;
 
       // Add a post-script?
       let postScript = "";
@@ -130,7 +164,7 @@ export class ActionChain {
       return getStore().dispatch(changeInteraction(value));
     } else if (value instanceof OptionGraph) {
       return this.handleOptionGraph(value, args, nextIfNoOptions);
-    } else if (typeof(value) === "function") {
+    } else if (typeof value === "function") {
       return this.handleValue(value(this.helpers, ...args), postScript, nextIfNoOptions, args);
     }
 

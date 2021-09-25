@@ -1,4 +1,14 @@
-import { OptionGraph, selectRoom, SequentialText, Room, goToRoom, Item, Door, Verb } from "../../../../lib/gonorth";
+import {
+  OptionGraph,
+  selectRoom,
+  SequentialText,
+  Room,
+  goToRoom,
+  Item,
+  Door,
+  Verb,
+  CyclicText
+} from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 
 const forward = "f";
@@ -73,6 +83,12 @@ const wellRoom = new Room(
   "In the centre of the room there's a waist-high marble circle around a deep, black hole. Over the hole is a wrought-iron crank with a rope curled around it. One end of the rope descends into the hole and into blackness that even your magically-enhanced vision can't penetrate. You're looking at a well.\n\nThe way out is via the door behind you, to the West."
 );
 
+const waitInWellText = new CyclicText(
+  "The sound of your breathing seems horribly loud as you hang there, echoing back at you from the curved well walls. You try to quieten it.",
+  "Your arms are aching terribly from supporting your own weight for such a long time. You hope you have the strength to climb out. And not to fall.",
+  "The rope creaks slightly as you drift gently back and forth. Be as still as possible. As quiet."
+);
+
 const wellGraph = new OptionGraph(
   {
     id: "start",
@@ -80,13 +96,31 @@ const wellGraph = new OptionGraph(
       "First you hop up onto the marble ledge. Then, leaning out with the aid of the iron crossbar, you reach for the rope. Your heart skips a beat as your first attempt to grab it misses, causing you to lurch queasily above the inky maw of the well shaft. You catch the rope on the second attempt and draw it towards you. Grabbing it with your other hand, you swing out over the pit, trying not to look down. The ironwork frame gives a creak but it holds. You carefully lower yourself down the rope, hand over hand, until your head drops below the level of the marbel parapet.",
     options: {
       "descend further": "descend",
-      wait: "wait",
-      ascend: "leave"
+      wait: waitInWellText,
+      "climb out": "leave"
     }
   },
-  { id: "descend" },
-  { id: "wait" },
-  { id: "leave" }
+  {
+    id: "descend",
+    actions:
+      "You slide further down the rope, deeper into the black embrace of the well shaft. The shadows thicken around you until, even with your enhanced vision, you can't make out the brick walls a few feet from your face. The top of the well is a coin-sized disc of grey directly overhead.",
+    options: { "descend further": "bottom", wait: waitInWellText, "climb out": "leave" }
+  },
+  {
+    id: "bottom",
+    actions:
+      "You climb down ever further, barely able to discern your progress now in the complete absence of light. There is only the rope, descending endlessly downwards in the dark. Could the shaft literally be bottomless? If a staircase can be endless then why not a well? You're just having this thought when suddenely, shockingly, your feet submerge in icily cold water.",
+    options: {
+      swim: () => "You're not that desperate, even now. You'd prefer to stay dry, thank you.",
+      wait: waitInWellText,
+      "climb out": "leave"
+    }
+  },
+  {
+    id: "leave",
+    actions:
+      "You haul yourself back up the rope, your small arms burning with the effort, and reach the top. With the help of the iron crossbar you maneouvre yourself over the marble lip surrounding the pit and back onto solid ground."
+  }
 );
 
 const well = new Item.Builder()
@@ -94,7 +128,7 @@ const well = new Item.Builder()
   .withDescription(
     "The circular wall around the well shaft is constructed from gleaming white marble. At least, it would be gleaming if it weren't eneveloped by this Stygian darkness. A rope descends into the shaft before disappearing out of sight into the even greater pitch blackness lurking in its depths like some obliterating shroud. You wonder whether there's a bucket attached to the end.\n\nIt occurs to you that one could climb a little way down the rope, if one so wished, in order to hide from a pursuer."
   )
-  .withVerbs(new Verb("hide", true, () => wellGraph.commence(), null, ["climb", "descend", "hang"]))
+  .withVerbs(new Verb("hide", true, () => wellGraph.commence(), null, ["climb", "descend", "hang", "enter"]))
   .build();
 
 wellRoom.addItems(carvedDoor, well);
@@ -252,12 +286,17 @@ const tunnelsNodes = [
     actions: () => {
       if (traversal === down) {
         return "The passage continues in the same fashion - all opulence and elegance. Did the Druids really build this? Or was this added later?\n\nYou follow the passage around to the left and come upon a carved wooden door set into the left wall. The tunnel continues ahead.";
-      } else {
+      } else if (traversal == up) {
         return "The rough hewn tunnel abruptly loses its roughness as you traverse it, instead becoming ornate and opulent, with fluted columns and elaborate mouldings, geometric floor tiles and baroque flourishes. After a sharp turn to the left, you come upon a carved wooden door set into the right wall. The tunnel continues ahead.";
+      } else {
+        return "The corridor is just as grand as you remember, steeped as it may be in shadow, reminiscent of a magnificent palace or parliamentary building. You can go left or right from here.";
       }
     },
     options: {
-      [traversal === down ? "continue" : "go back"]: { node: "crossroads", actions: () => setTraversal(left) },
+      [traversal === down ? "continue" : traversal === up ? "go back" : "go left"]: {
+        node: "crossroads",
+        actions: () => setTraversal(left)
+      },
       "open carved door": { condition: () => !carvedDoor.open, actions: () => carvedDoor.getVerb("open").attempt() },
       "close carved door": {
         condition: () => carvedDoor.open,
@@ -272,7 +311,10 @@ const tunnelsNodes = [
         ],
         exit: true
       },
-      [traversal === down ? "go back" : "continue"]: { node: "topRightPretzel", actions: () => setTraversal(down) }
+      [traversal === down ? "go back" : traversal === up ? "continue" : "go right"]: {
+        node: "topRightPretzel",
+        actions: () => setTraversal(down)
+      }
     }
   },
   {

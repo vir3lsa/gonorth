@@ -14,7 +14,7 @@ import {
 import { Interaction } from "./game/interactions/interaction";
 import { Option } from "./game/interactions/option";
 import { Room } from "./game/items/room";
-import { ActionChain } from "./utils/actionChain";
+import { ActionChain, Action } from "./utils/actionChain";
 import { PagedText } from "./game/interactions/text";
 import { goToRoom } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
@@ -160,7 +160,7 @@ export { goToRoom } from "./utils/lifecycle";
 export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
 export { selectInventory, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
 export { Effects } from "./utils/effects";
-export { ActionChain } from "./utils/actionChain";
+export { ActionChain, Action } from "./utils/actionChain";
 export { addKeyword } from "./game/verbs/keywords";
 export { inSameRoomAs } from "./utils/sharedFunctions";
 export {

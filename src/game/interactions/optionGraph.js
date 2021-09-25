@@ -1,4 +1,4 @@
-import { ActionChain } from "../../utils/actionChain";
+import { Action, ActionChain } from "../../utils/actionChain";
 import { Option } from "./option";
 
 export const next = "OptionGraph_next";
@@ -118,11 +118,16 @@ export class OptionGraph {
             optionActions = Array.isArray(value.actions) ? [...value.actions] : [value.actions];
           } else if (Array.isArray(value)) {
             optionActions = [...value];
-          } else if (typeof value === "function") {
+          } else if (typeof value !== "string") {
             optionActions = [value];
           }
 
           if (!optionId && !exit) {
+            // We're going to add another action - ensure the one before that doesn't create a next button.
+            const lastAction = optionActions.pop();
+            const nonNextLastAction = new Action(lastAction, false);
+            optionActions.push(nonNextLastAction);
+
             // Return to the same node without repeating its actions.
             optionActions.push(() => this.activateNode(node, false));
           } else {

@@ -62,7 +62,8 @@ const mazeNodes = [
       left: { node: "left", actions: () => x++ },
       right: { node: "right", actions: [() => x++, () => x++] },
       stay: [() => x++, () => x++, "you stay"],
-      stayPut: { actions: () => x++ }
+      stayPut: { actions: () => x++ },
+      noNext: { actions: "No button" }
     }
   },
   {
@@ -250,14 +251,12 @@ test("options can have arrays of actions", async () => {
   expect(x).toBe(2);
 });
 
-test("options can be arrays of actions and return to the same node", async () => {
+test("options can be arrays of actions and return to the same node, with no next button", async () => {
   await createGraph(mazeNodes);
-  const promise = selectOptions()[2].action();
-  setTimeout(() => selectOptions()[0].action());
-  await promise;
+  await selectOptions()[2].action();
   expect(selectCurrentPage()).toInclude("you stay");
   expect(x).toBe(2);
-  expect(selectOptions().length).toBe(4);
+  expect(selectOptions().length).toBe(5);
   expect(selectOptions()[0].label).toBe("left");
 });
 
@@ -266,7 +265,15 @@ test("options with no node specified return to the same node", async () => {
   await selectOptions()[3].action();
   expect(selectCurrentPage()).toInclude("stayPut");
   expect(x).toBe(1);
-  expect(selectOptions().length).toBe(4);
+  expect(selectOptions().length).toBe(5);
+  expect(selectOptions()[0].label).toBe("left");
+});
+
+test("options with no node specified return to the same node, with no next button", async () => {
+  await createGraph(mazeNodes);
+  await selectOptions()[4].action();
+  expect(selectCurrentPage()).toInclude("No button");
+  expect(selectOptions().length).toBe(5);
   expect(selectOptions()[0].label).toBe("left");
 });
 

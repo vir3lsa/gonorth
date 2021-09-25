@@ -30,7 +30,7 @@ const IODevice = (props) => {
         maxWidth: "100vh"
       }}
     >
-      <SceneImage />
+      {props.image && <SceneImage />}
       <div id="scrollPane" style={{ flex: 2, overflow: "auto" }}>
         <ReactMarkdown source={interaction.currentPage} className="gonorth" />
         <Element name="scrollTarget" />
@@ -46,7 +46,8 @@ const IODevice = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    interaction: state.game.interaction
+    interaction: state.game.interaction,
+    image: state.game.image
   };
 };
 

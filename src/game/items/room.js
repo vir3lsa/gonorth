@@ -32,8 +32,6 @@ export class Room extends Item {
 
   set image(image) {
     this._image = image;
-    // this._image = new Image();
-    // this._image.src = image;
   }
 
   get image() {
