@@ -1,5 +1,6 @@
 import { ActionChain } from "../../utils/actionChain";
 import { getStore } from "../../redux/storeRegistry";
+import { selectOptions } from "../../utils/selectors";
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
@@ -11,15 +12,7 @@ export const FAILED = "FAILED";
 export const CANCELLED = "CANCELLED";
 
 export class Event {
-  constructor(
-    name,
-    action = [],
-    condition,
-    timeout,
-    timeoutType,
-    onComplete = () => {},
-    recurring = false
-  ) {
+  constructor(name, action = [], condition, timeout, timeoutType, onComplete = () => {}, recurring = false) {
     this.name = name;
     this.action = action;
     this.condition = condition;
@@ -70,6 +63,12 @@ export class Event {
     }
   }
 
+  manualCommence() {
+    if (this.state === DORMANT) {
+      this.commence();
+    }
+  }
+
   commence() {
     this.state = PENDING;
 
@@ -104,6 +103,11 @@ export class Event {
     }
 
     this.state = ACTIVE;
+
+    // Ensure the original options are restored after the interruption
+    const currentOptions = selectOptions();
+    this.action.options = currentOptions;
+
     const result = await this.action.chain();
 
     if (result === false) {

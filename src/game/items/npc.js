@@ -42,6 +42,7 @@ export class Npc extends Item {
       actions,
       () => this.container === selectGame().room
     );
+    encounter.recurring = true;
     this.encounters.push(encounter);
     getStore().dispatch(addEvent(encounter));
   }

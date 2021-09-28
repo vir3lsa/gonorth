@@ -4,3 +4,4 @@ export const selectCurrentPage = () =>
   getStore().getState().game.interaction.currentPage;
 export const selectOptions = () =>
   getStore().getState().game.interaction.options;
+export const selectInteraction = () => getStore().getState().game.interaction;

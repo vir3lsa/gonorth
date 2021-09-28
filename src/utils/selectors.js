@@ -10,3 +10,4 @@ export const selectKeywords = () => getStore().getState().game.keywords;
 export const selectLastChange = () => getStore().getState().game.lastChange;
 export const selectTurn = () => getStore().getState().game.turn;
 export const selectDebugMode = () => getStore().getState().game.debugMode;
+export const selectOptions = () => getStore().getState().game.interaction.options;

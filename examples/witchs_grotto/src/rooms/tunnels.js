@@ -7,7 +7,10 @@ import {
   Item,
   Door,
   Verb,
-  CyclicText
+  CyclicText,
+  Npc,
+  Event,
+  TIMEOUT_TURNS
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 
@@ -132,6 +135,11 @@ const well = new Item.Builder()
   .build();
 
 wellRoom.addItems(carvedDoor, well);
+
+export const monster = new Npc("the thing", "placeholder");
+const monsterGraphNode = "topLeftJail";
+
+let meetTheMonster;
 
 // Setter for traversal variable that deliberately doesn't return a value so we can use it inline to avoid messing up ActionChain.
 const setTraversal = (direction) => {
@@ -319,11 +327,101 @@ const tunnelsNodes = [
   },
   {
     id: "crossroads",
-    actions: "placeholder"
+    actions: () => {
+      if (traversal === up) {
+        return "Beyond the bend, the roof of the passage that was previously a few feet above your head abruptly lifts to twice the height, fantastic vaulted spaces lending a cathedral-like air. You soon come upon a crossroads, the meeting point of the four paths capped by a hemispherical dome. Despite the grandeur, it's still as dark as a crypt down here.";
+      } else if (traversal === down) {
+        return "You trudge back along the passage until you return to the vaulted crossroads you passed earlier. It seems somehow less impressive now. \n\nPaths go off in all directions.";
+      } else if (traversal === left) {
+        return "The richly decorated corridor turns to the right, then takes on a cathedral like grandiosity, with high, vaulted ceilings. A little further on you reach a crossroads, the meeting point of the four paths capped by a hemispherical dome. Despite the grandeur, it's still so dark you wouldn't be able to see past your nose if it weren't for the potion.";
+      } else if (traversal === right) {
+        return "Turning the corner, you follow the passage back until its ceiling lifts away and you find yourself back at the cathedral-like crossroads beneath the stone dome.";
+      }
+    },
+    options: () => ({
+      [traversal === up
+        ? "go left"
+        : traversal === left
+        ? "straight on"
+        : traversal === right
+        ? "go back"
+        : "go right"]: { node: "stairs", actions: () => setTraversal(down) },
+      [traversal === up
+        ? "straight on"
+        : traversal === left
+        ? "go right"
+        : traversal === right
+        ? "go left"
+        : "go back"]: { node: "deadEnd", actions: () => setTraversal(up) },
+      [traversal === up
+        ? "go right"
+        : traversal === left
+        ? "go back"
+        : traversal === right
+        ? "straight on"
+        : "go left"]: { node: "topLeftPretzel", actions: () => setTraversal(up) },
+      [traversal === up
+        ? "go back"
+        : traversal === left
+        ? "go left"
+        : traversal === right
+        ? "go right"
+        : "straight on"]: { node: "lowerPretzel", actions: () => setTraversal(right) }
+    })
+  },
+  {
+    id: "stairs",
+    actions:
+      "Along the corridor, the ceiling drops lower and any sign of elegance is quickly left behind. The stone tunnel veers left then presents you with a flight of steep, worn steps leading down into the deeper darkness below. You take them carefully, one at a time, making sure not to slip on the polished-smooth treads. It would be a long, painful way down. As you descend, the air becomes perceptibly colder and a certain sense of dread begins to pervade your thoughts. What might be lurking down here, lying in wait? When you eventually reach the bottom, there's a sharp left turn ahead of you.",
+    options: () => ({
+      [traversal === down ? "go round corner" : "go back"]: {
+        node: "meetTheMonster",
+        actions: () => setTraversal(right)
+      },
+      [traversal === down ? "go back up stairs" : "go round corner"]: {
+        node: "crossroads",
+        actions: () => setTraversal(right)
+      }
+    })
+  },
+  {
+    id: "deadEnd"
+  },
+  {
+    id: "meetTheMonster",
+    actions: [
+      () => meetTheMonster.manualCommence(),
+      "Beyond the bend the corridor stretches away into the darkness. From somewhere not too far away there's the sound of dripping and trickling water."
+    ],
+    options: () => ({
+      [traversal === right ? "continue forward" : "go back"]: "topLeftJail",
+      [traversal === right ? "back up stairs" : "go round corner"]: "stairs"
+    })
+  },
+  {
+    id: "topLeftJail"
   }
 ];
 
 export const tunnelsGraph = new OptionGraph(...tunnelsNodes);
+
+meetTheMonster = new Event(
+  "meet the monster",
+  new SequentialText(
+    "You strain your eyes to make out details in the subfusc illumination, sure that there's a...shape...a little way down the tunnel from you. It's too tall to be a person; it stretches right the way from floor to ceiling - a good eight feet. It's narrow; if it *were* a person, they would have to be extremely tall and thin. The shape of the outline gives the impression of a hooded cloak - wide at the feet, narrowing at the neck, before billowing out again around the head. The feeling of dread is almost palpable now and it's directed towards that...thing...blocking the tunnel in front of you. It hasn't moved since you began staring at it...but...you have the horrible sense that it's staring back at you, assessing, waiting. Perhaps if you stay very still...",
+    "Without a sound, it starts moving towards you, gliding inhumanly down the tunnel. Terror seizes you - there are just seconds before the thing will be upon you. You need to run. Now!"
+  ),
+  false,
+  0,
+  TIMEOUT_TURNS
+);
+
+monster.addEncounter(() => {
+  // TODO Real encounter when you're on the same node as the monster - leads to a game over.
+  if (monsterGraphNode === tunnelsGraph.currentNode.id) {
+    return "Gotcha";
+  }
+});
 
 mouldRoom.setSouth(() => tunnelsGraph.commence("lowerPretzel"), ricketyDoor);
 wellRoom.setWest(() => tunnelsGraph.commence("topLeftPretzel"), carvedDoor);

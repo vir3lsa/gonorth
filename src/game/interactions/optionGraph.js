@@ -10,6 +10,7 @@ export class OptionGraph {
     this.startNode = nodes[0];
     this.flattened = {};
     this.allowRepeats = true;
+    this.currentNode = null;
     this.promise = new Promise((resolve) => (this.resolve = resolve));
 
     this.reindex();
@@ -83,6 +84,7 @@ export class OptionGraph {
   }
 
   activateNode(node, performNodeActions = true) {
+    this.currentNode = node;
     node.visited = true;
 
     let { actions, options } = node;
