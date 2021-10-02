@@ -1,5 +1,6 @@
 import { Action, ActionChain } from "../../utils/actionChain";
 import { Option } from "./option";
+import { goToRoom } from "../../utils/lifecycle";
 
 export const next = "OptionGraph_next";
 export const previous = "OptionGraph_previous";
@@ -108,13 +109,13 @@ export class OptionGraph {
           let optionId = typeof value === "string" ? value : value ? value.node : null;
           let optionNode = optionId && this.flattened[optionId];
           let optionActions = [];
-          const exit = !value || value.exit;
+          const exit = !value || value.exit || value.room;
 
           if (optionId && !optionNode) {
             throw Error(`Can't find node with id ${optionId}`);
           }
 
-          if (value && value.actions) {
+          if (value?.actions) {
             // The option is an object rather than a simple node reference.
             // Get any actions associated with the option.
             optionActions = Array.isArray(value.actions) ? [...value.actions] : [value.actions];
@@ -132,6 +133,8 @@ export class OptionGraph {
 
             // Return to the same node without repeating its actions.
             optionActions.push(() => this.activateNode(node, false));
+          } else if (value?.room) {
+            optionActions.push(() => goToRoom(value.room));
           } else {
             optionActions.push(() => (optionId ? this.activateNode(optionNode) : null));
           }

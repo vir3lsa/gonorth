@@ -4,8 +4,10 @@ import { initStore } from "../../redux/store";
 import { newGame } from "../../redux/gameActions";
 import { OptionGraph } from "./optionGraph";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
+import { selectRoom } from "../../utils/selectors";
 import { selectTurn } from "../../utils/selectors";
 import { Verb } from "../verbs/verb";
+import { Room } from "../items/room";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -110,6 +112,16 @@ const exitOptionNodes = [
     id: "start",
     actions: "test",
     options: { one: { actions: () => x++, exit: true } }
+  }
+];
+
+const room = new Room("room", "turret");
+
+const roomOptionNodes = [
+  {
+    id: "start",
+    actions: "test",
+    options: { one: { actions: () => x++, room } }
   }
 ];
 
@@ -311,4 +323,12 @@ test("options can explicitly exit the graph", async () => {
   await createGraph(exitOptionNodes);
   await selectOptions()[0].action();
   expect(selectOptions()).toBeNull();
+});
+
+test("options can specify a room to go to", async () => {
+  await createGraph(roomOptionNodes);
+  await selectOptions()[0].action();
+  expect(selectOptions()).toBeNull();
+  expect(selectCurrentPage()).toInclude("turret");
+  expect(selectRoom()).toBe(room);
 });

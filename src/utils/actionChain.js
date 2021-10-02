@@ -89,9 +89,10 @@ export class ActionChain {
 
   dispatchAppend(text, options, nextIfNoOptions, clearPage) {
     const interactionType = clearPage ? Interaction : Append;
+    const optionsToShow = !nextIfNoOptions ? options : undefined; // TODO add a test for this
 
     return getStore().dispatch(
-      changeInteraction(new interactionType(text, options, nextIfNoOptions, this.renderOptions))
+      changeInteraction(new interactionType(text, optionsToShow, nextIfNoOptions, this.renderOptions))
     );
   }
 
@@ -147,15 +148,18 @@ export class ActionChain {
               return result.next();
             }
 
-            return result || "";
+            return result;
           } else if (text instanceof Text) {
             return text.next();
           }
 
           return text;
         })
+        .filter(text => text)
         .join("\n\n");
-      return this.dispatchAppend(`${concatenated}${postScript}`, this.options, nextIfNoOptions, false);
+      if (concatenated) {
+        return this.dispatchAppend(`${concatenated}${postScript}`, this.options, nextIfNoOptions, false);
+      }
     } else if (value instanceof SequentialText) {
       return this.expandSequentialText(value, this.options, nextIfNoOptions, postScript);
     } else if (value instanceof Text) {
