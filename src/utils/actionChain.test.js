@@ -2,7 +2,7 @@ import { ActionChain } from "./actionChain";
 import { getStore } from "../redux/storeRegistry";
 import { Option } from "../game/interactions/option";
 import { Verb } from "../game/verbs/verb";
-import { selectCurrentPage } from "./testSelectors";
+import { selectCurrentPage, selectOptions } from "./testSelectors";
 import { newGame } from "../redux/gameActions";
 import { initGame } from "../gonorth";
 
@@ -59,4 +59,25 @@ test("Nested functions will be called until a value is returned", async () => {
   const chain = new ActionChain(() => () => () => () => (_, value) => `The value is ${value}`);
   await chain.chain(42);
   expect(selectCurrentPage()).toInclude("The value is 42");
+});
+
+test("Options are added at the end of the chain", async () => {
+  const chain = new ActionChain("one", "two");
+  chain.options = [new Option("alpha"), new Option("beta")];
+  chain.chain();
+  let res;
+  const nextPromise = new Promise((resolve) => (res = resolve));
+  setTimeout(() => {
+    selectOptions()[0].action();
+    res();
+  });
+  await nextPromise;
+  expect(selectOptions()[0].label).toBe("alpha");
+  expect(selectOptions()[1].label).toBe("beta");
+});
+
+test("Arrays are concatenated, empty values are omitted", async () => {
+  const chain = new ActionChain(["one", () => null, () => "two", null, "three"]);
+  await chain.chain();
+  expect(selectCurrentPage()).toInclude("one\n\ntwo\n\nthree");
 });

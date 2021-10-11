@@ -19,6 +19,11 @@ export class Text {
   get texts() {
     return this._texts;
   }
+
+  next(...args) {
+    const text = this.text;
+    return typeof text === "function" ? text(...args) : text;
+  }
 }
 
 export class CyclicText extends Text {
@@ -30,14 +35,14 @@ export class CyclicText extends Text {
     return new CyclicText(...this.texts);
   }
 
-  next() {
+  next(...args) {
     this.index++;
 
     if (this.index > this._texts.length - 1) {
       this.index = 0;
     }
 
-    return this._texts[this.index];
+    return super.next(...args);
   }
 
   isLastPage() {
@@ -75,15 +80,15 @@ export class RandomText extends Text {
     return new RandomText(...this.texts);
   }
 
-  next() {
+  next(...args) {
     if (!this.candidates || !this.candidates.length) {
       this.candidates = [...this._texts];
     }
 
     this.index = Math.floor(Math.random() * this.candidates.length);
     const text = this.candidates[this.index];
-    this.candidates = this.candidates.filter(c => c !== text);
+    this.candidates = this.candidates.filter((c) => c !== text);
 
-    return text;
+    return typeof text === "function" ? text(...args) : text;
   }
 }

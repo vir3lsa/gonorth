@@ -89,7 +89,7 @@ export class ActionChain {
 
   dispatchAppend(text, options, nextIfNoOptions, clearPage) {
     const interactionType = clearPage ? Interaction : Append;
-    const optionsToShow = !nextIfNoOptions ? options : undefined; // TODO add a test for this
+    const optionsToShow = !nextIfNoOptions ? options : undefined;
 
     return getStore().dispatch(
       changeInteraction(new interactionType(text, optionsToShow, nextIfNoOptions, this.renderOptions))

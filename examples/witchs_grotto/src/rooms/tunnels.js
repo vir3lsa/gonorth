@@ -184,6 +184,7 @@ const direction = (direction) => {
 const tunnelsNodes = [
   {
     id: "tunnelsStart",
+    name: "sloping tunnel",
     actions: [
       () => setTraversal(left),
       new SequentialText(
@@ -204,6 +205,7 @@ const tunnelsNodes = [
   },
   {
     id: "shortcutDoorLocked",
+    name: "sloping tunnel",
     actions:
       "There's no handle or anything else to grab onto so you give the heavy door a solid push. It moves less than a centimetre before a metallic clang announces an end to your efforts. It's locked from the other side.",
     options: {
@@ -214,6 +216,7 @@ const tunnelsNodes = [
   },
   {
     id: "tunnelDiode",
+    name: "vertical drop-off",
     actions: () => {
       if (traversal === left) {
         return new SequentialText(
@@ -244,6 +247,7 @@ const tunnelsNodes = [
   },
   {
     id: "verticalFail",
+    name: "vertical wall",
     actions: [
       () => setTraversal(left),
       "Standing at the foot of the vertical wall in the tunnel, you crane your head back to see the top. You can't get anywhere near the lip when you jump and there's nothing you can grab onto on the wall itself. There's no going back that way. You turn around and head back to the tunnel junction."
@@ -256,6 +260,7 @@ const tunnelsNodes = [
   },
   {
     id: "lowerPretzel",
+    name: "narrow passage",
     actions: () => {
       if (traversal === left) {
         return "The tunnel quickly turns to the right before becoming much narrower. At one point you have to turn sideways to squeeze through. When it opens out again there's a rickety wooden door to your right. The corridor curves to the right beyond the door.";
@@ -291,6 +296,7 @@ const tunnelsNodes = [
   },
   {
     id: "topRightPretzel",
+    name: "grand corridor",
     actions: () => {
       if (traversal === up) {
         return "Beyond the archway the tunnel becomes much less rough, instead suggesting grandeur, with interlocking octagonal and square floor tiles in a geometric pattern and elaborate mouldings near the floor and ceiling. Fluted half-columns line either side of the passage at regular intervals. You follow the corridor for some way until it turns to the left. It continues ahead of you.";
@@ -305,6 +311,7 @@ const tunnelsNodes = [
   },
   {
     id: "topLeftPretzel",
+    name: "grand passage",
     actions: () => {
       if (traversal === down) {
         return "The passage continues in the same fashion - all opulence and elegance. Did the Druids really build this? Or was this added later?\n\nYou follow the passage around to the left and come upon a carved wooden door set into the left wall. The tunnel continues ahead.";
@@ -337,6 +344,7 @@ const tunnelsNodes = [
   },
   {
     id: "crossroads",
+    name: "crossroads",
     actions: () => {
       if (traversal === up) {
         return "Beyond the bend, the roof of the passage that was previously a few feet above your head abruptly lifts to twice the height, fantastic vaulted spaces lending a cathedral-like air. You soon come upon a crossroads, the meeting point of the four paths capped by a hemispherical dome. Despite the grandeur, it's still as dark as a crypt down here.";
@@ -383,6 +391,7 @@ const tunnelsNodes = [
   },
   {
     id: "stairs",
+    name: "steps",
     actions: () => {
       if (traversal === down) {
         return "Along the corridor, the ceiling drops lower and any sign of elegance is quickly left behind. The stone tunnel veers left then presents you with a flight of steep, worn steps leading down into the deeper darkness below. You take them carefully, one at a time, making sure not to slip on the polished-smooth treads. It would be a long, painful way down. As you descend, the air becomes perceptibly colder and a certain sense of dread begins to pervade your thoughts. What might be lurking down here, lying in wait? When you eventually reach the bottom, there's a sharp left turn ahead of you.";
@@ -406,10 +415,12 @@ const tunnelsNodes = [
     })
   },
   {
-    id: "deadEnd"
+    id: "deadEnd",
+    name: "blocked tunnel"
   },
   {
     id: "meetTheMonster",
+    name: "dank tunnel",
     actions: [
       () => meetTheMonster.manualCommence(),
       "Beyond the bend the corridor stretches away into the darkness. From somewhere not too far away there's the sound of dripping and trickling water."
@@ -435,7 +446,7 @@ const beingChasedText = new RandomText(
   "Your shoes clatter noisily on the stone floor, echoing down the subterranean halls as you sprint to safety.",
   "Your lungs burn as you race onwards.",
   "Barely stopping to think, escape the only thing on your mind, you dash forwards.",
-  "You charge ever onward, half expecting to feel icy fingers grab you at any moment."
+  "You charge onward, half expecting to feel icy fingers grab you at any moment."
 );
 
 tunnelsNodes.forEach((node) => {
@@ -478,83 +489,143 @@ meetTheMonster = new Event(
 );
 
 const monsterEncounter = () => {
-  // TODO Real encounter when you're on the same node as the monster - leads to a game over.
   if (tunnelsGraph.currentNode && monsterLocation === tunnelsGraph.currentNode.id) {
-    return "Gotcha";
+    return 'Suddenly, the shadows seem to loom up around you and you find yourself staring into the cold, lifeless eyes of the thing pursuing you. "So it does have eyes," you have time to think, before the shadows envelop you and everything becomes cold and dark.'; // TODO Game-over state
   } else if (monsterLocation === selectRoom().name && !hiding) {
-    return "Gotcha in a room";
+    return "Suddenly, it's in the room with you. A tall, black spectre of undeniable malace, it bears down on you immediately, like a predator pouncing on its quarry. Your legs fail you and you crash to the floor as the shadows deepen and everything goes dark."; // TODO Game-over state
   }
 };
 
 monster.addEncounter(monsterEncounter);
 
+const rightBehingYouText = new CyclicText(
+  "It's right behind you! Don't stop!",
+  "The thing's hot on your tail, gliding menacingly after you.",
+  "You risk a glance over your shoulder and immediately regret it. It's closer than you dared believe.",
+  "The baleful spectre's almost close enough to reach out and touch you. Run faster!",
+  "A twisted moan from directly behind you almost makes you fall over in fright."
+);
+
+const nearbyText = new CyclicText(
+  (location, playerInRoom) =>
+    `Another awful moaning cry echoes from somewhere ${
+      playerInRoom ? "nearby" : "behind you"
+    }. Sounds like it's coming from the ${location}.`,
+  `Strain your ears as you might, you don't hear anything coming. You don't believe for a second that you're safe, though.`,
+  (location) => `Whimpering cries emanate from the direction of the ${location}. It's still coming.`,
+  (location, playerInRoom) =>
+    `${
+      playerInRoom ? "You strain your eyes for signs of the thing pursuing you" : "You glance back over your shoulder"
+    } but can't make much out in the gloom. Low, twisted moans tell you you're not safe yet, though.`,
+  (location) => `An ear-splitting inhuman shriek echoes off the stones. Did that come from the ${location}?`
+);
+
+const outsideRoomText = new CyclicText(
+  "A heart-stopping wail from just outside the room announces the thing's imminent arrival. Find somewhere to hide before it's too late.",
+  "The shadow thing is right outside the room. Hide! Anywhere!",
+  "You've got literally seconds before that awful demonic nightmare gets here. You'll be a sitting duck standing out in the open."
+);
+
+const seekingInRoomText = new CyclicText(
+  "You know it's looking for you. Despite not being able to see it, and its hateful wailing having presently ceased, you can *feel* it somehow - a malign presence invading the very air around you.",
+  "Holding your breath, you pray it won't hear you. Your hammering heart will surely give you away.",
+  "It's still there, searching for you. Just. Go. Away.",
+  "Won't it give up? What if it finds you? You try not to think about it.",
+  "You daren't breathe, lest you give away your hiding place. It's still out there."
+);
+
+let firstChase = true;
+let searchingCount = 0;
 const monsterChase = new Event(
   "monster chase",
   () => {
     const playerLocation = selectRoom().name === "Cellar Nook" ? tunnelsGraph.currentNode.id : selectRoom();
 
-    if (monsterLocation !== playerLocation) {
-      const triedNodes = [];
+    const triedNodes = [];
 
-      const findPlayer = (location, path = []) => {
-        if (location === playerLocation) {
-          return path;
-        }
+    const findPlayer = (location, path = []) => {
+      if (location === playerLocation) {
+        return path;
+      }
 
-        if (triedNodes.includes(location)) {
-          return;
-        } else {
-          triedNodes.push(location);
-        }
-
-        let node = tunnelsGraph.getNode(location);
-        if (node && node.options) {
-          const options = typeof node.options === "function" ? node.options() : node.options;
-          return Object.values(options).reduce((result, option) => {
-            let searchResult;
-
-            if (typeof option === "string") {
-              searchResult = findPlayer(option, [...path, option]);
-            } else if (option.node) {
-              searchResult = findPlayer(option.node, [...path, option.node]);
-            } else if (option.room) {
-              searchResult = findPlayer(option.room, [...path, option.room]);
-            }
-
-            return !result || (searchResult && searchResult.length < result.length) ? searchResult : result;
-          }, null);
-        }
-      };
-
-      const pathToPlayer = findPlayer(monsterLocation);
-
-      if (!pathToPlayer || !pathToPlayer.length) {
-        // The monster's in the same location as the player - will be picked up by encounter
+      if (triedNodes.includes(location)) {
         return;
-      }
-
-      const newMonsterLocation = pathToPlayer.length && pathToPlayer[0];
-
-      if (newMonsterLocation instanceof Room) {
-        // TODO What about the door?
-        monsterLocation = newMonsterLocation.name;
-        monster.container.removeItem(monster);
-        newMonsterLocation.addItem(monster);
       } else {
-        monsterLocation = pathToPlayer[0];
+        triedNodes.push(location);
       }
 
-      const distanceToPlayer = pathToPlayer.length - 1;
+      let node = tunnelsGraph.getNode(location);
+      if (node && node.options) {
+        const options = typeof node.options === "function" ? node.options() : node.options;
+        return Object.values(options).reduce((result, option) => {
+          let searchResult;
 
-      if (distanceToPlayer || hiding) {
-        return `The monster is at ${monsterLocation}, which is ${distanceToPlayer} spaces away.`;
+          if (typeof option === "string") {
+            searchResult = findPlayer(option, [...path, option]);
+          } else if (option.node) {
+            searchResult = findPlayer(option.node, [...path, option.node]);
+          } else if (option.room) {
+            searchResult = findPlayer(option.room, [...path, option.room]);
+          }
+
+          return !result || (searchResult && searchResult.length < result.length) ? searchResult : result;
+        }, null);
+      }
+    };
+
+    const pathToPlayer = findPlayer(monsterLocation);
+
+    if (!hiding && (!pathToPlayer || !pathToPlayer.length)) {
+      // The monster's in the same location as the player - will be picked up by encounter
+      return;
+    }
+
+    const newMonsterLocation = pathToPlayer.length && pathToPlayer[0];
+    let monsterLocationName;
+
+    if (newMonsterLocation instanceof Room) {
+      // TODO What about the door?
+      monsterLocation = newMonsterLocation;
+      monsterLocationName = monsterLocation.name;
+      monster.container.removeItem(monster);
+      newMonsterLocation.addItem(monster);
+    } else if (newMonsterLocation) {
+      monsterLocation = pathToPlayer[0];
+      monsterLocationName = tunnelsGraph.getNode(monsterLocation).name;
+    }
+
+    const distanceToPlayer = pathToPlayer.length ? pathToPlayer.length - 1 : 0;
+    const playerInRoom = selectRoom().name !== "Cellar Nook"; // If in the Cellar Nook, the player's actually in the tunnels.
+
+    if (playerInRoom && distanceToPlayer === 1) {
+      return outsideRoomText;
+    } else if (playerInRoom && distanceToPlayer) {
+      return nearbyText.next(monsterLocationName, true);
+    } else if (playerInRoom && hiding) {
+      searchingCount++; // The monster's looking for the player in the room.
+      if (searchingCount <= 2) {
+        return seekingInRoomText;
       } else {
-        return monsterEncounter();
+        searchingCount = 0;
+        beingChased = false;
+        monsterLocation = "bottomRightJail";
+        monster.container.removeItem(monster); // Is it sufficient to just do this? Or do I need to put the monster back in the Cellar Nook?
+        return "The sickening sense of dread pervading your mind slowly recedes. The spectral pursuer must have finally given up its hunt for you and left. The coast is clear, or so you hope.";
       }
+    }
+    if (distanceToPlayer && firstChase) {
+      firstChase = false;
+      return "Behind you there's a sound that makes your blood freeze. Like a cry of agony, but played in reverse on a broken casette recorder, slowing down and speeding up at random. Inhuman, otherwordly and dripping demonic malice, it makes your hair stand on end and your already hammering heart try to jump out of your chest.";
+    } else if (distanceToPlayer === 1) {
+      return rightBehingYouText;
+    } else if (distanceToPlayer) {
+      return nearbyText.next(monsterLocationName);
+    } else {
+      return monsterEncounter();
     }
   },
   () => beingChased,
-  6500,
+  4000,
   TIMEOUT_MILLIS
 );
 monsterChase.recurring = true;
