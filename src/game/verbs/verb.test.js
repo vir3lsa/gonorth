@@ -11,6 +11,7 @@ import {
 import { Option } from "../interactions/option";
 import { selectCurrentPage } from "../../utils/testSelectors";
 import { initGame } from "../../gonorth";
+import { deferAction } from "../../utils/testFunctions";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -20,12 +21,9 @@ consoleIO.showOptions = jest.fn();
 let y;
 let verb;
 
-const clickNext = () =>
-  getStore()
-    .getState()
-    .game.interaction.options[0].action();
+const clickNext = () => getStore().getState().game.interaction.options[0].action();
 
-const storeHasVerb = verbName => getStore().getState().game.verbNames[verbName];
+const storeHasVerb = (verbName) => getStore().getState().game.verbNames[verbName];
 
 const selectInteraction = () => getStore().getState().game.interaction;
 
@@ -165,13 +163,18 @@ describe("chainable actions", () => {
     expect(selectCurrentPage().includes("c")).toBe(true);
   });
 
-  it("supports nested arrays as chained actions - nested arrays are concatenated", async () => {
+  it("supports nested arrays as chained actions - nested arrays are sub-action-chains", async () => {
     verb.onSuccess = [["a", "b"], "c"];
-    const promise = verb.attempt(3);
-    expect(selectCurrentPage()).toBe("a\n\nb");
+    verb.attempt(3);
+    expect(selectCurrentPage()).toBe("a");
+    expect(selectCurrentPage()).not.toInclude("b");
     await clickNextAndWait();
-    await promise;
-    expect(selectCurrentPage().includes("c")).toBe(true);
+    expect(selectCurrentPage()).toInclude("b");
+    expect(selectCurrentPage()).not.toInclude("c");
+    await deferAction(async () => {
+      await clickNextAndWait();
+      expect(selectCurrentPage()).toInclude("c");
+    });
   });
 
   it("cycles through messages", () => {
@@ -200,13 +203,9 @@ describe("chainable actions", () => {
 
   it("Renders a Next button when the previous and next interactions do not", async () => {
     verb.onSuccess = ["blah", new Interaction("bob")];
-    getStore().dispatch(
-      changeInteraction(new Interaction("Previous interaction"))
-    );
+    getStore().dispatch(changeInteraction(new Interaction("Previous interaction")));
     verb.attempt(3);
-    expect(getStore().getState().game.interaction.options[0].label).toBe(
-      "Next"
-    );
+    expect(getStore().getState().game.interaction.options[0].label).toBe("Next");
   });
 
   it("Clears the page for paged text", async () => {

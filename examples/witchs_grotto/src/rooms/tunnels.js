@@ -12,7 +12,8 @@ import {
   TIMEOUT_TURNS,
   addEvent,
   TIMEOUT_MILLIS,
-  RandomText
+  RandomText,
+  Action
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 
@@ -416,7 +417,17 @@ const tunnelsNodes = [
   },
   {
     id: "deadEnd",
-    name: "blocked tunnel"
+    name: "blocked tunnel",
+    actions: new SequentialText(
+      "The tunnel's floow slopes slightly to the left making walking along it hard on your feet. A little further along, the whole passage seems to tilt to the left, its rectangular cross-section leaning crazily away from the vertical, giving you the feeling that you're on some great subterranean ship on choppy waters. You follow a dog-leg to the right, then shortly back to the left, before the tunnel dives downwards, taking you deeper.",
+      "Abruptly, you're forced to stop. The way forward is blocked by a ceiling-high pile of rubble and boulder. The tunnel must have collapsed in on itself who knows how many years ago. There's no hope of continuing in this direction."
+    ),
+    options: {
+      "go back": {
+        node: "crossroads",
+        actions: () => setTraversal(down)
+      }
+    }
   },
   {
     id: "meetTheMonster",
@@ -449,6 +460,7 @@ const beingChasedText = new RandomText(
   "You charge onward, half expecting to feel icy fingers grab you at any moment."
 );
 
+// Add action to each node that prepends extra text when you're being chased.
 tunnelsNodes.forEach((node) => {
   let actions = node.actions;
 
@@ -457,18 +469,14 @@ tunnelsNodes.forEach((node) => {
   }
 
   actions = Array.isArray(actions) ? actions : [actions];
-  const [firstAction, ...remainingActions] = actions;
-  actions = [
-    [
-      () => {
-        if (beingChased) {
-          return beingChasedText;
-        }
-      },
-      firstAction
-    ],
-    ...remainingActions
-  ];
+  actions.unshift(
+    new Action(() => {
+      if (beingChased) {
+        return beingChasedText;
+      }
+    }, false)
+  );
+
   node.actions = actions;
 });
 

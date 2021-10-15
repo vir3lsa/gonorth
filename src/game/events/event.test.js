@@ -8,7 +8,7 @@ import { Option } from "../interactions/option";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { getStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
-import { clickNextAndWait } from "../../utils/testFunctions";
+import { clickNextAndWait, deferAction } from "../../utils/testFunctions";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -46,5 +46,5 @@ test("options return after an event adds a next button", async () => {
   await turnEndPromise;
   expect(selectCurrentPage()).toInclude("alpha");
   expect(selectCurrentPage()).toInclude("beta");
-  expect(selectOptions()[0].label).toBe("one");
+  deferAction(() => expect(selectOptions()[0].label).toBe("one"));
 });

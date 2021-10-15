@@ -7,6 +7,7 @@ import { Interaction, Append } from "../game/interactions/interaction";
 import { getStore } from "../redux/storeRegistry";
 import { Text, SequentialText } from "../game/interactions/text";
 import { OptionGraph } from "../game/interactions/optionGraph";
+import { selectOptions } from "./selectors";
 
 /*
  * Class representing a chainable action. Additional config can be set for the action.
@@ -41,9 +42,10 @@ export class ActionChain {
   constructor(...actions) {
     this.actions = actions;
     this.renderNexts = true;
-    this.renderOptions = false;
+    this.propagateOptions = false;
     this.postScript = null;
     this.failed = false;
+    this.lastActionProducedText = false;
     this.helpers = {
       fail: () => (this.failed = true)
     };
@@ -87,12 +89,12 @@ export class ActionChain {
     this._actions.push(this.toChainableFunction(action, this._actions.length, [...this._actions, action]));
   }
 
-  dispatchAppend(text, options, nextIfNoOptions, clearPage) {
+  dispatchAppend(text, options, nextIfNoOptions, clearPage, lastAction) {
     const interactionType = clearPage ? Interaction : Append;
     const optionsToShow = !nextIfNoOptions ? options : undefined;
 
     return getStore().dispatch(
-      changeInteraction(new interactionType(text, optionsToShow, nextIfNoOptions, this.renderOptions))
+      changeInteraction(new interactionType(text, optionsToShow, nextIfNoOptions, this.propagateOptions))
     );
   }
 
@@ -128,38 +130,26 @@ export class ActionChain {
         throw Error("Custom options are only supported at the end of action chains.");
       }
 
-      return this.handleValue(value, postScript, nextIfNoOptions, args);
+      return this.handleValue(value, postScript, nextIfNoOptions, args, lastAction);
     };
   }
 
-  handleValue(value, postScript, nextIfNoOptions, args) {
+  handleValue(value, postScript, nextIfNoOptions, args, lastAction) {
+    if (
+      lastAction &&
+      ((typeof value === "string" && value) ||
+        value instanceof Text ||
+        (value instanceof Interaction && value.currentPage))
+    ) {
+      this.lastActionProducedText = true;
+    }
+
     if (value instanceof ActionChain) {
-      return value.chain(...args);
-    } else if (typeof value === "string") {
+      return this.handleActionChain(value, args, nextIfNoOptions);
+    } else if (typeof value === "string" && value) {
       return this.dispatchAppend(`${value}${postScript}`, this.options, nextIfNoOptions, false);
     } else if (Array.isArray(value)) {
-      // Each element is evaluated and concatenated
-      const concatenated = value
-        .map((text) => {
-          if (typeof text === "function") {
-            const result = text();
-
-            if (result instanceof Text) {
-              return result.next();
-            }
-
-            return result;
-          } else if (text instanceof Text) {
-            return text.next();
-          }
-
-          return text;
-        })
-        .filter(text => text)
-        .join("\n\n");
-      if (concatenated) {
-        return this.dispatchAppend(`${concatenated}${postScript}`, this.options, nextIfNoOptions, false);
-      }
+      return this.handleActionChain(new ActionChain(...value), args, nextIfNoOptions);
     } else if (value instanceof SequentialText) {
       return this.expandSequentialText(value, this.options, nextIfNoOptions, postScript);
     } else if (value instanceof Text) {
@@ -169,11 +159,19 @@ export class ActionChain {
     } else if (value instanceof OptionGraph) {
       return this.handleOptionGraph(value, args, nextIfNoOptions);
     } else if (typeof value === "function") {
-      return this.handleValue(value(this.helpers, ...args), postScript, nextIfNoOptions, args);
+      return this.handleValue(value(this.helpers, ...args), postScript, nextIfNoOptions, args, lastAction);
     }
 
     // This is an arbitrary action that shouldn't create a new interaction
     return value;
+  }
+
+  async handleActionChain(actionChain, args, nextIfNoOptions, paged) {
+    await actionChain.chain(...args);
+    if (nextIfNoOptions && actionChain.lastActionProducedText) {
+      // If we're expecting to add options (e.g. Next) and there aren't current options (also e.g. Next), add them.
+      return this.dispatchAppend(this.postScript || "", this.options, nextIfNoOptions, paged);
+    }
   }
 
   handleOptionGraph(optionGraph, args, nextIfNoOptions) {
@@ -226,6 +224,11 @@ export class ActionChain {
         // Failing an action breaks the chain
         break;
       }
+    }
+
+    // Ensure the options have been added if intended.
+    if (this.options && !selectOptions()) {
+      await this.dispatchAppend("", this.options);
     }
 
     chainResolve();

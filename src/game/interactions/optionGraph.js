@@ -158,7 +158,7 @@ export class OptionGraph {
     chain.options = optionObjects;
 
     if (!optionObjects) {
-      chain.renderOptions = false; // Allow the graph to exit
+      chain.propagateOptions = false; // Allow the graph to exit
       this.resolve();
     }
 
