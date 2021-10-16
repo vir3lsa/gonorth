@@ -419,7 +419,7 @@ const tunnelsNodes = [
     id: "deadEnd",
     name: "blocked tunnel",
     actions: new SequentialText(
-      "The tunnel's floow slopes slightly to the left making walking along it hard on your feet. A little further along, the whole passage seems to tilt to the left, its rectangular cross-section leaning crazily away from the vertical, giving you the feeling that you're on some great subterranean ship on choppy waters. You follow a dog-leg to the right, then shortly back to the left, before the tunnel dives downwards, taking you deeper.",
+      "The tunnel's floor slopes slightly to the left making walking along it hard on your feet. A little further along, the whole passage seems to tilt to the left, its rectangular cross-section leaning crazily away from the vertical, giving you the feeling that you're on some great subterranean ship on choppy waters. You follow a dog-leg to the right, then shortly back to the left, before the tunnel dives downwards, taking you deeper.",
       "Abruptly, you're forced to stop. The way forward is blocked by a ceiling-high pile of rubble and boulder. The tunnel must have collapsed in on itself who knows how many years ago. There's no hope of continuing in this direction."
     ),
     options: {
@@ -499,7 +499,7 @@ meetTheMonster = new Event(
 const monsterEncounter = () => {
   if (tunnelsGraph.currentNode && monsterLocation === tunnelsGraph.currentNode.id) {
     return 'Suddenly, the shadows seem to loom up around you and you find yourself staring into the cold, lifeless eyes of the thing pursuing you. "So it does have eyes," you have time to think, before the shadows envelop you and everything becomes cold and dark.'; // TODO Game-over state
-  } else if (monsterLocation === selectRoom().name && !hiding) {
+  } else if (monsterLocation === selectRoom() && !hiding) {
     return "Suddenly, it's in the room with you. A tall, black spectre of undeniable malace, it bears down on you immediately, like a predator pouncing on its quarry. Your legs fail you and you crash to the floor as the shadows deepen and everything goes dark."; // TODO Game-over state
   }
 };
