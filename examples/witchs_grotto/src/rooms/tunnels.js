@@ -31,6 +31,7 @@ let meetTheMonster;
 let beingChased = false;
 let hiding = false;
 let traversal = forward;
+let metTheMonster = false;
 
 let mouldRoom = new Room(
   "Mould Room",
@@ -350,7 +351,9 @@ const tunnelsNodes = [
       if (traversal === up) {
         return "Beyond the bend, the roof of the passage that was previously a few feet above your head abruptly lifts to twice the height, fantastic vaulted spaces lending a cathedral-like air. You soon come upon a crossroads, the meeting point of the four paths capped by a hemispherical dome. Despite the grandeur, it's still as dark as a crypt down here.";
       } else if (traversal === down) {
-        return "You trudge back along the passage until you return to the vaulted crossroads you passed earlier. It seems somehow less impressive now. \n\nPaths go off in all directions.";
+        return `You ${
+          beingChased ? "sprint" : "trudge"
+        } back along the passage until you return to the vaulted crossroads you passed earlier. It seems somehow less impressive now. \n\nPaths go off in all directions.`;
       } else if (traversal === left) {
         return "The richly decorated corridor turns to the right, then takes on a cathedral like grandiosity, with high, vaulted ceilings. A little further on you reach a crossroads, the meeting point of the four paths capped by a hemispherical dome. Despite the grandeur, it's still so dark you wouldn't be able to see past your nose if it weren't for the potion.";
       } else if (traversal === right) {
@@ -395,7 +398,9 @@ const tunnelsNodes = [
     name: "steps",
     actions: () => {
       if (traversal === down) {
-        return "Along the corridor, the ceiling drops lower and any sign of elegance is quickly left behind. The stone tunnel veers left then presents you with a flight of steep, worn steps leading down into the deeper darkness below. You take them carefully, one at a time, making sure not to slip on the polished-smooth treads. It would be a long, painful way down. As you descend, the air becomes perceptibly colder and a certain sense of dread begins to pervade your thoughts. What might be lurking down here, lying in wait? When you eventually reach the bottom, there's a sharp left turn ahead of you.";
+        return `Along the corridor, the ceiling drops lower and any sign of elegance is quickly left behind. The stone tunnel veers left then presents you with a flight of steep, worn steps leading down into the deeper darkness below. You ${
+          beingChased ? "hurtle down them, praying you don't" : "take them carefully, one at a time, making sure not to"
+        } slip on the polished-smooth treads. It would be a long, painful way down. As you descend, the air becomes perceptibly colder and a certain sense of dread begins to pervade your thoughts. What might be lurking down here, lying in wait? When you eventually reach the bottom, there's a sharp left turn ahead of you.`;
       } else if (traversal === up) {
         if (beingChased) {
           return "You fly round the bend in a mad panic and sprint towards the steep stone steps. A bigger person would take them two at a time, but you have to make do with one, much to your frustration and horror. Even so, you bound up the stairs at an unwise pace, heedless of the danger of slipping, your mind on the much greater danger of the thing pursuing you. You reach the top, and a corner to the right.";
@@ -418,10 +423,13 @@ const tunnelsNodes = [
   {
     id: "deadEnd",
     name: "blocked tunnel",
-    actions: new SequentialText(
-      "The tunnel's floor slopes slightly to the left making walking along it hard on your feet. A little further along, the whole passage seems to tilt to the left, its rectangular cross-section leaning crazily away from the vertical, giving you the feeling that you're on some great subterranean ship on choppy waters. You follow a dog-leg to the right, then shortly back to the left, before the tunnel dives downwards, taking you deeper.",
-      "Abruptly, you're forced to stop. The way forward is blocked by a ceiling-high pile of rubble and boulder. The tunnel must have collapsed in on itself who knows how many years ago. There's no hope of continuing in this direction."
-    ),
+    actions: () =>
+      new SequentialText(
+        `The tunnel's floor slopes slightly to the left making ${
+          beingChased ? "running" : "walking"
+        } along it hard on your feet. A little further along, the whole passage seems to tilt to the left, its rectangular cross-section leaning crazily away from the vertical, giving you the feeling that you're on some great subterranean ship on choppy waters. You follow a dog-leg to the right, then shortly back to the left, before the tunnel dives downwards, taking you deeper.`,
+        "Abruptly, you're forced to stop. The way forward is blocked by a ceiling-high pile of rubble and boulder. The tunnel must have collapsed in on itself who knows how many years ago. There's no hope of continuing in this direction."
+      ),
     options: {
       "go back": {
         node: "crossroads",
@@ -433,13 +441,30 @@ const tunnelsNodes = [
     id: "meetTheMonster",
     name: "dank tunnel",
     actions: [
-      () => meetTheMonster.manualCommence(),
-      "Beyond the bend the corridor stretches away into the darkness. From somewhere not too far away there's the sound of dripping and trickling water."
+      () => {
+        if (metTheMonster && !beingChased) {
+          return "Nervously, you peek around the corner, praying that monstrosity won't be lurking where you found it the first time. Well...you don't see it. Maybe that means it's gone?";
+        } else if (metTheMonster && beingChased) {
+          return "You fly round the bend and start off along the tunnel, towards the sound of running water.";
+        } else {
+          meetTheMonster.manualCommence();
+          metTheMonster = true;
+          return "Beyond the bend the corridor stretches away into the darkness. From somewhere not too far away there's the sound of dripping and trickling water.";
+        }
+      }
     ],
     options: () => ({
       [traversal === right ? "continue forward" : "go back"]: {
         node: "topLeftJail",
-        actions: () => setTraversal(down)
+        actions: () => {
+          setTraversal(down);
+          if (metTheMonster) {
+            return new SequentialText(
+              "You creep along the tunnel, half expecting to hear those horrible wails again at any moment. To your immense relief, they don't come. As you progress, the sound of running water becomes louder.",
+              "The corridor twists to the right and immediately branches. A long tunnel stretches away to the left, whilst the one ahead appears to be partially submerged in water."
+            );
+          }
+        }
       },
       [traversal === right ? "back up stairs" : "go round corner"]: { node: "stairs", actions: () => setTraversal(up) }
     })
