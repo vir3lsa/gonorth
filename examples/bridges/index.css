@@ -1,0 +1,79 @@
+html {
+  background: #333;
+  font-family: "masaakiregular";
+  color: #cc9;
+  height: 100%;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+}
+
+h1 {
+  font-family: "8-bit_operator_scregular";
+}
+
+#container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.gonorth h6 {
+  font-size: 1.3em;
+  font-style: normal;
+  font-weight: normal;
+  color: #9be;
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+}
+
+p,
+table,
+ul,
+ol {
+  font-size: 1.3em;
+}
+
+table {
+  width: 100%;
+}
+
+th {
+  padding-bottom: 0.8em;
+}
+
+td {
+  padding-right: 0.8em;
+}
+
+button.MuiButton-outlinedPrimary {
+  color: white;
+  font-family: "masaakiregular";
+  font-size: 1.2rem;
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+button.MuiButton-outlinedPrimary:hover {
+  border-color: white;
+}
+
+div.MuiInputBase-root {
+  color: #9be;
+  font-family: "masaakiregular";
+  font-size: 1.3em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.42);
+}
+
+div.MuiInputBase-root:hover {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.87);
+}
+
+div.MuiInput-underline:after {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.87);
+}
+
+th:first-child {
+  width: 40%;
+}
