@@ -14,8 +14,7 @@ import {
 import { Interaction } from "./game/interactions/interaction";
 import { Option } from "./game/interactions/option";
 import { Room } from "./game/items/room";
-import { ActionChain, Action } from "./utils/actionChain";
-import { PagedText } from "./game/interactions/text";
+import { ActionChain } from "./utils/actionChain";
 import { goToRoom } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
 import { defaultHelp, hintGraph } from "./utils/defaultHelp";
@@ -86,15 +85,11 @@ function renderTopLevel() {
  * @param {{ pages: string[]; }} intro
  */
 function setIntro(intro) {
-  if (typeof intro === "string" || (Array.isArray(intro) && typeof intro[0] === "string")) {
-    game.introActions = new ActionChain(
-      new PagedText(intro),
-      () => getHelp(),
-      () => goToStartingRoom()
-    );
-  } else {
-    throw Error("Intro must be a string or a string array.");
-  }
+  game.introActions = new ActionChain(
+    intro,
+    () => getHelp(),
+    () => goToStartingRoom()
+  );
 }
 
 function goToStartingRoom() {
@@ -161,7 +156,7 @@ export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
 export { selectInventory, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
 export { Effects } from "./utils/effects";
 export { ActionChain, Action } from "./utils/actionChain";
-export { addKeyword } from "./game/verbs/keywords";
+export { addKeyword, getKeywords } from "./game/verbs/keywords";
 export { inSameRoomAs } from "./utils/sharedFunctions";
 export {
   initGame,
