@@ -16,7 +16,7 @@ const optionNodes = [
         `Let's go over the basics, applicant. The goal in each of these trials is to reach my sigil, which will be emblazoned on one of the grid tiles. Additional rules will be added as you progress, but you'll be informed of these at the appropriate time.`,
         `You'll be permitted the use of two spells for the duration of trials. Cast "dextrum" to anchor the white aspect of a bridge, and "sinistrum" to anchor the black. The two aspects form the two ends of a bridge - called a "wormhole" in some worlds. You and other objects may pass freely through the bridge without fear of harm. Assuming you cast the spells correctly, of course.`,
         `When you cast one of the two bridge spells, the anchor will be emitted from your hand and will travel until it meets a surface. Stone is a suitable medium for the existence of anchors - other materials will not support them, so don't try.`,
-        `Whilst you will remain facing forwards throughout the trial, you can cast spells directionally. For instance, "sinistrum east" will cast the black bridge anchor accordingly.`,
+        `Whilst you will remain facing North throughout the trial, you can cast spells directionally. For instance, "sinistrum east" will cast the black bridge anchor accordingly.`,
         `Each trial is divided into Cartesian grid coordinates. When you move, you will move by one grid space at a time. You may inspect the contents of any grid space with the command "grid x y". For instance, "grid 1 8" in the first trial would reveal the existence of my sigil.`,
         `I will now offer some more general advice about interacting with the world. You may find it useful. If not, feel free to say so and we will return to the trials.`
       ),
