@@ -9,7 +9,7 @@ const keywords = {};
 
 export const directionAliases = {
   north: ["n", "forward", "straight on"],
-  south: ["s", "back", "backward", "reverse"],
+  south: ["s", "back", "backward", "backwards", "reverse"],
   east: ["e", "right"],
   west: ["w", "left"],
   up: ["u", "upward", "upwards"],
