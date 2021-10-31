@@ -1,5 +1,15 @@
 import { Room, Verb, addKeyword, newItem, Item } from "@gonorth";
-import { Terrain, Trial } from "./trial";
+import {
+  Trial,
+  grassTerrain,
+  menhirTerrain,
+  riverTerrain,
+  ditchTerrain,
+  rockTerrain,
+  airTerrain,
+  yourSigilTerrain,
+  tutorSigilTerrain
+} from "./trial";
 
 export const firstTrial = new Room(
   "First Trial",
@@ -57,50 +67,121 @@ const ditch = new Item.Builder()
   .withAliases("dyke", "pit", "barrier", "trench")
   .build();
 
-const grassTerrain = new Terrain("grass", true);
-const riverTerrain = new Terrain("river", false);
-const ditchTerrain = new Terrain("ditch", false);
-const menhirTerrain = new Terrain("menhir", false);
-
 const trial = new Trial(
   {
     1: {
-      5: { terrain: grassTerrain },
-      4: { terrain: menhirTerrain, item: northwestMenhir },
-      3: { terrain: riverTerrain },
-      2: { terrain: riverTerrain },
-      1: { terrain: grassTerrain, item: yourSigil }
+      1: {
+        5: rockTerrain,
+        4: rockTerrain,
+        3: riverTerrain,
+        2: riverTerrain,
+        1: rockTerrain
+      },
+      2: {
+        5: rockTerrain,
+        4: rockTerrain,
+        3: riverTerrain,
+        2: riverTerrain,
+        1: rockTerrain
+      },
+      3: {
+        5: ditchTerrain,
+        4: ditchTerrain,
+        3: riverTerrain,
+        2: riverTerrain,
+        1: rockTerrain
+      },
+      4: {
+        5: ditchTerrain,
+        4: ditchTerrain,
+        3: riverTerrain,
+        2: riverTerrain,
+        1: rockTerrain
+      },
+      5: {
+        5: rockTerrain,
+        4: rockTerrain,
+        3: riverTerrain,
+        2: riverTerrain,
+        1: rockTerrain
+      }
     },
     2: {
-      5: { terrain: grassTerrain, item: tutorSigil },
-      4: { terrain: grassTerrain },
-      3: { terrain: riverTerrain },
-      2: { terrain: riverTerrain },
-      1: { terrain: grassTerrain }
+      1: {
+        5: grassTerrain,
+        4: grassTerrain,
+        3: airTerrain,
+        2: airTerrain,
+        1: grassTerrain
+      },
+      2: {
+        5: grassTerrain,
+        4: grassTerrain,
+        3: airTerrain,
+        2: airTerrain,
+        1: grassTerrain
+      },
+      3: {
+        5: airTerrain,
+        4: airTerrain,
+        3: airTerrain,
+        2: airTerrain,
+        1: grassTerrain
+      },
+      4: {
+        5: airTerrain,
+        4: airTerrain,
+        3: airTerrain,
+        2: airTerrain,
+        1: grassTerrain
+      },
+      5: {
+        5: grassTerrain,
+        4: grassTerrain,
+        3: airTerrain,
+        2: airTerrain,
+        1: grassTerrain
+      }
     },
     3: {
-      5: { terrain: ditchTerrain },
-      4: { terrain: ditchTerrain },
-      3: { terrain: riverTerrain },
-      2: { terrain: riverTerrain },
-      1: { terrain: grassTerrain }
-    },
-    4: {
-      5: { terrain: ditchTerrain },
-      4: { terrain: ditchTerrain },
-      3: { terrain: riverTerrain },
-      2: { terrain: riverTerrain },
-      1: { terrain: grassTerrain }
-    },
-    5: {
-      5: { terrain: menhirTerrain, item: northeastMenhir },
-      4: { terrain: grassTerrain },
-      3: { terrain: riverTerrain },
-      2: { terrain: riverTerrain },
-      1: { terrain: menhirTerrain, item: southeastMenhir }
+      1: {
+        5: airTerrain,
+        4: menhirTerrain,
+        3: airTerrain,
+        2: airTerrain,
+        1: yourSigilTerrain
+      },
+      2: {
+        5: tutorSigilTerrain,
+        4: airTerrain,
+        3: airTerrain,
+        2: airTerrain,
+        1: airTerrain
+      },
+      3: {
+        5: airTerrain,
+        4: airTerrain,
+        3: airTerrain,
+        2: airTerrain,
+        1: airTerrain
+      },
+      4: {
+        5: airTerrain,
+        4: airTerrain,
+        3: airTerrain,
+        2: airTerrain,
+        1: airTerrain
+      },
+      5: {
+        5: menhirTerrain,
+        4: airTerrain,
+        3: airTerrain,
+        2: airTerrain,
+        1: menhirTerrain
+      }
     }
   },
-  [1, 1]
+  [1, 1, 3]
 );
 
 setTimeout(() => {
