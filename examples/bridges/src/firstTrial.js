@@ -69,77 +69,40 @@ const ditch = new Item.Builder()
 
 const trial = new Trial(
   {
-    1: {
-      1: {
-        5: rockTerrain,
-        4: rockTerrain,
-        3: riverTerrain,
-        2: riverTerrain,
-        1: rockTerrain
-      },
-      2: {
-        5: rockTerrain,
-        4: rockTerrain,
-        3: riverTerrain,
-        2: riverTerrain,
-        1: rockTerrain
-      },
-      3: {
-        5: ditchTerrain,
-        4: ditchTerrain,
-        3: riverTerrain,
-        2: riverTerrain,
-        1: rockTerrain
-      },
-      4: {
-        5: ditchTerrain,
-        4: ditchTerrain,
-        3: riverTerrain,
-        2: riverTerrain,
-        1: rockTerrain
-      },
-      5: {
-        5: rockTerrain,
-        4: rockTerrain,
-        3: riverTerrain,
-        2: riverTerrain,
-        1: rockTerrain
-      }
-    },
     2: {
       1: {
         5: grassTerrain,
         4: grassTerrain,
-        3: airTerrain,
-        2: airTerrain,
+        3: riverTerrain,
+        2: riverTerrain,
         1: grassTerrain
       },
       2: {
         5: grassTerrain,
         4: grassTerrain,
-        3: airTerrain,
-        2: airTerrain,
+        3: riverTerrain,
+        2: riverTerrain,
         1: grassTerrain
       },
       3: {
-        5: airTerrain,
-        4: airTerrain,
-        3: airTerrain,
-        2: airTerrain,
+        5: ditchTerrain,
+        4: ditchTerrain,
+        3: riverTerrain,
+        2: riverTerrain,
         1: grassTerrain
       },
       4: {
-        5: airTerrain,
-        4: airTerrain,
-        3: airTerrain,
-        2: airTerrain,
+        5: ditchTerrain,
+        4: ditchTerrain,
+        3: riverTerrain,
+        2: riverTerrain,
         1: grassTerrain
       },
       5: {
         5: grassTerrain,
         4: grassTerrain,
-        3: airTerrain,
-        2: airTerrain,
+        3: riverTerrain,
+        2: riverTerrain,
         1: grassTerrain
       }
     },

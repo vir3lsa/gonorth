@@ -1,8 +1,8 @@
-import { RandomText } from "@gonorth";
+import { RandomText, Item } from "@gonorth";
 
-export class Terrain {
+export class Terrain extends Item {
   constructor(name, traversable, supportive) {
-    this.name = name;
+    super(name);
     this.traversable = traversable;
     this.supportive = supportive;
   }
@@ -23,6 +23,18 @@ const moveText = new RandomText(
   (direction) => `Moving ${direction}.`,
   (direction) => `Going ${direction}.`,
   (direction) => `Stepping ${direction}.`
+);
+
+const outOfBoundsText = new RandomText(
+  "Can't go that way - you've reached the edge of the clearing.",
+  "There's nothing but densely packed pines that way.",
+  "That would take you out of bounds, which isn't permitted by the trial's rules."
+);
+
+const nonTraversableText = new RandomText(
+  (terrain) => `You can't go that way - there's ${terrain.article} ${terrain.name} in the way.`,
+  (terrain) => `${terrain.article.toUpperCase()} ${terrain.name} blocks your path.`,
+  (terrain) => `The way is blocked by ${terrain.article} ${terrain.name}.`
 );
 
 export const grassTerrain = new Terrain("grass", false, true);
@@ -66,25 +78,29 @@ export class Trial {
     const sublayer = this.grid[coordinates[2] - 1];
 
     if (!layer || !sublayer) {
-      return "out of bounds";
+      return outOfBoundsText.next();
     }
 
     const column = layer[coordinates[0]];
     const subcolumn = sublayer[coordinates[0]];
 
     if (!column || !subcolumn) {
-      return "out of bounds";
+      return outOfBoundsText.next();
     }
 
     const tile = column[coordinates[1]];
     const subtile = subcolumn[coordinates[1]];
 
     if (!tile || !subtile) {
-      return "out of bounds";
+      return outOfBoundsText.next();
     }
 
-    if (!tile.traversable || !subtile.supportive) {
-      return "can't go that way";
+    if (!tile.traversable) {
+      return nonTraversableText.next(tile);
+    }
+
+    if (!subtile.supportive) {
+      return nonTraversableText.next(subtile);
     }
 
     this.playerCoordinates = coordinates;
