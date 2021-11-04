@@ -156,7 +156,7 @@ export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
 export { selectInventory, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
 export { Effects } from "./utils/effects";
 export { ActionChain, Action } from "./utils/actionChain";
-export { addKeyword, getKeywords } from "./game/verbs/keywords";
+export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 export { inSameRoomAs } from "./utils/sharedFunctions";
 export {
   initGame,

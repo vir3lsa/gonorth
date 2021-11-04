@@ -115,3 +115,8 @@ export const addKeywords = (keywords) => ({
   type: type.ADD_KEYWORDS,
   keywords
 });
+
+export const removeKeywords = (keyword) => ({
+  type: type.REMOVE_KEYWORDS,
+  keyword
+});

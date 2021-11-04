@@ -30,20 +30,13 @@ export default function (state = initialState, action) {
         interaction.currentPage =
           state.interaction.currentPage + (interaction.currentPage ? "\n\n" + interaction.currentPage : "");
 
-        if (
-          !interaction.options &&
-          interaction.renderOptions &&
-          !state.interaction.nextButtonRendered
-        ) {
+        if (!interaction.options && interaction.renderOptions && !state.interaction.nextButtonRendered) {
           // Copy concrete options (not 'Next') from previous interaction
           // Required e.g. by Events, which append text at indeterminate times
           interaction.options = state.interaction.options;
         }
 
-        if (
-          typeof interaction.renderNextButton === "undefined" &&
-          !(interaction instanceof AppendInput)
-        ) {
+        if (typeof interaction.renderNextButton === "undefined" && !(interaction instanceof AppendInput)) {
           interaction.renderNextButton = state.interaction.renderNextButton;
         }
       }
@@ -61,10 +54,7 @@ export default function (state = initialState, action) {
     case type.ITEMS_REVEALED:
       return {
         ...state,
-        itemNames: new Set([
-          ...state.itemNames,
-          ...action.payload.map((i) => i.toLowerCase())
-        ])
+        itemNames: new Set([...state.itemNames, ...action.payload.map((i) => i.toLowerCase())])
       };
     case type.CHAIN_STARTED:
       return {
@@ -72,16 +62,19 @@ export default function (state = initialState, action) {
         actionChainPromise: state.actionChainPromise || action.payload
       };
     case type.CHAIN_ENDED:
-      const actionChainPromise =
-        action.payload === state.actionChainPromise
-          ? null
-          : state.actionChainPromise;
+      const actionChainPromise = action.payload === state.actionChainPromise ? null : state.actionChainPromise;
       return { ...state, actionChainPromise };
     case type.ADD_EVENT:
       const events = [...state.events, action.payload];
       return { ...state, events };
     case type.ADD_KEYWORDS:
       return { ...state, keywords: { ...state.keywords, ...action.keywords } };
+    case type.REMOVE_KEYWORDS:
+      const keyword = state.keywords[action.keyword];
+      const keywords = { ...state.keywords };
+      keyword.aliases.forEach((alias) => delete keywords[alias]);
+      delete keywords[keyword.name];
+      return { ...state, keywords };
     default:
       return state;
   }

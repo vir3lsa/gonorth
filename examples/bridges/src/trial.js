@@ -1,4 +1,4 @@
-import { RandomText, Item } from "@gonorth";
+import { RandomText, Item, Room, Verb, getKeyword, removeKeyword } from "@gonorth";
 
 export class Terrain extends Item {
   constructor(name, traversable, supportive) {
@@ -46,10 +46,57 @@ export const airTerrain = new Terrain("air", true, false);
 export const yourSigilTerrain = new Terrain("your sigil", true, false);
 export const tutorSigilTerrain = new Terrain("tutor's sigil", true, false);
 
-export class Trial {
-  constructor(grid, startCoordinates) {
+export class Trial extends Room {
+  constructor(name, description, grid, startCoordinates) {
+    super(name, description);
     this.grid = grid;
     this.playerCoordinates = startCoordinates;
+    this._setUpDirections();
+  }
+
+  _setUpDirections() {
+    // Model the directions as objects so we can examine them.
+    const north = new Item.Builder()
+      .withName("North")
+      .withAliases("n", "northward", "straight on", "straight", "ahead", "forward")
+      .build();
+    const south = new Item.Builder()
+      .withName("South")
+      .withAliases("s", "southward", "back", "backward", "backwards", "behind")
+      .build();
+    const east = new Item.Builder().withName("East").withAliases("e", "eastward", "left").build();
+    const west = new Item.Builder().withName("West").withAliases("w", "westward", "left").build();
+
+    const lookVerb = new Verb("examine", true, (helpers, item) => this.look(item), null, [
+      "ex",
+      "x",
+      "look",
+      "inspect"
+    ]);
+    north.addVerb(lookVerb);
+    south.addVerb(lookVerb);
+    east.addVerb(lookVerb);
+    west.addVerb(lookVerb);
+
+    this.addItems(north, south, east, west);
+
+    // Set up special directional verbs to move about within the trial. Equivalent keywords will need to  be removed.
+    this.addVerbs(
+      new Verb("North", true, () => this.goNorth(), null, ["n", "forward", "straight on"], true),
+      new Verb("South", true, () => this.goSouth(), null, ["s", "backward", "backwards", "back", "reverse"], true),
+      new Verb("East", true, () => this.goEast(), null, ["e", "right", "r"], true),
+      new Verb("West", true, () => this.goWest(), null, ["w", "left", "l"], true)
+    );
+
+    // Remove directional keywords, if present.
+    setTimeout(() => {
+      if (getKeyword("north")) {
+        removeKeyword("north");
+        removeKeyword("south");
+        removeKeyword("east");
+        removeKeyword("west");
+      }
+    });
   }
 
   goNorth() {
@@ -105,5 +152,9 @@ export class Trial {
 
     this.playerCoordinates = coordinates;
     return moveText.next(direction);
+  }
+
+  look(direction) {
+    return `Looking ${direction.name}`;
   }
 }

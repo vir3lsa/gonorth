@@ -4,8 +4,8 @@ import { RandomText } from "../interactions/text";
 import { OptionGraph } from "../interactions/optionGraph";
 import { getHelp, giveHint } from "../../gonorth";
 import { getKeywordsTable } from "../../utils/defaultHelp";
-
-const keywords = {};
+import { getStore } from "../../redux/storeRegistry";
+import { addKeywords, removeKeywords } from "../../redux/gameActions";
 
 export const directionAliases = {
   north: ["n", "forward", "straight on"],
@@ -118,13 +118,26 @@ export function createKeywords() {
 }
 
 export function addKeyword(keyword) {
-  keywords[keyword.name] = keyword;
-}
+  const keywordMap = keyword.aliases.reduce(
+    (acc, alias) => {
+      acc[alias] = keyword;
+      return acc;
+    },
+    { [keyword.name]: keyword }
+  );
 
-export function getKeyword(name) {
-  return keywords[name];
+  getStore().dispatch(addKeywords(keywordMap));
 }
 
 export function getKeywords() {
-  return keywords;
+  return getStore().getState().game.keywords;
+}
+
+export function getKeyword(name) {
+  return getKeywords()[name];
+}
+
+export function removeKeyword(keyword) {
+  const verb = getKeyword(keyword);
+  getStore().dispatch(removeKeywords(keyword));
 }

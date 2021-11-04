@@ -143,18 +143,6 @@ export class Verb {
         { [this.name]: this.name }
       );
       getStore().dispatch(verbCreated(nameMap));
-
-      if (this.isKeyword) {
-        const keywordMap = this.aliases.reduce(
-          (acc, alias) => {
-            acc[alias] = this;
-            return acc;
-          },
-          { [this.name]: this }
-        );
-
-        getStore().dispatch(addKeywords(keywordMap));
-      }
     }
   }
 
