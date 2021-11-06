@@ -158,6 +158,7 @@ export { Effects } from "./utils/effects";
 export { ActionChain, Action } from "./utils/actionChain";
 export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 export { inSameRoomAs } from "./utils/sharedFunctions";
+export * from "./utils/textFunctions";
 export {
   initGame,
   attach,

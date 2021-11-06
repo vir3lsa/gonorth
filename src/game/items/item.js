@@ -367,7 +367,7 @@ export class Item {
   set items(items) {
     this._items = items;
     this.uniqueItems = new Set(
-      ...Object.values(this._items).reduce((acc, itemsWithName) => {
+      Object.values(this._items).reduce((acc, itemsWithName) => {
         itemsWithName.forEach((item) => acc.push(item));
         return acc;
       }, [])
