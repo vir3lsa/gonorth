@@ -1,4 +1,4 @@
-import { CyclicText, PagedText, RandomText, SequentialText } from "./text";
+import { CyclicText, DeferredRandomText, ManagedText, PagedText, RandomText, SequentialText } from "./text";
 
 let cyclic, random;
 
@@ -97,4 +97,65 @@ test("Random text entries may be functions", () => {
   expect(results).toContain("1");
   expect(results).toContain("6");
   expect(results).toContain("c");
+});
+
+const cyclesTest = (text) => {
+  expect(text.cycles).toBe(0);
+  text.next();
+  text.next();
+  expect(text.cycles).toBe(1);
+  text.next();
+  text.next();
+  expect(text.cycles).toBe(2);
+};
+
+test("Cyclic texts count cycles", () => cyclesTest(new CyclicText("a", "b")));
+test("Sequential texts count cycles", () => cyclesTest(new SequentialText("a", "b")));
+test("Paged texts count cycles", () => cyclesTest(new PagedText("a", "b")));
+test("Random texts count cycles", () => cyclesTest(new RandomText("a", "b")));
+
+const managedTextTest = (textType) => {
+  const text = new ManagedText.Builder()
+    .withText(new textType("a", "b"))
+    .times(2)
+    .withText(new textType("c", "d"))
+    .build();
+  expect(text.next()).toBe("a");
+  expect(text.next()).toBe("b");
+  expect(text.next()).toBe("a");
+  expect(text.next()).toBe("b");
+  expect(text.next()).toBe("c");
+  expect(text.next()).toBe("d");
+  expect(text.next()).toBe("c");
+  expect(text.next()).toBe("d");
+};
+
+test("Managed text repeats phases the correct number of times with CyclicText", () => managedTextTest(CyclicText));
+test("Managed text repeats phases the correct number of times with SequentialText", () =>
+  managedTextTest(SequentialText));
+test("Managed text repeats phases the correct number of times with PagedText", () => managedTextTest(PagedText));
+test("Managed text repeats phases the correct number of times with RandomText", () => {
+  const text = new ManagedText.Builder()
+    .withText(new RandomText("a", "b"))
+    .times(2)
+    .withText(new RandomText("c", "d"))
+    .build();
+  expect(["a", "b"]).toContain(text.next());
+  expect(["a", "b"]).toContain(text.next());
+  expect(["a", "b"]).toContain(text.next());
+  expect(["a", "b"]).toContain(text.next());
+  expect(["c", "d"]).toContain(text.next());
+  expect(["c", "d"]).toContain(text.next());
+  expect(["c", "d"]).toContain(text.next());
+  expect(["c", "d"]).toContain(text.next());
+});
+
+test("DeferredRandomText repeats sequential phase once", () => {
+  const text = new DeferredRandomText("a", "b");
+  expect(text.next()).toBe("a");
+  expect(text.next()).toBe("b");
+  expect(["a", "b"]).toContain(text.next());
+  expect(["a", "b"]).toContain(text.next());
+  expect(["a", "b"]).toContain(text.next());
+  expect(["a", "b"]).toContain(text.next());
 });

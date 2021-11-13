@@ -1,4 +1,14 @@
-import { RandomText, Item, Room, Verb, getKeyword, removeKeyword, getBasicItemList, toTitleCase } from "@gonorth";
+import {
+  RandomText,
+  Item,
+  Room,
+  Verb,
+  getKeyword,
+  removeKeyword,
+  getBasicItemList,
+  toTitleCase,
+  ManagedText
+} from "@gonorth";
 
 export class Terrain extends Item {
   constructor(name, traversable, supportive, article, preposition, items = {}) {
@@ -90,6 +100,42 @@ const viewBlockedText = new RandomText(
   (terrain) => `The ${terrain.name} is hiding whatever might be behind it.`
 );
 
+const whiteStartTextLong = new RandomText(
+  "Your fingers fizzle with brilliant white sparks and a crackling ball of energy shoots from your fingertips",
+  "The dextrum spell glows bright white in your hand before exploding forth like ball lightning.",
+  "Sparks of blue-white electricity arc between your fingers, then the dextrum anchor bolts from your hand as a glowing orb of energy."
+);
+
+const whiteStartShort = new RandomText(
+  "You cast the dextrum spell.",
+  "The white anchor flies from your hand.",
+  "You release the glowing orb from your hands."
+);
+
+const whiteStartText = new ManagedText.Builder()
+  .withText(whiteStartTextLong)
+  .times(2)
+  .withText(whiteStartShort)
+  .build();
+
+const blackStartTextLong = new RandomText(
+  "A dark shadow forms in your hand, consuming the light around it. Then it jumps from your palm as a black absence in the air.",
+  "A bruise-like purple-black orb forms in your hand before rolling languidly through the air.",
+  "The sinistrum spell draws shadows and darkness into itself, nearly swallowing your hand before it jumps from your fingers like a pouncing cat."
+);
+
+const blackStartTextShort = new RandomText(
+  "You cast the sinistrum spell.",
+  "The black anchor flies from your fingertips.",
+  "You fling the dark orb from your hand."
+);
+
+const blackStartText = new ManagedText.Builder()
+  .withText(blackStartTextLong)
+  .times(2)
+  .withText(blackStartTextShort)
+  .build();
+
 export const grassTerrain = new Terrain("grass", false, true, "", "on");
 export const riverTerrain = new Terrain("river", false, false, "the");
 export const ditchTerrain = new Terrain("ditch", false, false, "a");
@@ -98,6 +144,9 @@ export const rockTerrain = new Terrain("rock", false, true, "", "on");
 export const airTerrain = new Terrain("air", true, false, "");
 export const yourSigilTerrain = new Terrain("your sigil", true, false, "");
 export const tutorSigilTerrain = new Terrain("tutor's sigil", true, false, "");
+
+const whiteAnchor = new Item("white anchor");
+const blackAnchor = new Item("black anchor");
 
 export class Trial extends Room {
   constructor(name, description, grid, startCoordinates) {
@@ -126,10 +175,20 @@ export class Trial extends Room {
       "look",
       "inspect"
     ]);
-    this.north.addVerb(lookVerb);
-    this.south.addVerb(lookVerb);
-    this.east.addVerb(lookVerb);
-    this.west.addVerb(lookVerb);
+
+    const dextrum = new Verb("dextrum", true, (helpers, direction) => this.fireWhiteAnchor(direction), null, [
+      "dex",
+      "white"
+    ]);
+    const sinistrum = new Verb("sinistrum", true, (helpers, direction) => this.fireBlackAnchor(direction), null, [
+      "sin",
+      "black"
+    ]);
+
+    this.north.addVerbs(lookVerb, dextrum, sinistrum);
+    this.south.addVerbs(lookVerb, dextrum, sinistrum);
+    this.east.addVerbs(lookVerb, dextrum, sinistrum);
+    this.west.addVerbs(lookVerb, dextrum, sinistrum);
 
     // Add the directions as items so we can look at them.
     this.addItems(this.north, this.south, this.east, this.west);
@@ -211,38 +270,34 @@ export class Trial extends Room {
     return [tile || null, subtile || null];
   }
 
-  look(direction) {
-    let vector;
+  getNextCoordinates(coordinates, vector) {
+    return [coordinates[0] + vector[0], coordinates[1] + vector[1], coordinates[2] + vector[2]];
+  }
 
+  getVector(direction) {
     switch (direction) {
       case this.north:
-        vector = [0, 1, 0];
-        break;
+        return [0, 1, 0];
       case this.south:
-        vector = [0, -1, 0];
-        break;
+        return [0, -1, 0];
       case this.east:
-        vector = [1, 0, 0];
-        break;
+        return [1, 0, 0];
       case this.west:
-        vector = [-1, 0, 0];
-        break;
+        return [-1, 0, 0];
     }
+  }
+
+  look(direction) {
+    const vector = this.getVector(direction);
 
     let coordinates = [...this.playerCoordinates];
     let result = lookStartText.next(direction);
     let lastTerrain, terrain, subterrain, nextTerrain, nextSubterrain;
 
-    const getNextCoordinates = (coordinates) => [
-      coordinates[0] + vector[0],
-      coordinates[1] + vector[1],
-      coordinates[2] + vector[2]
-    ];
-
     const getNextTerrain = () => {
-      coordinates = getNextCoordinates(coordinates);
+      coordinates = this.getNextCoordinates(coordinates, vector);
       [terrain, subterrain] = this.getTerrain(coordinates);
-      const nextCoordinates = getNextCoordinates(coordinates);
+      const nextCoordinates = this.getNextCoordinates(coordinates, vector);
       [nextTerrain, nextSubterrain] = this.getTerrain(nextCoordinates);
     };
 
@@ -274,5 +329,20 @@ export class Trial extends Room {
     }
 
     return result;
+  }
+
+  fireWhiteAnchor(direction) {
+    return this.fireAnchor(whiteAnchor, direction, whiteStartText);
+  }
+
+  fireBlackAnchor(direction) {
+    return this.fireAnchor(blackAnchor, direction, blackStartText);
+  }
+
+  fireAnchor(anchor, direction, startText) {
+    let text = startText.next();
+    let coordinates = [...this.playerCoordinates];
+    const vector = this.getVector(direction);
+    return `Firing ${anchor.name} ${direction.name}. ${text}`;
   }
 }

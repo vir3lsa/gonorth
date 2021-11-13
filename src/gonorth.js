@@ -147,7 +147,7 @@ export { Item, newItem } from "./game/items/item";
 export { Interaction, Append } from "./game/interactions/interaction";
 export { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
 export { Option } from "./game/interactions/option";
-export { Text, CyclicText, SequentialText, RandomText, PagedText } from "./game/interactions/text";
+export * from "./game/interactions/text";
 export { Schedule } from "./game/events/schedule";
 export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";

@@ -2,6 +2,12 @@ export class Text {
   constructor(...texts) {
     this.texts = texts;
     this.index = -1;
+    this.cycles = 0;
+    this._resetCandidates();
+  }
+
+  _resetCandidates() {
+    this.candidates = this._texts.map((_, index) => index);
   }
 
   clone() {
@@ -22,6 +28,13 @@ export class Text {
 
   next(...args) {
     const text = this.text;
+    this.candidates = this.candidates.filter((c) => c !== this.index);
+
+    if (!this.candidates.length) {
+      this.cycles++;
+      this._resetCandidates();
+    }
+
     return typeof text === "function" ? text(...args) : text;
   }
 }
@@ -43,10 +56,6 @@ export class CyclicText extends Text {
     }
 
     return super.next(...args);
-  }
-
-  isLastPage() {
-    return this.index === this._texts.length - 1;
   }
 }
 
@@ -81,14 +90,65 @@ export class RandomText extends Text {
   }
 
   next(...args) {
-    if (!this.candidates || !this.candidates.length) {
-      this.candidates = [...this._texts];
+    const candidatesIndex = Math.floor(Math.random() * this.candidates.length);
+    this.index = this.candidates[candidatesIndex];
+
+    return super.next(...args);
+  }
+}
+
+export class ManagedText {
+  static get Builder() {
+    class Builder {
+      constructor() {
+        this.phases = [];
+      }
+
+      withText(text) {
+        this.phases.push({ text, times: 1 });
+        return this;
+      }
+
+      times(times) {
+        this.phases[this.phases.length - 1].times = times;
+        return this;
+      }
+
+      build() {
+        return new ManagedText(this);
+      }
     }
 
-    this.index = Math.floor(Math.random() * this.candidates.length);
-    const text = this.candidates[this.index];
-    this.candidates = this.candidates.filter((c) => c !== text);
+    return Builder;
+  }
 
-    return typeof text === "function" ? text(...args) : text;
+  constructor(builder) {
+    this.phases = builder.phases;
+    this.phaseNum = 0;
+  }
+
+  next() {
+    let phase = this.phases[this.phaseNum];
+
+    if (phase.text.cycles >= phase.times && this.phaseNum < this.phases.length - 1) {
+      this.phaseNum++;
+      phase = this.phases[this.phaseNum];
+    }
+
+    return phase.text.next();
+  }
+}
+
+/*
+ * Text that cycles through sequentially once, before becoming random.
+ */
+export class DeferredRandomText extends ManagedText {
+  constructor(...texts) {
+    super(new ManagedText.Builder().withText(new CyclicText(...texts)).withText(new RandomText(...texts)));
+    this.texts = texts;
+  }
+
+  clone() {
+    return new DeferredRandomText(...this.texts);
   }
 }
