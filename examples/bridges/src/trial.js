@@ -11,10 +11,11 @@ import {
 } from "@gonorth";
 
 export class Terrain extends Item {
-  constructor(name, traversable, supportive, article, preposition, items = {}) {
+  constructor(name, traversable, supportive, portalable, article, preposition, items = {}) {
     super(name);
     this.traversable = traversable;
     this.supportive = supportive;
+    this.portalable = portalable;
     this.article = article;
     this.preposition = preposition;
     this.items = items;
@@ -101,7 +102,7 @@ const viewBlockedText = new RandomText(
 );
 
 const whiteStartTextLong = new RandomText(
-  "Your fingers fizzle with brilliant white sparks and a crackling ball of energy shoots from your fingertips",
+  "Your fingers fizzle with brilliant white sparks and a crackling ball of energy shoots from your fingertips.",
   "The dextrum spell glows bright white in your hand before exploding forth like ball lightning.",
   "Sparks of blue-white electricity arc between your fingers, then the dextrum anchor bolts from your hand as a glowing orb of energy."
 );
@@ -136,17 +137,42 @@ const blackStartText = new ManagedText.Builder()
   .withText(blackStartTextShort)
   .build();
 
-export const grassTerrain = new Terrain("grass", false, true, "", "on");
-export const riverTerrain = new Terrain("river", false, false, "the");
-export const ditchTerrain = new Terrain("ditch", false, false, "a");
-export const menhirTerrain = new Terrain("menhir", false, false, "a", "on");
-export const rockTerrain = new Terrain("rock", false, true, "", "on");
-export const airTerrain = new Terrain("air", true, false, "");
-export const yourSigilTerrain = new Terrain("your sigil", true, false, "");
-export const tutorSigilTerrain = new Terrain("tutor's sigil", true, false, "");
+const anchorFlightText = new RandomText(
+  (anchor, direction, terrainList) =>
+    `The ${anchor} rips through the air, moving ${direction} over the ${terrainList} below,`,
+  (anchor, direction, terrainList) => `The glowing ball travels ${direction},`,
+  (anchor, direction, terrainList) => `The ${anchor} soars over the ${terrainList} below it,`,
+  (anchor) => `The ${anchor} twists through the air`,
+  (anchor, direction, terrainList) =>
+    `The orb of light leaves a stream of twinkling dust in its wake as it rockets past the ${terrainList} beneath it,`
+);
+
+const anchorEndText = new RandomText(
+  (target) => `before colliding with ${target.article} ${target.name}.`,
+  (target) => `before smashing into ${target.article} ${target.name}.`,
+  (target) => `before coming to rest on ${target.article} ${target.name}.`,
+  (target) => `before landing on ${target.article} ${target.name}.`,
+  (target) => `before ending its journey on the surface of ${target.article} ${target.name}.`
+);
+
+const anchorMissText = new RandomText(
+  `before disappearing amongst the densely packed trees beyond the clearing.`,
+  `then hits a pine at the edge of the clearing before vanishing.`,
+  `then becomes lost amongst the tall trunks of the cedars beyond the trial edge.`
+);
+
+export const grassTerrain = new Terrain("grass", false, true, false, "", "on");
+export const riverTerrain = new Terrain("river", false, false, false, "the");
+export const ditchTerrain = new Terrain("ditch", false, false, false, "a");
+export const menhirTerrain = new Terrain("menhir", false, false, true, "a", "on");
+export const rockTerrain = new Terrain("rock", false, true, false, "", "on");
+export const airTerrain = new Terrain("air", true, false, false, "");
+export const yourSigilTerrain = new Terrain("your sigil", true, false, false, "");
+export const tutorSigilTerrain = new Terrain("tutor's sigil", true, false, false, "");
 
 const whiteAnchor = new Item("white anchor");
 const blackAnchor = new Item("black anchor");
+let whiteAnchorLocation, blackAnchorLocation;
 
 export class Trial extends Room {
   constructor(name, description, grid, startCoordinates) {
@@ -342,7 +368,35 @@ export class Trial extends Room {
   fireAnchor(anchor, direction, startText) {
     let text = startText.next();
     let coordinates = [...this.playerCoordinates];
+    let [terrain, subterrain] = this.getTerrain(coordinates);
     const vector = this.getVector(direction);
-    return `Firing ${anchor.name} ${direction.name}. ${text}`;
+    const uniqueTerrain = new Set();
+
+    while (terrain && terrain.traversable) {
+      uniqueTerrain.add(subterrain);
+      coordinates = this.getNextCoordinates(coordinates, vector);
+      [terrain, subterrain] = this.getTerrain(coordinates);
+    }
+
+    const terrainList = getBasicItemList([...uniqueTerrain]);
+    text += ` ${anchorFlightText.next(anchor.name, direction.name, terrainList)}`;
+
+    if (terrain && !terrain.traversable) {
+      text += ` ${anchorEndText.next(terrain)}`;
+
+      if (terrain.portalable) {
+        terrain.addItem(anchor);
+
+        if (anchor === whiteAnchor) {
+          whiteAnchorLocation = coordinates;
+        } else {
+          blackAnchorLocation = coordinates;
+        }
+      }
+    } else {
+      text += ` ${anchorMissText.next()}`;
+    }
+
+    return text;
   }
 }
