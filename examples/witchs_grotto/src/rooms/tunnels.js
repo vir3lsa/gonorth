@@ -459,10 +459,7 @@ const tunnelsNodes = [
         actions: () => {
           setTraversal(down);
           if (metTheMonster) {
-            return new SequentialText(
-              "You creep along the tunnel, half expecting to hear those horrible wails again at any moment. To your immense relief, they don't come. As you progress, the sound of running water becomes louder.",
-              "The corridor twists to the right and immediately branches. A long tunnel stretches away to the left, whilst the one ahead appears to be partially submerged in water."
-            );
+            return "You creep along the tunnel, half expecting to hear those horrible wails again at any moment. To your immense relief, they don't come. As you progress, the sound of running water becomes louder.";
           }
         }
       },
@@ -471,9 +468,47 @@ const tunnelsNodes = [
   },
   {
     id: "topLeftJail",
+    actions: () => {
+      if (traversal === down) {
+        return "The corridor twists to the right and immediately branches. A long tunnel stretches away to the left, whilst the one ahead appears to be partially submerged in water.";
+      }
+    },
     options: () => ({
-      back: "meetTheMonster"
+      [traversal === down ? back : "left bend"]: "meetTheMonster",
+      "long corridor": { node: "topJail", actions: () => setTraversal(right) },
+      "submerged tunnel": { node: "leftJail", actions: () => setTraversal(down) }
     })
+  },
+  {
+    id: "topJail",
+    actions: () => {
+      if (traversal === right) {
+        return "You creep fearfully along the long the corridor, trying not to make a sound. Every scrape of your feet on the rough stone reverberates sickeningly up and down the tunnel. The darkness is nearly total, forcing you to feel your way down the right-hand wall. Soon, the wall falls away, revealing a passage leading to the right. The corridor continues on ahead.";
+      }
+    },
+    options: () => ({
+      [traversal === right ? "right" : traversal === left ? "left" : "back"]: {
+        node: "middleJail",
+        actions: () => setTraversal(down)
+      },
+      [traversal === right ? "forward" : traversal === left ? "back" : "right"]: {
+        node: "topRightJail",
+        actions: () => setTraversal(right)
+      },
+      [traversal === right ? "back" : traversal === left ? "forward" : "left"]: {
+        node: "topLeftJail",
+        actions: () => setTraversal(left)
+      }
+    })
+  },
+  {
+    id: "leftJail"
+  },
+  {
+    id: "middleJail"
+  },
+  {
+    id: "topRightJail"
   }
 ];
 

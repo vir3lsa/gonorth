@@ -161,6 +161,16 @@ const anchorMissText = new RandomText(
   `then becomes lost amongst the tall trunks of the cedars beyond the trial edge.`
 );
 
+const anchorDroppedText = new RandomText(
+  "The orb fizzles out in a shower of sparks.",
+  (anchor) => `The ${anchor.name} vanishes with a pop.`,
+  "The anchor bursts colourfully, and disappears."
+);
+
+const anchorUnpairedText = new RandomText("placeholder");
+
+const portalCreatedText = new RandomText("placeholder");
+
 export const grassTerrain = new Terrain("grass", false, true, false, "", "on");
 export const riverTerrain = new Terrain("river", false, false, false, "the");
 export const ditchTerrain = new Terrain("ditch", false, false, false, "a");
@@ -392,6 +402,14 @@ export class Trial extends Room {
         } else {
           blackAnchorLocation = coordinates;
         }
+
+        if (whiteAnchorLocation && blackAnchorLocation) {
+          text += ` ${portalCreatedText.next(anchor)}`;
+        } else {
+          text += ` ${anchorUnpairedText.next(anchor)}`;
+        }
+      } else {
+        text += ` ${anchorDroppedText.next(anchor)}`;
       }
     } else {
       text += ` ${anchorMissText.next()}`;
