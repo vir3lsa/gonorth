@@ -46,6 +46,14 @@ const ricketyDoor = new Door(
   "The door swings open limply when you push it."
 );
 
+const iron = new Door(
+  "iron bar door",
+  "Thick vertical bars are set into an iron frame. A veneer of rust covers every surface.",
+  false,
+  false,
+  "The iron door squeals like injured animal, its rusty hinges resisting the movement, but it opens nonetheless."
+);
+
 const mould = new Ingredient(
   "mould",
   "It's slimy and green and smells strongly earthy. You can practically feel the spores taking root in your nasal cavity as you inhale."
@@ -483,7 +491,7 @@ const tunnelsNodes = [
     id: "topJail",
     actions: () => {
       if (traversal === right) {
-        return "You creep fearfully along the long the corridor, trying not to make a sound. Every scrape of your feet on the rough stone reverberates sickeningly up and down the tunnel. The darkness is nearly total, forcing you to feel your way down the right-hand wall. Soon, the wall falls away, revealing a passage leading to the right. The corridor continues on ahead.";
+        return "You creep fearfully along the long the corridor, trying not to make a sound. Even so, every scrape of your feet on the rough stone reverberates sickeningly up and down the tunnel. The darkness is nearly total, forcing you to feel your way down the right-hand wall. Soon, the wall falls away, revealing a passage leading to the right. The corridor continues on ahead.";
       }
     },
     options: () => ({
@@ -505,7 +513,23 @@ const tunnelsNodes = [
     id: "leftJail"
   },
   {
-    id: "middleJail"
+    id: "middleJail",
+    actions: () => {
+      if (traversal === down) {
+        return "The flagstones of this passage are broken and treacherous underfoot, tilting alarmingly as you step on them, creating loud echoes as the ancient stones scrape and knock together. You cringe inwardly, certain anything nearby must be aware of your precise location.\n\nThere's a door made of thick iron bars to your left. Not far beyond, the passage branches left and right. Behind you, there's a similar fork.";
+      }
+    },
+    options: () => ({
+      "open iron bar door": { condition: () => !ironDoor.open, actions: () => ironDoor.getVerb("open").attempt() },
+      "close iron bar door": {
+        condition: () => ironDoor.open,
+        actions: () => ironDoor.getVerb("close").attempt()
+      },
+      [direction === down ? "left" : "back and left"]: "lowerRightRockfall",
+      [direction === down ? "right" : "back and right"]: { node: "bottomJail", actions: () => setTraversal(left) },
+      [direction === down ? "back and left" : "left"]: { node: "topJail", actions: () => setTraversal(left) },
+      [direction === down ? "back and right" : "right"]: { node: "topRightJail", actions: () => setTraversal(right) }
+    })
   },
   {
     id: "topRightJail"
