@@ -1,4 +1,4 @@
-import { selectLastChange, selectPlayer, selectRoom } from "./selectors";
+import { selectInventory, selectLastChange, selectPlayer, selectRoom } from "./selectors";
 import { Room } from "../game/items/room";
 
 const REACTION_MILLIS = 350;
@@ -32,4 +32,12 @@ export function inSameRoomAs(item) {
   }
 
   return room === itemRoom;
+}
+
+/*
+ * Returns true if the player has room in her inventory for the item.
+ */
+export function playerCanCarry(item) {
+  const inventory = selectInventory();
+  return (inventory.capacity === -1 || inventory.free >= item.size) && !inventory.items[item.name.toLowerCase()];
 }

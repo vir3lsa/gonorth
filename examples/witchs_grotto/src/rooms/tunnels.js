@@ -13,7 +13,8 @@ import {
   addEvent,
   TIMEOUT_MILLIS,
   RandomText,
-  Action
+  Action,
+  selectInventory
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 
@@ -103,10 +104,31 @@ const carvedDoor = new Door(
   "Lifting an iron latch, you push the heavy door open. It squeaks slightly as it scrapes on the floor and jamb."
 );
 
+const oakDoor = new Door(
+  "heavy oak door",
+  "The door is solid and imposing looking. There's a heavy-duty lock of black iron, enhancing the impression it's designed to keep someone or something in.",
+  false,
+  true,
+  "When you push on the door, it doesn't budge, so you give it a good barge with your shoulder. With a jolt, it breaks free of the jamb and swings inwards.",
+  "You have to apply a lot of pressure to force the rusty key into the lock, but it fits snugly. Using both hands, you turn it a hundred and eighty degrees, producing a satisfying *clunk* from within.",
+  ["cell"]
+);
+
 const wellRoom = new Room(
   "Well Room",
   "In the centre of the room there's a waist-high marble circle around a deep, black hole. Over the hole is a wrought-iron crank with a rope curled around it. One end of the rope descends into the hole and into blackness that even your magically-enhanced vision can't penetrate. You're looking at a well.\n\nThe way out is via the door behind you, to the West."
 );
+
+const cellKey = new Item(
+  "rusty iron key",
+  "It's a chunky iron key, veneered in brown rust. There's a large hoop at the back, presumably for hanging it from an equally large keyring.",
+  true,
+  0,
+  [],
+  ["metal"]
+);
+
+let keyTaken = false;
 
 const waitInWellText = new CyclicText(
   "The sound of your breathing seems horribly loud as you hang there, echoing back at you from the curved well walls. You try to quieten it.",
@@ -136,7 +158,15 @@ const wellGraph = new OptionGraph(
     actions:
       "You climb down ever further, barely able to discern your progress now in the complete absence of light. There is only the rope, descending endlessly downwards in the dark. Could the shaft literally be bottomless? If a staircase can be endless then why not a well? You're just having this thought when suddenely, shockingly, your feet submerge in icily cold water.",
     options: {
-      swim: () => "You're not that desperate, even now. You'd prefer to stay dry, thank you.",
+      "search water": () => {
+        if (keyTaken) {
+          return "Fumble about beneath the water as you might, you find nothing but pebbles and mud.";
+        } else {
+          keyTaken = true;
+          selectInventory().addItem(cellKey);
+          return "Plunging your hand into the murky water whilst holding tightly to the rope with the other, you discover the it's only about a foot deep. Your feet are already wet, so you drop into the pool and crouch down, trying to keep your dress free from splashes. Rooting through the silt at the bottom, your hand closes around something cold and hard. You stand back up to inspect the find, and discover it's a rusty metal key.";
+        }
+      },
       wait: waitInWellText,
       "climb out": "leave"
     }
@@ -510,20 +540,34 @@ const tunnelsNodes = [
     })
   },
   {
-    id: "leftJail"
-  },
-  {
-    id: "middleJail",
+    id: "leftJail",
     actions: () => {
-      if (traversal === down) {
-        return "The flagstones of this passage are broken and treacherous underfoot, tilting alarmingly as you step on them, creating loud echoes as the ancient stones scrape and knock together. You cringe inwardly, certain anything nearby must be aware of your precise location.\n\nThere's a door made of thick iron bars to your left. Not far beyond, the passage branches left and right. Behind you, there's a similar fork.";
+      if (direction === down) {
+        return "Placing your feet carefully, lest there be an unexpected change in depth, you slosh slowly along the flooded tunnel. The water is inky black and freezing cold - it's about up to your ankles. You really hope it doesn't get any deeper. After a little way the tunnel turns to the left. Back the way you came, the tunnel forks forwards and right.";
+      } else {
+        return "You step into the cold water and round the bend. Placing your feet carefully, lest there be an unexpected change in depth, you slosh slowly along the flooded tunnel. The water is inky black and freezing cold - it's about up to your ankles. You really hope it doesn't get any deeper. Ahead, the tunnel continues, and branches to the right.";
       }
     },
     options: () => ({
-      "open iron bar door": { condition: () => !ironDoor.open, actions: () => ironDoor.getVerb("open").attempt() },
-      "close iron bar door": {
-        condition: () => ironDoor.open,
-        actions: () => ironDoor.getVerb("close").attempt()
+      [direction === down ? "round bend" : "go back"]: { node: "bottomJail", actions: () => setTraversal(right) },
+      [direction === down ? "back and right" : "right"]: { node: "topJail", actions: () => setTraversal(right) },
+      [direction === down ? "back and straight on" : "straight on"]: {
+        node: "topLeftJail",
+        actions: () => setTraversal(left)
+      }
+    })
+  },
+  {
+    id: "middleJail",
+    actions: () =>
+      `The flagstones of this passage are broken and treacherous underfoot, tilting alarmingly as you step on them, creating loud echoes as the ancient stones scrape and knock together. You cringe inwardly, certain anything nearby must be aware of your precise location.\n\nThere's a heavy oak door to your ${
+        direction === down ? left : right
+      }. Not far beyond, the passage branches left and right. Behind you, there's a similar fork.`,
+    options: () => ({
+      "open oak door": { condition: () => !oakDoor.open, actions: () => oakDoor.getVerb("open").attempt() },
+      "close oak door": {
+        condition: () => oakDoor.open,
+        actions: () => oakDoor.getVerb("close").attempt()
       },
       [direction === down ? "left" : "back and left"]: "lowerRightRockfall",
       [direction === down ? "right" : "back and right"]: { node: "bottomJail", actions: () => setTraversal(left) },
