@@ -6,7 +6,8 @@ export const getKeywordsTable = () => {
   let keywordsTable = `Keyword     | Aliases    | Description
 :-----------|:-----------|:---------------------`;
   const keywords = Object.values(getKeywords()).filter((k) => !k.doNotList);
-  keywords.forEach((k) => (keywordsTable += `\n${k.name} | ${k.aliases.join(", ")} | ${k.description || ""}`));
+  const uniqueKeywords = [...new Set(keywords)];
+  uniqueKeywords.forEach((k) => (keywordsTable += `\n${k.name} | ${k.aliases.join(", ")} | ${k.description || ""}`));
   return keywordsTable;
 };
 

@@ -36,6 +36,7 @@ export class Verb {
     this.prepositionOptional = false;
     this.interrogative = null;
     this.description = description;
+    this.expectsArgs = false; // Used by some keywords.
 
     this.helpers = {
       object: this.object
@@ -69,7 +70,7 @@ export class Verb {
   set test(test) {
     this._tests = [];
     const tests = Array.isArray(test) ? test : [test];
-    tests.forEach(itest => this.addTest(itest));
+    tests.forEach((itest) => this.addTest(itest));
   }
 
   addTest(test) {
@@ -161,6 +162,50 @@ export class Verb {
     } else {
       return this.onFailure.chain(...args);
     }
+  }
+
+  static get Builder() {
+    class Builder {
+      constructor() {
+        this.config = {};
+      }
+
+      withName(name) {
+        this.config.name = name;
+        return this;
+      }
+
+      withDescription(description) {
+        this.config.description = description;
+        return this;
+      }
+
+      withAliases(...aliases) {
+        this.config.aliases = aliases;
+        return this;
+      }
+
+      withOnSuccess(...onSuccess) {
+        this.config.onSuccess = onSuccess;
+        return this;
+      }
+
+      withOnFailure(...onFailure) {
+        this.config.onFailure = onFailure;
+        return this;
+      }
+
+      makeKeyword() {
+        this.config.isKeyword = true;
+        return this;
+      }
+
+      build() {
+        return newVerb(this.config);
+      }
+    }
+
+    return Builder;
   }
 }
 

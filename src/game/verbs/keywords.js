@@ -1,4 +1,4 @@
-import { Verb, GoVerb } from "./verb";
+import { Verb, GoVerb, newVerb } from "./verb";
 import { selectInventory } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
 import { OptionGraph } from "../interactions/optionGraph";
@@ -6,6 +6,7 @@ import { getHelp, giveHint } from "../../gonorth";
 import { getKeywordsTable } from "../../utils/defaultHelp";
 import { getStore } from "../../redux/storeRegistry";
 import { addKeywords, removeKeywords } from "../../redux/gameActions";
+import { handleDebugOperations } from "../../utils/debugFunctions";
 
 export const directionAliases = {
   north: ["n", "forward", "straight on"],
@@ -105,6 +106,14 @@ export function createKeywords() {
     "Get a hint on how to proceed."
   );
 
+  const debug = newVerb({
+    name: "debug",
+    onSuccess: (helpers, operation, ...args) => handleDebugOperations(operation, ...args),
+    isKeyword: true,
+    doNotList: true,
+    expectsArgs: true
+  });
+
   addKeyword(inventoryVerb);
   addKeyword(north);
   addKeyword(south);
@@ -115,6 +124,8 @@ export function createKeywords() {
   addKeyword(wait);
   addKeyword(help);
   addKeyword(keywordsVerb);
+  addKeyword(hint);
+  addKeyword(debug);
 }
 
 export function addKeyword(keyword) {

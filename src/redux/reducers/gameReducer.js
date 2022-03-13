@@ -16,7 +16,8 @@ const initialState = {
   itemNames: new Set(),
   actionChainPromise: null,
   events: [],
-  keywords: {}
+  keywords: {},
+  rooms: {}
 };
 
 export default function (state = initialState, action) {
@@ -75,6 +76,10 @@ export default function (state = initialState, action) {
       keyword.aliases.forEach((alias) => delete keywords[alias]);
       delete keywords[keyword.name];
       return { ...state, keywords };
+    case type.ADD_ROOM:
+      const roomAndAliases = { [action.room.name.toLowerCase()]: action.room };
+      action.room.aliases.forEach((alias) => (roomAndAliases[alias.toLowerCase()] = action.room));
+      return { ...state, rooms: { ...state.rooms, ...roomAndAliases } };
     default:
       return state;
   }

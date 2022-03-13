@@ -41,3 +41,11 @@ export function playerCanCarry(item) {
   const inventory = selectInventory();
   return (inventory.capacity === -1 || inventory.free >= item.size) && !inventory.items[item.name.toLowerCase()];
 }
+
+/*
+ * Returns true if the player is carrying the item.
+ */
+export function playerHasItem(item) {
+  const inventory = selectInventory();
+  return inventory.items.hasOwnProperty(item.name.toLowerCase());
+}

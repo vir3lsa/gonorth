@@ -14,7 +14,8 @@ import {
   TIMEOUT_MILLIS,
   RandomText,
   Action,
-  selectInventory
+  selectInventory,
+  playerHasItem
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 
@@ -33,6 +34,49 @@ let beingChased = false;
 let hiding = false;
 let traversal = forward;
 let metTheMonster = false;
+
+let cell = new Room(
+  "Dank Cell",
+  "The dank, cold room is little larger than a cupboard. The rough flagstones of the floor are damp and fuzzy with green moss. Attached to one stone-block wall is a pair of chains ending in heavy iron manacles. This is clearly a cell of some kind. You shiver at the thought of being kept in here.\n\nSome of the stone blocks making up the far right corner appear a little broken."
+);
+
+const manacles = new Item.Builder()
+  .withName("manacles")
+  .withDescription(
+    "Large iron pins protrude from the wall and support heavy chains that end in shackles to be fastened about a person's wrists...or ankles, according to the whims of the jailer. They're high enough up the wall that your feet probably wouldn't touch the ground if they were used on you, but perhaps that's the point."
+  )
+  .withAliases("shackles", "manacle", "shackle", "chain", "chains", "pin", "pins")
+  .build();
+
+let stonesCondition = 3;
+
+const brokenStones = new Item.Builder()
+  .withName("broken stones")
+  .withDescription(
+    "The solid stone blocks are much larger than ordinary bricks, but in this corner they appear to be crumbling and some of them have turned slightly, suggesting they might be loose."
+  )
+  .withAliases("crumbling", "turned", "gap", "hairline", "wall")
+  .withVerbs(
+    new Verb.Builder()
+      .withName("break")
+      .withAliases("smash", "push", "pull", "kick")
+      .withOnSuccess(() => {
+        stonesCondition--;
+        if (stonesCondition >= 2) {
+          return "You try to get a purchase on one of the twisted stones, but there's not enough to hook your fingers onto. Instead, you get down on the cold floor and push the stones with your feet. They shift a little bit.";
+        } else if (stonesCondition === 1) {
+          return "You kick at the broken blocks some more, trying not to break your toes. After giving one a good shove with your feet, they shift a little bit more, loose rubble falling down around them. There's a hairline gap visible through to the other side now.";
+        } else if (stonesCondition === 0) {
+          return "Getting back down onto the mossy slabstones, you give the crumbling wall one last two-footed kick and the broken stones give way and burst out into the space beyond. A shower of debris rains down onto your legs, causing a number of cuts and scratches, but you hardly notice.";
+        } else {
+          return "You've already created a decent hole in the wall - there's no need to collapse the whole cell.";
+        }
+      })
+      .build()
+  )
+  .build();
+
+cell.addItems(manacles, brokenStones);
 
 let mouldRoom = new Room(
   "Mould Room",
@@ -512,7 +556,7 @@ const tunnelsNodes = [
       }
     },
     options: () => ({
-      [traversal === down ? back : "left bend"]: "meetTheMonster",
+      [traversal === down ? "back" : "left bend"]: "meetTheMonster",
       "long corridor": { node: "topJail", actions: () => setTraversal(right) },
       "submerged tunnel": { node: "leftJail", actions: () => setTraversal(down) }
     })
@@ -564,10 +608,26 @@ const tunnelsNodes = [
         direction === down ? left : right
       }. Not far beyond, the passage branches left and right. Behind you, there's a similar fork.`,
     options: () => ({
+      "unlock oak door": {
+        condition: () => oakDoor.locked,
+        actions: () => {
+          if (playerHasItem(cellKey)) {
+            return oakDoor.getVerb("unlock").attempt(cellKey);
+          }
+          {
+            return "Alas, you don't have the key.";
+          }
+        }
+      },
       "open oak door": { condition: () => !oakDoor.open, actions: () => oakDoor.getVerb("open").attempt() },
       "close oak door": {
         condition: () => oakDoor.open,
         actions: () => oakDoor.getVerb("close").attempt()
+      },
+      "enter room": {
+        condition: () => oakDoor.open,
+        actions: () => [setTraversal(right), "You step into the dark chamber beyond the wooden door."],
+        room: cell
       },
       [direction === down ? "left" : "back and left"]: "lowerRightRockfall",
       [direction === down ? "right" : "back and right"]: { node: "bottomJail", actions: () => setTraversal(left) },
@@ -577,6 +637,12 @@ const tunnelsNodes = [
   },
   {
     id: "topRightJail"
+  },
+  {
+    id: "lowerRightRockfall"
+  },
+  {
+    id: "bottomJail"
   }
 ];
 

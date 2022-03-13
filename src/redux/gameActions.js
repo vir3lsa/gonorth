@@ -120,3 +120,8 @@ export const removeKeywords = (keyword) => ({
   type: type.REMOVE_KEYWORDS,
   keyword
 });
+
+export const addRoom = (room) => ({
+  type: type.ADD_ROOM,
+  room
+});

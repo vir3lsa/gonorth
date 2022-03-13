@@ -45,13 +45,14 @@ export class Parser {
         this.registeredVerb = canonicalVerb || this.registeredVerb;
         const verbEndIndex = verbIndex + numWords;
 
-        // If the player hasn't included an item, try keywords and the current room
-        if (verbEndIndex === tokens.length) {
-          // Is the verb a keyword?
-          const keyword = selectKeywords()[possibleVerb];
+        // Is the verb a keyword?
+        const keyword = selectKeywords()[possibleVerb];
 
+        // If the player hasn't included an item (or a matching keywords expects extra args), try keywords and the current room
+        if (verbEndIndex === tokens.length || keyword?.expectsArgs) {
           if (keyword) {
-            return keyword.attempt();
+            // Invoke keyword action, passing extra args for benefit of those that expect them.
+            return keyword.attempt(...tokens.slice(verbEndIndex));
           }
 
           // Is the verb in the current room?

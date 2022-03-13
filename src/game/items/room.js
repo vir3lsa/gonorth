@@ -2,7 +2,7 @@ import { getStore } from "../../redux/storeRegistry";
 import { Door } from "./door";
 import { GoVerb } from "../verbs/verb";
 import { Item } from "./item";
-import { itemsRevealed, changeImage } from "../../redux/gameActions";
+import { itemsRevealed, changeImage, addRoom } from "../../redux/gameActions";
 import { preferPaged } from "../../utils/dynamicDescription";
 import { ActionChain } from "../../utils/actionChain";
 import { goToRoom } from "../../gonorth";
@@ -18,6 +18,7 @@ export class Room extends Item {
     this.options = options;
     this.canHoldItems = true;
     this.aliases = ["room", "floor"];
+    getStore().dispatch(addRoom(this));
   }
 
   set options(options) {
@@ -49,8 +50,7 @@ export class Room extends Item {
       test = () => navigable.open;
     }
 
-    const onSuccessArray =
-      !onSuccess || Array.isArray(onSuccess) ? onSuccess : [onSuccess];
+    const onSuccessArray = !onSuccess || Array.isArray(onSuccess) ? onSuccess : [onSuccess];
     const direction = directionName.toLowerCase();
     const aliases = [direction, ...(directionAliases[direction] || [])];
     const directionObject = {
@@ -141,10 +141,7 @@ export class Room extends Item {
    * Get the ActionChain (including any options) associated with going to this room.
    */
   get actionChain() {
-    const chain = new ActionChain(
-      () => getStore().dispatch(changeImage(this._image)),
-      this.description
-    );
+    const chain = new ActionChain(() => getStore().dispatch(changeImage(this._image)), this.description);
     chain.options = this.options;
 
     if (this.itemListings) {
@@ -180,9 +177,7 @@ export class Room extends Item {
         debug(`Will simply list ${item.name} as it is holdable.`);
         plainList.push(item); // We'll list this item separately
       } else {
-        debug(
-          `${item.name} is not holdable and doesn't have a room listing so won't be listed.`
-        );
+        debug(`${item.name} is not holdable and doesn't have a room listing so won't be listed.`);
       }
     });
 
@@ -193,14 +188,10 @@ export class Room extends Item {
         debug(`Listing ${container.name}'s items as they are visible.`);
         const describedItems = [];
         Object.values(container.items).forEach((itemsWithName) =>
-          itemsWithName
-            .filter((item) => item.containerListing)
-            .forEach((item) => describedItems.push(item))
+          itemsWithName.filter((item) => item.containerListing).forEach((item) => describedItems.push(item))
         );
         debug(`Found ${describedItems.length} item(s) with room listings.`);
-        const containerListings = describedItems
-          .map((item) => item.containerListing)
-          .join(" ");
+        const containerListings = describedItems.map((item) => item.containerListing).join(" ");
         const titleCasePrep = toTitleCase(container.preposition);
         const list = container.basicItemList;
 
