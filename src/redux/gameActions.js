@@ -125,3 +125,8 @@ export const addRoom = (room) => ({
   type: type.ADD_ROOM,
   room
 });
+
+export const addItem = (item) => ({
+  type: type.ADD_ITEM,
+  item
+});

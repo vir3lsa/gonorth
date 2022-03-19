@@ -4,7 +4,7 @@ import { createDynamicText } from "../../utils/dynamicDescription";
 import { selectInventory } from "../../utils/selectors";
 import { getBasicItemList, toTitleCase, getArticle } from "../../utils/textFunctions";
 import { getStore } from "../../redux/storeRegistry";
-import { itemsRevealed } from "../../redux/gameActions";
+import { addItem, itemsRevealed } from "../../redux/gameActions";
 import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 
@@ -16,6 +16,25 @@ export function newItem(config) {
 }
 
 export class Item {
+  clone() {
+    return newItem({
+      name: this.name,
+      description: this.description,
+      holdable: this.holdable,
+      size: this.size,
+      verbs: Object.values(this.verbs),
+      aliases: this.aliases,
+      hidesItems: this.hidesItems.map((item) => item.clone()),
+      containerListing: this.containerListing,
+      canHoldItems: this.canHoldItems,
+      capacity: this.capacity,
+      preposition: this.preposition,
+      itemsVisibleFromRoom: this.itemsVisibleFromRoom,
+      itemsVisibleFromSelf: this.itemsVisibleFromSelf,
+      doNotList: this.doNotList
+    });
+  }
+
   constructor(
     name = "item",
     description = "It's fairly ordinary looking",
@@ -153,6 +172,8 @@ export class Item {
       giveVerb.makePrepositional("to whom");
       this.addVerb(giveVerb);
     }
+
+    getStore().dispatch(addItem(this));
   }
 
   get name() {
@@ -500,6 +521,7 @@ export class Item {
   addAliases(...aliases) {
     const newAliases = aliases.forEach((alias) => this.createAliases(alias));
     this._addAliasesToContainer(newAliases);
+    getStore().dispatch(addItem(this)); // Use of Sets means doing this again not a problem.
   }
 
   /*

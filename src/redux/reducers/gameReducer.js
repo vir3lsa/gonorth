@@ -17,7 +17,10 @@ const initialState = {
   actionChainPromise: null,
   events: [],
   keywords: {},
-  rooms: {}
+  // The following parts of the model are used for debugging only.
+  rooms: {},
+  allItemNames: new Set(),
+  items: {}
 };
 
 export default function (state = initialState, action) {
@@ -77,9 +80,17 @@ export default function (state = initialState, action) {
       delete keywords[keyword.name];
       return { ...state, keywords };
     case type.ADD_ROOM:
-      const roomAndAliases = { [action.room.name.toLowerCase()]: action.room };
-      action.room.aliases.forEach((alias) => (roomAndAliases[alias.toLowerCase()] = action.room));
-      return { ...state, rooms: { ...state.rooms, ...roomAndAliases } };
+      return { ...state, rooms: { ...state.rooms, [action.room.name.toLowerCase()]: action.room } };
+    case type.ADD_ITEM:
+      let newState = { ...state, allItemNames: new Set([...state.allItemNames, action.item.name]) };
+      const addAlias = (items, alias) => {
+        const itemsWithAlias = items[alias] || new Set();
+        itemsWithAlias.add(action.item);
+        return { ...items, [alias]: itemsWithAlias };
+      };
+      let newItems = addAlias(newState.items, action.item.name.toLowerCase());
+      action.item.aliases.forEach((alias) => (newItems = addAlias(newItems, alias.toLowerCase())));
+      return { ...newState, items: newItems };
     default:
       return state;
   }

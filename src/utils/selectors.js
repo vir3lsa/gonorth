@@ -12,3 +12,5 @@ export const selectTurn = () => getStore().getState().game.turn;
 export const selectDebugMode = () => getStore().getState().game.debugMode;
 export const selectOptions = () => getStore().getState().game.interaction.options;
 export const selectRooms = () => getStore().getState().game.rooms;
+export const selectAllItemNames = () => getStore().getState().game.allItemNames;
+export const selectItems = () => getStore().getState().game.items;
