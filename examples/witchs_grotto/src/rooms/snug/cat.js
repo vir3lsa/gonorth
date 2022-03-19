@@ -339,7 +339,7 @@ const catTalkNodes = [
   }
 ];
 
-const catGraph = new OptionGraph(...catTalkNodes);
+const catGraph = new OptionGraph("cat", ...catTalkNodes);
 
 const speak = new Verb(
   "speak",

@@ -113,4 +113,4 @@ const optionNodes = [
   }
 ];
 
-export const helpGraph = new OptionGraph(...optionNodes);
+export const helpGraph = new OptionGraph("help", ...optionNodes);

@@ -126,7 +126,7 @@ const stirNodes = [
   }
 ];
 
-const stirGraph = new OptionGraph(...stirNodes);
+const stirGraph = new OptionGraph("stir", ...stirNodes);
 
 const stir = new Verb(
   "stir",

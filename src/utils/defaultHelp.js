@@ -102,25 +102,38 @@ const optionNodes = [
   }
 ];
 
-const helpGraph = new OptionGraph(...optionNodes);
+let helpGraph, hintGraph;
 
-export const hintGraph = new OptionGraph(
-  {
-    id: "default",
-    actions: "I'm afraid you're on your own on this one. I can't help you.",
-    options: {
-      okay: null,
-      more: "default2"
-    }
-  },
-  {
-    id: "default2",
-    actions: "No, I'm afraid I really don't know anything. You'll just have to use the old noggin.",
-    options: {
-      okay: null,
-      previous: "default"
-    }
+export const getHelpGraph = () => {
+  if (!helpGraph) {
+    helpGraph = new OptionGraph("help", ...optionNodes);
   }
-);
 
-export const defaultHelp = helpGraph;
+  return helpGraph;
+};
+
+export const getHintGraph = () => {
+  if (!hintGraph) {
+    hintGraph = new OptionGraph(
+      "hints",
+      {
+        id: "default",
+        actions: "I'm afraid you're on your own on this one. I can't help you.",
+        options: {
+          okay: null,
+          more: "default2"
+        }
+      },
+      {
+        id: "default2",
+        actions: "No, I'm afraid I really don't know anything. You'll just have to use the old noggin.",
+        options: {
+          okay: null,
+          previous: "default"
+        }
+      }
+    );
+  }
+
+  return hintGraph;
+};

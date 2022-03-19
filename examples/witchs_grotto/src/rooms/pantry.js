@@ -58,7 +58,7 @@ const cupboardNodes = [
   }
 ];
 
-const cupboardGraph = new OptionGraph(...cupboardNodes);
+const cupboardGraph = new OptionGraph("cupboard", ...cupboardNodes);
 
 cupboardItem.addVerb(
   new Verb(

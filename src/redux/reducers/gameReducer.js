@@ -20,7 +20,8 @@ const initialState = {
   // The following parts of the model are used for debugging only.
   rooms: {},
   allItemNames: new Set(),
-  items: {}
+  items: {},
+  optionGraphs: {}
 };
 
 export default function (state = initialState, action) {
@@ -91,6 +92,8 @@ export default function (state = initialState, action) {
       let newItems = addAlias(newState.items, action.item.name.toLowerCase());
       action.item.aliases.forEach((alias) => (newItems = addAlias(newItems, alias.toLowerCase())));
       return { ...newState, items: newItems };
+    case type.ADD_OPTION_GRAPH:
+      return { ...state, optionGraphs: { ...state.optionGraphs, [action.optionGraph.id]: action.optionGraph } };
     default:
       return state;
   }

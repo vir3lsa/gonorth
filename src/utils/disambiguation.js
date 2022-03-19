@@ -40,7 +40,7 @@ export default function disambiguate(name, items, onChoose) {
     options
   });
 
-  const optionGraph = new OptionGraph(...nodes);
+  const optionGraph = new OptionGraph("disambiguation", ...nodes);
 
   // TODO Bug in ActionChain that means options are rendered even though OptionChain.renderOptions is false
   return optionGraph.commence().chain();

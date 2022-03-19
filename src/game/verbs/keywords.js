@@ -73,7 +73,7 @@ export function createKeywords() {
     }
   ];
 
-  const waitGraph = new OptionGraph(...waitNodes);
+  const waitGraph = new OptionGraph("wait", ...waitNodes);
   const wait = new Verb("wait", true, waitGraph.commence(), [], [], true, "Allow time to pass.");
 
   const help = new Verb(

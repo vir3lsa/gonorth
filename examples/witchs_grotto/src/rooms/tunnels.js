@@ -111,7 +111,7 @@ const rottenBarrel = new Item(
   "It's standing on the jagged edges of the wooden staves that must have been broken when the barrel was somehow split in two, such that the open side is facing downwards. An animal or even a small person could hide beneath it if they were so inclined."
 );
 
-const barrelHideGraph = new OptionGraph({
+const barrelHideGraph = new OptionGraph("barrel", {
   id: "hide",
   actions:
     "You can see much of the dank chamber through gaps between the barrel's wooden staves. There's nothing there.",
@@ -181,6 +181,7 @@ const waitInWellText = new CyclicText(
 );
 
 const wellGraph = new OptionGraph(
+  "well",
   {
     id: "start",
     actions:
@@ -674,7 +675,7 @@ tunnelsNodes.forEach((node) => {
   node.actions = actions;
 });
 
-export const tunnelsGraph = new OptionGraph(...tunnelsNodes);
+export const tunnelsGraph = new OptionGraph("tunnels", ...tunnelsNodes);
 
 meetTheMonster = new Event(
   "meet the monster",

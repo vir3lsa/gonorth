@@ -102,7 +102,7 @@ const grimoireNodes = [
   }
 ];
 
-const readGrimoire = new OptionGraph(...grimoireNodes);
+const readGrimoire = new OptionGraph("grimoire", ...grimoireNodes);
 
 grimoire.addVerb(
   new Verb(

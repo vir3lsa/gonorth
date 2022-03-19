@@ -130,3 +130,8 @@ export const addItem = (item) => ({
   type: type.ADD_ITEM,
   item
 });
+
+export const addOptionGraph = (optionGraph) => ({
+  type: type.ADD_OPTION_GRAPH,
+  optionGraph
+});

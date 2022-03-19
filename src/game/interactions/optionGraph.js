@@ -1,12 +1,19 @@
 import { Action, ActionChain } from "../../utils/actionChain";
 import { Option } from "./option";
 import { goToRoom } from "../../utils/lifecycle";
+import { getStore } from "../../redux/storeRegistry";
+import { addOptionGraph } from "../../redux/gameActions";
 
 export const next = "OptionGraph_next";
 export const previous = "OptionGraph_previous";
 
 export class OptionGraph {
-  constructor(...nodes) {
+  constructor(id, ...nodes) {
+    if (typeof id !== "string") {
+      throw Error("OptionGraphs must be given unique ID strings.");
+    }
+
+    this.id = id;
     this.nodes = nodes.map((node) => ({ ...node })); // Shallow copy nodes
     this.startNode = nodes[0];
     this.flattened = {};
@@ -15,6 +22,7 @@ export class OptionGraph {
     this.promise = new Promise((resolve) => (this.resolve = resolve));
 
     this.reindex();
+    getStore().dispatch(addOptionGraph(this));
   }
 
   get allowRepeats() {

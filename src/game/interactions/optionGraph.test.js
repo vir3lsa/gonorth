@@ -126,7 +126,7 @@ const roomOptionNodes = [
 ];
 
 const createGraph = (nodes) => {
-  const graph = new OptionGraph(...nodes);
+  const graph = new OptionGraph("test", ...nodes);
   return graph.commence().chain();
 };
 
@@ -136,7 +136,7 @@ beforeEach(async () => {
 
   // Pretend we're in the browser
   game = initGame("Jolly Capers", false);
-  optionGraph = new OptionGraph(...graphNodes);
+  optionGraph = new OptionGraph("jollyCapers", ...graphNodes);
   x = 0;
   getStore().dispatch(newGame(game, true, false));
   await optionGraph.commence().chain();
@@ -221,7 +221,7 @@ test("optionGraph repeats nodes by default", async () => {
 });
 
 test("optionGraph does not repeat nodes if instructed", async () => {
-  const graph = new OptionGraph(...speechNodes);
+  const graph = new OptionGraph("noRepeat", ...speechNodes);
   graph.allowRepeats = false;
   await graph.commence().chain();
   await selectOptions()[0].action();
@@ -241,7 +241,7 @@ test("individual nodes can opt to not repeat", async () => {
 test("individual nodes can opt to repeat", async () => {
   const nodes = [...speechNodes];
   nodes[1].allowRepeats = true;
-  const graph = new OptionGraph(...nodes);
+  const graph = new OptionGraph("repeats", ...nodes);
   graph.allowRepeats = false;
   await graph.commence().chain();
   await selectOptions()[0].action();

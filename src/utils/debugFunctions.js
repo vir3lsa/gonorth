@@ -1,5 +1,12 @@
 import { goToRoom } from "./lifecycle";
-import { selectAllItemNames, selectItemNames, selectItems, selectRoom, selectRooms } from "./selectors";
+import {
+  selectAllItemNames,
+  selectItemNames,
+  selectItems,
+  selectOptionGraphs,
+  selectRoom,
+  selectRooms
+} from "./selectors";
 import { Item } from "../game/items/item";
 import disambiguate from "./disambiguation";
 
@@ -51,6 +58,12 @@ function show(args) {
       return `Items:\n\n- ${[...selectAllItemNames()].join("\n- ")}`;
     case "available items":
       return `Items:\n\n- ${[...selectItemNames()].join("\n- ")}`;
+    case "option graphs":
+    case "optionGraphs":
+    case "optiongraphs":
+    case "options":
+    case "graphs":
+      return `Option Graphs:\n\n- ${Object.keys(selectOptionGraphs()).join("\n- ")}`;
     default:
       return `I don't know how to show ${whatToList}.`;
   }

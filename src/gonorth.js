@@ -17,7 +17,7 @@ import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { goToRoom } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
-import { defaultHelp, hintGraph } from "./utils/defaultHelp";
+import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 
 initStore();
 
@@ -32,8 +32,8 @@ function initGame(title, author, debugMode) {
   game.schedules = [];
   game._startingRoom = new Room("Empty Room", "The room is completely devoid of anything interesting.");
   game.player = new Item("player", "You look as you normally do.", false);
-  game.help = defaultHelp;
-  game.hintGraph = hintGraph;
+  game.help = getHelpGraph();
+  game.hintGraph = getHintGraph();
   game.hintNode = "default";
 
   createKeywords();

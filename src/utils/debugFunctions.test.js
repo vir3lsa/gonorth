@@ -85,4 +85,5 @@ describe("debugFunctions", () => {
     inputTest("i", "red ball");
   });
   it("disambiguates when spawning items", () => inputTest("debug spawn ball", "Which ball do you mean?"));
+  it("shows a list of option graphs", () => inputTest("debug show option graphs", ["Option Graphs:", "wait"]));
 });
