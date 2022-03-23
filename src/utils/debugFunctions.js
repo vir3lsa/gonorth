@@ -21,6 +21,29 @@ Operations:
 - \`spawn\` / \`create\` / \`make\`                - create an item
 - \`commence\` / \`graph\` / \`join\` / \`start \` - join an option graph at the specified node, or the default node`;
 
+const gotoHelp = `Usage: \`debug goto [room]\`
+- e.g. \`debug goto kitchen\`
+- e.g. \`debug goto cellar\``;
+
+const showHelp = `Usage: \`debug show [something] [id]\`
+- e.g. \`debug show rooms\`
+- e.g. \`debug show graph cat\`
+
+Options:
+- \`rooms\`           - list all room names
+- \`items\`           - list all item names (not including aliases)
+- \`available items\` - list all item names that can be interacted with in the current room (including aliases)\`
+- \`graphs\`          - list all option graph IDs
+- \`nodes [id]\`      - list all node IDs for the given option graph ID\``;
+
+const spawnHelp = `Usage: \`debug spawn [item]\`
+- e.g. \`debug spawn ball\`
+- e.g. \`debug spawn potion\``;
+
+const commenceHelp = `Usage: \`debug commence [graph] [node]\`
+- e.g. \`debug commence conversation\`
+- e.g. \`debug commence conversation weather\``;
+
 export function handleDebugOperations(operation, ...args) {
   switch (operation.toLowerCase()) {
     case "go":
@@ -46,6 +69,10 @@ export function handleDebugOperations(operation, ...args) {
 }
 
 function goto(args) {
+  if (args.length === 1 && args[0] === "help") {
+    return gotoHelp;
+  }
+
   const roomName = args.map((arg) => arg.toLowerCase()).join(" ");
   const room = selectRooms()[roomName];
 
@@ -57,6 +84,10 @@ function goto(args) {
 }
 
 function show(args) {
+  if (args.length === 1 && args[0] === "help") {
+    return showHelp;
+  }
+
   let argsIndex = 0;
   let whatToList = args[argsIndex].toLowerCase();
 
@@ -106,6 +137,10 @@ function showNodes(args, argsIndex) {
 }
 
 function spawn(args) {
+  if (args.length === 1 && args[0] === "help") {
+    return spawnHelp;
+  }
+
   const itemName = args.map((arg) => arg.toLowerCase()).join(" ");
   const itemsWithName = [...(selectItems()[itemName] || new Set())];
   let item;
@@ -128,6 +163,10 @@ function spawn(args) {
 }
 
 function commence(args) {
+  if (args.length === 1 && args[0] === "help") {
+    return commenceHelp;
+  }
+
   let argsIndex = 0;
   let graphId = args[argsIndex];
   let graphs = selectOptionGraphs();

@@ -106,7 +106,7 @@ let helpGraph, hintGraph;
 
 export const getHelpGraph = () => {
   if (!helpGraph) {
-    helpGraph = new OptionGraph("help", ...optionNodes);
+    helpGraph = new OptionGraph("defaultHelp", ...optionNodes);
   }
 
   return helpGraph;
