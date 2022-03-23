@@ -30,6 +30,12 @@ export class Parser {
   parse() {
     const tokens = this.input.trim().toLowerCase().split(/\s+/);
 
+    if (tokens[0] === "debug") {
+      // Need case-sensitive args for the debug command.
+      const args = this.input.trim().split(/\s+/).slice(1);
+      return selectKeywords().debug.attempt(...args);
+    }
+
     const room = selectRoom();
 
     for (let numWords = tokens.length; numWords > 0; numWords--) {

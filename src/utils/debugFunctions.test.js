@@ -1,5 +1,5 @@
 import { Room } from "../game/items/room";
-import { getStore, registerStore, unregisterStore } from "../redux/storeRegistry";
+import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { Parser } from "../game/parser";
 import { Door } from "../game/items/door";
@@ -9,6 +9,7 @@ import { initGame } from "../gonorth";
 import { goToRoom } from "./lifecycle";
 import { PagedText } from "../game/interactions/text";
 import { initStore } from "../redux/store";
+import { OptionGraph } from "../game/interactions/optionGraph";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("./consoleIO");
@@ -71,6 +72,13 @@ describe("debugFunctions", () => {
     if (!hall.items["cushion"]) {
       hall.addItem(cushion);
     }
+
+    const graph = new OptionGraph(
+      "numbers",
+      { id: "1", actions: "one", options: { two: "2" } },
+      { id: "2", actions: "two", options: { two: "3" } },
+      { id: "3", actions: "three", options: { two: "1" } }
+    );
   });
 
   it("displays help", () => inputTest("debug help", "Usage:"));
@@ -85,5 +93,16 @@ describe("debugFunctions", () => {
     inputTest("i", "red ball");
   });
   it("disambiguates when spawning items", () => inputTest("debug spawn ball", "Which ball do you mean?"));
-  it("shows a list of option graphs", () => inputTest("debug show option graphs", ["Option Graphs:", "wait"]));
+  it("shows a list of option graphs", () =>
+    inputTest("debug show option graphs", ["Option Graphs:", "wait", "numbers"]));
+  it("shows option graph nodes", () => inputTest("debug show graph numbers", ["Nodes:", "1", "2", "3"]));
+  it("commences an option graph at the default node", () => inputTest("debug commence numbers", "one", "two", "three"));
+  it("commences an option graph at the specified node", () =>
+    inputTest("debug commence numbers 3", "three", "one", "two"));
+  it("shows a warning if the option graph doesn't exist", () =>
+    inputTest("debug show graph letters", ["no option graph with ID", "letters"]));
+  it("shows a warning if the node doesn't exist", () =>
+    inputTest("debug commence numbers 4", ["Unable to find option graph and node", "4"]));
+  it("shows a warning if the option graph and node combination doesn't exist", () =>
+    inputTest("debug commence letters 2", ["Unable to find option graph and node", "letters 2"]));
 });

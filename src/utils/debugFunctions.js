@@ -15,13 +15,15 @@ const helpText = `Usage: \`debug operation [args]\`
 - e.g. \`debug goto kitchen\`
 
 Operations:
-- \`goto\`  - go to a room
-- \`show\`  - list something
-- \`list\`  - same as show
-- \`spawn\` - create an item`;
+- \`help\`                                         - show debug help
+- \`goto\` / \`go\`                                - go to a room
+- \`show\` / \`list\`                              - list something
+- \`spawn\` / \`create\` / \`make\`                - create an item
+- \`commence\` / \`graph\` / \`join\` / \`start \` - join an option graph at the specified node, or the default node`;
 
 export function handleDebugOperations(operation, ...args) {
   switch (operation.toLowerCase()) {
+    case "go":
     case "goto":
       return goto(args);
     case "list":
@@ -29,8 +31,15 @@ export function handleDebugOperations(operation, ...args) {
       return show(args);
     case "help":
       return helpText;
+    case "create":
+    case "make":
     case "spawn":
       return spawn(args);
+    case "commence":
+    case "graph":
+    case "join":
+    case "start":
+      return commence(args);
     default:
       return `Unrecognised debug operation: ${operation}`;
   }
@@ -48,25 +57,52 @@ function goto(args) {
 }
 
 function show(args) {
-  const whatToList = args.map((arg) => arg.toLowerCase()).join(" ");
+  let argsIndex = 0;
+  let whatToList = args[argsIndex].toLowerCase();
 
-  switch (whatToList) {
-    case "rooms":
-      return `Rooms:\n\n- ${Object.keys(selectRooms()).join("\n- ")}`;
-    case "items":
-    case "all items":
-      return `Items:\n\n- ${[...selectAllItemNames()].join("\n- ")}`;
-    case "available items":
-      return `Items:\n\n- ${[...selectItemNames()].join("\n- ")}`;
-    case "option graphs":
-    case "optionGraphs":
-    case "optiongraphs":
-    case "options":
-    case "graphs":
-      return `Option Graphs:\n\n- ${Object.keys(selectOptionGraphs()).join("\n- ")}`;
-    default:
-      return `I don't know how to show ${whatToList}.`;
+  while (true) {
+    switch (whatToList) {
+      case "rooms":
+        return `Rooms:\n\n- ${Object.keys(selectRooms()).join("\n- ")}`;
+      case "items":
+      case "all items":
+        return `Items:\n\n- ${[...selectAllItemNames()].join("\n- ")}`;
+      case "available items":
+        return `Items:\n\n- ${[...selectItemNames()].join("\n- ")}`;
+      case "option graphs":
+      case "optiongraphs":
+      case "options":
+      case "graphs":
+        return `Option Graphs:\n\n- ${Object.keys(selectOptionGraphs()).join("\n- ")}`;
+      case "nodes":
+      case "option graph":
+      case "optiongraph":
+      case "graph":
+        return showNodes(args, argsIndex);
+      default:
+        if (argsIndex < args.length - 1) {
+          argsIndex++;
+          whatToList += ` ${args[argsIndex].toLowerCase()}`;
+        } else {
+          return `I don't know how to show ${whatToList}.`;
+        }
+    }
   }
+}
+
+function showNodes(args, argsIndex) {
+  if (argsIndex >= args.length - 1) {
+    return "Can't list nodes - no option graph ID provided.";
+  }
+
+  const id = args.slice(argsIndex + 1).join(" ");
+  const optionGraph = selectOptionGraphs()[id];
+
+  if (!optionGraph) {
+    return `Can't list nodes - no option graph with ID ${id} found.`;
+  }
+
+  return `Nodes:\n\n- ${optionGraph.nodes.map((node) => node.id).join("\n- ")}`;
 }
 
 function spawn(args) {
@@ -89,4 +125,33 @@ function spawn(args) {
   }
 
   return spawnItem(item);
+}
+
+function commence(args) {
+  let argsIndex = 0;
+  let graphId = args[argsIndex];
+  let graphs = selectOptionGraphs();
+
+  while (true) {
+    const graph = graphs[graphId];
+
+    if (graph) {
+      if (argsIndex < args.length - 1) {
+        const nodeId = args.slice(argsIndex + 1).join(" ");
+
+        if (graph.flattened[nodeId]) {
+          return graph.commence(nodeId).chain();
+        }
+      } else {
+        return graph.commence().chain();
+      }
+    }
+
+    if (argsIndex < args.length - 1) {
+      argsIndex++;
+      graphId += ` ${args[argsIndex]}`;
+    } else {
+      return `Unable to find option graph and node using input ${args.join(" ")}`;
+    }
+  }
 }
