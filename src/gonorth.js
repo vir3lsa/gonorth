@@ -15,7 +15,7 @@ import { Interaction } from "./game/interactions/interaction";
 import { Option } from "./game/interactions/option";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import { goToRoom } from "./utils/lifecycle";
+import { clearPage, goToRoom } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 
@@ -86,7 +86,9 @@ function renderTopLevel() {
  */
 function setIntro(intro) {
   game.introActions = new ActionChain(
+    () => clearPage(),
     intro,
+    () => clearPage(),
     () => getHelp(),
     () => goToStartingRoom()
   );

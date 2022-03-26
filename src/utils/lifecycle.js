@@ -1,7 +1,8 @@
 import { processEvent } from "./eventUtils";
 import { getStore } from "../redux/storeRegistry";
 import { selectGame } from "./selectors";
-import { nextTurn } from "../redux/gameActions";
+import { nextTurn, changeInteraction } from "../redux/gameActions";
+import { Interaction } from "../game/interactions/interaction";
 
 export async function handleTurnEnd() {
   const events = getStore().getState().game.events;
@@ -22,4 +23,8 @@ export function goToRoom(room) {
   selectGame().room = room;
   room.revealVisibleItems();
   return room.actionChain;
+}
+
+export function clearPage() {
+  getStore().dispatch(changeInteraction(new Interaction("")));
 }

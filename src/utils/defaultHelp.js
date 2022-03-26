@@ -1,6 +1,7 @@
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { getKeywords } from "../game/verbs/keywords";
-import { selectGame } from "./selectors";
+import { clearPage } from "./lifecycle";
+import { selectGame, selectRoom } from "./selectors";
 
 export const getKeywordsTable = () => {
   let keywordsTable = `Keyword     | Aliases    | Description
@@ -14,10 +15,13 @@ export const getKeywordsTable = () => {
 const optionNodes = [
   {
     id: "help",
-    actions: () =>
-      `The game you're playing, ${
-        selectGame().title
-      }, is a work of interactive fiction, meaning that for much of the game you will be presented with a text box asking "What do you want to do?" You should answer that question by typing commands into the box and pressing \`Enter\`. The game will do its best to interpret what you typed and act accordingly.`,
+    actions: [
+      () => clearPage(),
+      () =>
+        `The game you're playing, ${
+          selectGame().title
+        }, is a work of interactive fiction, meaning that for much of the game you will be presented with a text box asking "What do you want to do?" You should answer that question by typing commands into the box and pressing \`Enter\`. The game will do its best to interpret what you typed and act accordingly.`
+    ],
     options: {
       next: "help2",
       "cancel help": "haveFun"
@@ -98,7 +102,10 @@ const optionNodes = [
   },
   {
     id: "haveFun",
-    actions: `To view these help pages again, type "help".\n\nGood luck, and have fun.`
+    actions: [
+      `To view these help pages again, type "help".\n\nGood luck, and have fun.`,
+      () => selectRoom().verbs.examine.attempt()
+    ]
   }
 ];
 

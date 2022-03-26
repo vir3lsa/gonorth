@@ -11,7 +11,6 @@ import {
   TIMEOUT_TURNS,
   addEvent
 } from "../../../../lib/gonorth";
-import { philtreOfFelineVision } from "../magic/philtreOfFelineSight";
 import { cellarNook } from "./cellarNook";
 import { kitchen } from "./kitchen";
 
@@ -158,4 +157,4 @@ const waterMonster = new Event(
 waterMonster.recurring = true;
 addEvent(waterMonster);
 
-cellar.addItems(trapdoor, coalHatch, pale, steps, archway, ceiling, lightbulb, /* TEST */ philtreOfFelineVision);
+cellar.addItems(trapdoor, coalHatch, pale, steps, archway, ceiling, lightbulb);

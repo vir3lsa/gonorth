@@ -162,7 +162,3 @@ bookShelf.hidesItems = [grimoire];
 bookShelf.preposition = "on";
 
 export { bookShelf, druidicPeoples };
-
-/* TEST TEST TEST */
-bookShelf.addItem(druidicPeoples);
-/* TEST TEST TEST */

@@ -522,32 +522,7 @@ hinges.addVerb(breakVerb);
 // Have to add gate to adjacent room here to avoid circular dependencies
 lowerSpiral.addItem(ironGate);
 
-// TEST TEST TEST (moonstone belongs in kitchen)
-const moonStone = new Ingredient(
-  "pearl-like stone",
-  "It has a pearlesecent lustre that makes it somehow difficult to focus on. Slight imperfections in its surface resemble craters reminiscent of a full moon."
-);
-moonStone.article = "a";
-moonStone.aliases = ["moon stone", "pearl", "stone"];
-moonStone.spirit = "moon";
-// TEST TEST TEST
-
-apothecary.addItems(
-  bookShelf,
-  herbarium,
-  cauldron,
-  contents,
-  apparatus,
-  tap,
-  fire,
-  bureau,
-  ironGate,
-  pentagram,
-  // TEST
-  tornPage,
-  moonStone,
-  woodwormPotion
-);
+apothecary.addItems(bookShelf, herbarium, cauldron, contents, apparatus, tap, fire, bureau, ironGate, pentagram);
 
 apothecary.setEast(
   lowerSpiral,
@@ -555,7 +530,3 @@ apothecary.setEast(
   "Glancing at the evidence of your physical might leaning against the wall you step casually through the gateway.",
   "The gate is locked with a large, albeit rusty, padlock."
 );
-
-/* TEST TEST TEST */
-apothecary.setSouth(snug, true, "TEMP TEST");
-/* TEST TEST TEST */
