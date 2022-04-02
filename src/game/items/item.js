@@ -255,7 +255,7 @@ export class Item {
   }
 
   get aliases() {
-    return this._aliases;
+    return [...this._aliases];
   }
 
   /**
@@ -263,7 +263,7 @@ export class Item {
    */
   set aliases(aliases) {
     const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
-    this._aliases = aliasArray;
+    this._aliases = new Set(aliasArray);
     this._addAliasesToContainer(this.aliases);
   }
 

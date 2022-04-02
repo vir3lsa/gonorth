@@ -2,15 +2,7 @@ import { Item } from "./item";
 import { Verb } from "../verbs/verb";
 
 export class Door extends Item {
-  constructor(
-    name,
-    description,
-    open = true,
-    locked = false,
-    openSuccessText,
-    unlockSuccessText,
-    aliases
-  ) {
+  constructor(name, description, open = true, locked = false, openSuccessText, unlockSuccessText, aliases, key) {
     super(name, description, false, -1, [], aliases);
 
     this.addVerb(
@@ -42,9 +34,21 @@ export class Door extends Item {
     this.addVerb(
       new Verb(
         "unlock",
-        (helper) => helper.object.locked,
-        [(helper) => (helper.object.locked = false), unlockSuccessText || `The ${name} unlocks with a soft *click*.`],
-        `The ${name} is already unlocked.`,
+        (helper, key) => helper.object.locked && (this.key ? key?.name === this.key.name : true),
+        [
+          (helper) => (helper.object.locked = false),
+          unlockSuccessText ||
+            (this.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)
+        ],
+        () => {
+          if (this.key && key && this.key.name !== key.name) {
+            return `The ${key.name} doesn't fit.`;
+          } else if (this.key && !key) {
+            return `The ${name} appears to need a key.`;
+          } else {
+            return `The ${name} is already unlocked.`;
+          }
+        },
         [],
         false,
         null,
@@ -54,5 +58,14 @@ export class Door extends Item {
 
     this.open = open;
     this.locked = locked;
+    this.key = key;
+  }
+
+  get key() {
+    return this._key;
+  }
+
+  set key(key) {
+    this._key = key;
   }
 }

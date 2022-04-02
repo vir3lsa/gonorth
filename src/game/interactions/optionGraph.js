@@ -3,6 +3,8 @@ import { Option } from "./option";
 import { goToRoom } from "../../utils/lifecycle";
 import { getStore } from "../../redux/storeRegistry";
 import { addOptionGraph } from "../../redux/gameActions";
+import { Interaction } from "./interaction";
+import { selectInventory, selectInventoryItems } from "../../utils/selectors";
 
 export const next = "OptionGraph_next";
 export const previous = "OptionGraph_previous";
@@ -117,6 +119,7 @@ export class OptionGraph {
           let optionId = typeof value === "string" ? value : value ? value.node : null;
           let optionNode = optionId && this.flattened[optionId];
           let optionActions = [];
+          const skipNodeActions = value?.skipNodeActions;
           const exit = !value || value.exit || value.room;
 
           if (optionId && !optionNode) {
@@ -127,6 +130,40 @@ export class OptionGraph {
             // The option is an object rather than a simple node reference.
             // Get any actions associated with the option.
             optionActions = Array.isArray(value.actions) ? [...value.actions] : [value.actions];
+          } else if (value?.inventoryAction) {
+            // We'll create a pseudo-node where we show the player's inventory items.
+            const inventoryNodeId = `${node.id}-${choice}-inventory`;
+            // Get a list of items in the inventory, filtering out any without names.
+            const items = selectInventoryItems();
+            if (items.length) {
+              const inventoryOptions = items.reduce(
+                (acc, item) => ({
+                  ...acc,
+                  [item.name]: {
+                    node: node.id,
+                    skipNodeActions: true,
+                    // Perform the inventory action and don't render a 'Next' button.
+                    actions: new Action(() => value.inventoryAction(item), false)
+                  }
+                }),
+                {}
+              );
+              const inventoryNode = {
+                id: inventoryNodeId,
+                actions: "Use which item?",
+                options: inventoryOptions
+              };
+              this.recordNodeIds(inventoryNode);
+
+              // Ensure this option leads to the temporary node.
+              optionId = inventoryNodeId;
+              optionNode = inventoryNode;
+
+              // Delete the temporary node after selecting one of its options.
+              optionActions.push(() => this.deleteFlattenedNode(inventoryNodeId));
+            } else {
+              optionActions.push("You're not carrying anything.");
+            }
           } else if (Array.isArray(value)) {
             optionActions = [...value];
           } else if (typeof value !== "string") {
@@ -144,7 +181,7 @@ export class OptionGraph {
           } else if (value?.room) {
             optionActions.push(() => goToRoom(value.room));
           } else {
-            optionActions.push(() => (optionId ? this.activateNode(optionNode) : null));
+            optionActions.push(() => (optionId ? this.activateNode(optionNode, !skipNodeActions) : null));
           }
 
           if (
@@ -171,5 +208,12 @@ export class OptionGraph {
     }
 
     return chain;
+  }
+
+  /*
+   * Deletes a node from the flattened nodes object. Used when we've added a temporary node and would like to remove it.
+   */
+  deleteFlattenedNode(nodeId) {
+    delete this.flattened[nodeId];
   }
 }

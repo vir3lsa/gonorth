@@ -91,7 +91,7 @@ const ricketyDoor = new Door(
   "The door swings open limply when you push it."
 );
 
-const iron = new Door(
+const ironDoor = new Door(
   "iron bar door",
   "Thick vertical bars are set into an iron frame. A veneer of rust covers every surface.",
   false,
@@ -148,21 +148,6 @@ const carvedDoor = new Door(
   "Lifting an iron latch, you push the heavy door open. It squeaks slightly as it scrapes on the floor and jamb."
 );
 
-const oakDoor = new Door(
-  "heavy oak door",
-  "The door is solid and imposing looking. There's a heavy-duty lock of black iron, enhancing the impression it's designed to keep someone or something in.",
-  false,
-  true,
-  "When you push on the door, it doesn't budge, so you give it a good barge with your shoulder. With a jolt, it breaks free of the jamb and swings inwards.",
-  "You have to apply a lot of pressure to force the rusty key into the lock, but it fits snugly. Using both hands, you turn it a hundred and eighty degrees, producing a satisfying *clunk* from within.",
-  ["cell"]
-);
-
-const wellRoom = new Room(
-  "Well Room",
-  "In the centre of the room there's a waist-high marble circle around a deep, black hole. Over the hole is a wrought-iron crank with a rope curled around it. One end of the rope descends into the hole and into blackness that even your magically-enhanced vision can't penetrate. You're looking at a well.\n\nThe way out is via the door behind you, to the West."
-);
-
 const cellKey = new Item(
   "rusty iron key",
   "It's a chunky iron key, veneered in brown rust. There's a large hoop at the back, presumably for hanging it from an equally large keyring.",
@@ -170,6 +155,22 @@ const cellKey = new Item(
   0,
   [],
   ["metal"]
+);
+
+const oakDoor = new Door(
+  "heavy oak door",
+  "The door is solid and imposing looking. There's a heavy-duty lock of black iron, enhancing the impression it's designed to keep someone or something in.",
+  false,
+  true,
+  "When you push on the door, it doesn't budge, so you give it a good barge with your shoulder. With a jolt, it breaks free of the jamb and swings inwards.",
+  "You have to apply a lot of pressure to force the rusty key into the lock, but it fits snugly. Using both hands, you turn it a hundred and eighty degrees, producing a satisfying *clunk* from within.",
+  ["cell"],
+  cellKey
+);
+
+const wellRoom = new Room(
+  "Well Room",
+  "In the centre of the room there's a waist-high marble circle around a deep, black hole. Over the hole is a wrought-iron crank with a rope curled around it. One end of the rope descends into the hole and into blackness that even your magically-enhanced vision can't penetrate. You're looking at a well.\n\nThe way out is via the door behind you, to the West."
 );
 
 let keyTaken = false;
@@ -611,14 +612,7 @@ const tunnelsNodes = [
     options: () => ({
       "unlock oak door": {
         condition: () => oakDoor.locked,
-        actions: () => {
-          if (playerHasItem(cellKey)) {
-            return oakDoor.getVerb("unlock").attempt(cellKey);
-          }
-          {
-            return "Alas, you don't have the key.";
-          }
-        }
+        inventoryAction: (item) => oakDoor.getVerb("unlock").attempt(item) // TODO do general interaction instead?
       },
       "open oak door": { condition: () => !oakDoor.open, actions: () => oakDoor.getVerb("open").attempt() },
       "close oak door": {

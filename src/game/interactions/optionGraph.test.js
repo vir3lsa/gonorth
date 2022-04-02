@@ -4,10 +4,10 @@ import { initStore } from "../../redux/store";
 import { newGame } from "../../redux/gameActions";
 import { OptionGraph } from "./optionGraph";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
-import { selectRoom } from "../../utils/selectors";
-import { selectTurn } from "../../utils/selectors";
+import { selectRoom, selectTurn, selectInventory } from "../../utils/selectors";
 import { Verb } from "../verbs/verb";
 import { Room } from "../items/room";
+import { Item } from "../items/item";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -112,6 +112,33 @@ const exitOptionNodes = [
     id: "start",
     actions: "test",
     options: { one: { actions: () => x++, exit: true } }
+  }
+];
+
+const skipActionsNodes = [
+  {
+    id: "start",
+    actions: "test",
+    options: {
+      one: { node: "end", skipNodeActions: true }
+    }
+  },
+  {
+    id: "end",
+    actions: "do not print",
+    options: {
+      badger: { actions: "badger" }
+    }
+  }
+];
+
+const inventoryNodes = [
+  {
+    id: "start",
+    actions: ["inventory test"],
+    options: {
+      "use item": { inventoryAction: (item) => `Using ${item.name}.` }
+    }
   }
 ];
 
@@ -331,4 +358,41 @@ test("options can specify a room to go to", async () => {
   expect(selectOptions()).toBeNull();
   expect(selectCurrentPage()).toInclude("turret");
   expect(selectRoom()).toBe(room);
+});
+
+test("options can choose not to perform the actions of linked nodes", async () => {
+  await createGraph(skipActionsNodes);
+  await selectOptions()[0].action();
+  expect(selectCurrentPage()).toInclude("test");
+  expect(selectCurrentPage()).not.toInclude("do not print");
+  expect(selectOptions()[0].label).toBe("badger");
+});
+
+const setUpInventoryNodesTest = async () => {
+  selectInventory().addItem(new Item("bucket"));
+  selectInventory().addItem(new Item("spade"));
+  await createGraph(inventoryNodes);
+  return selectOptions()[0].action();
+};
+
+test("options can ask the player to choose from their inventory items", async () => {
+  await setUpInventoryNodesTest();
+  expect(selectCurrentPage()).toInclude("Use which item?");
+  expect(selectOptions()[0].label).toBe("bucket");
+  expect(selectOptions()[1].label).toBe("spade");
+});
+
+test("inventory options perform the expected action with the item in question", async () => {
+  await setUpInventoryNodesTest();
+  selectOptions()[1].action();
+  expect(selectCurrentPage()).toInclude("Using spade.");
+});
+
+test("the previous node is returned to after an inventory action, without actions being performed", async () => {
+  let x = 0;
+  inventoryNodes[0].actions.unshift(() => x++);
+  await setUpInventoryNodesTest();
+  await selectOptions()[1].action();
+  expect(x).toBe(1); // Action has been performed once, not twice.
+  expect(selectOptions()[0].label).toBe("use item");
 });
