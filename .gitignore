@@ -5,3 +5,4 @@ lib
 dist-web/
 dist-server/
 *.code-workspace
+coverage/

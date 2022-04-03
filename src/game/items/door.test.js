@@ -1,5 +1,5 @@
 import { newGame, changeInteraction } from "../../redux/gameActions";
-import { Door } from "./door";
+import { Door, Key } from "./door";
 import { getStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
 import { Interaction } from "../interactions/interaction";
@@ -60,25 +60,29 @@ test("doors can only be opened once", async () => {
 });
 
 test("doors can't be unlocked without a key if they require one", async () => {
-  door.key = new Item("key");
+  door.key = new Key("key");
   await door.try("unlock");
   expect(selectCurrentPage().includes("appears to need a key"));
 });
 
 test("doors can be unlocked with the correct key", async () => {
-  door.key = new Item("key");
+  door.key = new Key("key");
   await door.try("unlock", door.key);
-  expect(selectCurrentPage().includes("key turns easily"));
+  expect(selectCurrentPage()).toInclude("key turns easily");
 });
 
 test("doors can be unlocked with a key of the correct name", async () => {
-  door.key = new Item("key");
+  door.key = new Key("key");
   await door.try("unlock", new Item("key"));
-  expect(selectCurrentPage().includes("key turns easily"));
+  expect(selectCurrentPage()).toInclude("key turns easily");
 });
 
 test("doors can't be unlocked with the wrong key", async () => {
-  door.key = new Item("key");
+  door.key = new Key("key");
   await door.try("unlock", new Item("key2"));
-  expect(selectCurrentPage().includes("doesn't fit"));
+  expect(selectCurrentPage()).toInclude("doesn't fit");
+});
+
+test("keys must be Key instances", () => {
+  expect(() => (door.key = new Item("key"))).toThrow("Keys must be Key instances.");
 });

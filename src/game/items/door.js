@@ -4,6 +4,9 @@ import { Verb } from "../verbs/verb";
 export class Door extends Item {
   constructor(name, description, open = true, locked = false, openSuccessText, unlockSuccessText, aliases, key) {
     super(name, description, false, -1, [], aliases);
+    this.open = open;
+    this.locked = locked;
+    this.key = key;
 
     this.addVerb(
       new Verb(
@@ -34,13 +37,14 @@ export class Door extends Item {
     this.addVerb(
       new Verb(
         "unlock",
-        (helper, key) => helper.object.locked && (this.key ? key?.name === this.key.name : true),
+        (helper, door, key) => helper.object.locked && (this.key ? key?.name === this.key.name : true),
         [
           (helper) => (helper.object.locked = false),
-          unlockSuccessText ||
+          () =>
+            unlockSuccessText ||
             (this.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)
         ],
-        () => {
+        (helper, door, key) => {
           if (this.key && key && this.key.name !== key.name) {
             return `The ${key.name} doesn't fit.`;
           } else if (this.key && !key) {
@@ -55,10 +59,6 @@ export class Door extends Item {
         this
       )
     );
-
-    this.open = open;
-    this.locked = locked;
-    this.key = key;
   }
 
   get key() {
@@ -66,6 +66,16 @@ export class Door extends Item {
   }
 
   set key(key) {
+    if (key && !(key instanceof Key)) {
+      throw Error("Keys must be Key instances.");
+    }
+
     this._key = key;
   }
 }
+
+/*
+ * Item subclass acting as a key. No special functionality, but doors expect keys to be instances
+ * of this class.
+ */
+export class Key extends Item {}

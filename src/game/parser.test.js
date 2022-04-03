@@ -8,48 +8,30 @@ import { Verb } from "./verbs/verb";
 import { initGame } from "../gonorth";
 import { goToRoom } from "../utils/lifecycle";
 import { PagedText } from "./interactions/text";
+import { selectCurrentPage } from "../utils/testSelectors";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let game,
-  hall,
-  north,
-  south,
-  east,
-  west,
-  door,
-  chair,
-  redBall,
-  blueBall,
-  redBox,
-  blueBox,
-  chairman,
-  cushion;
+let game, hall, north, south, east, west, door, chair, redBall, blueBall, redBox, blueBox, chairman, cushion;
 
 const directionTest = async (input, expectedRoom) => {
   const actionPromise = new Parser(input).parse();
-  setTimeout(() =>
-    getStore()
-      .getState()
-      .game.interaction.options[0].action()
-  );
+  setTimeout(() => getStore().getState().game.interaction.options[0].action());
   await actionPromise;
   expect(game.room.name).toBe(expectedRoom);
 };
 
-const openDoorTest = input => {
+const openDoorTest = (input) => {
   new Parser(input).parse();
   expect(door.open).toBe(true);
 };
 
 const inputTest = async (input, expectedOutput) => {
   await new Parser(input).parse();
-  expect(getStore().getState().game.interaction.currentPage).toInclude(
-    expectedOutput
-  );
+  expect(selectCurrentPage()).toInclude(expectedOutput);
 };
 
 describe("parser", () => {
