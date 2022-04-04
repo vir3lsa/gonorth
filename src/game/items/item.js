@@ -37,7 +37,7 @@ export class Item {
 
   constructor(
     name = "item",
-    description = "It's fairly ordinary looking",
+    description = "It's fairly ordinary looking.",
     holdable = false,
     size = 1,
     verbs = [],

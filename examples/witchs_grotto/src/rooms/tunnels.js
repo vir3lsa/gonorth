@@ -15,7 +15,9 @@ import {
   RandomText,
   Action,
   selectInventory,
-  playerHasItem
+  playerHasItem,
+  FixedSubjectEffects,
+  Key
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 
@@ -148,7 +150,7 @@ const carvedDoor = new Door(
   "Lifting an iron latch, you push the heavy door open. It squeaks slightly as it scrapes on the floor and jamb."
 );
 
-const cellKey = new Item(
+const cellKey = new Key(
   "rusty iron key",
   "It's a chunky iron key, veneered in brown rust. There's a large hoop at the back, presumably for hanging it from an equally large keyring.",
   true,
@@ -166,6 +168,33 @@ const oakDoor = new Door(
   "You have to apply a lot of pressure to force the rusty key into the lock, but it fits snugly. Using both hands, you turn it a hundred and eighty degrees, producing a satisfying *clunk* from within.",
   ["cell"],
   cellKey
+);
+
+const oakDoorEffects = new FixedSubjectEffects(
+  oakDoor,
+  (item) => `The ${item.name} has no discernible effect on the door.`
+);
+
+oakDoorEffects.add(
+  "Organic Dissolution Accelerator",
+  true,
+  () => {
+    oakDoor.locked = false;
+  },
+  () => {
+    oakDoor.open = true;
+  },
+  () => {
+    oakDoor.description =
+      "Thanks to the the potion and your shoe, there's not much left of the once sturdy door at all.";
+  },
+  () => {
+    oakDoor.verbs.close.test = false;
+  },
+  () => {
+    oakDoor.verbs.close.onFailure = "The door has been dissolved - it'll never close again.";
+  },
+  "Being *extremely* careful not to get any on yourself, you pour a good quantity of Organic Dissolution Accelerator down the door and stand back. The substance immediately goes to work, eating ravenously into the wood like a horde of angry termites. Within a couple of minutes there's not much left of the door at all; a good kick breaks a hole through it and a few more create a space you can slip through."
 );
 
 const wellRoom = new Room(
@@ -612,7 +641,13 @@ const tunnelsNodes = [
     options: () => ({
       "unlock oak door": {
         condition: () => oakDoor.locked,
-        inventoryAction: (item) => oakDoor.getVerb("unlock").attempt(item) // TODO do general interaction instead?
+        inventoryAction: (item) => {
+          if (item instanceof Key) {
+            return oakDoor.getVerb("unlock").attempt(item);
+          } else {
+            return oakDoorEffects.apply(item);
+          }
+        }
       },
       "open oak door": { condition: () => !oakDoor.open, actions: () => oakDoor.getVerb("open").attempt() },
       "close oak door": {

@@ -17,10 +17,12 @@ export class Effects {
   }
 
   add(primary, secondary, successful, ...effects) {
-    const affectedItems = this.effects[primary.name] || {};
-    this.effects[primary.name] = affectedItems;
+    const primaryKey = getKey(primary);
+    const secondaryKey = getKey(secondary);
+    const affectedItems = this.effects[primaryKey] || {};
+    this.effects[primaryKey] = affectedItems;
 
-    affectedItems[secondary.name] = {
+    affectedItems[secondaryKey] = {
       successful,
       effects: new ActionChain(...effects)
     };

@@ -7,8 +7,10 @@ import {
   selectRoom,
   selectRooms
 } from "./selectors";
-import { Item } from "../game/items/item";
+import { newItem } from "../game/items/item";
 import disambiguate from "./disambiguation";
+import { getStore } from "../redux/storeRegistry";
+import { itemsRevealed } from "../redux/gameActions";
 
 const helpText = `Usage: \`debug operation [args]\`
 - e.g. \`debug show rooms\`
@@ -148,11 +150,12 @@ function spawn(args) {
   const spawnItem = (itemToSpawn) => {
     const room = selectRoom();
     room.addItem(itemToSpawn);
+    getStore().dispatch(itemsRevealed([itemToSpawn.name]));
     return `Spawned ${itemName} in ${room.name}.`;
   };
 
   if (!itemsWithName.length) {
-    item = new Item(itemName);
+    item = newItem({ name: itemName, holdable: true });
   } else if (itemsWithName.length === 1) {
     item = itemsWithName[0].clone();
   } else {

@@ -143,7 +143,7 @@ function setHintNodeId(nodeId) {
 
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
-export { Door } from "./game/items/door";
+export { Door, Key } from "./game/items/door";
 export { Container } from "./game/items/container";
 export { Item, newItem } from "./game/items/item";
 export { Interaction, Append } from "./game/interactions/interaction";
@@ -156,7 +156,7 @@ export { Npc } from "./game/items/npc";
 export { goToRoom } from "./utils/lifecycle";
 export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
 export { selectInventory, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
-export { Effects } from "./utils/effects";
+export { Effects, FixedSubjectEffects } from "./utils/effects";
 export { ActionChain, Action } from "./utils/actionChain";
 export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 export { inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";

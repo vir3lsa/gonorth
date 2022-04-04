@@ -70,3 +70,9 @@ test("effects on subjects are realised even when considered unsuccessful", async
   await subjectEffects.apply("toddler").chain();
   expect(selectCurrentPage()).toInclude("out of its depth");
 });
+
+test("effects can be added using item names", async () => {
+  effects.add("cat", "dog", true, "The cat bests the dog");
+  await effects.apply("cat", "dog").chain();
+  expect(selectCurrentPage()).toInclude("The cat bests");
+});
