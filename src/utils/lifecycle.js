@@ -25,6 +25,6 @@ export function goToRoom(room) {
   return room.actionChain;
 }
 
-export function clearPage() {
-  getStore().dispatch(changeInteraction(new Interaction("")));
+export function clearPage(newPage) {
+  getStore().dispatch(changeInteraction(new Interaction(newPage || "")));
 }

@@ -7,6 +7,7 @@ import { getKeywordsTable } from "../../utils/defaultHelp";
 import { getStore } from "../../redux/storeRegistry";
 import { addKeywords, removeKeywords } from "../../redux/gameActions";
 import { handleDebugOperations } from "../../utils/debugFunctions";
+import { clearPage } from "../../utils/lifecycle";
 
 export const directionAliases = {
   north: ["n", "forward", "straight on"],
@@ -106,6 +107,8 @@ export function createKeywords() {
     "Get a hint on how to proceed."
   );
 
+  const clear = new Verb("clear", true, () => clearPage("###### > clear"), null, ["clr"], true, "Start a fresh page.");
+
   const debug = newVerb({
     name: "debug",
     onSuccess: (helpers, operation, ...args) => handleDebugOperations(operation, ...args),
@@ -125,6 +128,7 @@ export function createKeywords() {
   addKeyword(help);
   addKeyword(keywordsVerb);
   addKeyword(hint);
+  addKeyword(clear);
   addKeyword(debug);
 }
 
