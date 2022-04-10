@@ -8,31 +8,34 @@ import { addItem, itemsRevealed } from "../../redux/gameActions";
 import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 
-export function newItem(config) {
+export function newItem(config, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
-  const item = new Item(name, description, holdable, size, verbs, aliases, hidesItems);
+  const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems);
   Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
   return item;
 }
 
 export class Item {
-  clone() {
-    return newItem({
-      name: this.name,
-      description: this.description,
-      holdable: this.holdable,
-      size: this.size,
-      verbs: Object.values(this.verbs),
-      aliases: this.aliases,
-      hidesItems: this.hidesItems.map((item) => item.clone()),
-      containerListing: this.containerListing,
-      canHoldItems: this.canHoldItems,
-      capacity: this.capacity,
-      preposition: this.preposition,
-      itemsVisibleFromRoom: this.itemsVisibleFromRoom,
-      itemsVisibleFromSelf: this.itemsVisibleFromSelf,
-      doNotList: this.doNotList
-    });
+  clone(typeConstructor) {
+    return newItem(
+      {
+        name: this.name,
+        description: this.description,
+        holdable: this.holdable,
+        size: this.size,
+        verbs: Object.values(this.verbs),
+        aliases: this.aliases,
+        hidesItems: this.hidesItems.map((item) => item.clone()),
+        containerListing: this.containerListing,
+        canHoldItems: this.canHoldItems,
+        capacity: this.capacity,
+        preposition: this.preposition,
+        itemsVisibleFromRoom: this.itemsVisibleFromRoom,
+        itemsVisibleFromSelf: this.itemsVisibleFromSelf,
+        doNotList: this.doNotList
+      },
+      typeConstructor
+    );
   }
 
   constructor(

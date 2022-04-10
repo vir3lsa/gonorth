@@ -20,6 +20,7 @@ import {
   Key
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
+import { cavern } from "./cavern";
 
 const forward = "f";
 const reverse = "r";
@@ -29,56 +30,13 @@ const down = "down";
 const left = "left";
 const right = "right";
 
-let monsterLocation = "topLeftJail";
+let monsterLocation = "topLeftGaol";
 
 let meetTheMonster;
 let beingChased = false;
 let hiding = false;
 let traversal = forward;
 let metTheMonster = false;
-
-let cell = new Room(
-  "Dank Cell",
-  "The dank, cold room is little larger than a cupboard. The rough flagstones of the floor are damp and fuzzy with green moss. Attached to one stone-block wall is a pair of chains ending in heavy iron manacles. This is clearly a cell of some kind. You shiver at the thought of being kept in here.\n\nSome of the stone blocks making up the far right corner appear a little broken."
-);
-
-const manacles = new Item.Builder()
-  .withName("manacles")
-  .withDescription(
-    "Large iron pins protrude from the wall and support heavy chains that end in shackles to be fastened about a person's wrists...or ankles, according to the whims of the jailer. They're high enough up the wall that your feet probably wouldn't touch the ground if they were used on you, but perhaps that's the point."
-  )
-  .withAliases("shackles", "manacle", "shackle", "chain", "chains", "pin", "pins")
-  .build();
-
-let stonesCondition = 3;
-
-const brokenStones = new Item.Builder()
-  .withName("broken stones")
-  .withDescription(
-    "The solid stone blocks are much larger than ordinary bricks, but in this corner they appear to be crumbling and some of them have turned slightly, suggesting they might be loose."
-  )
-  .withAliases("crumbling", "turned", "gap", "hairline", "wall")
-  .withVerbs(
-    new Verb.Builder()
-      .withName("break")
-      .withAliases("smash", "push", "pull", "kick")
-      .withOnSuccess(() => {
-        stonesCondition--;
-        if (stonesCondition >= 2) {
-          return "You try to get a purchase on one of the twisted stones, but there's not enough to hook your fingers onto. Instead, you get down on the cold floor and push the stones with your feet. They shift a little bit.";
-        } else if (stonesCondition === 1) {
-          return "You kick at the broken blocks some more, trying not to break your toes. After giving one a good shove with your feet, they shift a little bit more, loose rubble falling down around them. There's a hairline gap visible through to the other side now.";
-        } else if (stonesCondition === 0) {
-          return "Getting back down onto the mossy slabstones, you give the crumbling wall one last two-footed kick and the broken stones give way and burst out into the space beyond. A shower of debris rains down onto your legs, causing a number of cuts and scratches, but you hardly notice.";
-        } else {
-          return "You've already created a decent hole in the wall - there's no need to collapse the whole cell.";
-        }
-      })
-      .build()
-  )
-  .build();
-
-cell.addItems(manacles, brokenStones);
 
 let mouldRoom = new Room(
   "Mould Room",
@@ -91,14 +49,6 @@ const ricketyDoor = new Door(
   false,
   false,
   "The door swings open limply when you push it."
-);
-
-const ironDoor = new Door(
-  "iron bar door",
-  "Thick vertical bars are set into an iron frame. A veneer of rust covers every surface.",
-  false,
-  false,
-  "The iron door squeals like injured animal, its rusty hinges resisting the movement, but it opens nonetheless."
 );
 
 const mould = new Ingredient(
@@ -196,6 +146,71 @@ oakDoorEffects.add(
   },
   "Being *extremely* careful not to get any on yourself, you pour a good quantity of Organic Dissolution Accelerator down the door and stand back. The substance immediately goes to work, eating ravenously into the wood like a horde of angry termites. Within a couple of minutes there's not much left of the door at all; a good kick breaks a hole through it and a few more create a space you can slip through."
 );
+
+let cell = new Room(
+  "Dank Cell",
+  "The dank, cold room is little larger than a cupboard. The rough flagstones of the floor are damp and fuzzy with green moss. Attached to one stone-block wall is a pair of chains ending in heavy iron manacles. This is clearly a cell of some kind. You shiver at the thought of being kept in here.\n\nSome of the stone blocks making up the far right corner appear a little broken."
+);
+
+const manacles = new Item.Builder()
+  .withName("manacles")
+  .withDescription(
+    "Large iron pins protrude from the wall and support heavy chains that end in shackles to be fastened about a person's wrists...or ankles, according to the whims of the gaoler. They're high enough up the wall that your feet probably wouldn't touch the ground if they were used on you, but perhaps that's the point."
+  )
+  .withAliases("shackles", "manacle", "shackle", "chain", "chains", "pin", "pins")
+  .build();
+
+let stonesCondition = 3;
+
+const hole = new Item.Builder()
+  .withName("hole in the wall")
+  .withDescription(
+    "The crumbling stone blocks have disintegrated enough to leave a narrow gap in the wall, big enough for a small animal to squeeze through. Or a small person."
+  )
+  .withAliases("gap")
+  .withVerbs(
+    new Verb.Builder()
+      .withName("squeeze")
+      .withAliases("go", "enter", "crawl", "duck")
+      .withOnSuccess(
+        new SequentialText(
+          "You drop to all fours and tentatively put your head into the space between the stones, twisting sideways to allow your shoulders to squeeze through after. It's tight and you're afraid you might end up stuck. Your feet scrabble at the floor as they try to push the rest of your body through the hole. You still can't see anything; the wall must be a couple of feet thick at least and you've no idea what's beyond it.",
+          "Another push and, suddenly, your head emerges from the hole into what seems like a wide open space after the confines of the narrow gap. Now your shoulders are through and, not long later, you scramble out of the hole with relief and get to your feet, brushing dust from your dress. Mother won't be happy when she sees the state of you."
+        ),
+        () => tunnelsGraph.commence("holeExit")
+      )
+      .build()
+  )
+  .build();
+
+const brokenStones = new Item.Builder()
+  .withName("broken stones")
+  .withDescription(
+    "The solid stone blocks are much larger than ordinary bricks, but in this corner they appear to be crumbling and some of them have turned slightly, suggesting they might be loose."
+  )
+  .withAliases("crumbling", "turned", "hairline", "wall")
+  .withVerbs(
+    new Verb.Builder()
+      .withName("break")
+      .withAliases("smash", "push", "pull", "kick")
+      .withOnSuccess(() => {
+        stonesCondition--;
+        if (stonesCondition >= 2) {
+          return "You try to get a purchase on one of the twisted stones, but there's not enough to hook your fingers onto. Instead, you get down on the cold floor and push the stones with your feet. They shift a little bit.";
+        } else if (stonesCondition === 1) {
+          return "You kick at the broken blocks some more, trying not to break your toes. After giving one a good shove with your feet, they shift a little bit more, loose rubble falling down around them. There's a hairline gap visible through to the other side now.";
+        } else if (stonesCondition === 0) {
+          cell.addItem(hole);
+          return "Getting back down onto the mossy slabstones, you give the crumbling wall one last two-footed kick and the broken stones give way and burst out into the space beyond. A shower of debris rains down onto your legs, causing a number of cuts and scratches, but you hardly notice.";
+        } else {
+          return "You've already created a decent hole in the wall - there's no need to collapse the whole cell.";
+        }
+      })
+      .build()
+  )
+  .build();
+
+cell.addItems(oakDoor, manacles, brokenStones);
 
 const wellRoom = new Room(
   "Well Room",
@@ -568,7 +583,7 @@ const tunnelsNodes = [
     ],
     options: () => ({
       [traversal === right ? "continue forward" : "go back"]: {
-        node: "topLeftJail",
+        node: "topLeftGaol",
         actions: () => {
           setTraversal(down);
           if (metTheMonster) {
@@ -580,7 +595,7 @@ const tunnelsNodes = [
     })
   },
   {
-    id: "topLeftJail",
+    id: "topLeftGaol",
     actions: () => {
       if (traversal === down) {
         return "The corridor twists to the right and immediately branches. A long tunnel stretches away to the left, whilst the one ahead appears to be partially submerged in water.";
@@ -588,12 +603,12 @@ const tunnelsNodes = [
     },
     options: () => ({
       [traversal === down ? "back" : "left bend"]: "meetTheMonster",
-      "long corridor": { node: "topJail", actions: () => setTraversal(right) },
-      "submerged tunnel": { node: "leftJail", actions: () => setTraversal(down) }
+      "long corridor": { node: "topGaol", actions: () => setTraversal(right) },
+      "submerged tunnel": { node: "leftGaol", actions: () => setTraversal(down) }
     })
   },
   {
-    id: "topJail",
+    id: "topGaol",
     actions: () => {
       if (traversal === right) {
         return "You creep fearfully along the long the corridor, trying not to make a sound. Even so, every scrape of your feet on the rough stone reverberates sickeningly up and down the tunnel. The darkness is nearly total, forcing you to feel your way down the right-hand wall. Soon, the wall falls away, revealing a passage leading to the right. The corridor continues on ahead.";
@@ -601,21 +616,21 @@ const tunnelsNodes = [
     },
     options: () => ({
       [traversal === right ? "right" : traversal === left ? "left" : "back"]: {
-        node: "middleJail",
+        node: "middleGaol",
         actions: () => setTraversal(down)
       },
       [traversal === right ? "forward" : traversal === left ? "back" : "right"]: {
-        node: "topRightJail",
+        node: "topRightGaol",
         actions: () => setTraversal(right)
       },
       [traversal === right ? "back" : traversal === left ? "forward" : "left"]: {
-        node: "topLeftJail",
+        node: "topLeftGaol",
         actions: () => setTraversal(left)
       }
     })
   },
   {
-    id: "leftJail",
+    id: "leftGaol",
     actions: () => {
       if (direction === down) {
         return "Placing your feet carefully, lest there be an unexpected change in depth, you slosh slowly along the flooded tunnel. The water is inky black and freezing cold - it's about up to your ankles. You really hope it doesn't get any deeper. After a little way the tunnel turns to the left. Back the way you came, the tunnel forks forwards and right.";
@@ -624,16 +639,16 @@ const tunnelsNodes = [
       }
     },
     options: () => ({
-      [direction === down ? "round bend" : "go back"]: { node: "bottomJail", actions: () => setTraversal(right) },
-      [direction === down ? "back and right" : "right"]: { node: "topJail", actions: () => setTraversal(right) },
+      [direction === down ? "round bend" : "go back"]: { node: "bottomGaol", actions: () => setTraversal(right) },
+      [direction === down ? "back and right" : "right"]: { node: "topGaol", actions: () => setTraversal(right) },
       [direction === down ? "back and straight on" : "straight on"]: {
-        node: "topLeftJail",
+        node: "topLeftGaol",
         actions: () => setTraversal(left)
       }
     })
   },
   {
-    id: "middleJail",
+    id: "middleGaol",
     actions: () =>
       `The flagstones of this passage are broken and treacherous underfoot, tilting alarmingly as you step on them, creating loud echoes as the ancient stones scrape and knock together. You cringe inwardly, certain anything nearby must be aware of your precise location.\n\nThere's a heavy oak door to your ${
         direction === down ? left : right
@@ -643,7 +658,7 @@ const tunnelsNodes = [
         condition: () => oakDoor.locked,
         inventoryAction: (item) => {
           if (item instanceof Key) {
-            return oakDoor.getVerb("unlock").attempt(item);
+            return oakDoor.getVerb("unlock").attempt(oakDoor, item);
           } else {
             return oakDoorEffects.apply(item);
           }
@@ -660,19 +675,42 @@ const tunnelsNodes = [
         room: cell
       },
       [direction === down ? "left" : "back and left"]: "lowerRightRockfall",
-      [direction === down ? "right" : "back and right"]: { node: "bottomJail", actions: () => setTraversal(left) },
-      [direction === down ? "back and left" : "left"]: { node: "topJail", actions: () => setTraversal(left) },
-      [direction === down ? "back and right" : "right"]: { node: "topRightJail", actions: () => setTraversal(right) }
+      [direction === down ? "right" : "back and right"]: { node: "bottomGaol", actions: () => setTraversal(left) },
+      [direction === down ? "back and left" : "left"]: { node: "topGaol", actions: () => setTraversal(left) },
+      [direction === down ? "back and right" : "right"]: { node: "topRightGaol", actions: () => setTraversal(right) }
     })
   },
   {
-    id: "topRightJail"
+    id: "topRightGaol"
   },
   {
     id: "lowerRightRockfall"
   },
   {
-    id: "bottomJail"
+    id: "bottomGaol"
+  },
+  {
+    id: "holeExit",
+    actions: () =>
+      "You're slightly dismayed to discover you're in another gloomy stone corridor - presumably still part of the gaol? A cave-in blocks the way ahead, but a side passage leads off to the right. In the other direction, the corridor disappears off around a bend to the right.",
+    options: {
+      "side passage": {
+        actions: new SequentialText(
+          "As you set off along the adjoining passage, you once again hear the sound of water. Rather than dripping, though, this is more of a gurgling, tinkling sound, like that of a stream running down a hillside. You round a bend and the sound becomes louder.",
+          "The obviously artificial passage soon opens out into an uneven rocky tunnel that looks like a natural formation. The source of the sound becomes apparent when you notice water gushing from beneath a boulder and proceeding along the tunnel, splashing and dancing over the rocks in a little stream. You continue following it, and the tunnel soon opens out into a much larger cavern."
+        ),
+        room: cavern
+      },
+      "round bend": {
+        actions:
+          "Beyond the bend you're met abruptly by another ceiling-high pile of rubble blocking the way. This whole place feels rather unstable and you're horribly aware of the enormous weight of rock hanging a few feet above your head. You've never particularly suffured from claustrophobia, but being afraid of getting buried alive or crushed to death in this crumbling labyrinth doesn't seem altogether irrational. Turning, you retrace your steps back to the hole."
+      },
+      "back through hole": {
+        actions:
+          "Reluctantly, you get back down on your belly and wriggle back into the hole you made. Perhaps you widened it the first time through, but getting through doesn't seem quite as difficult this time.",
+        room: cell
+      }
+    }
   }
 ];
 
@@ -840,7 +878,7 @@ const monsterChase = new Event(
       } else {
         searchingCount = 0;
         beingChased = false;
-        monsterLocation = "bottomRightJail";
+        monsterLocation = "bottomRightGaol";
         monster.container.removeItem(monster); // Is it sufficient to just do this? Or do I need to put the monster back in the Cellar Nook?
         return "The sickening sense of dread pervading your mind slowly recedes. The spectral pursuer must have finally given up its hunt for you and left. The coast is clear, or so you hope.";
       }

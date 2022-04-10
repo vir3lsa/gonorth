@@ -78,4 +78,8 @@ export class Door extends Item {
  * Item subclass acting as a key. No special functionality, but doors expect keys to be instances
  * of this class.
  */
-export class Key extends Item {}
+export class Key extends Item {
+  clone() {
+    return super.clone(Key);
+  }
+}
