@@ -33,7 +33,7 @@ const clickNextAndWait = () => {
 };
 
 // Prevent console logging
-getStore().dispatch(newGame(initGame("test", false), true, false));
+getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
 
 beforeEach(() => {
   verb = new Verb(

@@ -17,7 +17,7 @@ beforeEach(() => {
   unregisterStore();
   initStore();
   createKeywords();
-  game = initGame("Jolly Capers", false);
+  game = initGame("Jolly Capers", "", { debugMode: false });
 });
 
 test("inventory lists a single item", async () => {

@@ -63,7 +63,7 @@ describe("debugFunctions", () => {
     north.addItems(door, chair, chairman, cushion, redBall, redBox, blueBox);
     north.setNorth(new Room("Orangery", "Light and airy"));
 
-    game = initGame("The Giant's Castle", false);
+    game = initGame("The Giant's Castle", "", { debugMode: false });
     getStore().dispatch(newGame(game, true));
     goToRoom(hall);
     door.open = false;

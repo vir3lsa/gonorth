@@ -78,7 +78,7 @@ describe("parser", () => {
         blueBox
       );
 
-      game = initGame("The Giant's Castle", false);
+      game = initGame("The Giant's Castle", "", { debugMode: false });
       getStore().dispatch(newGame(game, true));
       goToRoom(hall);
       door.open = false;

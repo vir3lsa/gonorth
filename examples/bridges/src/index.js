@@ -2,7 +2,7 @@ import { initGame, play, attach, setIntro, setStartingRoom, PagedText, setHelp }
 import { firstTrial } from "./firstTrial";
 import { helpGraph } from "./help";
 
-initGame("The Trial of the Bridges", "Rich Locke", true);
+initGame("The Trial of the Bridges", "Rich Locke", { debugMode: true });
 setIntro(
   new PagedText(
     "So, young one. You've journeyed across the great back of the world to be here. Tell me - are you prepared for the trials?",

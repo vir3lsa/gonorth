@@ -1,10 +1,14 @@
-import { selectInventory, selectLastChange, selectPlayer, selectRoom } from "./selectors";
+import { selectConfig, selectInventory, selectLastChange, selectPlayer, selectRoom } from "./selectors";
 import { Room } from "../game/items/room";
 
 const REACTION_MILLIS = 350;
 
 // Check the player has had time to react to new output before accepting input
 export function reactionTimePassed() {
+  if (selectConfig().skipReactionTimes) {
+    return true;
+  }
+
   const millisElapsed = Date.now() - selectLastChange();
   return millisElapsed > REACTION_MILLIS;
 }

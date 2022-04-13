@@ -25,7 +25,10 @@ import { strengthTimer } from "./rooms/apothecary";
 import { RandomText } from "../../../lib/game/interactions/text";
 import { initHints } from "./utils/hints";
 
-initGame("The Lady of Bramble Wood", "Rich Locke", true);
+// Variable injected by the Webpack Define plugin.
+const skipReactionTimes = SKIP_REACTION_TIMES;
+
+initGame("The Lady of Bramble Wood", "Rich Locke", { debugMode: true, skipReactionTimes });
 setIntro("Now's your chance. Quickly! Make your escape whilst the witch is out.");
 initHints("bedroom1");
 

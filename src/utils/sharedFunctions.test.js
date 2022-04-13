@@ -11,7 +11,7 @@ consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
 // Prevent console logging
-getStore().dispatch(newGame(initGame("test", false), true, false));
+getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
 
 const parlour = new Room("parlour", "");
 const scullery = new Room("scullery", "");

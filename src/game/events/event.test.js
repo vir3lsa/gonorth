@@ -18,7 +18,7 @@ consoleIO.showOptions = jest.fn();
 let x;
 
 beforeEach(() => {
-  initGame("", false);
+  initGame("", "", { debugMode: false });
   x = 1;
 });
 

@@ -20,3 +20,4 @@ export const selectRooms = () => getStore().getState().game.rooms;
 export const selectAllItemNames = () => getStore().getState().game.allItemNames;
 export const selectItems = () => getStore().getState().game.items;
 export const selectOptionGraphs = () => getStore().getState().game.optionGraphs;
+export const selectConfig = () => getStore().getState().game.game.config;

@@ -29,11 +29,11 @@ Cypress.Commands.add("choose", (label) => {
 });
 
 Cypress.Commands.add("shows", (text) => {
-  cy.contains(".gonorth", text);
+  cy.contains(".gonorth", text, { matchCase: false });
 });
 
 Cypress.Commands.add("showsLast", (text) => {
-  cy.contains(".gonorth p:last-child", text);
+  cy.contains(".gonorth p:last-child", text, { matchCase: false });
 });
 
 Cypress.Commands.add("say", (text) => {

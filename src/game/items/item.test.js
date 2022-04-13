@@ -31,7 +31,7 @@ beforeEach(() => {
   initStore();
 
   // Pretend we're in the browser
-  game = initGame("Jolly Capers", false);
+  game = initGame("Jolly Capers", "", { debugMode: false });
   room = new Room("red");
   getStore().dispatch(newGame(game, true, false));
 });

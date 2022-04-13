@@ -43,7 +43,7 @@ describe("Game class", () => {
   beforeEach(() => {
     unregisterStore();
     initStore();
-    game = initGame("title", "", false);
+    game = initGame("title", "", { debugMode: false });
     room = new Room("stairs", "description", new Option("do it"));
     getStore().dispatch(newGame(game, true, false));
     setStartingRoom(room);
@@ -51,9 +51,7 @@ describe("Game class", () => {
   });
 
   it("defaults output to Loading", () => {
-    expect(getStore().getState().game.interaction.currentPage).toBe(
-      "Loading..."
-    );
+    expect(getStore().getState().game.interaction.currentPage).toBe("Loading...");
   });
 
   it("throws an error if trying to attach with no container", () => {
@@ -99,11 +97,25 @@ describe("Game class", () => {
 
     it("triggers events with no timeout when the condition is met", () => {
       x = 10;
-      eventTest(new Event("", () => x++, () => x === 10), () => x === 11);
+      eventTest(
+        new Event(
+          "",
+          () => x++,
+          () => x === 10
+        ),
+        () => x === 11
+      );
     });
 
     it("does not trigger events when the condition is not met", () => {
-      eventTest(new Event("", () => x++, () => x === 10), () => x === 0);
+      eventTest(
+        new Event(
+          "",
+          () => x++,
+          () => x === 10
+        ),
+        () => x === 0
+      );
     });
 
     it("does not trigger timed events immediately", () => {
@@ -119,7 +131,7 @@ describe("Game class", () => {
     it("triggers timed events after the timeout has passed", () => {
       addEvent(new Event("", () => x++, true, 10, TIMEOUT_MILLIS));
       handleTurnEnd();
-      return new Promise(resolve =>
+      return new Promise((resolve) =>
         setTimeout(() => {
           expect(x).toBe(1);
           resolve();
@@ -175,11 +187,11 @@ describe("goNORTH", () => {
   beforeEach(() => {
     consoleIO.output = jest.fn();
     consoleIO.showOptions = jest.fn();
-    initGame(title, "", true);
+    initGame(title, "", { debugMode: true });
   });
 
   it("Creates a game with the given title", () => {
-    const game = initGame("The Witch's Grotto", "", false);
+    const game = initGame("The Witch's Grotto", "", { debugMode: false });
     expect(game.title).toBe("The Witch's Grotto");
   });
 

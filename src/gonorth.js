@@ -23,10 +23,10 @@ initStore();
 
 const game = {};
 
-function initGame(title, author, debugMode) {
+function initGame(title, author, config) {
   game.title = title;
   game.author = author;
-  game.debugMode = debugMode;
+  game.config = config;
   game.container = null;
   game.introActions = new ActionChain(() => goToStartingRoom());
   game.schedules = [];
@@ -39,7 +39,7 @@ function initGame(title, author, debugMode) {
   createKeywords();
 
   const inBrowser = typeof window !== "undefined";
-  getStore().dispatch(newGame(game, inBrowser, game.debugMode));
+  getStore().dispatch(newGame(game, inBrowser, game.config.debugMode));
 
   return game;
 }

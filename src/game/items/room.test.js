@@ -12,7 +12,7 @@ consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
 // Prevent console logging
-getStore().dispatch(newGame(initGame("test", false), true, false));
+getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
 
 const clickNext = () => getStore().getState().game.interaction.options[0].action();
 
@@ -122,7 +122,7 @@ describe("Room", () => {
     let game;
 
     beforeEach(() => {
-      game = initGame("The Giant's Castle", false);
+      game = initGame("The Giant's Castle", "", { debugMode: false });
       getStore().dispatch(newGame(game, true));
       game.room = hall;
     });

@@ -8,7 +8,7 @@ import { initGame, Interaction, SequentialText } from "../gonorth";
 import { deferAction } from "./testFunctions";
 
 // Prevent console logging
-getStore().dispatch(newGame(initGame("test", false), true, false));
+getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
 
 const clickNext = () => {
   let res;

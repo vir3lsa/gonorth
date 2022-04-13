@@ -49,7 +49,7 @@ function getCurrentPage() {
 beforeEach(() => {
   unregisterStore();
   initStore();
-  game = initGame("", false);
+  game = initGame("", "", { debugMode: false });
   getStore().dispatch(newGame(game, true, false));
 
   nw = new Room("nw");

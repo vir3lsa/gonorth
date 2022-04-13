@@ -162,7 +162,7 @@ beforeEach(async () => {
   initStore();
 
   // Pretend we're in the browser
-  game = initGame("Jolly Capers", false);
+  game = initGame("Jolly Capers", "", { debugMode: false });
   optionGraph = new OptionGraph("jollyCapers", ...graphNodes);
   x = 0;
   getStore().dispatch(newGame(game, true, false));

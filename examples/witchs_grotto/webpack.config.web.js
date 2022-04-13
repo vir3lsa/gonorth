@@ -1,6 +1,7 @@
 const path = require("path");
+const webpack = require("webpack");
 
-module.exports = {
+module.exports = (env) => ({
   mode: "development",
   context: __dirname,
   devServer: {
@@ -21,5 +22,8 @@ module.exports = {
         ]
       }
     ]
-  }
-};
+  },
+  plugins: [
+    new webpack.DefinePlugin({ SKIP_REACTION_TIMES: JSON.stringify((env && env.SKIP_REACTION_TIMES) || false) })
+  ]
+});

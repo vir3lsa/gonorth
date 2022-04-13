@@ -22,7 +22,7 @@ beforeEach(() => {
   room = new Room("Hall", "");
   door = new Door("heavy oak door", "", false, true);
   getStore().dispatch(changeInteraction(new Interaction("")));
-  game = initGame("The Giant's Castle", false);
+  game = initGame("The Giant's Castle", "", { debugMode: false });
   getStore().dispatch(newGame(game, true));
   game.room = room;
 });
