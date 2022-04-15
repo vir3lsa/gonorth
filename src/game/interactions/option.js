@@ -3,6 +3,7 @@ import { changeInteraction } from "../../redux/gameActions";
 import { AppendInput } from "./interaction";
 import { ActionChain } from "../../utils/actionChain";
 import { handleTurnEnd } from "../../utils/lifecycle";
+import { selectActionChainPromise } from "../../utils/selectors";
 
 export class Option {
   constructor(label, action, endTurn = true) {
@@ -25,7 +26,7 @@ export class Option {
       // First perform the player actions
       await actionChain.chain(...args);
 
-      if (!getStore().getState().game.actionChainPromise && this.endTurn) {
+      if (!selectActionChainPromise() && this.endTurn) {
         // Do the end of turn actions if there's no enclosing chain i.e. we came from room options
         return handleTurnEnd();
       }

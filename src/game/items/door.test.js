@@ -5,8 +5,7 @@ import { Room } from "./room";
 import { Interaction } from "../interactions/interaction";
 import { initGame } from "../../gonorth";
 import { Item } from "./item";
-
-const selectCurrentPage = () => getStore().getState().game.interaction.currentPage;
+import { selectCurrentPage } from "../../utils/testSelectors";
 
 // Prevent console logging
 getStore().dispatch(newGame({}, true, false));

@@ -8,7 +8,7 @@ import { Verb } from "./verbs/verb";
 import { initGame } from "../gonorth";
 import { goToRoom } from "../utils/lifecycle";
 import { PagedText } from "./interactions/text";
-import { selectCurrentPage } from "../utils/testSelectors";
+import { selectCurrentPage, selectInteraction } from "../utils/testSelectors";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -19,7 +19,7 @@ let game, hall, north, south, east, west, door, chair, redBall, blueBall, redBox
 
 const directionTest = async (input, expectedRoom) => {
   const actionPromise = new Parser(input).parse();
-  setTimeout(() => getStore().getState().game.interaction.options[0].action());
+  setTimeout(() => selectInteraction().options[0].action());
   await actionPromise;
   expect(game.room.name).toBe(expectedRoom);
 };

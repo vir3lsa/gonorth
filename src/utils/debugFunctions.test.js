@@ -10,6 +10,7 @@ import { goToRoom } from "./lifecycle";
 import { PagedText } from "../game/interactions/text";
 import { initStore } from "../redux/store";
 import { OptionGraph } from "../game/interactions/optionGraph";
+import { selectCurrentPage } from "./testSelectors";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("./consoleIO");
@@ -22,11 +23,11 @@ const inputTest = async (input, expectedOutput, ...expectedOmissions) => {
   await new Parser(input).parse();
   const expected = Array.isArray(expectedOutput) ? expectedOutput : [expectedOutput];
   expected.forEach((output) => {
-    expect(getStore().getState().game.interaction.currentPage).toInclude(output);
+    expect(selectCurrentPage()).toInclude(output);
   });
 
   expectedOmissions.forEach((expectedOmission) => {
-    expect(getStore().getState().game.interaction.currentPage).not.toInclude(expectedOmission);
+    expect(selectCurrentPage()).not.toInclude(expectedOmission);
   });
 };
 

@@ -13,20 +13,17 @@ import { Room } from "./game/items/room";
 import { Option } from "./game/interactions/option";
 import { ActionChain } from "./utils/actionChain";
 import { Verb } from "./game/verbs/verb";
-import { receiveInput } from "./utils/inputReceiver";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event } from "./game/events/event";
 import { handleTurnEnd } from "./utils/lifecycle";
 import { Parser } from "./game/parser";
+import { selectTurn } from "./utils/selectors";
+import { selectCurrentPage } from "./utils/testSelectors";
+import { clickNext } from "./utils/testFunctions";
 
 const title = "Space Auctioneer 2";
 
 jest.mock("./utils/consoleIO");
 const consoleIO = require("./utils/consoleIO");
-
-const clickNext = () =>
-  getStore()
-    .getState()
-    .game.interaction.options[0].action();
 
 let game, x, y, room;
 
@@ -36,8 +33,6 @@ const eventTest = async (event, expectation) => {
   expect(expectation()).toBeTruthy();
   event.cancel();
 };
-
-const selectTurn = () => getStore().getState().game.turn;
 
 describe("Game class", () => {
   beforeEach(() => {
@@ -51,7 +46,7 @@ describe("Game class", () => {
   });
 
   it("defaults output to Loading", () => {
-    expect(getStore().getState().game.interaction.currentPage).toBe("Loading...");
+    expect(selectCurrentPage()).toBe("Loading...");
   });
 
   it("throws an error if trying to attach with no container", () => {

@@ -1,11 +1,11 @@
 import { processEvent } from "./eventUtils";
 import { getStore } from "../redux/storeRegistry";
-import { selectGame } from "./selectors";
+import { selectEvents, selectGame } from "./selectors";
 import { nextTurn, changeInteraction } from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";
 
 export async function handleTurnEnd() {
-  const events = getStore().getState().game.events;
+  const events = selectEvents();
 
   for (let i in events) {
     await processEvent(events[i]);

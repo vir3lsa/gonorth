@@ -1,7 +1,5 @@
 import { getStore } from "../redux/storeRegistry";
 
-export const selectCurrentPage = () =>
-  getStore().getState().game.interaction.currentPage;
-export const selectOptions = () =>
-  getStore().getState().game.interaction.options;
-export const selectInteraction = () => getStore().getState().game.interaction;
+export const selectCurrentPage = () => getStore().getState().interaction.currentPage;
+export const selectOptions = () => getStore().getState().interaction.options;
+export const selectInteraction = () => getStore().getState().interaction;

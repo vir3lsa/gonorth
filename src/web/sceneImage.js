@@ -20,7 +20,7 @@ const SceneImageInner = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    image: state.game.image
+    image: state.image
   };
 };
 

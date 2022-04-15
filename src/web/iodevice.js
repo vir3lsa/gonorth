@@ -48,8 +48,8 @@ const IODevice = (props) => {
 
 const mapStateToProps = (state) => {
   return {
-    interaction: state.game.interaction,
-    image: state.game.image
+    interaction: state.interaction,
+    image: state.image
   };
 };
 

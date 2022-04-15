@@ -1,6 +1,6 @@
 import { ActionChain } from "../../utils/actionChain";
 import { getStore } from "../../redux/storeRegistry";
-import { selectOptions } from "../../utils/selectors";
+import { selectActionChainPromise, selectOptions } from "../../utils/selectors";
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
@@ -97,7 +97,7 @@ export class Event {
   async trigger() {
     let chainPromise;
 
-    while ((chainPromise = getStore().getState().game.actionChainPromise)) {
+    while ((chainPromise = selectActionChainPromise())) {
       // Don't start the event until no action chains are running
       await chainPromise;
     }

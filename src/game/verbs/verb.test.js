@@ -9,9 +9,10 @@ import {
   PagedText
 } from "../interactions/text";
 import { Option } from "../interactions/option";
-import { selectCurrentPage } from "../../utils/testSelectors";
+import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { initGame } from "../../gonorth";
-import { deferAction } from "../../utils/testFunctions";
+import { clickNext, clickNextAndWait, deferAction } from "../../utils/testFunctions";
+import { selectVerbNames } from "../../utils/selectors";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -21,16 +22,7 @@ consoleIO.showOptions = jest.fn();
 let y;
 let verb;
 
-const clickNext = () => getStore().getState().game.interaction.options[0].action();
-
-const storeHasVerb = (verbName) => getStore().getState().game.verbNames[verbName];
-
-const selectInteraction = () => getStore().getState().game.interaction;
-
-const clickNextAndWait = () => {
-  clickNext();
-  return selectInteraction().promise;
-};
+const storeHasVerb = (verbName) => selectVerbNames()[verbName];
 
 // Prevent console logging
 getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
@@ -205,7 +197,7 @@ describe("chainable actions", () => {
     verb.onSuccess = ["blah", new Interaction("bob")];
     getStore().dispatch(changeInteraction(new Interaction("Previous interaction")));
     verb.attempt(3);
-    expect(getStore().getState().game.interaction.options[0].label).toBe("Next");
+    expect(selectInteraction().options[0].label).toBe("Next");
   });
 
   it("Clears the page for paged text", async () => {

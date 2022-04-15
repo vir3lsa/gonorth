@@ -6,18 +6,10 @@ import { newGame } from "../../redux/gameActions";
 import { selectInventory } from "../../utils/selectors";
 import { Room } from "./room";
 import { initGame, setInventoryCapacity } from "../../gonorth";
-import { selectOptions } from "../../utils/testSelectors";
+import { selectCurrentPage, selectInteraction, selectOptions } from "../../utils/testSelectors";
 import { Container } from "./container";
 import { Verb } from "../../../src/game/verbs/verb";
-
-const selectCurrentPage = () => getStore().getState().game.interaction.currentPage;
-
-const clickNext = () => getStore().getState().game.interaction.options[0].action();
-
-const clickNextAndWait = () => {
-  clickNext();
-  return selectInteraction().promise;
-};
+import { clickNextAndWait } from "../../utils/testFunctions";
 
 let game, room;
 

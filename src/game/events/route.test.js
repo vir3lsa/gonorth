@@ -8,6 +8,7 @@ import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { newGame } from "../../redux/gameActions";
 import { addSchedule, initGame } from "../../gonorth";
 import { handleTurnEnd } from "../../utils/lifecycle";
+import { selectCurrentPage } from "../../utils/testSelectors";
 
 jest.mock("../../utils/consoleIO");
 
@@ -18,13 +19,7 @@ let ne;
 let game;
 let gran;
 
-function createRoute(
-  subject,
-  condition,
-  continueOnFail,
-  text = "",
-  ...directions
-) {
+function createRoute(subject, condition, continueOnFail, text = "", ...directions) {
   const routeBuilder = new Route.Builder()
     .withSubject(subject)
     .withCondition(condition)
@@ -40,10 +35,6 @@ function createRoute(
   const route = routeBuilder.build();
   addSchedule(route);
   return route;
-}
-
-function getCurrentPage() {
-  return getStore().getState().game.interaction.currentPage;
 }
 
 beforeEach(() => {
@@ -87,11 +78,11 @@ test("Movement can produce text", async () => {
   const text = new CyclicText("one", "two", "three");
   createRoute(gran, true, false, text, "s", "e", "n", "w");
   await handleTurnEnd();
-  expect(getCurrentPage().includes("one")).toBeTruthy();
+  expect(selectCurrentPage().includes("one")).toBeTruthy();
   await handleTurnEnd();
-  expect(getCurrentPage().includes("two")).toBeTruthy();
+  expect(selectCurrentPage().includes("two")).toBeTruthy();
   await handleTurnEnd();
-  expect(getCurrentPage().includes("three")).toBeTruthy();
+  expect(selectCurrentPage().includes("three")).toBeTruthy();
 });
 
 test("Encounter triggers when NPC happens upon player", async () => {
@@ -99,5 +90,5 @@ test("Encounter triggers when NPC happens upon player", async () => {
   game.room = sw;
   gran.addEncounter("Hello!");
   await handleTurnEnd();
-  expect(getCurrentPage().includes("Hello!")).toBeTruthy();
+  expect(selectCurrentPage().includes("Hello!")).toBeTruthy();
 });

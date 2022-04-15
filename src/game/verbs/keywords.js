@@ -1,5 +1,5 @@
 import { Verb, GoVerb, newVerb } from "./verb";
-import { selectInventory } from "../../utils/selectors";
+import { selectInventory, selectKeywords } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
 import { OptionGraph } from "../interactions/optionGraph";
 import { getHelp, giveHint } from "../../gonorth";
@@ -145,7 +145,7 @@ export function addKeyword(keyword) {
 }
 
 export function getKeywords() {
-  return getStore().getState().game.keywords;
+  return selectKeywords();
 }
 
 export function getKeyword(name) {

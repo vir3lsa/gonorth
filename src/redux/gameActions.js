@@ -9,9 +9,9 @@ import {
 import { Parser } from "../game/parser";
 import { AppendInput, Append } from "../game/interactions/interaction";
 
-const selectInBrowser = (state) => state.game.inBrowser;
-const selectDebugMode = (state) => state.game.debugMode;
-const selectPlayerInput = (state) => state.game.playerInput;
+const selectInBrowser = (state) => state.inBrowser;
+const selectDebugMode = (state) => state.debugMode;
+const selectPlayerInput = (state) => state.playerInput;
 
 export const newGame = (game, inBrowser, debugMode) => ({
   type: type.NEW_GAME,
@@ -29,7 +29,7 @@ export const changeInteraction = (interaction) => (dispatch, getState) => {
 
     if (!currentOptions && interaction instanceof Append) {
       // Current options are copied onto new interaction
-      currentOptions = state.game.interaction.options;
+      currentOptions = state.interaction.options;
     }
 
     if (isPromptActive()) {

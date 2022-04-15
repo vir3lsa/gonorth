@@ -5,6 +5,8 @@ import { Interaction } from "../interactions/interaction";
 import { Item } from "./item";
 import { initGame } from "../../gonorth";
 import { Parser } from "../parser";
+import { selectInteraction, selectCurrentPage } from "../../utils/testSelectors";
+import { clickNext } from "../../utils/testFunctions";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -13,12 +15,6 @@ consoleIO.showOptions = jest.fn();
 
 // Prevent console logging
 getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
-
-const clickNext = () => getStore().getState().game.interaction.options[0].action();
-
-const selectCurrentPage = () => getStore().getState().game.interaction.currentPage;
-
-const selectInteraction = () => getStore().getState().game.interaction;
 
 const clickNextAndWait = async () => {
   await clickNext();
@@ -142,20 +138,20 @@ describe("Room", () => {
     it("responds to custom directions", async () => {
       hall.addAdjacentRoom(east, "archway");
       const actionPromise = new Parser("archway").parse();
-      getStore().getState().game.interaction.options[0].action();
+      clickNext();
       await actionPromise;
       expect(game.room.name).toBe("Scullery");
     });
 
     it("informs player when a direction doesn't exist", () => {
       new Parser("east").parse();
-      expect(getStore().getState().game.interaction.currentPage).toBe("You can't go that way.");
+      expect(selectCurrentPage()).toBe("You can't go that way.");
     });
 
     it("gives custom messages when a direction doesn't exist", () => {
       hall.setSouth(null, false, null, "You can't walk through walls");
       new Parser("south").parse();
-      expect(getStore().getState().game.interaction.currentPage).toBe("You can't walk through walls");
+      expect(selectCurrentPage()).toBe("You can't walk through walls");
     });
 
     it("prints a message when successfully going in a direction", () => {
