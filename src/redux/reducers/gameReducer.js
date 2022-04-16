@@ -94,6 +94,14 @@ export default function (state = initialState, action) {
       return { ...newState, items: newItems };
     case type.ADD_OPTION_GRAPH:
       return { ...state, optionGraphs: { ...state.optionGraphs, [action.optionGraph.id]: action.optionGraph } };
+    case type.LOAD_SNAPSHOT:
+      return Object.entries(action.snapshot).reduce(
+        (acc, [key, value]) => {
+          acc[key] = value;
+          return acc;
+        },
+        { ...state }
+      );
     default:
       return state;
   }

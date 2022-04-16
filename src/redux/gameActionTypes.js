@@ -13,3 +13,4 @@ export const REMOVE_KEYWORDS = "REMOVE_KEYWORDS";
 export const ADD_ROOM = "ADD_ROOM";
 export const ADD_ITEM = "ADD_ITEM";
 export const ADD_OPTION_GRAPH = "ADD_OPTION_GRAPH";
+export const LOAD_SNAPSHOT = "LOAD_SNAPSHOT";

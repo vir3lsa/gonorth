@@ -135,3 +135,8 @@ export const addOptionGraph = (optionGraph) => ({
   type: type.ADD_OPTION_GRAPH,
   optionGraph
 });
+
+export const loadSnapshot = (snapshot) => ({
+  type: type.LOAD_SNAPSHOT,
+  snapshot
+});

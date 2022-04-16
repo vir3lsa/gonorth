@@ -16,7 +16,9 @@ import { kitchen } from "./kitchen";
 
 export const cellar = new Room(
   "Cellar",
-  "The cellar is dark, damp and smells of rotting Earth. That old crone shut you down here, cackling as she swung the trapdoor shut. Rough stone steps lead up towards it in one corner, whilst the closed double doors of a coal hatch are recessed into the low roof on the east side. A narrow archway leads deeper into the cellar to the west. The wooden ceiling boards give way to stone to the South, as the roof and floor both slope downwards. The room is flooded with murky looking water in that direction.\n\nThe whole space is lit by a single dim orange lightbulb hanging from a wire that disappears between the wooden boards of the ceiling. It casts a pallid glow over everything it touches but its weak light barely reaches the corners of the room."
+  "The cellar is dark, damp and smells of rotting Earth. That old crone shut you down here, cackling as she swung the trapdoor shut. Rough stone steps lead up towards it in one corner, whilst the closed double doors of a coal hatch are recessed into the low roof on the east side. A narrow archway leads deeper into the cellar to the west. The wooden ceiling boards give way to stone to the South, as the roof and floor both slope downwards. The room is flooded with murky looking water in that direction.\n\nThe whole space is lit by a single dim orange lightbulb hanging from a wire that disappears between the wooden boards of the ceiling. It casts a pallid glow over everything it touches but its weak light barely reaches the corners of the room.",
+  null,
+  true
 );
 
 const lightbulb = new Item(

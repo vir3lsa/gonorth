@@ -9,15 +9,17 @@ import { goToRoom } from "../../gonorth";
 import { getKeyword, addKeyword, directionAliases } from "../verbs/keywords";
 import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
 import { debug } from "../../utils/consoleIO";
+import { checkpoint } from "../../utils/lifecycle";
 
 export class Room extends Item {
-  constructor(name, description, options) {
+  constructor(name, description, options, checkpoint) {
     super(name, preferPaged(description), false, -1);
     this.visits = 0;
     this.adjacentRooms = {};
     this.options = options;
     this.canHoldItems = true;
     this.aliases = ["room", "floor"];
+    this.checkpoint = checkpoint;
     getStore().dispatch(addRoom(this));
   }
 
@@ -141,7 +143,15 @@ export class Room extends Item {
    * Get the ActionChain (including any options) associated with going to this room.
    */
   get actionChain() {
-    const chain = new ActionChain(() => getStore().dispatch(changeImage(this._image)), this.description);
+    const chain = new ActionChain(
+      () => {
+        if (this.checkpoint) {
+          return checkpoint();
+        }
+      },
+      () => getStore().dispatch(changeImage(this._image)),
+      this.description
+    );
     chain.options = this.options;
 
     if (this.itemListings) {

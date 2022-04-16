@@ -1,16 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { Provider } from "react-redux";
 
 import { initStore } from "./redux/store";
 import { createKeywords } from "./game/verbs/keywords";
-import IODevice from "./web/iodevice";
-import { getStore } from "./redux/storeRegistry";
-import {
-  newGame,
-  changeInteraction,
-  addEvent as eventAdded
-} from "./redux/gameActions";
+import { getPersistor, getStore } from "./redux/storeRegistry";
+import { newGame, changeInteraction, addEvent as eventAdded } from "./redux/gameActions";
 import { Interaction } from "./game/interactions/interaction";
 import { Option } from "./game/interactions/option";
 import { Room } from "./game/items/room";
@@ -18,6 +12,7 @@ import { ActionChain } from "./utils/actionChain";
 import { clearPage, goToRoom } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
+import { GoNorth } from "./web/GoNorth";
 
 initStore();
 
@@ -40,6 +35,7 @@ function initGame(title, author, config) {
 
   const inBrowser = typeof window !== "undefined";
   getStore().dispatch(newGame(game, inBrowser, game.config.debugMode));
+  getPersistor().loadSnapshot();
 
   return game;
 }
@@ -72,11 +68,7 @@ function play() {
 
 function renderTopLevel() {
   if (game.container) {
-    game.component = (
-      <Provider store={getStore()}>
-        <IODevice />
-      </Provider>
-    );
+    game.component = <GoNorth />;
     ReactDOM.render(game.component, game.container);
   }
 }

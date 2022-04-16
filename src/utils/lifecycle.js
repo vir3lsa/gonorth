@@ -28,3 +28,9 @@ export function goToRoom(room) {
 export function clearPage(newPage) {
   getStore().dispatch(changeInteraction(new Interaction(newPage || "")));
 }
+
+// Saves game state to local storage.
+export function checkpoint() {
+  const persistor = getPersistor();
+  persistor.persistSnapshot();
+}
