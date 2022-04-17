@@ -75,4 +75,8 @@ export class SnapshotPersistor {
       }
     }
   }
+
+  purgeSnapshot() {
+    localStorage.removeItem(this.key);
+  }
 }

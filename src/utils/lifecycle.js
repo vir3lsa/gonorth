@@ -1,7 +1,7 @@
 import { processEvent } from "./eventUtils";
-import { getStore } from "../redux/storeRegistry";
-import { selectEvents, selectGame } from "./selectors";
-import { nextTurn, changeInteraction } from "../redux/gameActions";
+import { getPersistor, getStore } from "../redux/storeRegistry";
+import { selectEvents, selectGame, selectTurn } from "./selectors";
+import { nextTurn, changeInteraction, resetState, newGame } from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";
 
 export async function handleTurnEnd() {
@@ -31,6 +31,12 @@ export function clearPage(newPage) {
 
 // Saves game state to local storage.
 export function checkpoint() {
-  const persistor = getPersistor();
-  persistor.persistSnapshot();
+  getPersistor().persistSnapshot();
+}
+
+export function deleteSave() {
+  const game = selectGame();
+  getPersistor().purgeSnapshot();
+  getStore().dispatch(resetState());
+  getStore().dispatch(newGame(game, game.config.debugMode));
 }

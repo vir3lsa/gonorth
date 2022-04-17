@@ -59,7 +59,7 @@ export class Interaction {
 export class Append extends Interaction {}
 
 /**
- * Appends the most recent user input to the output if in the browser.
+ * Appends the most recent user input to the output.
  */
 export class AppendInput extends Append {
   constructor(input, ...args) {

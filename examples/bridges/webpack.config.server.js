@@ -1,5 +1,4 @@
 const path = require("path");
-const webpack = require("webpack");
 
 module.exports = {
   mode: "development",
@@ -7,10 +6,5 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, "dist-server")
   },
-  target: "node",
-  plugins: [
-    new webpack.ProvidePlugin({
-      prompts: "prompts"
-    })
-  ]
+  target: "node"
 };

@@ -1,29 +1,21 @@
 import * as type from "./gameActionTypes";
-import {
-  output,
-  showOptions,
-  promptInput,
-  isPromptActive,
-  cancelActivePrompt
-} from "../utils/consoleIO";
+import { output, showOptions } from "../utils/consoleIO";
 import { Parser } from "../game/parser";
 import { AppendInput, Append } from "../game/interactions/interaction";
 
-const selectInBrowser = (state) => state.inBrowser;
 const selectDebugMode = (state) => state.debugMode;
 const selectPlayerInput = (state) => state.playerInput;
 
-export const newGame = (game, inBrowser, debugMode) => ({
+export const newGame = (game, debugMode) => ({
   type: type.NEW_GAME,
-  payload: { game, inBrowser, debugMode }
+  payload: { game, debugMode }
 });
 
 export const changeInteraction = (interaction) => (dispatch, getState) => {
   const state = getState();
-  const inBrowser = selectInBrowser(state);
   const debugMode = selectDebugMode(state);
 
-  if ((!inBrowser || debugMode) && !(interaction instanceof AppendInput)) {
+  if (debugMode && !(interaction instanceof AppendInput)) {
     const currentOutput = interaction.currentPage;
     let currentOptions = interaction.options;
 
@@ -32,19 +24,12 @@ export const changeInteraction = (interaction) => (dispatch, getState) => {
       currentOptions = state.interaction.options;
     }
 
-    if (isPromptActive()) {
-      // Don't want more than one prompt active at once
-      cancelActivePrompt();
-    }
-
     if (currentOutput) {
-      output(`${!inBrowser ? "\n" : ""}${currentOutput}${!inBrowser ? "\n" : ""}`);
+      output(currentOutput);
     }
 
-    if (inBrowser && currentOptions && currentOptions.length) {
+    if (currentOptions && currentOptions.length) {
       showOptions(currentOptions);
-    } else if (!inBrowser) {
-      promptInput(currentOptions);
     }
   }
 
@@ -68,12 +53,11 @@ export const receivePlayerInput = (input) => (dispatch, getState) => {
   });
 
   const state = getState();
-  const inBrowser = selectInBrowser(state);
   const debugMode = selectDebugMode(state);
   const currentInput = selectPlayerInput(state);
 
   if (currentInput && currentInput.length) {
-    if (inBrowser && debugMode) {
+    if (debugMode) {
       output(`Received input: ${currentInput}`);
     }
 
@@ -139,4 +123,8 @@ export const addOptionGraph = (optionGraph) => ({
 export const loadSnapshot = (snapshot) => ({
   type: type.LOAD_SNAPSHOT,
   snapshot
+});
+
+export const resetState = () => ({
+  type: type.RESET_STATE
 });

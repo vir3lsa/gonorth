@@ -9,10 +9,13 @@ import { Interaction } from "./game/interactions/interaction";
 import { Option } from "./game/interactions/option";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import { clearPage, goToRoom } from "./utils/lifecycle";
+import { clearPage, deleteSave, goToRoom } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
+import { selectTurn } from "./utils/selectors";
+import { OptionGraph } from "./game/interactions/optionGraph";
+import { PagedText } from "./game/interactions/text";
 
 initStore();
 
@@ -33,8 +36,7 @@ function initGame(title, author, config) {
 
   createKeywords();
 
-  const inBrowser = typeof window !== "undefined";
-  getStore().dispatch(newGame(game, inBrowser, game.config.debugMode));
+  getStore().dispatch(newGame(game, game.config.debugMode));
   getPersistor().loadSnapshot();
 
   return game;
@@ -50,20 +52,53 @@ function attach(container) {
 }
 
 function play() {
-  let output = `# ${game.title || "Untitled"}`;
+  let titlePage = `# ${game.title || "Untitled"}`;
 
   if (game.author) {
-    output += `\n### By ${game.author}`;
+    titlePage += `\n### By ${game.author}`;
   }
 
-  const titleScreen = new Interaction(
-    output,
-    new Option("Play", () => {
-      game.introActions.chain();
-    })
+  const titleScreenGraph = new OptionGraph(
+    "titleScreen",
+    {
+      id: "root",
+      actions: new PagedText(titlePage),
+      options: {
+        play: {
+          condition: () => selectTurn() === 1,
+          actions: () => game.introActions.chain(),
+          exit: true
+        },
+        continue: {
+          condition: () => selectTurn() > 1,
+          actions: () => game.introActions.chain(), // TODO jump to room player is in.
+          exit: true
+        },
+        "New Game": {
+          condition: () => selectTurn() > 1,
+          node: "newGameWarning"
+        }
+      }
+    },
+    {
+      id: "newGameWarning",
+      actions: new PagedText(
+        "This will delete the current save game file and start a new game.\n\nDo you want to continue?"
+      ),
+      options: {
+        yes: {
+          actions: () => {
+            deleteSave();
+            game.introActions.chain();
+          },
+          exit: true
+        },
+        cancel: "root"
+      }
+    }
   );
 
-  getStore().dispatch(changeInteraction(titleScreen));
+  return titleScreenGraph.commence().chain();
 }
 
 function renderTopLevel() {

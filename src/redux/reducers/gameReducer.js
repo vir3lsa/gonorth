@@ -7,7 +7,6 @@ import {
 
 const initialState = {
   turn: 1,
-  inBrowser: false,
   debugMode: false,
   interaction: new Interaction("Loading..."),
   image: null,
@@ -102,6 +101,8 @@ export default function (state = initialState, action) {
         },
         { ...state }
       );
+    case type.RESET_STATE:
+      return { ...initialState };
     default:
       return state;
   }
