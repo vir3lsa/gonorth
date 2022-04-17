@@ -9,6 +9,11 @@ export class SnapshotPersistor {
     this.config = config;
   }
 
+  get key() {
+    const modelVersion = this.config?.version;
+    return modelVersion ? `gonorth:${modelVersion}` : "gonorth";
+  }
+
   /*
    * Persist a snapshot of store state in local storage.
    */
@@ -28,10 +33,19 @@ export class SnapshotPersistor {
       snapshot = { ...state };
     }
 
+    const replacer = (key, value) => {
+      const serializer = this.config.serializers[key];
+
+      if (serializer) {
+        return serializer(value);
+      }
+
+      return value;
+    };
+
     try {
       if (typeof localStorage !== "undefined") {
-        // TODO custom serializer for each field.
-        localStorage.setItem("gonorth", JSON.stringify(snapshot, null, 2));
+        localStorage.setItem(this.key, JSON.stringify(snapshot, replacer, 2));
       }
     } catch (error) {
       console.log("Failed to save game. Could be that storage is disabled or full.");
@@ -42,10 +56,23 @@ export class SnapshotPersistor {
    * Retrieve a state snapshot from local storage and dispatch it to the store.
    */
   loadSnapshot() {
+    const reviver = (key, value) => {
+      const deserializer = this.config.deserializers[key];
+
+      if (deserializer) {
+        return deserializer(value);
+      }
+
+      return value;
+    };
+
     if (typeof localStorage !== "undefined") {
-      // TODO custom deserializer.
-      const snapshot = JSON.parse(localStorage.getItem("gonorth"));
-      this.store.dispatch(this.loadSnapshotAction(snapshot));
+      const snapshotString = localStorage.getItem(this.key);
+
+      if (snapshotString) {
+        const snapshot = JSON.parse(snapshotString, reviver);
+        this.store.dispatch(this.loadSnapshotAction(snapshot));
+      }
     }
   }
 }
