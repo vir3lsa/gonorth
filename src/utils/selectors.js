@@ -8,7 +8,7 @@ export const selectInventoryItems = () =>
   getStore()
     .getState()
     .game.player.itemArray.filter((item) => !item.doNotList);
-export const selectRoom = () => getStore().getState().game.room;
+export const selectRoom = () => getStore().getState().room;
 export const selectVerbNames = () => getStore().getState().verbNames;
 export const selectItemNames = () => getStore().getState().itemNames;
 export const selectKeywords = () => getStore().getState().keywords;

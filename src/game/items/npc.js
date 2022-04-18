@@ -1,10 +1,10 @@
 import { Item } from "./item";
 import { Room } from "./room";
 import { Event } from "../events/event";
-import { selectGame } from "../../utils/selectors";
 import { getStore } from "../../redux/storeRegistry";
 import { addEvent } from "../../redux/gameActions";
 import { processEvent } from "../../utils/eventUtils";
+import { selectRoom } from "../../utils/selectors";
 
 export class Npc extends Item {
   constructor(name, description) {
@@ -37,11 +37,7 @@ export class Npc extends Item {
   }
 
   addEncounter(...actions) {
-    const encounter = new Event(
-      `${this.name} encounter`,
-      actions,
-      () => this.container === selectGame().room
-    );
+    const encounter = new Event(`${this.name} encounter`, actions, () => this.container === selectRoom());
     encounter.recurring = true;
     this.encounters.push(encounter);
     getStore().dispatch(addEvent(encounter));

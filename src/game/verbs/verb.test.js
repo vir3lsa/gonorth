@@ -12,7 +12,7 @@ import { Option } from "../interactions/option";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { initGame } from "../../gonorth";
 import { clickNext, clickNextAndWait, deferAction } from "../../utils/testFunctions";
-import { selectVerbNames } from "../../utils/selectors";
+import { selectActionChainPromise, selectVerbNames } from "../../utils/selectors";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -164,6 +164,7 @@ describe("chainable actions", () => {
     expect(selectCurrentPage()).toInclude("b");
     expect(selectCurrentPage()).not.toInclude("c");
     await deferAction(async () => {
+      await selectActionChainPromise();
       await clickNextAndWait();
       expect(selectCurrentPage()).toInclude("c");
     });

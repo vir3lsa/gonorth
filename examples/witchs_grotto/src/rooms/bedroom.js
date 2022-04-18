@@ -19,7 +19,9 @@ import { memoCard } from "./snug/snug";
 
 export const bedroom = new Room(
   "Bedroom",
-  "You've reached the witch's lavish bed chamber. Dominating the space is a grand four-poster bed, bedecked in rich satin. Beside it is a modest bedside table. There's also an ornate dresser against one wall, its oversized mirror amplifying the room's dim light. The walls and ceiling are wooden, with no discernible breaks or gaps anywhere, and curve around to meet each other rather than joining at sharp corners. On the floor is the carpet you'd felt as you reached the top of the stairs. It actually appears to be a floor-filling rug with an elaborate design you can't quite make out from this angle.\n\nOn the Western side of the room the long staircase you ascended just now winds its way back down to the South hall."
+  "You've reached the witch's lavish bed chamber. Dominating the space is a grand four-poster bed, bedecked in rich satin. Beside it is a modest bedside table. There's also an ornate dresser against one wall, its oversized mirror amplifying the room's dim light. The walls and ceiling are wooden, with no discernible breaks or gaps anywhere, and curve around to meet each other rather than joining at sharp corners. On the floor is the carpet you'd felt as you reached the top of the stairs. It actually appears to be a floor-filling rug with an elaborate design you can't quite make out from this angle.\n\nOn the Western side of the room the long staircase you ascended just now winds its way back down to the South hall.",
+  null,
+  true
 );
 
 const examine = new Verb(

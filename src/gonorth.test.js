@@ -16,7 +16,7 @@ import { Verb } from "./game/verbs/verb";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event } from "./game/events/event";
 import { handleTurnEnd } from "./utils/lifecycle";
 import { Parser } from "./game/parser";
-import { selectTurn } from "./utils/selectors";
+import { selectRoom, selectTurn } from "./utils/selectors";
 import { selectCurrentPage } from "./utils/testSelectors";
 import { clickNext } from "./utils/testFunctions";
 
@@ -55,7 +55,7 @@ describe("Game class", () => {
 
   it("goes to the starting room", () => {
     goToStartingRoom();
-    expect(game.room).toBe(room);
+    expect(selectRoom()).toBe(room);
   });
 
   it("returns starting room action chain", () => {

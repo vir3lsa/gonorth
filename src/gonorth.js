@@ -2,20 +2,18 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { initStore } from "./redux/store";
-import { createKeywords } from "./game/verbs/keywords";
-import { getPersistor, getStore } from "./redux/storeRegistry";
-import { newGame, changeInteraction, addEvent as eventAdded } from "./redux/gameActions";
-import { Interaction } from "./game/interactions/interaction";
-import { Option } from "./game/interactions/option";
+import { getStore } from "./redux/storeRegistry";
+import { addEvent as eventAdded, newGame } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import { clearPage, deleteSave, goToRoom, loadSave } from "./utils/lifecycle";
+import { clearPage, deleteSave, goToRoom, loadSave, prepareGame } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
-import { selectTurn } from "./utils/selectors";
+import { selectRoom, selectTurn } from "./utils/selectors";
 import { OptionGraph } from "./game/interactions/optionGraph";
 import { PagedText } from "./game/interactions/text";
+import { createKeywords } from "./game/verbs/keywords";
 
 initStore();
 
@@ -35,7 +33,6 @@ function initGame(title, author, config) {
   game.hintNode = "default";
 
   createKeywords();
-
   getStore().dispatch(newGame(game, game.config.debugMode));
   loadSave();
 
@@ -71,7 +68,7 @@ function play() {
         },
         continue: {
           condition: () => selectTurn() > 1,
-          actions: () => game.introActions.chain(), // TODO jump to room player is in.
+          actions: () => goToRoom(selectRoom()).chain(),
           exit: true
         },
         "New Game": {
@@ -133,7 +130,7 @@ function setStartingRoom(room) {
 }
 
 function getRoom() {
-  return game.room;
+  return selectRoom();
 }
 
 function addEvent(event) {

@@ -1,7 +1,7 @@
 import { processEvent } from "./eventUtils";
 import { getPersistor, getStore } from "../redux/storeRegistry";
-import { selectConfig, selectEvents, selectGame, selectTurn } from "./selectors";
-import { nextTurn, changeInteraction, resetState, newGame } from "../redux/gameActions";
+import { selectConfig, selectEvents, selectGame } from "./selectors";
+import { nextTurn, changeInteraction, newGame, changeRoom } from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";
 
 export async function handleTurnEnd() {
@@ -20,7 +20,7 @@ export async function handleTurnEnd() {
 }
 
 export function goToRoom(room) {
-  selectGame().room = room;
+  getStore().dispatch(changeRoom(room));
   room.revealVisibleItems();
   return room.actionChain;
 }
@@ -49,6 +49,6 @@ export function deleteSave() {
     getPersistor().purgeSnapshot();
   }
 
-  getStore().dispatch(resetState());
-  getStore().dispatch(newGame(game, game.config.debugMode));
+  // Reset state whether we're skipping persistence or not.
+  getPersistor().resetState();
 }

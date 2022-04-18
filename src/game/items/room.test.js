@@ -1,12 +1,13 @@
 import { getStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
-import { newGame, changeInteraction } from "../../redux/gameActions";
+import { newGame, changeInteraction, changeRoom } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
 import { Item } from "./item";
 import { initGame } from "../../gonorth";
 import { Parser } from "../parser";
 import { selectInteraction, selectCurrentPage } from "../../utils/testSelectors";
 import { clickNext } from "../../utils/testFunctions";
+import { selectRoom } from "../../utils/selectors";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -120,19 +121,19 @@ describe("Room", () => {
     beforeEach(() => {
       game = initGame("The Giant's Castle", "", { debugMode: false });
       getStore().dispatch(newGame(game, true));
-      game.room = hall;
+      getStore().dispatch(changeRoom(hall));
     });
 
     it("doesn't change room if not navigable as boolean", () => {
       hall.setNorth(north, false);
       new Parser("north").parse();
-      expect(game.room.name).toBe("Hall");
+      expect(selectRoom().name).toBe("Hall");
     });
 
     it("doesn't change room if not navigable as function", () => {
       hall.setNorth(north, () => false);
       new Parser("north").parse();
-      expect(game.room.name).toBe("Hall");
+      expect(selectRoom().name).toBe("Hall");
     });
 
     it("responds to custom directions", async () => {
@@ -140,7 +141,7 @@ describe("Room", () => {
       const actionPromise = new Parser("archway").parse();
       clickNext();
       await actionPromise;
-      expect(game.room.name).toBe("Scullery");
+      expect(selectRoom().name).toBe("Scullery");
     });
 
     it("informs player when a direction doesn't exist", () => {

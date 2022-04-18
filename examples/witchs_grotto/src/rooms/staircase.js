@@ -11,32 +11,37 @@ const defaultDescriptions = new RandomText(
 
 let facingBackwards = false;
 
-export const staircase = new Room("Staircase", () => {
-  facingBackwards = false;
-  staircase.setUp(staircase, true, null, null, false);
-  staircase.stage++;
+export const staircase = new Room(
+  "Staircase",
+  () => {
+    facingBackwards = false;
+    staircase.setUp(staircase, true, null, null, false);
+    staircase.stage++;
 
-  switch (staircase.stage) {
-    case 1:
-      return "You begin climbing the long, narrow staircase, the walls looming oppressively close to either side of you. The deep shadows in front of you gradually yield as you step into them, revealing step after step after step. After a short while the stairs start to curl round to the right and you soon lose sight of the bottom.\n\nYou only really have two choices - continue upwards or go back down.";
-    case 2: {
-      if (!staircase.items[symbols.name.toLowerCase()]) {
-        staircase.addItem(symbols);
+    switch (staircase.stage) {
+      case 1:
+        return "You begin climbing the long, narrow staircase, the walls looming oppressively close to either side of you. The deep shadows in front of you gradually yield as you step into them, revealing step after step after step. After a short while the stairs start to curl round to the right and you soon lose sight of the bottom.\n\nYou only really have two choices - continue upwards or go back down.";
+      case 2: {
+        if (!staircase.items[symbols.name.toLowerCase()]) {
+          staircase.addItem(symbols);
+        }
+        return "You continue trudging upwards, the stairs spiralling round always to the right. The shadows and the walls continue to be oppressive, never quite reaching pitch blackness, but never diminishing either. The only discernible change is that the steps have gone from stone to wooden. On the walls you can just make out some strange symbols, but those have always been present, you realise.\n\nUp or down - which will it be?";
       }
-      return "You continue trudging upwards, the stairs spiralling round always to the right. The shadows and the walls continue to be oppressive, never quite reaching pitch blackness, but never diminishing either. The only discernible change is that the steps have gone from stone to wooden. On the walls you can just make out some strange symbols, but those have always been present, you realise.\n\nUp or down - which will it be?";
-    }
-    case 3:
-      return "You keep expecting to see a landing, but one never arrives. The narrow staircase continues curling around to the right, marching ever upwards. You can see six or seven steps in front of you before they disappear out of sight around the bend, and about the same number behind you. \n\nPerseverance, that's what's needed.";
-    case 4: {
-      if (!staircase.items[writing.name.toLowerCase()]) {
-        staircase.addItem(writing);
+      case 3:
+        return "You keep expecting to see a landing, but one never arrives. The narrow staircase continues curling around to the right, marching ever upwards. You can see six or seven steps in front of you before they disappear out of sight around the bend, and about the same number behind you. \n\nPerseverance, that's what's needed.";
+      case 4: {
+        if (!staircase.items[writing.name.toLowerCase()]) {
+          staircase.addItem(writing);
+        }
+        return "The monotony of the never-ending steps is just beginning to get to you when something catches your eye. Scrawled across the wall is what looks like some kind of graffiti.";
       }
-      return "The monotony of the never-ending steps is just beginning to get to you when something catches your eye. Scrawled across the wall is what looks like some kind of graffiti.";
+      default:
+        return defaultDescriptions;
     }
-    default:
-      return defaultDescriptions;
-  }
-});
+  },
+  null,
+  true
+);
 
 const steps = new Item(
   "steps",

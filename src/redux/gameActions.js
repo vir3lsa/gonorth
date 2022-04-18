@@ -125,6 +125,7 @@ export const loadSnapshot = (snapshot) => ({
   snapshot
 });
 
-export const resetState = () => ({
-  type: type.RESET_STATE
+export const changeRoom = (room) => ({
+  type: type.CHANGE_ROOM,
+  room
 });

@@ -5,7 +5,7 @@ import {
   AppendInput
 } from "../../game/interactions/interaction";
 
-const initialState = {
+export const initialState = {
   turn: 1,
   debugMode: false,
   interaction: new Interaction("Loading..."),
@@ -16,6 +16,7 @@ const initialState = {
   actionChainPromise: null,
   events: [],
   keywords: {},
+  room: null,
   // The following parts of the model are used for debugging only.
   rooms: {},
   allItemNames: new Set(),
@@ -94,15 +95,9 @@ export default function (state = initialState, action) {
     case type.ADD_OPTION_GRAPH:
       return { ...state, optionGraphs: { ...state.optionGraphs, [action.optionGraph.id]: action.optionGraph } };
     case type.LOAD_SNAPSHOT:
-      return Object.entries(action.snapshot).reduce(
-        (acc, [key, value]) => {
-          acc[key] = value;
-          return acc;
-        },
-        { ...state }
-      );
-    case type.RESET_STATE:
-      return { ...initialState };
+      return { ...state, ...action.snapshot };
+    case type.CHANGE_ROOM:
+      return { ...state, room: action.room };
     default:
       return state;
   }

@@ -5,7 +5,7 @@ import { initStore } from "../../redux/store";
 import { Npc } from "../items/npc";
 import { CyclicText } from "../interactions/text";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
-import { newGame } from "../../redux/gameActions";
+import { changeRoom, newGame } from "../../redux/gameActions";
 import { addSchedule, initGame } from "../../gonorth";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { selectCurrentPage } from "../../utils/testSelectors";
@@ -87,7 +87,7 @@ test("Movement can produce text", async () => {
 
 test("Encounter triggers when NPC happens upon player", async () => {
   createRoute(gran, true, false, null, "s", "e");
-  game.room = sw;
+  getStore().dispatch(changeRoom(sw));
   gran.addEncounter("Hello!");
   await handleTurnEnd();
   expect(selectCurrentPage().includes("Hello!")).toBeTruthy();

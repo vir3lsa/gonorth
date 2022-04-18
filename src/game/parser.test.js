@@ -9,6 +9,7 @@ import { initGame } from "../gonorth";
 import { goToRoom } from "../utils/lifecycle";
 import { PagedText } from "./interactions/text";
 import { selectCurrentPage, selectInteraction } from "../utils/testSelectors";
+import { selectRoom } from "../utils/selectors";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -21,7 +22,7 @@ const directionTest = async (input, expectedRoom) => {
   const actionPromise = new Parser(input).parse();
   setTimeout(() => selectInteraction().options[0].action());
   await actionPromise;
-  expect(game.room.name).toBe(expectedRoom);
+  expect(selectRoom().name).toBe(expectedRoom);
 };
 
 const openDoorTest = (input) => {

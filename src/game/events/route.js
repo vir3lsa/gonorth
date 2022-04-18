@@ -1,6 +1,6 @@
 import { Schedule } from "./schedule";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
-import { selectGame } from "../../utils/selectors";
+import { selectRoom } from "../../utils/selectors";
 
 export class Route {
   static get Builder() {
@@ -38,9 +38,7 @@ export class Route {
 
       withDelay(delay, type) {
         if (type !== TIMEOUT_MILLIS && type !== TIMEOUT_TURNS) {
-          throw Error(
-            "Delay type must be one of 'TIMEOUT_MILLIS' and 'TIMEOUT_TURNS'"
-          );
+          throw Error("Delay type must be one of 'TIMEOUT_MILLIS' and 'TIMEOUT_TURNS'");
         }
 
         this.currentStep.delay = delay;
@@ -72,21 +70,16 @@ export class Route {
       .withCondition(builder.condition)
       .withContinueOnFail(builder.continueOnFail);
 
-    builder.steps.forEach(step => {
+    builder.steps.forEach((step) => {
       const getText = () => {
-        if (
-          builder.subject.container === selectGame().room &&
-          builder.findPlayerText
-        ) {
+        if (builder.subject.container === selectRoom() && builder.findPlayerText) {
           return builder.findPlayerText;
         }
 
         return step.text;
       };
 
-      scheduleBuilder
-        .addEvent(() => builder.subject.go(step.direction), getText)
-        .withDelay(step.delay, step.delayType);
+      scheduleBuilder.addEvent(() => builder.subject.go(step.direction), getText).withDelay(step.delay, step.delayType);
     });
 
     this.schedule = scheduleBuilder.build();

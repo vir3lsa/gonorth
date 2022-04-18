@@ -14,7 +14,9 @@ import { flue, setInsideOven } from "./flue";
 
 export const insideOven = new Room(
   "inside oven",
-  "It's dim in here but there's a small amount of light seeping in through a vent high in the door. There's a grille at the back over an opening leading into the flue. There appears to be a large dish of some kind on the shelf above you."
+  "It's dim in here but there's a small amount of light seeping in through a vent high in the door. There's a grille at the back over an opening leading into the flue. There appears to be a large dish of some kind on the shelf above you.",
+  null,
+  true
 );
 
 let fireBurning = true;
