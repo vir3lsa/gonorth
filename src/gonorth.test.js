@@ -39,7 +39,7 @@ describe("Game class", () => {
     unregisterStore();
     initStore();
     game = initGame("title", "", { debugMode: false });
-    room = new Room("stairs", "description", new Option("do it"));
+    room = new Room("stairs", "description");
     getStore().dispatch(newGame(game, true, false));
     setStartingRoom(room);
     x = y = 0;
@@ -61,7 +61,6 @@ describe("Game class", () => {
   it("returns starting room action chain", () => {
     const chain = goToStartingRoom();
     expect(chain instanceof ActionChain).toBeTruthy();
-    expect(chain.options[0].label).toBe("do it");
   });
 
   /*

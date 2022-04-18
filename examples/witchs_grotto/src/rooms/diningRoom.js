@@ -4,7 +4,6 @@ import { snug } from "./snug";
 export const diningRoom = new Room(
   "Dining Room",
   "The room is long and thin and is dominated by a large, if plain, table, marking this out as the dining room. Several candles flicker gently at evenly-spaced intervals along the table. Three places have been set with plates, cutlery and large wine goblets. Is the witch expecting guests?\n\nDown one wall is a long wooden cabinet, and various pictures adorn the walls.\n\nAt the rear of the room, a bead curtain with a moon and stars motif leads Westwards, and an archway opens onto the kitchen to the East.",
-  null,
   true
 );
 

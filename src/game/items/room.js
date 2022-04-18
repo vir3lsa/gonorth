@@ -12,25 +12,14 @@ import { debug } from "../../utils/consoleIO";
 import { checkpoint } from "../../utils/lifecycle";
 
 export class Room extends Item {
-  constructor(name, description, options, checkpoint) {
+  constructor(name, description, checkpoint) {
     super(name, preferPaged(description), false, -1);
     this.visits = 0;
     this.adjacentRooms = {};
-    this.options = options;
     this.canHoldItems = true;
     this.aliases = ["room", "floor"];
     this.checkpoint = checkpoint;
     getStore().dispatch(addRoom(this));
-  }
-
-  set options(options) {
-    if (options) {
-      this._options = Array.isArray(options) ? options : [options];
-    }
-  }
-
-  get options() {
-    return this._options;
   }
 
   set image(image) {
@@ -140,7 +129,7 @@ export class Room extends Item {
   }
 
   /**
-   * Get the ActionChain (including any options) associated with going to this room.
+   * Get the ActionChain associated with going to this room.
    */
   get actionChain() {
     const chain = new ActionChain(
@@ -152,7 +141,6 @@ export class Room extends Item {
       () => getStore().dispatch(changeImage(this._image)),
       this.description
     );
-    chain.options = this.options;
 
     if (this.itemListings) {
       chain.postScript = this.itemListings;

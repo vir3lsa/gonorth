@@ -39,7 +39,6 @@ export const staircase = new Room(
         return defaultDescriptions;
     }
   },
-  null,
   true
 );
 
