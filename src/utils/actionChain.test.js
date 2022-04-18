@@ -2,12 +2,17 @@ import { Action, ActionChain } from "./actionChain";
 import { getStore } from "../redux/storeRegistry";
 import { Option } from "../game/interactions/option";
 import { Verb } from "../game/verbs/verb";
-import { selectCurrentPage, selectInteraction, selectOptions } from "./testSelectors";
+import { selectCurrentPage, selectOptions } from "./testSelectors";
 import { changeInteraction, newGame } from "../redux/gameActions";
 import { initGame, Interaction, SequentialText } from "../gonorth";
 import { deferAction } from "./testFunctions";
 
 // Prevent console logging
+jest.mock("../utils/consoleIO");
+const consoleIO = require("../utils/consoleIO");
+consoleIO.output = jest.fn();
+consoleIO.showOptions = jest.fn();
+
 getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
 
 const clickNext = () => {
