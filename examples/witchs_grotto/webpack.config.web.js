@@ -23,7 +23,5 @@ module.exports = (env) => ({
       }
     ]
   },
-  plugins: [
-    new webpack.DefinePlugin({ SKIP_REACTION_TIMES: JSON.stringify((env && env.SKIP_REACTION_TIMES) || false) })
-  ]
+  plugins: [new webpack.DefinePlugin({ UI_TEST_MODE: JSON.stringify((env && env.UI_TEST_MODE) || false) })]
 });

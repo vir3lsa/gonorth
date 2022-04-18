@@ -9,7 +9,7 @@ import { Interaction } from "./game/interactions/interaction";
 import { Option } from "./game/interactions/option";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import { clearPage, deleteSave, goToRoom } from "./utils/lifecycle";
+import { clearPage, deleteSave, goToRoom, loadSave } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
@@ -37,7 +37,7 @@ function initGame(title, author, config) {
   createKeywords();
 
   getStore().dispatch(newGame(game, game.config.debugMode));
-  getPersistor().loadSnapshot();
+  loadSave();
 
   return game;
 }

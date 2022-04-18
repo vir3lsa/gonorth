@@ -26,9 +26,13 @@ import { RandomText } from "../../../lib/game/interactions/text";
 import { initHints } from "./utils/hints";
 
 // Variable injected by the Webpack Define plugin.
-const skipReactionTimes = SKIP_REACTION_TIMES;
+const uiTestMode = UI_TEST_MODE;
 
-initGame("The Lady of Bramble Wood", "Rich Locke", { debugMode: true, skipReactionTimes });
+initGame("The Lady of Bramble Wood", "Rich Locke", {
+  debugMode: true,
+  skipReactionTimes: uiTestMode,
+  skipPersistance: uiTestMode
+});
 setIntro("Now's your chance. Quickly! Make your escape whilst the witch is out.");
 initHints("bedroom1");
 

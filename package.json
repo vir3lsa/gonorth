@@ -9,7 +9,7 @@
     "test:cypress": "cypress open",
     "coverage": "jest --coverage",
     "start:grotto": "webpack-dev-server --config 'examples/witchs_grotto/webpack.config.web.js'",
-    "start:grotto-cypress": "webpack-dev-server --env.SKIP_REACTION_TIMES --config 'examples/witchs_grotto/webpack.config.web.js'",
+    "start:grotto-cypress": "webpack-dev-server --env.UI_TEST_MODE --config 'examples/witchs_grotto/webpack.config.web.js'",
     "start:grotto-server": "webpack --config 'examples/witchs_grotto/webpack.config.server.js' && node examples/witchs_grotto/dist-server/main.js",
     "start:bridges": "webpack-dev-server --config 'examples/bridges/webpack.config.web.js'",
     "start:bridges-server": "webpack --config 'examples/bridges/webpack.config.server.js' && node examples/bridges/dist-server/main.js"
