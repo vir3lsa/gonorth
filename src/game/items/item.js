@@ -11,7 +11,12 @@ import { commonWords } from "../constants";
 export function newItem(config, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
   const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems);
+
+  // Set remaining properties on the new item without recording the changes, then mark it for recording again.
+  item.recordChanges = false;
   Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
+  item.recordChanges = true;
+
   return item;
 }
 
@@ -47,6 +52,7 @@ export class Item {
     aliases = [],
     hidesItems = []
   ) {
+    this._alteredProperties = new Set();
     this.aliases = [];
     this.name = name;
     this.description = description;
@@ -176,6 +182,8 @@ export class Item {
       this.addVerb(giveVerb);
     }
 
+    // Record changes from now on.
+    this.recordChanges = true;
     getStore().dispatch(addItem(this));
   }
 
@@ -184,19 +192,21 @@ export class Item {
   }
 
   set name(name) {
+    this._recordAlteredProperty("name", name);
     this._name = name;
     this.article = getArticle(name);
     this.createAliases(name);
   }
 
   get description() {
-    return this._description(this);
+    return this._description ? this._description(this) : "";
   }
 
   /**
    * @param {string | string[] | function | Text | undefined } description
    */
   set description(description) {
+    this._recordAlteredProperty("description", description);
     this._description = createDynamicText(description);
   }
 
@@ -249,6 +259,7 @@ export class Item {
    * @param {Item} container
    */
   set container(container) {
+    this._recordAlteredProperty("container", container, (container) => (container ? container.name : ""));
     this._container = container;
     this._addAliasesToContainer(this.aliases);
   }
@@ -258,7 +269,7 @@ export class Item {
   }
 
   get aliases() {
-    return [...this._aliases];
+    return this._aliases ? [...this._aliases] : [];
   }
 
   /**
@@ -266,6 +277,7 @@ export class Item {
    */
   set aliases(aliases) {
     const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
+    this._recordAlteredProperty("aliases", aliasArray);
     this._aliases = new Set(aliasArray);
     this._addAliasesToContainer(this.aliases);
   }
@@ -351,7 +363,9 @@ export class Item {
   }
 
   set hidesItems(hidesItems) {
-    this._hidesItems = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
+    const hidesItemsArray = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
+    this._recordAlteredProperty("hidesItems", hidesItemsArray, (value) => value.map((item) => item.name));
+    this._hidesItems = hidesItemsArray;
   }
 
   get hidesItems() {
@@ -362,7 +376,7 @@ export class Item {
    * Adds items this item hides to self.
    */
   revealItems() {
-    if (this.container && this.itemsVisibleFromSelf) {
+    if (this.itemsVisibleFromSelf) {
       debug(`${this.name}: Revealing items`);
 
       this.hidesItems.forEach((item) => {
@@ -590,6 +604,49 @@ export class Item {
   addTest(verbName, test) {
     const verb = this.getVerb(verbName);
     verb.addTest(test);
+  }
+
+  get holdable() {
+    return this._holdable;
+  }
+
+  set holdable(value) {
+    this._recordAlteredProperty("holdable", value);
+    this._holdable = value;
+  }
+
+  get size() {
+    return this._size;
+  }
+
+  set size(value) {
+    this._recordAlteredProperty("size", value);
+    this._size = value;
+  }
+
+  get visible() {
+    return this._visible;
+  }
+
+  set visible(value) {
+    this._recordAlteredProperty("visible", value);
+    this._visible = value;
+  }
+
+  // Records an altered property, if it has changed.
+  _recordAlteredProperty(propertyName, newValue, transformer = (value) => value) {
+    const oldValue = this[propertyName] ? transformer(this[propertyName]) : null;
+    const transformedNewValue = transformer(newValue);
+
+    if (this.recordChanges && typeof transformedNewValue === "function") {
+      throw Error(
+        `Updated items property "${propertyName}" to a function. This is non-serializable and hence can't be recorded into the save file.`
+      );
+    }
+
+    if (this.recordChanges && JSON.stringify(oldValue) !== JSON.stringify(transformedNewValue)) {
+      this._alteredProperties.add(propertyName);
+    }
   }
 
   static get Builder() {

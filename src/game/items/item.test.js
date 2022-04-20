@@ -3,7 +3,7 @@ import { initStore } from "../../redux/store";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
 import { newGame } from "../../redux/gameActions";
-import { selectInventory } from "../../utils/selectors";
+import { selectActionChainPromise, selectInventory } from "../../utils/selectors";
 import { Room } from "./room";
 import { initGame, setInventoryCapacity } from "../../gonorth";
 import { selectCurrentPage, selectInteraction, selectOptions } from "../../utils/testSelectors";
@@ -256,5 +256,141 @@ describe("containers", () => {
     await chest.try("open");
     expect(Object.keys(chest.accessibleItems)).toContain("ball");
     expect(chest.accessibleItems["ball"]).toContain(ball);
+  });
+});
+
+describe("serialization", () => {
+  let ball, chest, box;
+
+  beforeEach(() => {
+    ball = new Item("ball", "red", true, 1);
+    chest = new Container("chest", null, "a large chest", "the lid is open", false);
+    box = new Container("box", null, "a cardboard box", "tatty and brown", false);
+  });
+
+  test("initially no properties are considered altered", () => {
+    expect(ball._alteredProperties).toEqual(new Set());
+  });
+
+  test("name changes that produce alias changes are recorded", () => {
+    ball.name = "red ball";
+    ball.name = "blue ball";
+    expect(ball._alteredProperties).toEqual(new Set(["name", "aliases"]));
+  });
+
+  test("name changes are recorded", () => {
+    ball.name = "dave";
+    expect(ball._alteredProperties).toEqual(new Set(["name"]));
+  });
+
+  test("alias changes are recorded", () => {
+    ball.aliases = "sphere";
+    expect(ball._alteredProperties).toEqual(new Set(["aliases"]));
+  });
+
+  test("description changes are recorded", () => {
+    ball.description = "quite good";
+    expect(ball._alteredProperties).toEqual(new Set(["description"]));
+  });
+
+  test("holdable changes are recorded", () => {
+    ball.holdable = false;
+    expect(ball._alteredProperties).toEqual(new Set(["holdable"]));
+  });
+
+  test("size changes are recorded", () => {
+    ball.size = 12;
+    expect(ball._alteredProperties).toEqual(new Set(["size"]));
+  });
+
+  test("visible changes are recorded", () => {
+    ball.visible = false;
+    expect(ball._alteredProperties).toEqual(new Set(["visible"]));
+  });
+
+  test("container changes are recorded", () => {
+    room.addItem(ball);
+    expect(ball._alteredProperties).toEqual(new Set(["container"]));
+  });
+
+  test("container removals are recorded and don't cause errors", () => {
+    room.addItem(ball);
+    ball.container = null;
+    expect(ball._alteredProperties).toEqual(new Set(["container"]));
+  });
+
+  test("container changes are recorded immediately", () => {
+    room.addItem(ball);
+    expect(ball._alteredProperties).toEqual(new Set(["container"]));
+  });
+
+  test("hidden items have a container change recorded when they're revealed", async () => {
+    chest.hidesItems = ball;
+    chest.verbs.open.attempt();
+    await selectActionChainPromise();
+    chest.verbs.examine.attempt();
+    await selectActionChainPromise();
+    expect(ball._alteredProperties).toEqual(new Set(["container"]));
+  });
+
+  test("changes aren't recorded when recording is off", () => {
+    ball.recordChanges = false;
+    ball.name = "round thing";
+    ball.description = "very shiny";
+    ball.holdable = false;
+    ball.visible = false;
+    ball.size = 12;
+    room.addItem(ball);
+    ball.hidesItems = new Item("air");
+    ball.recordChanges = true;
+    expect(ball._alteredProperties).toEqual(new Set());
+  });
+
+  test("changes to hidden items are recorded", () => {
+    chest.hidesItems = ball;
+    chest.hidesItems = [];
+    expect(chest._alteredProperties).toEqual(new Set(["hidesItems"]));
+  });
+
+  test("creating an item with the constructor doesn't record changes", () => {
+    const car = new Item("car", "fast", false, 50, [new Verb("drive")], ["motor"], [new Item("seat")]);
+    expect(car._alteredProperties).toEqual(new Set());
+  });
+
+  test("creating an item with newItem doesn't record changes", () => {
+    const car = newItem({
+      name: "car",
+      description: "fast",
+      holdable: false,
+      size: 50,
+      verbs: [new Verb("drive")],
+      aliases: ["motor"],
+      hidesItems: [new Item("seat")],
+      visible: false,
+      container: new Item("garage"),
+      containerListing: "there's a car",
+      canHoldItems: true,
+      capacity: 20
+    });
+    expect(car._alteredProperties).toEqual(new Set());
+  });
+
+  test("creating an item with the builder doesn't record changes", () => {
+    const car = new Item.Builder()
+      .withName("car")
+      .withDescription("fast")
+      .makeHoldable()
+      .withSize(50)
+      .withVerbs(new Verb("drive"))
+      .withAliases("motor")
+      .hidesItems(new Item("seat"))
+      .build();
+    expect(car._alteredProperties).toEqual(new Set());
+  });
+
+  test("cloning an item doesn't record changes", () => {
+    const newBall = ball.clone();
+    expect(newBall._alteredProperties).toEqual(new Set());
+    expect(ball._alteredProperties).toEqual(new Set());
   });
 });
