@@ -25,6 +25,7 @@ export class Container extends Item {
       [],
       aliases || []
     );
+    this.recordChanges = false;
     this.canHoldItems = true;
     this.capacity = capacity;
     this.preposition = preposition;
@@ -56,6 +57,7 @@ export class Container extends Item {
     );
 
     this.addVerbs(this.openVerb, this.closeVerb);
+    this.recordChanges = true;
   }
 
   addOpenAliases(...aliases) {

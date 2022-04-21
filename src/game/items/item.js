@@ -259,7 +259,7 @@ export class Item {
    * @param {Item} container
    */
   set container(container) {
-    this._recordAlteredProperty("container", container, (container) => (container ? container.name : ""));
+    this._recordAlteredProperty("container", container);
     this._container = container;
     this._addAliasesToContainer(this.aliases);
   }
@@ -364,7 +364,7 @@ export class Item {
 
   set hidesItems(hidesItems) {
     const hidesItemsArray = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
-    this._recordAlteredProperty("hidesItems", hidesItemsArray, (value) => value.map((item) => item.name));
+    this._recordAlteredProperty("hidesItems", hidesItemsArray);
     this._hidesItems = hidesItemsArray;
   }
 
@@ -395,6 +395,7 @@ export class Item {
   }
 
   set containerListing(listing) {
+    this._recordAlteredProperty("containerListing", listing);
     this._containerListing = listing;
   }
 
@@ -417,12 +418,22 @@ export class Item {
   }
 
   set capacity(capacity) {
+    this._recordAlteredProperty("capacity", capacity);
     this._capacity = capacity;
     this.free = capacity;
 
-    if (capacity > 0) {
+    if (capacity > 0 && !this.canHoldItems) {
       this.canHoldItems = true;
     }
+  }
+
+  get free() {
+    return this._free;
+  }
+
+  set free(value) {
+    this._recordAlteredProperty("free", value);
+    this._free = value;
   }
 
   get basicItemList() {
@@ -563,7 +574,10 @@ export class Item {
       newAliases.push(lcAlias);
     }
 
-    this.aliases = [...this.aliases, ...newAliases];
+    if (newAliases.length) {
+      this.aliases = [...this.aliases, ...newAliases];
+    }
+
     return newAliases;
   }
 
@@ -633,18 +647,24 @@ export class Item {
     this._visible = value;
   }
 
-  // Records an altered property, if it has changed.
-  _recordAlteredProperty(propertyName, newValue, transformer = (value) => value) {
-    const oldValue = this[propertyName] ? transformer(this[propertyName]) : null;
-    const transformedNewValue = transformer(newValue);
+  get canHoldItems() {
+    return this._canHoldItems;
+  }
 
-    if (this.recordChanges && typeof transformedNewValue === "function") {
+  set canHoldItems(value) {
+    this._recordAlteredProperty("canHoldItems", value);
+    this._canHoldItems = value;
+  }
+
+  // Records an altered property, if it has changed.
+  _recordAlteredProperty(propertyName, newValue) {
+    if (this.recordChanges && typeof newValue === "function") {
       throw Error(
         `Updated items property "${propertyName}" to a function. This is non-serializable and hence can't be recorded into the save file.`
       );
     }
 
-    if (this.recordChanges && JSON.stringify(oldValue) !== JSON.stringify(transformedNewValue)) {
+    if (this.recordChanges) {
       this._alteredProperties.add(propertyName);
     }
   }

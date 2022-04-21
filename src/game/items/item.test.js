@@ -262,6 +262,10 @@ describe("containers", () => {
 describe("serialization", () => {
   let ball, chest, box;
 
+  const expectRecordedProperties = (item, ...properties) => {
+    expect(item._alteredProperties).toEqual(new Set([...properties]));
+  };
+
   beforeEach(() => {
     ball = new Item("ball", "red", true, 1);
     chest = new Container("chest", null, "a large chest", "the lid is open", false);
@@ -269,59 +273,59 @@ describe("serialization", () => {
   });
 
   test("initially no properties are considered altered", () => {
-    expect(ball._alteredProperties).toEqual(new Set());
+    expectRecordedProperties(ball);
   });
 
   test("name changes that produce alias changes are recorded", () => {
     ball.name = "red ball";
     ball.name = "blue ball";
-    expect(ball._alteredProperties).toEqual(new Set(["name", "aliases"]));
+    expectRecordedProperties(ball, "name", "aliases");
   });
 
   test("name changes are recorded", () => {
     ball.name = "dave";
-    expect(ball._alteredProperties).toEqual(new Set(["name"]));
+    expectRecordedProperties(ball, "name");
   });
 
   test("alias changes are recorded", () => {
     ball.aliases = "sphere";
-    expect(ball._alteredProperties).toEqual(new Set(["aliases"]));
+    expectRecordedProperties(ball, "aliases");
   });
 
   test("description changes are recorded", () => {
     ball.description = "quite good";
-    expect(ball._alteredProperties).toEqual(new Set(["description"]));
+    expectRecordedProperties(ball, "description");
   });
 
   test("holdable changes are recorded", () => {
     ball.holdable = false;
-    expect(ball._alteredProperties).toEqual(new Set(["holdable"]));
+    expectRecordedProperties(ball, "holdable");
   });
 
   test("size changes are recorded", () => {
     ball.size = 12;
-    expect(ball._alteredProperties).toEqual(new Set(["size"]));
+    expectRecordedProperties(ball, "size");
   });
 
   test("visible changes are recorded", () => {
     ball.visible = false;
-    expect(ball._alteredProperties).toEqual(new Set(["visible"]));
+    expectRecordedProperties(ball, "visible");
   });
 
   test("container changes are recorded", () => {
     room.addItem(ball);
-    expect(ball._alteredProperties).toEqual(new Set(["container"]));
+    expectRecordedProperties(ball, "container");
   });
 
   test("container removals are recorded and don't cause errors", () => {
     room.addItem(ball);
     ball.container = null;
-    expect(ball._alteredProperties).toEqual(new Set(["container"]));
+    expectRecordedProperties(ball, "container");
   });
 
   test("container changes are recorded immediately", () => {
     room.addItem(ball);
-    expect(ball._alteredProperties).toEqual(new Set(["container"]));
+    expectRecordedProperties(ball, "container");
   });
 
   test("hidden items have a container change recorded when they're revealed", async () => {
@@ -330,7 +334,7 @@ describe("serialization", () => {
     await selectActionChainPromise();
     chest.verbs.examine.attempt();
     await selectActionChainPromise();
-    expect(ball._alteredProperties).toEqual(new Set(["container"]));
+    expectRecordedProperties(ball, "container");
   });
 
   test("changes aren't recorded when recording is off", () => {
@@ -343,18 +347,19 @@ describe("serialization", () => {
     room.addItem(ball);
     ball.hidesItems = new Item("air");
     ball.recordChanges = true;
-    expect(ball._alteredProperties).toEqual(new Set());
+    expectRecordedProperties(ball);
   });
 
   test("changes to hidden items are recorded", () => {
     chest.hidesItems = ball;
     chest.hidesItems = [];
-    expect(chest._alteredProperties).toEqual(new Set(["hidesItems"]));
+    expectRecordedProperties(chest, "hidesItems");
   });
 
   test("creating an item with the constructor doesn't record changes", () => {
     const car = new Item("car", "fast", false, 50, [new Verb("drive")], ["motor"], [new Item("seat")]);
     expect(car._alteredProperties).toEqual(new Set());
+    expectRecordedProperties(car);
   });
 
   test("creating an item with newItem doesn't record changes", () => {
@@ -372,7 +377,7 @@ describe("serialization", () => {
       canHoldItems: true,
       capacity: 20
     });
-    expect(car._alteredProperties).toEqual(new Set());
+    expectRecordedProperties(car);
   });
 
   test("creating an item with the builder doesn't record changes", () => {
@@ -385,12 +390,32 @@ describe("serialization", () => {
       .withAliases("motor")
       .hidesItems(new Item("seat"))
       .build();
-    expect(car._alteredProperties).toEqual(new Set());
+    expectRecordedProperties(car);
   });
 
   test("cloning an item doesn't record changes", () => {
     const newBall = ball.clone();
-    expect(newBall._alteredProperties).toEqual(new Set());
-    expect(ball._alteredProperties).toEqual(new Set());
+    expectRecordedProperties(newBall);
+    expectRecordedProperties(ball);
+  });
+
+  test("changes to container listing are recorded", () => {
+    ball.containerListing = "a round ball";
+    expectRecordedProperties(ball, "containerListing");
+  });
+
+  test("changes to canHoldItems are recorded", () => {
+    ball.canHoldItems = true;
+    expectRecordedProperties(ball, "canHoldItems");
+  });
+
+  test("changes to capacity are recorded and cause other changes", () => {
+    ball.capacity = 5;
+    expectRecordedProperties(ball, "capacity", "free", "canHoldItems");
+  });
+
+  test("changes to free are recorded", () => {
+    ball.free = 3;
+    expectRecordedProperties(ball, "free");
   });
 });
