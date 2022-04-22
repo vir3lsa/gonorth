@@ -151,7 +151,7 @@ describe("putting items", () => {
 
   test("uses the correct preposition", async () => {
     await ball.try("put", table);
-    expect(selectCurrentPage().includes("ball on the table")).toBeTruthy();
+    expect(selectCurrentPage()).toInclude("ball on the table");
   });
 
   test("uses a different preposition", async () => {
@@ -417,5 +417,25 @@ describe("serialization", () => {
   test("changes to free are recorded", () => {
     ball.free = 3;
     expectRecordedProperties(ball, "free");
+  });
+
+  test("changes to preposition are recorded", () => {
+    ball.preposition = "without";
+    expectRecordedProperties(ball, "preposition");
+  });
+
+  test("changes to itemsVisibleFromSelf are recorded", () => {
+    ball.itemsVisibleFromSelf = false;
+    expectRecordedProperties(ball, "itemsVisibleFromSelf");
+  });
+
+  test("changes to itemsVisibleFromRoom are recorded", () => {
+    ball.itemsVisibleFromRoom = false;
+    expectRecordedProperties(ball, "itemsVisibleFromRoom");
+  });
+
+  test("changes to doNotList are recorded", () => {
+    ball.doNotList = true;
+    expectRecordedProperties(ball, "doNotList");
   });
 });

@@ -68,11 +68,30 @@ export class Container extends Item {
     this.close.aliases = [...this.close.aliases, ...aliases];
   }
 
+  get open() {
+    return this._open;
+  }
+
+  set open(value) {
+    this._recordAlteredProperty("open", value);
+    this._open = value;
+  }
+
+  get locked() {
+    return this._locked;
+  }
+
+  set locked(value) {
+    this._recordAlteredProperty("locked", value);
+    this._locked = value;
+  }
+
   get lockedText() {
     return this._lockedText;
   }
 
   set lockedText(text) {
+    this._recordAlteredProperty("lockedText", text);
     this._lockedText = text;
   }
 
@@ -81,6 +100,7 @@ export class Container extends Item {
   }
 
   set openText(text) {
+    this._recordAlteredProperty("openText", text);
     this._openText = text;
   }
 
@@ -89,6 +109,7 @@ export class Container extends Item {
   }
 
   set alreadyOpenText(text) {
+    this._recordAlteredProperty("alreadyOpenText", text);
     this._alreadyOpenText = text;
   }
 
@@ -97,6 +118,7 @@ export class Container extends Item {
   }
 
   set closeText(text) {
+    this._recordAlteredProperty("closeText", text);
     this._closeText = text;
   }
 
@@ -105,6 +127,7 @@ export class Container extends Item {
   }
 
   set alreadyClosedText(text) {
+    this._recordAlteredProperty("alreadyClosedText", text);
     this._alreadyClosedText = text;
   }
 }

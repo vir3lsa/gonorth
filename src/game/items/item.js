@@ -656,6 +656,42 @@ export class Item {
     this._canHoldItems = value;
   }
 
+  get preposition() {
+    return this._preposition;
+  }
+
+  set preposition(value) {
+    this._recordAlteredProperty("preposition", value);
+    this._preposition = value;
+  }
+
+  get itemsVisibleFromSelf() {
+    return this._itemsVisibleFromSelf;
+  }
+
+  set itemsVisibleFromSelf(value) {
+    this._recordAlteredProperty("itemsVisibleFromSelf", value);
+    this._itemsVisibleFromSelf = value;
+  }
+
+  get itemsVisibleFromRoom() {
+    return this._itemsVisibleFromRoom;
+  }
+
+  set itemsVisibleFromRoom(value) {
+    this._recordAlteredProperty("itemsVisibleFromRoom", value);
+    this._itemsVisibleFromRoom = value;
+  }
+
+  get doNotList() {
+    return this._doNotList;
+  }
+
+  set doNotList(value) {
+    this._recordAlteredProperty("doNotList", value);
+    this._doNotList = value;
+  }
+
   // Records an altered property, if it has changed.
   _recordAlteredProperty(propertyName, newValue) {
     if (this.recordChanges && typeof newValue === "function") {
