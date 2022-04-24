@@ -102,4 +102,16 @@ export class SnapshotPersistor {
 
     this.store.dispatch(this.loadSnapshotAction(initialSnapshot));
   }
+
+  get name() {
+    return this.config?.name;
+  }
+
+  set name(value) {
+    if (!this.config) {
+      this.config = {};
+    }
+
+    this.config.name = value;
+  }
 }

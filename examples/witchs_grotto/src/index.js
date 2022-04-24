@@ -29,6 +29,7 @@ import { initHints } from "./utils/hints";
 const uiTestMode = UI_TEST_MODE;
 
 initGame("The Lady of Bramble Wood", "Rich Locke", {
+  storeName: "grotto",
   debugMode: true,
   skipReactionTimes: uiTestMode,
   skipPersistence: uiTestMode

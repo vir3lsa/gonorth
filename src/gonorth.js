@@ -2,11 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { initStore } from "./redux/store";
-import { getStore } from "./redux/storeRegistry";
+import { getPersistor, getStore } from "./redux/storeRegistry";
 import { addEvent as eventAdded, newGame } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import { clearPage, deleteSave, goToRoom, loadSave, prepareGame } from "./utils/lifecycle";
+import { clearPage, deleteSave, goToRoom, loadSave } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
@@ -31,6 +31,9 @@ function initGame(title, author, config) {
   game.help = getHelpGraph();
   game.hintGraph = getHintGraph();
   game.hintNode = "default";
+
+  // Set the store name.
+  getPersistor().name = config?.storeName;
 
   createKeywords();
   getStore().dispatch(newGame(game, game.config.debugMode));
