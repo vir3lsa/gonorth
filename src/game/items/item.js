@@ -22,9 +22,9 @@ export function newItem(config, typeConstructor = Item) {
 
 export class Item {
   clone(typeConstructor) {
-    return newItem(
+    const copy = newItem(
       {
-        name: `${this.name} copy`,
+        name: `${this.name} copy`, // Have to add 'copy' to sidestep uniqueness check.
         description: this.description,
         holdable: this.holdable,
         size: this.size,
@@ -37,10 +37,15 @@ export class Item {
         preposition: this.preposition,
         itemsVisibleFromRoom: this.itemsVisibleFromRoom,
         itemsVisibleFromSelf: this.itemsVisibleFromSelf,
-        doNotList: this.doNotList
+        doNotList: this.doNotList,
+        _cloned: true
       },
       typeConstructor
     );
+
+    // Set the real name - okay for a clone because it won't be serialized.
+    copy.name = this.name;
+    return copy;
   }
 
   constructor(
@@ -701,6 +706,11 @@ export class Item {
 
   // Records an altered property, if it has changed.
   _recordAlteredProperty(propertyName, newValue) {
+    if (this._cloned) {
+      // We won't serialize cloned objects, so won't record their changes.
+      return;
+    }
+    
     if (this.recordChanges && typeof newValue === "function") {
       throw Error(
         `Updated item property "${propertyName}" to a function. This is non-serializable and hence can't be recorded into the save file.`

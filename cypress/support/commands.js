@@ -33,7 +33,7 @@ Cypress.Commands.add("shows", (text) => {
 });
 
 Cypress.Commands.add("showsLast", (text) => {
-  cy.contains(".gonorth p:last-child", text, { matchCase: false });
+  cy.contains(".gonorth h6:last-of-type ~ p", text, { matchCase: false });
 });
 
 Cypress.Commands.add("say", (text) => {

@@ -12,6 +12,8 @@ import {
 import { Ingredient } from "./ingredient";
 import { CyclicText, Item } from "../../../../src/gonorth";
 import { MagicWord } from "./magicWord";
+import { unregisterStore } from "../../../../src/redux/storeRegistry";
+import { initStore } from "../../../../src/redux/store";
 
 const dryadToenails = new Ingredient("dryadToenails");
 const alfalfa = new Ingredient("alfalfa");
@@ -113,6 +115,8 @@ firestone.spirit = "fire";
 const bloodstone = new Item("bloodstone", "red", true, 1);
 bloodstone.spirit = "blood";
 
+const abracadabra = new MagicWord("abracadabra");
+
 const pentagram = new Item("pentagram");
 pentagram.capacity = 5;
 const alchemy = new Alchemy(pentagram);
@@ -168,6 +172,8 @@ function followMendingProcedure() {
 }
 
 beforeEach(() => {
+  unregisterStore();
+  initStore();
   alchemy.flush();
   if (pentagram.uniqueItems.size) {
     [...pentagram.uniqueItems].forEach((item) => pentagram.removeItem(item));
@@ -339,12 +345,12 @@ test("does not match if too many spirit items are present", () => {
 });
 
 test("matches correct magic word", () => {
-  alchemy.sayWords(new MagicWord("abracadabra"));
+  alchemy.sayWords(abracadabra);
   expect(alchemy.candidates.length).toBe(1);
 });
 
 test("gives magic word response", () => {
-  const response = alchemy.sayWords(new MagicWord("abracadabra"));
+  const response = alchemy.sayWords(abracadabra);
   expect(response).toBe("Kaboom");
 });
 

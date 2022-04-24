@@ -31,7 +31,7 @@ const uiTestMode = UI_TEST_MODE;
 initGame("The Lady of Bramble Wood", "Rich Locke", {
   debugMode: true,
   skipReactionTimes: uiTestMode,
-  skipPersistance: uiTestMode
+  skipPersistence: uiTestMode
 });
 setIntro("Now's your chance. Quickly! Make your escape whilst the witch is out.");
 initHints("bedroom1");
