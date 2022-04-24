@@ -20,7 +20,8 @@ export const initialState = {
   // The following parts of the model are used for debugging only.
   rooms: {},
   allItemNames: new Set(),
-  items: {},
+  items: {}, // Keyed by alias
+  allItems: new Set(),
   optionGraphs: {}
 };
 
@@ -84,6 +85,7 @@ export default function (state = initialState, action) {
       return { ...state, rooms: { ...state.rooms, [action.room.name.toLowerCase()]: action.room } };
     case type.ADD_ITEM:
       let newState = { ...state, allItemNames: new Set([...state.allItemNames, action.item.name]) };
+      const newAllItems = new Set([...state.allItems, action.item]);
       const addAlias = (items, alias) => {
         const itemsWithAlias = items[alias] || new Set();
         itemsWithAlias.add(action.item);
@@ -91,7 +93,7 @@ export default function (state = initialState, action) {
       };
       let newItems = addAlias(newState.items, action.item.name.toLowerCase());
       action.item.aliases.forEach((alias) => (newItems = addAlias(newItems, alias.toLowerCase())));
-      return { ...newState, items: newItems };
+      return { ...newState, items: newItems, allItems: newAllItems };
     case type.ADD_OPTION_GRAPH:
       return { ...state, optionGraphs: { ...state.optionGraphs, [action.optionGraph.id]: action.optionGraph } };
     case type.LOAD_SNAPSHOT:

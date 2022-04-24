@@ -1,5 +1,5 @@
 import { getStore } from "../../redux/storeRegistry";
-import { verbCreated, addKeywords } from "../../redux/gameActions";
+import { verbCreated } from "../../redux/gameActions";
 import { ActionChain } from "../../utils/actionChain";
 import { selectRoom } from "../../utils/selectors";
 

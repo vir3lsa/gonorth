@@ -179,9 +179,10 @@ describe("Game class", () => {
 
 describe("goNORTH", () => {
   beforeEach(() => {
+    unregisterStore();
+    initStore();
     consoleIO.output = jest.fn();
     consoleIO.showOptions = jest.fn();
-    initGame(title, "", { debugMode: true });
   });
 
   it("Creates a game with the given title", () => {
@@ -190,6 +191,7 @@ describe("goNORTH", () => {
   });
 
   it("Prints the game title", () => {
+    initGame(title, "", { debugMode: true });
     play();
     expect(consoleIO.output.mock.calls[0][0]).toInclude("# Space Auctioneer 2");
   });

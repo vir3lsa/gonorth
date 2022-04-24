@@ -3,8 +3,7 @@ import { Option } from "./option";
 import { goToRoom } from "../../utils/lifecycle";
 import { getStore } from "../../redux/storeRegistry";
 import { addOptionGraph } from "../../redux/gameActions";
-import { Interaction } from "./interaction";
-import { selectInventory, selectInventoryItems } from "../../utils/selectors";
+import { selectInventoryItems } from "../../utils/selectors";
 
 export const next = "OptionGraph_next";
 export const previous = "OptionGraph_previous";

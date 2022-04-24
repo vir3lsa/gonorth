@@ -1,11 +1,12 @@
 import { newGame, changeInteraction } from "../../redux/gameActions";
 import { Door, Key } from "./door";
-import { getStore } from "../../redux/storeRegistry";
+import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
 import { Interaction } from "../interactions/interaction";
 import { initGame } from "../../gonorth";
 import { Item } from "./item";
 import { selectCurrentPage } from "../../utils/testSelectors";
+import { initStore } from "../../redux/store";
 
 // Prevent console logging
 getStore().dispatch(newGame({}, true, false));
@@ -18,6 +19,8 @@ consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
 beforeEach(() => {
+  unregisterStore();
+  initStore();
   room = new Room("Hall", "");
   door = new Door("heavy oak door", "", false, true);
   getStore().dispatch(changeInteraction(new Interaction("")));
@@ -72,7 +75,7 @@ test("doors can be unlocked with the correct key", async () => {
 
 test("doors can be unlocked with a key of the correct name", async () => {
   door.key = new Key("key");
-  await door.try("unlock", new Item("key"));
+  await door.try("unlock", new Item("key copy"));
   expect(selectCurrentPage()).toInclude("key turns easily");
 });
 

@@ -9,10 +9,13 @@ import { selectRoom } from "../../utils/selectors";
 export class Npc extends Item {
   constructor(name, description) {
     super(name, description || `${name} is unremarkable.`, false);
+    this.recordChanges = false;
+    this._type = "Npc";
     this.isNpc = true; // Avoids circular dependency in item.js
     this.encounters = [];
     this.article = "";
     this.preposition = "to";
+    this.recordChanges = true;
   }
 
   async go(direction) {

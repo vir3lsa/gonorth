@@ -64,7 +64,7 @@ moonStone.spirit = "moon";
 cabinet.hidesItems = moonStone;
 
 const table = new Item(
-  "table",
+  "wobbly table",
   "It's a small round, wooden table with four uneven legs. There's a definite wobble."
 );
 table.capacity = 10;

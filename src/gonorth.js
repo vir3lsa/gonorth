@@ -167,8 +167,8 @@ function setHintNodeId(nodeId) {
 
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
-export { Door, Key } from "./game/items/door";
-export { Container } from "./game/items/container";
+export { Door, newDoor, Key } from "./game/items/door";
+export { Container, newContainer } from "./game/items/container";
 export { Item, newItem } from "./game/items/item";
 export { Interaction, Append } from "./game/interactions/interaction";
 export { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";

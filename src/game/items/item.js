@@ -1,7 +1,7 @@
 import { RandomText, Text } from "../interactions/text";
 import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
-import { selectInventory } from "../../utils/selectors";
+import { selectAllItemNames, selectInventory } from "../../utils/selectors";
 import { getBasicItemList, toTitleCase, getArticle } from "../../utils/textFunctions";
 import { getStore } from "../../redux/storeRegistry";
 import { addItem, itemsRevealed } from "../../redux/gameActions";
@@ -24,7 +24,7 @@ export class Item {
   clone(typeConstructor) {
     return newItem(
       {
-        name: this.name,
+        name: `${this.name} copy`,
         description: this.description,
         holdable: this.holdable,
         size: this.size,
@@ -52,7 +52,14 @@ export class Item {
     aliases = [],
     hidesItems = []
   ) {
+    if (selectAllItemNames().has(name)) {
+      throw Error(
+        `Tried to create an item with name "${name}" but an item with that name already exists. Names must be unique - consider making "${name}" an alias instead.`
+      );
+    }
+
     this._alteredProperties = new Set();
+    this._type = "Item";
     this.aliases = [];
     this.name = name;
     this.description = description;
@@ -696,7 +703,7 @@ export class Item {
   _recordAlteredProperty(propertyName, newValue) {
     if (this.recordChanges && typeof newValue === "function") {
       throw Error(
-        `Updated items property "${propertyName}" to a function. This is non-serializable and hence can't be recorded into the save file.`
+        `Updated item property "${propertyName}" to a function. This is non-serializable and hence can't be recorded into the save file.`
       );
     }
 

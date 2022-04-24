@@ -10,9 +10,10 @@ beforeEach(() => {
   unregisterStore();
   initStore();
 
+  const paint = new Item("paint");
   effects = new Effects((primary, secondary) => `The ${primary.name} doesn't do anything to the ${secondary.name}.`);
-  effects.add(new Item("paint"), new Item("canvas"), true, "A beautiful picture appears on the canvas.");
-  effects.add(new Item("paint"), new Item("face"), false, "It's the wrong kind of paint for face painting.");
+  effects.add(paint, new Item("canvas"), true, "A beautiful picture appears on the canvas.");
+  effects.add(paint, new Item("face"), false, "It's the wrong kind of paint for face painting.");
 
   subjectEffects = new FixedSubjectEffects(
     new Item("car"),

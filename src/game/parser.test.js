@@ -1,5 +1,5 @@
 import { Room } from "./items/room";
-import { getStore } from "../redux/storeRegistry";
+import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { newGame, changeInteraction } from "../redux/gameActions";
 import { Parser } from "./parser";
 import { Door } from "./items/door";
@@ -10,6 +10,7 @@ import { goToRoom } from "../utils/lifecycle";
 import { PagedText } from "./interactions/text";
 import { selectCurrentPage, selectInteraction } from "../utils/testSelectors";
 import { selectRoom } from "../utils/selectors";
+import { initStore } from "../redux/store";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -34,6 +35,11 @@ const inputTest = async (input, expectedOutput) => {
   await new Parser(input).parse();
   expect(selectCurrentPage()).toInclude(expectedOutput);
 };
+
+beforeEach(() => {
+  unregisterStore();
+  initStore();
+});
 
 describe("parser", () => {
   describe("directions", () => {

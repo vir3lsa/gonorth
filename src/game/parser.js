@@ -9,7 +9,6 @@ import {
   selectKeywords
 } from "../utils/selectors";
 import { toTitleCase, getArticle } from "../utils/textFunctions";
-import { OptionGraph } from "./interactions/optionGraph";
 import disambiguate from "../utils/disambiguation";
 
 export class Parser {

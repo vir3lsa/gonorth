@@ -6,9 +6,10 @@ import { changeInteraction } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
 import { Option } from "../interactions/option";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
-import { getStore } from "../../redux/storeRegistry";
+import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
 import { clickNextAndWait, deferAction } from "../../utils/testFunctions";
+import { initStore } from "../../redux/store";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -18,6 +19,8 @@ consoleIO.showOptions = jest.fn();
 let x;
 
 beforeEach(() => {
+  unregisterStore();
+  initStore();
   initGame("", "", { debugMode: false });
   x = 1;
 });

@@ -12,7 +12,18 @@ export class SnapshotPersistor {
 
   get key() {
     const modelVersion = this.config?.version;
-    return modelVersion ? `gonorth:${modelVersion}` : "gonorth";
+    const storeName = this.config?.name;
+    let key = "gonorth";
+
+    if (storeName) {
+      key += `:${storeName}`;
+    }
+
+    if (modelVersion) {
+      key += `:${modelVersion}`;
+    }
+
+    return key;
   }
 
   /*
@@ -49,7 +60,7 @@ export class SnapshotPersistor {
         localStorage.setItem(this.key, JSON.stringify(snapshot, replacer, 2));
       }
     } catch (error) {
-      console.log("Failed to save game. Could be that storage is disabled or full.");
+      console.error("Failed to save game. Could be that storage is disabled or full.", error);
     }
   }
 

@@ -42,17 +42,17 @@ export const staircase = new Room(
   true
 );
 
-const steps = new Item(
-  "steps",
-  () => {
-    let description = "Due to the spiral nature of the staircase, the individual steps are each segment shaped.";
-    if (staircase.stage < 2) {
-      return "Plain stone steps with no particular adornment. " + description;
-    } else {
-      return "The steps are wooden, creaky, and very old looking. Any varnish that might once have been on them has long since worn off. " + description;
-    }
+const steps = new Item("stone steps", () => {
+  let description = "Due to the spiral nature of the staircase, the individual steps are each segment shaped.";
+  if (staircase.stage < 2) {
+    return "Plain stone steps with no particular adornment. " + description;
+  } else {
+    return (
+      "The steps are wooden, creaky, and very old looking. Any varnish that might once have been on them has long since worn off. " +
+      description
+    );
   }
-);
+});
 steps.aliases = ["stairs", "step", "stair"]
 
 const symbols = new Item(

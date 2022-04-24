@@ -45,7 +45,7 @@ const ceiling = new Item(
 ceiling.aliases = ["roof", "boards"];
 
 const steps = new Item(
-  "steps",
+  "smooth steps",
   new CyclicText(
     "They look as though they've been carved from the very rock the witch's grotto sits on.",
     "They're worn smooth and dip slightly in the middle of each step from the gradual erosion of passing feet.",

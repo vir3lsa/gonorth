@@ -1,4 +1,4 @@
-import { getStore } from "../../redux/storeRegistry";
+import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
 import { newGame, changeInteraction, changeRoom } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
@@ -8,6 +8,7 @@ import { Parser } from "../parser";
 import { selectInteraction, selectCurrentPage } from "../../utils/testSelectors";
 import { clickNext } from "../../utils/testFunctions";
 import { selectRoom } from "../../utils/selectors";
+import { initStore } from "../../redux/store";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -25,6 +26,8 @@ const clickNextAndWait = async () => {
 let hall, north, south, east, west;
 
 beforeEach(() => {
+  unregisterStore();
+  initStore();
   hall = new Room("Hall", "");
   north = new Room("Garden", "");
   south = new Room("Kitchen", "");

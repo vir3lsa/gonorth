@@ -2,7 +2,7 @@ import { Room, goToRoom, Option } from "../../../../lib/gonorth";
 import { apothecary } from "./apothecary";
 
 export const flue = new Room(
-  "flue",
+  "flue interior",
   "Behind the coal compartment the flue continues downwards as though it's connected to another room below. There's a bend in the pipe so you can't see what's down there.",
   true
 );

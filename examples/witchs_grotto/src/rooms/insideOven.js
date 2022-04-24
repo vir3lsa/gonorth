@@ -40,7 +40,7 @@ export const hottingUp = new Schedule.Builder()
   .build();
 
 const lockedOvenDoor = new Door(
-  "oven door",
+  "inner oven door",
   new CyclicText(
     "It's dark, solid and very, very thick.",
     "There's a small vent at the top letting in dim shafts of insipid light.",

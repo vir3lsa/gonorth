@@ -1,9 +1,24 @@
 import { Item } from "./item";
 import { Verb } from "../verbs/verb";
 
+export function newDoor(config) {
+  const { name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key, ...remainingConfig } =
+    config;
+  const door = new Door(name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key);
+
+  // Set remaining properties on the new door without recording the changes, then mark it for recording again.
+  door.recordChanges = false;
+  Object.entries(remainingConfig).forEach(([key, value]) => (door[key] = value));
+  door.recordChanges = true;
+
+  return door;
+}
+
 export class Door extends Item {
   constructor(name, description, open = true, locked = false, openSuccessText, unlockSuccessText, aliases, key) {
     super(name, description, false, -1, [], aliases);
+    this.recordChanges = false;
+    this._type = "Door";
     this.open = open;
     this.locked = locked;
     this.key = key;
@@ -37,7 +52,7 @@ export class Door extends Item {
     this.addVerb(
       new Verb(
         "unlock",
-        (helper, door, key) => helper.object.locked && (this.key ? key?.name === this.key.name : true),
+        (helper, door, key) => helper.object.locked && (this.key ? this._keyRegex.test(key?.name) : true),
         [
           (helper) => (helper.object.locked = false),
           () =>
@@ -59,6 +74,8 @@ export class Door extends Item {
         this
       )
     );
+
+    this.recordChanges = true;
   }
 
   get key() {
@@ -70,6 +87,7 @@ export class Door extends Item {
       throw Error("Keys must be Key instances.");
     }
 
+    this._keyRegex = key ? new RegExp(`^${key.name}( copy)*$`) : null;
     this._key = key;
   }
 }
