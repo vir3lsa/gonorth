@@ -11,7 +11,7 @@ export class Npc extends Item {
     super(name, description || `${name} is unremarkable.`, false);
     this.recordChanges = false;
     this._type = "Npc";
-    this.isNpc = true; // Avoids circular dependency in item.js
+    this._isNpc = true; // Avoids circular dependency in item.js
     this.encounters = [];
     this.article = "";
     this.preposition = "to";

@@ -171,4 +171,21 @@ describe("Room", () => {
       expect(selectCurrentPage()).toBe("the pantry");
     });
   });
+
+  describe("serialization", () => {
+    it("records changes to adjacentRooms", () => {
+      hall.adjacentRooms = {};
+      expect(hall._alteredProperties).toEqual(new Set(["adjacentRooms"]));
+    });
+
+    it("records mutations of adjacentRooms", () => {
+      hall.setNorth(new Room("Chancel"));
+      expect(hall._alteredProperties).toEqual(new Set(["adjacentRooms"]));
+    });
+
+    it("records changes to checkpoint", () => {
+      hall.checkpoint = true;
+      expect(hall._alteredProperties).toEqual(new Set(["checkpoint"]));
+    });
+  });
 });

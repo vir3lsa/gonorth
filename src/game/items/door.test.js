@@ -73,9 +73,9 @@ test("doors can be unlocked with the correct key", async () => {
   expect(selectCurrentPage()).toInclude("key turns easily");
 });
 
-test("doors can be unlocked with a key of the correct name", async () => {
+test("doors can be unlocked with a cloned key", async () => {
   door.key = new Key("key");
-  await door.try("unlock", new Item("key copy"));
+  await door.try("unlock", door.key.clone());
   expect(selectCurrentPage()).toInclude("key turns easily");
 });
 
@@ -87,4 +87,21 @@ test("doors can't be unlocked with the wrong key", async () => {
 
 test("keys must be Key instances", () => {
   expect(() => (door.key = new Item("key"))).toThrow("Keys must be Key instances.");
+});
+
+describe("serialization", () => {
+  test("changes to open are recorded", () => {
+    door.open = true;
+    expect(door._alteredProperties).toEqual(new Set(["open"]));
+  });
+
+  test("changes to locked are recorded", () => {
+    door.locked = true;
+    expect(door._alteredProperties).toEqual(new Set(["locked"]));
+  });
+
+  test("changes to key are recorded", () => {
+    door.key = new Key("slender key");
+    expect(door._alteredProperties).toEqual(new Set(["key"]));
+  });
 });

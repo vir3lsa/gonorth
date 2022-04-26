@@ -16,7 +16,6 @@ export class Room extends Item {
     super(name, preferPaged(description), false, -1);
     this.recordChanges = false;
     this._type = "Room";
-    this.visits = 0;
     this.adjacentRooms = {};
     this.canHoldItems = true;
     this.aliases = ["room", "floor"];
@@ -59,6 +58,8 @@ export class Room extends Item {
     aliases.forEach((alias) => {
       this.adjacentRooms[alias] = directionObject;
     });
+
+    this._recordAlteredProperty("adjacentRooms", this.adjacentRooms);
 
     // Add the keyword if we don't already have it
     if (!getKeyword(directionName)) {
@@ -220,5 +221,23 @@ export class Room extends Item {
    */
   getFullDescription() {
     return this.actionChain;
+  }
+
+  get adjacentRooms() {
+    return this._adjacentRooms;
+  }
+
+  set adjacentRooms(value) {
+    this._recordAlteredProperty("adjacentRooms", value);
+    this._adjacentRooms = value;
+  }
+
+  get checkpoint() {
+    return this._checkpoint;
+  }
+
+  set checkpoint(value) {
+    this._recordAlteredProperty("checkpoint", value);
+    this._checkpoint = value;
   }
 }

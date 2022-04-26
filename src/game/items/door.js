@@ -52,7 +52,7 @@ export class Door extends Item {
     this.addVerb(
       new Verb(
         "unlock",
-        (helper, door, key) => helper.object.locked && (this.key ? this._keyRegex.test(key?.name) : true),
+        (helper, door, key) => helper.object.locked && (this.key ? this.key.name === key?.name : true),
         [
           (helper) => (helper.object.locked = false),
           () =>
@@ -78,6 +78,24 @@ export class Door extends Item {
     this.recordChanges = true;
   }
 
+  get open() {
+    return this._open;
+  }
+
+  set open(value) {
+    this._recordAlteredProperty("open", value);
+    this._open = value;
+  }
+
+  get locked() {
+    return this._locked;
+  }
+
+  set locked(value) {
+    this._recordAlteredProperty("locked", value);
+    this._locked = value;
+  }
+
   get key() {
     return this._key;
   }
@@ -87,7 +105,7 @@ export class Door extends Item {
       throw Error("Keys must be Key instances.");
     }
 
-    this._keyRegex = key ? new RegExp(`^${key.name}( copy)*$`) : null;
+    this._recordAlteredProperty("key", key);
     this._key = key;
   }
 }

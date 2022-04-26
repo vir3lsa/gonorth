@@ -279,13 +279,17 @@ describe("serialization", () => {
 
   test("name changes that produce alias changes are recorded", () => {
     ball.name = "red ball";
-    ball.name = "blue ball";
     expectRecordedProperties(ball, "name", "aliases");
   });
 
   test("name changes are recorded", () => {
     ball.name = "dave";
     expectRecordedProperties(ball, "name");
+  });
+
+  test("name changes that produce article changes are recorded", () => {
+    ball.name = "orange";
+    expectRecordedProperties(ball, "name", "article");
   });
 
   test("alias changes are recorded", () => {
@@ -438,5 +442,10 @@ describe("serialization", () => {
   test("changes to doNotList are recorded", () => {
     ball.doNotList = true;
     expectRecordedProperties(ball, "doNotList");
+  });
+
+  test("changes to article are recorded", () => {
+    ball.article = "an";
+    expectRecordedProperties(ball, "article");
   });
 });

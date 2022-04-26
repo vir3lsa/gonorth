@@ -181,7 +181,7 @@ export class Item {
           const article = this.properNoun ? "" : "the ";
           if (other === this) {
             return `You can't give ${article}${this.name} to itself. Obviously.`;
-          } else if (other.isNpc) {
+          } else if (other._isNpc) {
             return `It doesn't look like ${other.name} wants ${article}${this.name}.`;
           } else {
             return `You know you can't give ${article}${this.name} to the ${other.name}. So just stop it.`;
@@ -206,8 +206,23 @@ export class Item {
   set name(name) {
     this._recordAlteredProperty("name", name);
     this._name = name;
-    this.article = getArticle(name);
+
+    const article = getArticle(name);
+
+    if (article !== this.article) {
+      this.article = getArticle(name);
+    }
+
     this.createAliases(name);
+  }
+
+  get article() {
+    return this._article;
+  }
+
+  set article(value) {
+    this._recordAlteredProperty("article", value);
+    this._article = value;
   }
 
   get description() {
@@ -710,7 +725,7 @@ export class Item {
       // We won't serialize cloned objects, so won't record their changes.
       return;
     }
-    
+
     if (this.recordChanges && typeof newValue === "function") {
       throw Error(
         `Updated item property "${propertyName}" to a function. This is non-serializable and hence can't be recorded into the save file.`
