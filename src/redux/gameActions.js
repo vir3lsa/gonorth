@@ -129,3 +129,7 @@ export const changeRoom = (room) => ({
   type: type.CHANGE_ROOM,
   room
 });
+
+export const recordChanges = () => ({
+  type: type.RECORD_CHANGES
+});

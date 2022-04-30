@@ -1,5 +1,5 @@
 import { initGame } from "../../gonorth";
-import { newGame } from "../../redux/gameActions";
+import { newGame, recordChanges } from "../../redux/gameActions";
 import { initStore } from "../../redux/store";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Container } from "./container";
@@ -29,6 +29,7 @@ describe("serialization", () => {
 
   beforeEach(() => {
     box = new Container("box", null, "a cardboard box", "tatty and brown", false);
+    getStore().dispatch(recordChanges());
   });
 
   test("initially no properties are considered altered", () => {

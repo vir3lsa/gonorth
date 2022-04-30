@@ -1,4 +1,4 @@
-import { newGame, changeInteraction } from "../../redux/gameActions";
+import { newGame, changeInteraction, recordChanges } from "../../redux/gameActions";
 import { Door, Key } from "./door";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
@@ -90,6 +90,10 @@ test("keys must be Key instances", () => {
 });
 
 describe("serialization", () => {
+  beforeEach(() => {
+    getStore().dispatch(recordChanges());
+  });
+
   test("changes to open are recorded", () => {
     door.open = true;
     expect(door._alteredProperties).toEqual(new Set(["open"]));

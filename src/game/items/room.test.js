@@ -1,6 +1,6 @@
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
-import { newGame, changeInteraction, changeRoom } from "../../redux/gameActions";
+import { newGame, changeInteraction, changeRoom, recordChanges } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
 import { Item } from "./item";
 import { initGame } from "../../gonorth";
@@ -173,13 +173,12 @@ describe("Room", () => {
   });
 
   describe("serialization", () => {
-    it("records changes to adjacentRooms", () => {
-      hall.adjacentRooms = {};
-      expect(hall._alteredProperties).toEqual(new Set(["adjacentRooms"]));
+    beforeEach(() => {
+      getStore().dispatch(recordChanges());
     });
 
-    it("records mutations of adjacentRooms", () => {
-      hall.setNorth(new Room("Chancel"));
+    it("records changes to adjacentRooms", () => {
+      hall.adjacentRooms = {};
       expect(hall._alteredProperties).toEqual(new Set(["adjacentRooms"]));
     });
 

@@ -29,10 +29,7 @@ export function newContainer(config) {
     size
   );
 
-  // Set remaining properties on the new item without recording the changes, then mark it for recording again.
-  container.recordChanges = false;
   Object.entries(remainingConfig).forEach(([key, value]) => (container[key] = value));
-  container.recordChanges = true;
 
   return container;
 }
@@ -60,8 +57,6 @@ export class Container extends Item {
       [],
       aliases || []
     );
-    this.recordChanges = false;
-    this._type = "Container";
     this.canHoldItems = true;
     this.capacity = capacity;
     this.preposition = preposition;
@@ -93,7 +88,6 @@ export class Container extends Item {
     );
 
     this.addVerbs(this.openVerb, this.closeVerb);
-    this.recordChanges = true;
   }
 
   addOpenAliases(...aliases) {

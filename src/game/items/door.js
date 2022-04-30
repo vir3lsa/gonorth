@@ -5,11 +5,7 @@ export function newDoor(config) {
   const { name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key, ...remainingConfig } =
     config;
   const door = new Door(name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key);
-
-  // Set remaining properties on the new door without recording the changes, then mark it for recording again.
-  door.recordChanges = false;
   Object.entries(remainingConfig).forEach(([key, value]) => (door[key] = value));
-  door.recordChanges = true;
 
   return door;
 }
@@ -17,8 +13,6 @@ export function newDoor(config) {
 export class Door extends Item {
   constructor(name, description, open = true, locked = false, openSuccessText, unlockSuccessText, aliases, key) {
     super(name, description, false, -1, [], aliases);
-    this.recordChanges = false;
-    this._type = "Door";
     this.open = open;
     this.locked = locked;
     this.key = key;
@@ -74,8 +68,6 @@ export class Door extends Item {
         this
       )
     );
-
-    this.recordChanges = true;
   }
 
   get open() {

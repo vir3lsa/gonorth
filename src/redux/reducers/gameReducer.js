@@ -17,7 +17,7 @@ export const initialState = {
   events: [],
   keywords: {},
   room: null,
-  // The following parts of the model are used for debugging only.
+  recordChanges: false,
   rooms: {},
   allItemNames: new Set(),
   items: {}, // Keyed by alias
@@ -100,6 +100,8 @@ export default function (state = initialState, action) {
       return { ...state, ...action.snapshot };
     case type.CHANGE_ROOM:
       return { ...state, room: action.room };
+    case type.RECORD_CHANGES:
+      return { ...state, recordChanges: true };
     default:
       return state;
   }

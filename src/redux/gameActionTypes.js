@@ -15,3 +15,4 @@ export const ADD_ITEM = "ADD_ITEM";
 export const ADD_OPTION_GRAPH = "ADD_OPTION_GRAPH";
 export const LOAD_SNAPSHOT = "LOAD_SNAPSHOT";
 export const CHANGE_ROOM = "CHANGE_ROOM";
+export const RECORD_CHANGES = "RECORD_CHANGES";

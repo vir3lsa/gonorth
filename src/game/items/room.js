@@ -14,13 +14,10 @@ import { checkpoint } from "../../utils/lifecycle";
 export class Room extends Item {
   constructor(name, description, checkpoint) {
     super(name, preferPaged(description), false, -1);
-    this.recordChanges = false;
-    this._type = "Room";
     this.adjacentRooms = {};
     this.canHoldItems = true;
     this.aliases = ["room", "floor"];
     this.checkpoint = checkpoint;
-    this.recordChanges = true;
     getStore().dispatch(addRoom(this));
   }
 
@@ -58,8 +55,6 @@ export class Room extends Item {
     aliases.forEach((alias) => {
       this.adjacentRooms[alias] = directionObject;
     });
-
-    this._recordAlteredProperty("adjacentRooms", this.adjacentRooms);
 
     // Add the keyword if we don't already have it
     if (!getKeyword(directionName)) {

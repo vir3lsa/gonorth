@@ -55,9 +55,16 @@ export class SnapshotPersistor {
       return value;
     };
 
+    /* Run the replacer on each entry. Doing it here rather than in JSON.stringify() because I
+       don't want it to be run recursively on the output. */
+    const serializableSnapshot = Object.entries(snapshot).reduce((acc, [key, value]) => {
+      acc[key] = replacer(key, value);
+      return acc;
+    }, {});
+
     try {
       if (typeof localStorage !== "undefined") {
-        localStorage.setItem(this.key, JSON.stringify(snapshot, replacer, 2));
+        localStorage.setItem(this.key, JSON.stringify(serializableSnapshot));
       }
     } catch (error) {
       console.error("Failed to save game. Could be that storage is disabled or full.", error);
@@ -82,8 +89,16 @@ export class SnapshotPersistor {
       const snapshotString = localStorage.getItem(this.key);
 
       if (snapshotString) {
-        const snapshot = JSON.parse(snapshotString, reviver);
-        this.store.dispatch(this.loadSnapshotAction(snapshot));
+        const snapshot = JSON.parse(snapshotString);
+
+        /* Run the reviver on each entry. Doing it here rather than in JSON.parse() because I
+           don't want it to be run recursively on the output. */
+        const revivedSnapshot = Object.entries(snapshot).reduce((acc, [key, value]) => {
+          acc[key] = reviver(key, value);
+          return acc;
+        }, {});
+
+        this.store.dispatch(this.loadSnapshotAction(revivedSnapshot));
       }
     }
   }

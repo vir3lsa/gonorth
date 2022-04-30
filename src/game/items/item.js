@@ -1,7 +1,7 @@
 import { RandomText, Text } from "../interactions/text";
 import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
-import { selectAllItemNames, selectInventory } from "../../utils/selectors";
+import { selectAllItemNames, selectInventory, selectRecordChanges } from "../../utils/selectors";
 import { getBasicItemList, toTitleCase, getArticle } from "../../utils/textFunctions";
 import { getStore } from "../../redux/storeRegistry";
 import { addItem, itemsRevealed } from "../../redux/gameActions";
@@ -11,11 +11,7 @@ import { commonWords } from "../constants";
 export function newItem(config, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
   const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems);
-
-  // Set remaining properties on the new item without recording the changes, then mark it for recording again.
-  item.recordChanges = false;
   Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
-  item.recordChanges = true;
 
   return item;
 }
@@ -64,7 +60,6 @@ export class Item {
     }
 
     this._alteredProperties = new Set();
-    this._type = "Item";
     this.aliases = [];
     this.name = name;
     this.description = description;
@@ -194,8 +189,6 @@ export class Item {
       this.addVerb(giveVerb);
     }
 
-    // Record changes from now on.
-    this.recordChanges = true;
     getStore().dispatch(addItem(this));
   }
 
@@ -726,13 +719,14 @@ export class Item {
       return;
     }
 
-    if (this.recordChanges && typeof newValue === "function") {
+    const recordChanges = selectRecordChanges();
+    if (recordChanges && typeof newValue === "function") {
       throw Error(
         `Updated item property "${propertyName}" to a function. This is non-serializable and hence can't be recorded into the save file.`
       );
     }
 
-    if (this.recordChanges) {
+    if (recordChanges) {
       this._alteredProperties.add(propertyName);
     }
   }

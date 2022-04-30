@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 
 import { initStore } from "./redux/store";
 import { getPersistor, getStore } from "./redux/storeRegistry";
-import { addEvent as eventAdded, newGame } from "./redux/gameActions";
+import { addEvent as eventAdded, newGame, recordChanges } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { clearPage, deleteSave, goToRoom, loadSave } from "./utils/lifecycle";
@@ -37,7 +37,6 @@ function initGame(title, author, config) {
 
   createKeywords();
   getStore().dispatch(newGame(game, game.config.debugMode));
-  loadSave();
 
   return game;
 }
@@ -98,6 +97,8 @@ function play() {
     }
   );
 
+  getStore().dispatch(recordChanges());
+  loadSave(); // This must be after we start recording changes.
   return titleScreenGraph.commence().chain();
 }
 

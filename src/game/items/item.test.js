@@ -2,7 +2,7 @@ import { Item, newItem } from "./item";
 import { initStore } from "../../redux/store";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
-import { newGame } from "../../redux/gameActions";
+import { newGame, recordChanges } from "../../redux/gameActions";
 import { selectActionChainPromise, selectInventory } from "../../utils/selectors";
 import { Room } from "./room";
 import { initGame, setInventoryCapacity } from "../../gonorth";
@@ -273,77 +273,133 @@ describe("serialization", () => {
     box = new Container("box", null, "a cardboard box", "tatty and brown", false);
   });
 
-  test("initially no properties are considered altered", () => {
-    expectRecordedProperties(ball);
-  });
+  describe("recording changes", () => {
+    beforeEach(() => {
+      getStore().dispatch(recordChanges());
+    });
 
-  test("name changes that produce alias changes are recorded", () => {
-    ball.name = "red ball";
-    expectRecordedProperties(ball, "name", "aliases");
-  });
+    test("initially no properties are considered altered", () => {
+      expectRecordedProperties(ball);
+    });
 
-  test("name changes are recorded", () => {
-    ball.name = "dave";
-    expectRecordedProperties(ball, "name");
-  });
+    test("name changes that produce alias changes are recorded", () => {
+      ball.name = "red ball";
+      expectRecordedProperties(ball, "name", "aliases");
+    });
 
-  test("name changes that produce article changes are recorded", () => {
-    ball.name = "orange";
-    expectRecordedProperties(ball, "name", "article");
-  });
+    test("name changes are recorded", () => {
+      ball.name = "dave";
+      expectRecordedProperties(ball, "name");
+    });
 
-  test("alias changes are recorded", () => {
-    ball.aliases = "sphere";
-    expectRecordedProperties(ball, "aliases");
-  });
+    test("name changes that produce article changes are recorded", () => {
+      ball.name = "orange";
+      expectRecordedProperties(ball, "name", "article");
+    });
 
-  test("description changes are recorded", () => {
-    ball.description = "quite good";
-    expectRecordedProperties(ball, "description");
-  });
+    test("alias changes are recorded", () => {
+      ball.aliases = "sphere";
+      expectRecordedProperties(ball, "aliases");
+    });
 
-  test("holdable changes are recorded", () => {
-    ball.holdable = false;
-    expectRecordedProperties(ball, "holdable");
-  });
+    test("description changes are recorded", () => {
+      ball.description = "quite good";
+      expectRecordedProperties(ball, "description");
+    });
 
-  test("size changes are recorded", () => {
-    ball.size = 12;
-    expectRecordedProperties(ball, "size");
-  });
+    test("holdable changes are recorded", () => {
+      ball.holdable = false;
+      expectRecordedProperties(ball, "holdable");
+    });
 
-  test("visible changes are recorded", () => {
-    ball.visible = false;
-    expectRecordedProperties(ball, "visible");
-  });
+    test("size changes are recorded", () => {
+      ball.size = 12;
+      expectRecordedProperties(ball, "size");
+    });
 
-  test("container changes are recorded", () => {
-    room.addItem(ball);
-    expectRecordedProperties(ball, "container");
-  });
+    test("visible changes are recorded", () => {
+      ball.visible = false;
+      expectRecordedProperties(ball, "visible");
+    });
 
-  test("container removals are recorded and don't cause errors", () => {
-    room.addItem(ball);
-    ball.container = null;
-    expectRecordedProperties(ball, "container");
-  });
+    test("container changes are recorded", () => {
+      room.addItem(ball);
+      expectRecordedProperties(ball, "container");
+    });
 
-  test("container changes are recorded immediately", () => {
-    room.addItem(ball);
-    expectRecordedProperties(ball, "container");
-  });
+    test("container removals are recorded and don't cause errors", () => {
+      room.addItem(ball);
+      ball.container = null;
+      expectRecordedProperties(ball, "container");
+    });
 
-  test("hidden items have a container change recorded when they're revealed", async () => {
-    chest.hidesItems = ball;
-    chest.verbs.open.attempt();
-    await selectActionChainPromise();
-    chest.verbs.examine.attempt();
-    await selectActionChainPromise();
-    expectRecordedProperties(ball, "container");
+    test("container changes are recorded immediately", () => {
+      room.addItem(ball);
+      expectRecordedProperties(ball, "container");
+    });
+
+    test("hidden items have a container change recorded when they're revealed", async () => {
+      chest.hidesItems = ball;
+      chest.verbs.open.attempt();
+      await selectActionChainPromise();
+      chest.verbs.examine.attempt();
+      await selectActionChainPromise();
+      expectRecordedProperties(ball, "container");
+    });
+
+    test("changes to hidden items are recorded", () => {
+      chest.hidesItems = ball;
+      chest.hidesItems = [];
+      expectRecordedProperties(chest, "hidesItems");
+    });
+
+    test("changes to container listing are recorded", () => {
+      ball.containerListing = "a round ball";
+      expectRecordedProperties(ball, "containerListing");
+    });
+
+    test("changes to canHoldItems are recorded", () => {
+      ball.canHoldItems = true;
+      expectRecordedProperties(ball, "canHoldItems");
+    });
+
+    test("changes to capacity are recorded and cause other changes", () => {
+      ball.capacity = 5;
+      expectRecordedProperties(ball, "capacity", "free", "canHoldItems");
+    });
+
+    test("changes to free are recorded", () => {
+      ball.free = 3;
+      expectRecordedProperties(ball, "free");
+    });
+
+    test("changes to preposition are recorded", () => {
+      ball.preposition = "without";
+      expectRecordedProperties(ball, "preposition");
+    });
+
+    test("changes to itemsVisibleFromSelf are recorded", () => {
+      ball.itemsVisibleFromSelf = false;
+      expectRecordedProperties(ball, "itemsVisibleFromSelf");
+    });
+
+    test("changes to itemsVisibleFromRoom are recorded", () => {
+      ball.itemsVisibleFromRoom = false;
+      expectRecordedProperties(ball, "itemsVisibleFromRoom");
+    });
+
+    test("changes to doNotList are recorded", () => {
+      ball.doNotList = true;
+      expectRecordedProperties(ball, "doNotList");
+    });
+
+    test("changes to article are recorded", () => {
+      ball.article = "an";
+      expectRecordedProperties(ball, "article");
+    });
   });
 
   test("changes aren't recorded when recording is off", () => {
-    ball.recordChanges = false;
     ball.name = "round thing";
     ball.description = "very shiny";
     ball.holdable = false;
@@ -351,14 +407,7 @@ describe("serialization", () => {
     ball.size = 12;
     room.addItem(ball);
     ball.hidesItems = new Item("air");
-    ball.recordChanges = true;
     expectRecordedProperties(ball);
-  });
-
-  test("changes to hidden items are recorded", () => {
-    chest.hidesItems = ball;
-    chest.hidesItems = [];
-    expectRecordedProperties(chest, "hidesItems");
   });
 
   test("creating an item with the constructor doesn't record changes", () => {
@@ -402,50 +451,5 @@ describe("serialization", () => {
     const newBall = ball.clone();
     expectRecordedProperties(newBall);
     expectRecordedProperties(ball);
-  });
-
-  test("changes to container listing are recorded", () => {
-    ball.containerListing = "a round ball";
-    expectRecordedProperties(ball, "containerListing");
-  });
-
-  test("changes to canHoldItems are recorded", () => {
-    ball.canHoldItems = true;
-    expectRecordedProperties(ball, "canHoldItems");
-  });
-
-  test("changes to capacity are recorded and cause other changes", () => {
-    ball.capacity = 5;
-    expectRecordedProperties(ball, "capacity", "free", "canHoldItems");
-  });
-
-  test("changes to free are recorded", () => {
-    ball.free = 3;
-    expectRecordedProperties(ball, "free");
-  });
-
-  test("changes to preposition are recorded", () => {
-    ball.preposition = "without";
-    expectRecordedProperties(ball, "preposition");
-  });
-
-  test("changes to itemsVisibleFromSelf are recorded", () => {
-    ball.itemsVisibleFromSelf = false;
-    expectRecordedProperties(ball, "itemsVisibleFromSelf");
-  });
-
-  test("changes to itemsVisibleFromRoom are recorded", () => {
-    ball.itemsVisibleFromRoom = false;
-    expectRecordedProperties(ball, "itemsVisibleFromRoom");
-  });
-
-  test("changes to doNotList are recorded", () => {
-    ball.doNotList = true;
-    expectRecordedProperties(ball, "doNotList");
-  });
-
-  test("changes to article are recorded", () => {
-    ball.article = "an";
-    expectRecordedProperties(ball, "article");
   });
 });
