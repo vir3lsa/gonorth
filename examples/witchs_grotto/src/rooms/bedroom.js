@@ -240,20 +240,18 @@ const miaowResults = new RandomText(
   '"Miaow!" you protest. "Miaow, miaow, miaow!" That ought to get the message across.'
 );
 
-// Add miaow (almost) immediately so you can say it from the off.
-setTimeout(() =>
-  selectPlayer().addItem(
-    new MagicWord(
-      "MIAOW",
-      ["miow", "miao"],
-      miaowResults,
-      () => {
-        if (inSameRoomAs(keepsakeBox) && keepsakeBox.solidity >= 3) {
-          keepsakeBoxTimer.commence();
-        }
-      },
-      false
-    )
+// Add miaow immediately so you can say it from the off.
+selectPlayer().addItem(
+  new MagicWord(
+    "MIAOW",
+    ["miow", "miao"],
+    miaowResults,
+    () => {
+      if (inSameRoomAs(keepsakeBox) && keepsakeBox.solidity >= 3) {
+        keepsakeBoxTimer.commence();
+      }
+    },
+    false
   )
 );
 

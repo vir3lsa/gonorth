@@ -1,13 +1,13 @@
 import { getStore } from "../redux/storeRegistry";
 
 export const selectGame = () => getStore().getState().game;
-export const selectInventory = () => getStore().getState().game.player;
-export const selectPlayer = () => getStore().getState().game.player; // Deliberately same as above
+export const selectInventory = () => getStore().getState().player;
+export const selectPlayer = () => getStore().getState().player; // Deliberately same as above
 // Pulls out the actual items from the inventory.
 export const selectInventoryItems = () =>
   getStore()
     .getState()
-    .game.player.itemArray.filter((item) => !item.doNotList);
+    .player.itemArray.filter((item) => !item.doNotList);
 export const selectRoom = () => getStore().getState().room;
 export const selectVerbNames = () => getStore().getState().verbNames;
 export const selectItemNames = () => getStore().getState().itemNames;

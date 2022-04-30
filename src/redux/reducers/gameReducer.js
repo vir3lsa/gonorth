@@ -4,10 +4,12 @@ import {
   Append,
   AppendInput
 } from "../../game/interactions/interaction";
+// import { Item } from "../../game/items/item";
 
 export const initialState = {
   turn: 1,
   debugMode: false,
+  player: null,
   interaction: new Interaction("Loading..."),
   image: null,
   lastChange: Date.now(),
@@ -102,6 +104,8 @@ export default function (state = initialState, action) {
       return { ...state, room: action.room };
     case type.RECORD_CHANGES:
       return { ...state, recordChanges: true };
+    case type.SET_PLAYER:
+      return { ...state, player: action.player };
     default:
       return state;
   }

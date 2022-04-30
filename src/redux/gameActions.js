@@ -133,3 +133,8 @@ export const changeRoom = (room) => ({
 export const recordChanges = () => ({
   type: type.RECORD_CHANGES
 });
+
+export const setPlayer = (player) => ({
+  type: type.SET_PLAYER,
+  player
+});

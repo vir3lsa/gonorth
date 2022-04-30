@@ -3,7 +3,7 @@ import gameReducer from "./reducers";
 import { registerStore } from "./storeRegistry";
 import thunk from "redux-thunk";
 import { SnapshotPersistor } from "./snapshotPersistor";
-import { loadSnapshot } from "./gameActions";
+import { loadSnapshot, setPlayer } from "./gameActions";
 import { selectAllItems, selectRooms } from "../utils/selectors";
 import { initialState } from "./reducers/gameReducer";
 import { Item } from "../game/items/item";
@@ -60,24 +60,35 @@ export const initStore = (name) => {
         }
         return room;
       },
-      allItems: (allItems) => {
-        Object.values(allItems).forEach((item) => {
-          Object.keys(item).forEach((property) => {
-            const value = item[property];
+      allItems: (snapshotAllItems) => {
+        const stateAllItems = [...selectAllItems()];
+        // Augment the complete list of all items with values from the snapshot.
+        Object.entries(snapshotAllItems).forEach(([name, snapshotItem]) => {
+          // Get the full item from the store.
+          const itemToUpdate = stateAllItems.find((item) => item.name === name);
+          Object.entries(snapshotItem).forEach(([property, value]) => {
+            if (value?.isItem) {
+              // The value's a pointer to an Item, so get the full item from the store's list.
+              itemToUpdate[property] = stateAllItems.find((item) => item.name === value.name);
 
-            if (value.isItem) {
-              item[property] = selectAllItems()[value.name];
-
-              if (!item[property]) {
+              if (!itemToUpdate[property]) {
                 console.error(
-                  `Tried to deserialize "${item.name}", which has a ${property} called ${value.name}, but no such item could be found.`
+                  `Tried to deserialize "${name}", which has a ${property} called ${value.name}, but no such item could be found.`
                 );
               }
+            } else {
+              itemToUpdate[property] = value;
             }
           });
         });
+
+        return stateAllItems;
       }
     }
   });
+
   registerStore(store, persistor);
+
+  // Create the player after registering the store as Items need to inspect an existing store.
+  store.dispatch(setPlayer(new Item("player", "You look as you normally do.", false)));
 };

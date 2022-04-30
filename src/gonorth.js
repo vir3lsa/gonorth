@@ -10,7 +10,7 @@ import { clearPage, deleteSave, goToRoom, loadSave } from "./utils/lifecycle";
 import { Item } from "./game/items/item";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
-import { selectRoom, selectTurn } from "./utils/selectors";
+import { selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
 import { OptionGraph } from "./game/interactions/optionGraph";
 import { PagedText } from "./game/interactions/text";
 import { createKeywords } from "./game/verbs/keywords";
@@ -27,7 +27,6 @@ function initGame(title, author, config) {
   game.introActions = new ActionChain(() => goToStartingRoom());
   game.schedules = [];
   game._startingRoom = new Room("Empty Room", "The room is completely devoid of anything interesting.");
-  game.player = new Item("player", "You look as you normally do.", false);
   game.help = getHelpGraph();
   game.hintGraph = getHintGraph();
   game.hintNode = "default";
@@ -146,7 +145,7 @@ function addSchedule(schedule) {
 }
 
 function setInventoryCapacity(size) {
-  game.player.capacity = size;
+  selectPlayer().capacity = size;
 }
 
 function getHelp() {
