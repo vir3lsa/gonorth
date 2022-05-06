@@ -712,7 +712,7 @@ export class Item {
     this._doNotList = value;
   }
 
-  // Records an altered property, if it has changed.
+  // Records an altered property.
   _recordAlteredProperty(propertyName, newValue) {
     if (this._cloned) {
       // We won't serialize cloned objects, so won't record their changes.

@@ -1,9 +1,15 @@
+import { selectRecordChanges } from "../../utils/selectors";
+
 export class Text {
   constructor(...texts) {
+    this._alteredProperties = new Set();
     this.texts = texts;
     this.index = -1;
     this.cycles = 0;
     this._resetCandidates();
+
+    // If recording has started, this Text will need to be reconstructed entirely on deserialization.
+    this.reconstructionRequired = selectRecordChanges();
   }
 
   _resetCandidates() {
@@ -16,6 +22,7 @@ export class Text {
 
   set texts(texts) {
     this._texts = Array.isArray(texts) ? texts : [texts];
+    this._recordAlteredProperty("texts", texts);
   }
 
   get text() {
@@ -24,6 +31,46 @@ export class Text {
 
   get texts() {
     return this._texts;
+  }
+
+  get index() {
+    return this._index;
+  }
+
+  set index(value) {
+    this._index = value;
+    this._recordAlteredProperty("index", value);
+  }
+
+  get cycles() {
+    return this._cycles;
+  }
+
+  set cycles(value) {
+    this._cycles = value;
+    this._recordAlteredProperty("cycles", value);
+  }
+
+  get candidates() {
+    return this._candidates;
+  }
+
+  set candidates(value) {
+    this._candidates = value;
+    this._recordAlteredProperty("candidates", value);
+  }
+
+  get type() {
+    return "Text";
+  }
+
+  set reconstructionRequired(value) {
+    this._reconstructionRequired = value;
+    this._recordAlteredProperty("reconstructionRequired", value);
+  }
+
+  get reconstructionRequired() {
+    return this._reconstructionRequired;
   }
 
   next(...args) {
@@ -37,11 +84,39 @@ export class Text {
 
     return typeof text === "function" ? text(...args) : text;
   }
+
+  toJSON() {
+    return [...this._alteredProperties, ...(this.reconstructionRequired ? ["type"] : [])].reduce(
+      (acc, propertyName) => {
+        acc[propertyName] = this[propertyName];
+        return acc;
+      },
+      {}
+    );
+  }
+
+  // Records an altered property.
+  _recordAlteredProperty(propertyName, newValue) {
+    const recordChanges = selectRecordChanges();
+    if (recordChanges && typeof newValue === "function") {
+      throw Error(
+        `Updated text property "${propertyName}" to a function. This is non-serializable and hence can't be recorded into the save file.`
+      );
+    }
+
+    if (recordChanges) {
+      this._alteredProperties.add(propertyName);
+    }
+  }
 }
 
 export class CyclicText extends Text {
   constructor(...texts) {
     super(...texts);
+  }
+
+  get type() {
+    return "CyclicText";
   }
 
   clone() {
@@ -64,6 +139,10 @@ export class SequentialText extends CyclicText {
     super(...texts);
   }
 
+  get type() {
+    return "SequentialText";
+  }
+
   clone() {
     return new SequentialText(...this.texts);
   }
@@ -75,6 +154,10 @@ export class PagedText extends SequentialText {
     this.paged = true;
   }
 
+  get type() {
+    return "PagedText";
+  }
+
   clone() {
     return new PagedText(...this.texts);
   }
@@ -83,6 +166,10 @@ export class PagedText extends SequentialText {
 export class RandomText extends Text {
   constructor(...texts) {
     super(...texts);
+  }
+
+  get type() {
+    return "RandomText";
   }
 
   clone() {
@@ -123,8 +210,37 @@ export class ManagedText {
   }
 
   constructor(builder) {
+    this._alteredProperties = new Set();
     this.phases = builder.phases;
     this.phaseNum = 0;
+
+    // If recording has started, this ManagedText will need to be reconstructed entirely on deserialization.
+    this.reconstructionRequired = selectRecordChanges();
+
+    // Record phases for later reconstruction (if recording). Do it here as we don't need a setter for this.
+    this._recordAlteredProperty("phases", this.phases);
+  }
+
+  set reconstructionRequired(value) {
+    this._reconstructionRequired = value;
+    this._recordAlteredProperty("reconstructionRequired", value);
+  }
+
+  get reconstructionRequired() {
+    return this._reconstructionRequired;
+  }
+
+  get phaseNum() {
+    return this._phaseNum;
+  }
+
+  set phaseNum(value) {
+    this._phaseNum = value;
+    this._recordAlteredProperty("phaseNum", value);
+  }
+
+  get type() {
+    return "ManagedText";
   }
 
   next() {
@@ -137,6 +253,30 @@ export class ManagedText {
 
     return phase.text.next();
   }
+
+  toJSON() {
+    return [...this._alteredProperties, ...(this.reconstructionRequired ? ["type"] : [])].reduce(
+      (acc, propertyName) => {
+        acc[propertyName] = this[propertyName];
+        return acc;
+      },
+      {}
+    );
+  }
+
+  // Records an altered property.
+  _recordAlteredProperty(propertyName, newValue) {
+    const recordChanges = selectRecordChanges();
+    if (recordChanges && typeof newValue === "function") {
+      throw Error(
+        `Updated ManagedText property "${propertyName}" to a function. This is non-serializable and hence can't be recorded into the save file.`
+      );
+    }
+
+    if (recordChanges) {
+      this._alteredProperties.add(propertyName);
+    }
+  }
 }
 
 /*
@@ -146,6 +286,10 @@ export class DeferredRandomText extends ManagedText {
   constructor(...texts) {
     super(new ManagedText.Builder().withText(new CyclicText(...texts)).withText(new RandomText(...texts)));
     this.texts = texts;
+  }
+
+  get type() {
+    return "DeferredRandomText";
   }
 
   clone() {

@@ -1,7 +1,7 @@
 import { processEvent } from "./eventUtils";
 import { getPersistor, getStore } from "../redux/storeRegistry";
 import { selectConfig, selectEvents, selectGame } from "./selectors";
-import { nextTurn, changeInteraction, newGame, changeRoom } from "../redux/gameActions";
+import { nextTurn, changeInteraction, newGame, changeRoom, loadSnapshot } from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";
 
 export async function handleTurnEnd() {
@@ -38,7 +38,8 @@ export function checkpoint() {
 
 export function loadSave() {
   if (!selectConfig().skipPersistence) {
-    getPersistor().loadSnapshot();
+    const snapshot = getPersistor().loadSnapshot();
+    getStore().dispatch(loadSnapshot(snapshot));
   }
 }
 

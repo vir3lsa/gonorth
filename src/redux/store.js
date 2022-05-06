@@ -3,14 +3,14 @@ import gameReducer from "./reducers";
 import { registerStore } from "./storeRegistry";
 import thunk from "redux-thunk";
 import { SnapshotPersistor } from "./snapshotPersistor";
-import { loadSnapshot, setPlayer } from "./gameActions";
+import { setPlayer } from "./gameActions";
 import { selectAllItems, selectRooms } from "../utils/selectors";
 import { initialState } from "./reducers/gameReducer";
 import { Item } from "../game/items/item";
 
 export const initStore = (name) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));
-  const persistor = new SnapshotPersistor(store, loadSnapshot, initialState, {
+  const persistor = new SnapshotPersistor(store, initialState, {
     version: 6,
     name, // TODO This doesn't work yet as there's no way of passing a name in.
     whitelist: ["turn", "itemNames", "room", "allItems"],

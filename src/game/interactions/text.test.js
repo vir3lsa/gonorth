@@ -1,8 +1,18 @@
+import { recordChanges } from "../../redux/gameActions";
+import { initStore } from "../../redux/store";
+import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { CyclicText, DeferredRandomText, ManagedText, PagedText, RandomText, SequentialText } from "./text";
+
+jest.mock("../../utils/consoleIO");
+const consoleIO = require("../../utils/consoleIO");
+consoleIO.output = jest.fn();
+consoleIO.showOptions = jest.fn();
 
 let cyclic, random;
 
 beforeEach(() => {
+  unregisterStore();
+  initStore();
   cyclic = new CyclicText("a", "b", "c");
   random = new RandomText("x", "y", "z");
 });
@@ -158,4 +168,56 @@ test("DeferredRandomText repeats sequential phase once", () => {
   expect(["a", "b"]).toContain(text.next());
   expect(["a", "b"]).toContain(text.next());
   expect(["a", "b"]).toContain(text.next());
+});
+
+describe("serialization", () => {
+  test("text serializes changes after recording starts", () => {
+    getStore().dispatch(recordChanges());
+    cyclic.next();
+    const result = cyclic.toJSON();
+    expect(result.reconstructionRequired).toBeFalsy();
+    expect(result.index).toBe(0);
+    expect(result.candidates).toEqual([1, 2]);
+    expect(result.texts).toBeUndefined();
+    expect(result.type).toBeUndefined();
+  });
+
+  test("text serializes everything when constructed after recording starts", () => {
+    getStore().dispatch(recordChanges());
+    const text = new CyclicText("x", "y", "z");
+    const result = text.toJSON();
+    expect(result.reconstructionRequired).toBe(true);
+    expect(result.texts).toEqual(["x", "y", "z"]);
+    expect(result.index).toBe(-1);
+    expect(result.cycles).toBe(0);
+    expect(result.candidates).toEqual([0, 1, 2]);
+    expect(result.type).toBe("CyclicText");
+  });
+
+  test("managed text serializes changes after recording starts", () => {
+    const managedText = new ManagedText.Builder().withText(cyclic).withText(random).build();
+    getStore().dispatch(recordChanges());
+    managedText.next();
+    managedText.next();
+    managedText.next();
+    managedText.next(); // Start a new cycle of the Text.
+    const result = managedText.toJSON();
+    expect(result.reconstructionRequired).toBeFalsy();
+    expect(result.phaseNum).toBe(1);
+    expect(result.phases).toBeUndefined();
+    expect(result.type).toBeUndefined();
+  });
+
+  test("managed text serializes everything when constructed after recording starts", () => {
+    getStore().dispatch(recordChanges());
+    const managedText = new ManagedText.Builder().withText(cyclic).withText(random).build();
+    const result = managedText.toJSON();
+    expect(result.reconstructionRequired).toBe(true);
+    expect(result.phaseNum).toBe(0);
+    expect(result.phases).toEqual([
+      { text: cyclic, times: 1 },
+      { text: random, times: 1 }
+    ]);
+    expect(result.type).toBe("ManagedText");
+  });
 });

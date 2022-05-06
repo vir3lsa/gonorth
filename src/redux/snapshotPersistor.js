@@ -3,9 +3,8 @@
  * snapshots on demand and dispatch the appropriate store action to apply them.
  */
 export class SnapshotPersistor {
-  constructor(store, loadSnapshotAction, initialState, config = {}) {
+  constructor(store, initialState, config = {}) {
     this.store = store;
-    this.loadSnapshotAction = loadSnapshotAction;
     this.initialState = initialState;
     this.config = config;
   }
@@ -98,9 +97,11 @@ export class SnapshotPersistor {
           return acc;
         }, {});
 
-        this.store.dispatch(this.loadSnapshotAction(revivedSnapshot));
+        return revivedSnapshot;
       }
     }
+
+    return {};
   }
 
   purgeSnapshot() {
