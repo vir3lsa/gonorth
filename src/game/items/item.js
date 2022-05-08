@@ -1,4 +1,4 @@
-import { RandomText, Text } from "../interactions/text";
+import { ManagedText, RandomText, Text } from "../interactions/text";
 import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
 import { selectAllItemNames, selectInventory, selectRecordChanges } from "../../utils/selectors";
@@ -197,7 +197,7 @@ export class Item {
   }
 
   set name(name) {
-    this._recordAlteredProperty("name", name);
+    this.recordAlteredProperty("name", name);
     this._name = name;
 
     const article = getArticle(name);
@@ -214,7 +214,7 @@ export class Item {
   }
 
   set article(value) {
-    this._recordAlteredProperty("article", value);
+    this.recordAlteredProperty("article", value);
     this._article = value;
   }
 
@@ -226,7 +226,7 @@ export class Item {
    * @param {string | string[] | function | Text | undefined } description
    */
   set description(description) {
-    this._recordAlteredProperty("description", description);
+    this.recordAlteredProperty("description", description);
     this._description = createDynamicText(description);
   }
 
@@ -279,7 +279,7 @@ export class Item {
    * @param {Item} container
    */
   set container(container) {
-    this._recordAlteredProperty("container", container);
+    this.recordAlteredProperty("container", container);
     this._container = container;
     this._addAliasesToContainer(this.aliases);
   }
@@ -297,7 +297,7 @@ export class Item {
    */
   set aliases(aliases) {
     const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
-    this._recordAlteredProperty("aliases", aliasArray);
+    this.recordAlteredProperty("aliases", aliasArray);
     this._aliases = new Set(aliasArray);
     this._addAliasesToContainer(this.aliases);
   }
@@ -384,7 +384,7 @@ export class Item {
 
   set hidesItems(hidesItems) {
     const hidesItemsArray = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
-    this._recordAlteredProperty("hidesItems", hidesItemsArray);
+    this.recordAlteredProperty("hidesItems", hidesItemsArray);
     this._hidesItems = hidesItemsArray;
   }
 
@@ -415,7 +415,7 @@ export class Item {
   }
 
   set containerListing(listing) {
-    this._recordAlteredProperty("containerListing", listing);
+    this.recordAlteredProperty("containerListing", listing);
     this._containerListing = listing;
   }
 
@@ -438,7 +438,7 @@ export class Item {
   }
 
   set capacity(capacity) {
-    this._recordAlteredProperty("capacity", capacity);
+    this.recordAlteredProperty("capacity", capacity);
     this._capacity = capacity;
     this.free = capacity;
 
@@ -452,7 +452,7 @@ export class Item {
   }
 
   set free(value) {
-    this._recordAlteredProperty("free", value);
+    this.recordAlteredProperty("free", value);
     this._free = value;
   }
 
@@ -645,7 +645,7 @@ export class Item {
   }
 
   set holdable(value) {
-    this._recordAlteredProperty("holdable", value);
+    this.recordAlteredProperty("holdable", value);
     this._holdable = value;
   }
 
@@ -654,7 +654,7 @@ export class Item {
   }
 
   set size(value) {
-    this._recordAlteredProperty("size", value);
+    this.recordAlteredProperty("size", value);
     this._size = value;
   }
 
@@ -663,7 +663,7 @@ export class Item {
   }
 
   set visible(value) {
-    this._recordAlteredProperty("visible", value);
+    this.recordAlteredProperty("visible", value);
     this._visible = value;
   }
 
@@ -672,7 +672,7 @@ export class Item {
   }
 
   set canHoldItems(value) {
-    this._recordAlteredProperty("canHoldItems", value);
+    this.recordAlteredProperty("canHoldItems", value);
     this._canHoldItems = value;
   }
 
@@ -681,7 +681,7 @@ export class Item {
   }
 
   set preposition(value) {
-    this._recordAlteredProperty("preposition", value);
+    this.recordAlteredProperty("preposition", value);
     this._preposition = value;
   }
 
@@ -690,7 +690,7 @@ export class Item {
   }
 
   set itemsVisibleFromSelf(value) {
-    this._recordAlteredProperty("itemsVisibleFromSelf", value);
+    this.recordAlteredProperty("itemsVisibleFromSelf", value);
     this._itemsVisibleFromSelf = value;
   }
 
@@ -699,7 +699,7 @@ export class Item {
   }
 
   set itemsVisibleFromRoom(value) {
-    this._recordAlteredProperty("itemsVisibleFromRoom", value);
+    this.recordAlteredProperty("itemsVisibleFromRoom", value);
     this._itemsVisibleFromRoom = value;
   }
 
@@ -708,16 +708,45 @@ export class Item {
   }
 
   set doNotList(value) {
-    this._recordAlteredProperty("doNotList", value);
+    this.recordAlteredProperty("doNotList", value);
     this._doNotList = value;
   }
 
+  toJSON() {
+    return [...this._alteredProperties]
+      .map((propertyName) => {
+        const propertyValue = this[propertyName];
+
+        if (typeof propertyValue === "function") {
+          throw Error(
+            `Attempted to serialize property ${propertyName} of "${this.name}" when saving game, but the property is a function. Changing properties to functions at runtime is not supported as functions can't be serialized.`
+          );
+        } else if (propertyValue instanceof Item) {
+          return [propertyName, { name: propertyValue.name, isItem: true }];
+        } else if (Array.isArray(propertyValue)) {
+          const sanitisedArray = propertyValue.map((entry) =>
+            entry instanceof Item ? { name: entry.name, isItem: true } : entry
+          );
+          return [propertyName, sanitisedArray];
+        }
+
+        return [propertyName, propertyValue];
+      })
+      .reduce((acc, [propertyName, propertyValue]) => {
+        acc[propertyName] = propertyValue;
+        return acc;
+      }, {});
+  }
+
   // Records an altered property.
-  _recordAlteredProperty(propertyName, newValue) {
+  recordAlteredProperty(propertyName, newValue) {
     if (this._cloned) {
       // We won't serialize cloned objects, so won't record their changes.
       return;
     }
+
+    // If the new value being set is a Text, add an onChange callback so we know about internal changes.
+    this._handleTextPropertyPersistence(propertyName, newValue);
 
     const recordChanges = selectRecordChanges();
     if (recordChanges && typeof newValue === "function") {
@@ -728,6 +757,16 @@ export class Item {
 
     if (recordChanges) {
       this._alteredProperties.add(propertyName);
+    }
+  }
+
+  _handleTextPropertyPersistence(propertyName, value) {
+    if (value instanceof Text || value instanceof ManagedText) {
+      value.onChange = () => this.recordAlteredProperty(propertyName);
+
+      if (selectRecordChanges()) {
+        value.recordAll();
+      }
     }
   }
 

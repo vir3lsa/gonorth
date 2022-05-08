@@ -24,7 +24,8 @@ export const initialState = {
   allItemNames: new Set(),
   items: {}, // Keyed by alias
   allItems: new Set(),
-  optionGraphs: {}
+  optionGraphs: {},
+  customState: {}
 };
 
 export default function (state = initialState, action) {
@@ -106,6 +107,20 @@ export default function (state = initialState, action) {
       return { ...state, recordChanges: true };
     case type.SET_PLAYER:
       return { ...state, player: action.player };
+    case type.ADD_VALUE:
+      if (state.customState.hasOwnProperty(action.propertyName)) {
+        throw Error(
+          `Tried to add a persistent property called "${action.propertyName}" but a property with that name already exists.`
+        );
+      }
+      return { ...state, customState: { ...state.customState, [action.propertyName]: action.value } };
+    case type.UPDATE_VALUE:
+      if (!state.customState.hasOwnProperty(action.propertyName)) {
+        throw Error(
+          `Tried to update a persistent property called "${action.propertyName}" but no property with that name exists.`
+        );
+      }
+      return { ...state, customState: { ...state.customState, [action.propertyName]: action.value } };
     default:
       return state;
   }

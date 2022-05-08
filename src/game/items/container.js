@@ -103,7 +103,7 @@ export class Container extends Item {
   }
 
   set open(value) {
-    this._recordAlteredProperty("open", value);
+    this.recordAlteredProperty("open", value);
     this._open = value;
   }
 
@@ -112,7 +112,7 @@ export class Container extends Item {
   }
 
   set locked(value) {
-    this._recordAlteredProperty("locked", value);
+    this.recordAlteredProperty("locked", value);
     this._locked = value;
   }
 
@@ -121,7 +121,7 @@ export class Container extends Item {
   }
 
   set lockedText(text) {
-    this._recordAlteredProperty("lockedText", text);
+    this.recordAlteredProperty("lockedText", text);
     this._lockedText = text;
   }
 
@@ -130,7 +130,7 @@ export class Container extends Item {
   }
 
   set openText(text) {
-    this._recordAlteredProperty("openText", text);
+    this.recordAlteredProperty("openText", text);
     this._openText = text;
   }
 
@@ -139,7 +139,7 @@ export class Container extends Item {
   }
 
   set alreadyOpenText(text) {
-    this._recordAlteredProperty("alreadyOpenText", text);
+    this.recordAlteredProperty("alreadyOpenText", text);
     this._alreadyOpenText = text;
   }
 
@@ -148,7 +148,7 @@ export class Container extends Item {
   }
 
   set closeText(text) {
-    this._recordAlteredProperty("closeText", text);
+    this.recordAlteredProperty("closeText", text);
     this._closeText = text;
   }
 
@@ -157,7 +157,7 @@ export class Container extends Item {
   }
 
   set alreadyClosedText(text) {
-    this._recordAlteredProperty("alreadyClosedText", text);
+    this.recordAlteredProperty("alreadyClosedText", text);
     this._alreadyClosedText = text;
   }
 }

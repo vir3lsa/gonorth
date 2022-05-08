@@ -1,8 +1,9 @@
-import { goToRoom, initGame, Item, Room } from "../gonorth";
+import { goToRoom, initGame, Item, retrieve, Room, store, update } from "../gonorth";
 import { handleTurnEnd } from "../utils/lifecycle";
-import { changeRoom, newGame, recordChanges } from "./gameActions";
+import { changeRoom, loadSnapshot, newGame, recordChanges } from "./gameActions";
 import { initStore } from "./store";
 import { getPersistor, getStore, unregisterStore } from "./storeRegistry";
+import { SequentialText, RandomText, ManagedText } from "../game/interactions/text";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -14,9 +15,7 @@ let mockStorage;
 let result;
 let vase;
 
-beforeEach(() => {
-  mockStorage = {};
-  global.localStorage = { getItem: (key) => mockStorage[key], setItem: (key, value) => (mockStorage[key] = value) };
+const setUpStoreTests = () => {
   unregisterStore();
   initStore();
   getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
@@ -25,9 +24,16 @@ beforeEach(() => {
   persistor = getPersistor();
 
   vase = new Item("vase", "green", true);
+  vase.containerListing = new RandomText("big", "small");
   room.addItems(vase);
 
   goToRoom(room);
+};
+
+beforeEach(() => {
+  mockStorage = {};
+  global.localStorage = { getItem: (key) => mockStorage[key], setItem: (key, value) => (mockStorage[key] = value) };
+  setUpStoreTests();
 });
 
 describe("basic persistor tests", () => {
@@ -57,6 +63,11 @@ describe("basic persistor tests", () => {
 
 describe("changing items", () => {
   const otherRoom = new Room("Forest");
+  const externalText = new RandomText("a", "b");
+  const externalManagedText = new ManagedText.Builder()
+    .withText(new SequentialText("1", "2"))
+    .withText(new RandomText("3", "4"))
+    .build();
 
   beforeEach(() => {
     getStore().dispatch(recordChanges());
@@ -80,19 +91,70 @@ describe("changing items", () => {
     persistSnapshotGetResult();
     expect(result.allItems.vase.container).toEqual({ isItem: true, name: "Forest" });
   });
+
+  it("completely serializes changes to Text fields", () => {
+    vase.description = new SequentialText("one", "two");
+    persistSnapshotGetResult();
+    expect(result.allItems.vase.description.isText).toBe(true);
+    expect(result.allItems.vase.description.partial).toBe(false);
+    expect(result.allItems.vase.description.texts).toEqual(["one", "two"]);
+  });
+
+  it("serializes partial changes to Texts", () => {
+    vase.containerListing.next();
+    persistSnapshotGetResult();
+    expect(result.allItems.vase).toBeDefined();
+    expect(result.allItems.vase.containerListing).toBeDefined();
+    expect(result.allItems.vase.containerListing.isText).toBe(true);
+    expect(result.allItems.vase.containerListing.partial).toBe(true);
+    expect(result.allItems.vase.containerListing.candidates.length).toBe(1);
+  });
+
+  it("serializes external Texts in full when they've been set on an Item field during recording", () => {
+    vase.description = externalText;
+    persistSnapshotGetResult();
+    expect(result.allItems.vase.description).toBeDefined();
+    expect(result.allItems.vase.description.isText).toBe(true);
+    expect(result.allItems.vase.description.partial).toBe(false);
+    expect(result.allItems.vase.description.texts).toEqual(["a", "b"]);
+  });
+
+  it("serializes external ManagedTexts in full when they've been set on an Item field during recording", () => {
+    vase.description = externalManagedText;
+    persistSnapshotGetResult();
+    expect(result.allItems.vase.description.isText).toBe(true);
+    expect(result.allItems.vase.description.phaseNum).toBe(0);
+    expect(result.allItems.vase.description.phases.length).toBe(2);
+    expect(result.allItems.vase.description.phases[0].text.texts).toEqual(["1", "2"]);
+    expect(result.allItems.vase.description.phases[1].text.texts).toEqual(["3", "4"]);
+  });
 });
 
 describe("deserializing snapshots", () => {
   let otherRoom;
+  const externalText = new RandomText("a", "b");
+  const externalManagedText = new ManagedText.Builder()
+    .withText(new SequentialText("1", "2"))
+    .withText(new RandomText("3", "4"))
+    .build();
 
-  beforeEach(() => {
+  const setUpDeserializationTests = () => {
     otherRoom = new Room("Garden");
     otherRoom.addItems(new Item("ornament"));
     getStore().dispatch(recordChanges());
+  };
+
+  beforeEach(() => {
+    setUpDeserializationTests();
   });
 
   const persistSnapshotAndLoad = () => {
     persistor.persistSnapshot();
+
+    // Reset everything to simulate starting a new session.
+    setUpStoreTests();
+    setUpDeserializationTests();
+
     return persistor.loadSnapshot();
   };
 
@@ -132,5 +194,80 @@ describe("deserializing snapshots", () => {
     const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
     expect(Object.is(revivedVase.container, otherRoom)).toBe(true);
     expect(Object.is(revivedVase, vase)).toBe(true);
+  });
+
+  it("recreates Texts in full where they've been created during recording", () => {
+    vase.description = new SequentialText("lovely", "pretty");
+    vase.description.next();
+    const snapshot = persistSnapshotAndLoad();
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    expect(revivedVase.description instanceof SequentialText).toBe(true);
+    expect(revivedVase.description.texts).toEqual(["lovely", "pretty"]);
+    expect(revivedVase.description.index).toBe(0);
+  });
+
+  it("udpates Text fields changed during recording", () => {
+    vase.containerListing.next();
+    const snapshot = persistSnapshotAndLoad();
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    expect(revivedVase.containerListing instanceof RandomText).toBe(true);
+    expect(revivedVase.containerListing.candidates.length).toBe(1);
+  });
+
+  it("deserializes external Texts in full when they've been set on an Item field during recording", () => {
+    vase.description = externalText;
+    const snapshot = persistSnapshotAndLoad();
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    expect(revivedVase.description instanceof RandomText).toBe(true);
+    expect(revivedVase.description.isText).toBe(true);
+    expect(revivedVase.description.partial).toBe(false);
+    expect(revivedVase.description.texts).toEqual(["a", "b"]);
+  });
+
+  it("deserializes external ManagedTexts in full when they've been set on an Item field during recording", () => {
+    vase.description = externalManagedText;
+    const snapshot = persistSnapshotAndLoad();
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    expect(revivedVase.description instanceof ManagedText).toBe(true);
+    expect(revivedVase.description.isText).toBe(true);
+    expect(revivedVase.description.partial).toBe(false);
+    expect(revivedVase.description.phases.length).toBe(2);
+    expect(revivedVase.description.phases[0].text.texts).toEqual(["1", "2"]);
+    expect(revivedVase.description.phases[1].text.texts).toEqual(["3", "4"]);
+  });
+
+  const customStateTest = (propertyName, value) => {
+    store(propertyName, value);
+    const snapshot = persistSnapshotAndLoad();
+    getStore().dispatch(loadSnapshot(snapshot));
+    expect(retrieve(propertyName)).toEqual(value);
+  };
+
+  const updateCustomStateTest = (propertyName, value1, value2) => {
+    store(propertyName, value1);
+    update(propertyName, value2);
+    const snapshot = persistSnapshotAndLoad();
+    getStore().dispatch(loadSnapshot(snapshot));
+    expect(retrieve(propertyName)).toEqual(value2);
+  };
+
+  it("deserializes custom string properties", () => customStateTest("fruit", "apple"));
+  it("deserializes custom number properties", () => customStateTest("maths", 3));
+  it("deserializes custom array properties", () => customStateTest("list", ["a", 2, ["c"]]));
+  it("deserializes custom object properties", () => customStateTest("thing", { cat: "dog", bat: 4 }));
+
+  it("deserializes updated custom string properties", () => updateCustomStateTest("animal", "badger", "tortoise"));
+  it("deserializes updated custom number properties", () => customStateTest("maths", 3, 5));
+  it("deserializes updated custom array properties", () => customStateTest("list", ["a", 2, ["c"]], ["c", 3]));
+  it("deserializes updated custom object properties", () =>
+    customStateTest("thing", { cat: "dog", bat: 4 }, { bird: "goose" }));
+
+  it("throws an error if the same property is stored twice", () => {
+    store("blood", "red");
+    expect(() => store("blood", "blue")).toThrow();
+  });
+
+  it("throws an error if a property that doesn't exist is updated", () => {
+    expect(() => update("cheese", "stilton")).toThrow();
   });
 });

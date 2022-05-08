@@ -223,7 +223,7 @@ export class Room extends Item {
   }
 
   set adjacentRooms(value) {
-    this._recordAlteredProperty("adjacentRooms", value);
+    this.recordAlteredProperty("adjacentRooms", value);
     this._adjacentRooms = value;
   }
 
@@ -232,7 +232,7 @@ export class Room extends Item {
   }
 
   set checkpoint(value) {
-    this._recordAlteredProperty("checkpoint", value);
+    this.recordAlteredProperty("checkpoint", value);
     this._checkpoint = value;
   }
 }

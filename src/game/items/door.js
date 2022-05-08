@@ -75,7 +75,7 @@ export class Door extends Item {
   }
 
   set open(value) {
-    this._recordAlteredProperty("open", value);
+    this.recordAlteredProperty("open", value);
     this._open = value;
   }
 
@@ -84,7 +84,7 @@ export class Door extends Item {
   }
 
   set locked(value) {
-    this._recordAlteredProperty("locked", value);
+    this.recordAlteredProperty("locked", value);
     this._locked = value;
   }
 
@@ -97,7 +97,7 @@ export class Door extends Item {
       throw Error("Keys must be Key instances.");
     }
 
-    this._recordAlteredProperty("key", key);
+    this.recordAlteredProperty("key", key);
     this._key = key;
   }
 }

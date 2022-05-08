@@ -178,6 +178,8 @@ describe("serialization", () => {
     expect(result.reconstructionRequired).toBeFalsy();
     expect(result.index).toBe(0);
     expect(result.candidates).toEqual([1, 2]);
+    expect(result.isText).toBe(true);
+    expect(result.partial).toBe(true);
     expect(result.texts).toBeUndefined();
     expect(result.type).toBeUndefined();
   });
@@ -186,12 +188,13 @@ describe("serialization", () => {
     getStore().dispatch(recordChanges());
     const text = new CyclicText("x", "y", "z");
     const result = text.toJSON();
-    expect(result.reconstructionRequired).toBe(true);
+    expect(result.partial).toBe(false);
     expect(result.texts).toEqual(["x", "y", "z"]);
     expect(result.index).toBe(-1);
     expect(result.cycles).toBe(0);
     expect(result.candidates).toEqual([0, 1, 2]);
     expect(result.type).toBe("CyclicText");
+    expect(result.isText).toBe(true);
   });
 
   test("managed text serializes changes after recording starts", () => {
@@ -206,18 +209,21 @@ describe("serialization", () => {
     expect(result.phaseNum).toBe(1);
     expect(result.phases).toBeUndefined();
     expect(result.type).toBeUndefined();
+    expect(result.isText).toBe(true);
+    expect(result.partial).toBe(true);
   });
 
   test("managed text serializes everything when constructed after recording starts", () => {
     getStore().dispatch(recordChanges());
     const managedText = new ManagedText.Builder().withText(cyclic).withText(random).build();
     const result = managedText.toJSON();
-    expect(result.reconstructionRequired).toBe(true);
+    expect(result.partial).toBe(false);
     expect(result.phaseNum).toBe(0);
     expect(result.phases).toEqual([
       { text: cyclic, times: 1 },
       { text: random, times: 1 }
     ]);
     expect(result.type).toBe("ManagedText");
+    expect(result.isText).toBe(true);
   });
 });

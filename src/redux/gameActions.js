@@ -138,3 +138,15 @@ export const setPlayer = (player) => ({
   type: type.SET_PLAYER,
   player
 });
+
+export const addValue = (propertyName, value) => ({
+  type: type.ADD_VALUE,
+  propertyName,
+  value
+});
+
+export const updateValue = (propertyName, value) => ({
+  type: type.UPDATE_VALUE,
+  propertyName,
+  value
+});

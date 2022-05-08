@@ -3,13 +3,15 @@ import { selectRecordChanges } from "../../utils/selectors";
 export class Text {
   constructor(...texts) {
     this._alteredProperties = new Set();
+    this.onChange = () => {};
+
     this.texts = texts;
     this.index = -1;
     this.cycles = 0;
     this._resetCandidates();
 
     // If recording has started, this Text will need to be reconstructed entirely on deserialization.
-    this.reconstructionRequired = selectRecordChanges();
+    this.partial = !selectRecordChanges();
   }
 
   _resetCandidates() {
@@ -22,7 +24,7 @@ export class Text {
 
   set texts(texts) {
     this._texts = Array.isArray(texts) ? texts : [texts];
-    this._recordAlteredProperty("texts", texts);
+    this.recordAlteredProperty("texts", texts);
   }
 
   get text() {
@@ -39,7 +41,7 @@ export class Text {
 
   set index(value) {
     this._index = value;
-    this._recordAlteredProperty("index", value);
+    this.recordAlteredProperty("index", value);
   }
 
   get cycles() {
@@ -48,7 +50,7 @@ export class Text {
 
   set cycles(value) {
     this._cycles = value;
-    this._recordAlteredProperty("cycles", value);
+    this.recordAlteredProperty("cycles", value);
   }
 
   get candidates() {
@@ -57,20 +59,35 @@ export class Text {
 
   set candidates(value) {
     this._candidates = value;
-    this._recordAlteredProperty("candidates", value);
+    this.recordAlteredProperty("candidates", value);
   }
 
   get type() {
     return "Text";
   }
 
-  set reconstructionRequired(value) {
-    this._reconstructionRequired = value;
-    this._recordAlteredProperty("reconstructionRequired", value);
+  get onChange() {
+    return this._onChange;
   }
 
-  get reconstructionRequired() {
-    return this._reconstructionRequired;
+  set onChange(value) {
+    this._onChange = value;
+  }
+
+  get partial() {
+    return this._partial;
+  }
+
+  set partial(value) {
+    this._partial = value;
+  }
+
+  recordAll() {
+    this.partial = false;
+    this.recordAlteredProperty("texts", this.texts);
+    this.recordAlteredProperty("index", this.index);
+    this.recordAlteredProperty("cycles", this.cycles);
+    this.recordAlteredProperty("candidates", this.candidates);
   }
 
   next(...args) {
@@ -86,17 +103,17 @@ export class Text {
   }
 
   toJSON() {
-    return [...this._alteredProperties, ...(this.reconstructionRequired ? ["type"] : [])].reduce(
+    return [...this._alteredProperties, ...(!this._partial ? ["type"] : [])].reduce(
       (acc, propertyName) => {
         acc[propertyName] = this[propertyName];
         return acc;
       },
-      {}
+      { isText: true, partial: this._partial }
     );
   }
 
   // Records an altered property.
-  _recordAlteredProperty(propertyName, newValue) {
+  recordAlteredProperty(propertyName, newValue) {
     const recordChanges = selectRecordChanges();
     if (recordChanges && typeof newValue === "function") {
       throw Error(
@@ -106,6 +123,7 @@ export class Text {
 
     if (recordChanges) {
       this._alteredProperties.add(propertyName);
+      this.onChange();
     }
   }
 }
@@ -201,6 +219,11 @@ export class ManagedText {
         return this;
       }
 
+      onChange(callback) {
+        this.onChangeCallback = callback;
+        return this;
+      }
+
       build() {
         return new ManagedText(this);
       }
@@ -211,23 +234,16 @@ export class ManagedText {
 
   constructor(builder) {
     this._alteredProperties = new Set();
+    this.onChange = builder.onChangeCallback || (() => {});
+
     this.phases = builder.phases;
     this.phaseNum = 0;
 
     // If recording has started, this ManagedText will need to be reconstructed entirely on deserialization.
-    this.reconstructionRequired = selectRecordChanges();
+    this.partial = !selectRecordChanges();
 
     // Record phases for later reconstruction (if recording). Do it here as we don't need a setter for this.
-    this._recordAlteredProperty("phases", this.phases);
-  }
-
-  set reconstructionRequired(value) {
-    this._reconstructionRequired = value;
-    this._recordAlteredProperty("reconstructionRequired", value);
-  }
-
-  get reconstructionRequired() {
-    return this._reconstructionRequired;
+    this.recordAlteredProperty("phases", this.phases);
   }
 
   get phaseNum() {
@@ -236,11 +252,36 @@ export class ManagedText {
 
   set phaseNum(value) {
     this._phaseNum = value;
-    this._recordAlteredProperty("phaseNum", value);
+    this.recordAlteredProperty("phaseNum", value);
   }
 
   get type() {
     return "ManagedText";
+  }
+
+  get onChange() {
+    return this._onChange;
+  }
+
+  set onChange(value) {
+    this._onChange = value;
+  }
+
+  get partial() {
+    return this._partial;
+  }
+
+  set partial(value) {
+    this._partial = value;
+  }
+
+  recordAll() {
+    this.partial = false;
+    this.recordAlteredProperty("phases", this.phases);
+    this.recordAlteredProperty("phaseNum", this.phaseNum);
+
+    // Ensure the texts contained within are also recorded.
+    this.phases.forEach((phase) => phase.text.recordAll());
   }
 
   next() {
@@ -255,17 +296,17 @@ export class ManagedText {
   }
 
   toJSON() {
-    return [...this._alteredProperties, ...(this.reconstructionRequired ? ["type"] : [])].reduce(
+    return [...this._alteredProperties, ...(!this._partial ? ["type"] : [])].reduce(
       (acc, propertyName) => {
         acc[propertyName] = this[propertyName];
         return acc;
       },
-      {}
+      { isText: true, partial: this._partial }
     );
   }
 
   // Records an altered property.
-  _recordAlteredProperty(propertyName, newValue) {
+  recordAlteredProperty(propertyName, newValue) {
     const recordChanges = selectRecordChanges();
     if (recordChanges && typeof newValue === "function") {
       throw Error(
@@ -275,6 +316,7 @@ export class ManagedText {
 
     if (recordChanges) {
       this._alteredProperties.add(propertyName);
+      this.onChange();
     }
   }
 }

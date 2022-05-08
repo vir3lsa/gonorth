@@ -7,13 +7,21 @@ import { setPlayer } from "./gameActions";
 import { selectAllItems, selectRooms } from "../utils/selectors";
 import { initialState } from "./reducers/gameReducer";
 import { Item } from "../game/items/item";
+import {
+  CyclicText,
+  SequentialText,
+  PagedText,
+  RandomText,
+  ManagedText,
+  DeferredRandomText
+} from "../game/interactions/text";
 
 export const initStore = (name) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));
   const persistor = new SnapshotPersistor(store, initialState, {
     version: 6,
     name, // TODO This doesn't work yet as there's no way of passing a name in.
-    whitelist: ["turn", "itemNames", "room", "allItems"],
+    whitelist: ["turn", "itemNames", "room", "allItems", "customState"],
     serializers: {
       itemNames: (value) => [...value],
       room: (room) => room.name.toLowerCase(),
@@ -21,32 +29,7 @@ export const initStore = (name) => {
         [...items]
           .filter((item) => item._alteredProperties.size)
           .reduce((acc, item) => {
-            const serializableItem = [...item._alteredProperties]
-              .map((propertyName) => {
-                const propertyValue = item[propertyName];
-
-                if (typeof propertyValue === "function") {
-                  throw Error(
-                    `Attempted to serialize property ${propertyName} of "${item.name}" when saving game, but the property is a function. Changing properties to functions at runtime is not supported as functions can't be serialized.`
-                  );
-                } else if (propertyValue instanceof Item) {
-                  return [propertyName, { name: propertyValue.name, isItem: true }];
-                } else if (Array.isArray(propertyValue)) {
-                  const sanitisedArray = propertyValue.map((entry) =>
-                    entry instanceof Item ? { name: entry.name, isItem: true } : entry
-                  );
-                  return [propertyName, sanitisedArray];
-                }
-
-                return [propertyName, propertyValue];
-              })
-              .reduce((acc, [propertyName, propertyValue]) => {
-                acc[propertyName] = propertyValue;
-                return acc;
-              }, {});
-
-            serializableItem.itemType = item._type;
-            acc[item.name] = serializableItem;
+            acc[item.name] = item;
             return acc;
           }, {})
     },
@@ -75,6 +58,59 @@ export const initStore = (name) => {
                 console.error(
                   `Tried to deserialize "${name}", which has a ${property} called ${value.name}, but no such item could be found.`
                 );
+              }
+            } else if (value?.isText) {
+              // The value represents a Text we either need to recreate entirely or just update.
+              if (value.partial) {
+                // We simply need to update the existing Text
+                const textToUpdate = itemToUpdate[property];
+                Object.entries(value)
+                  .filter(([textProperty]) => textProperty !== "isText")
+                  .forEach(([textProperty, textValue]) => (textToUpdate[textProperty] = textValue));
+              } else {
+                // We need to reconstruct the Text from scratch.
+                const reconstructText = (serializedText) => {
+                  let newText;
+
+                  switch (serializedText.type) {
+                    case "CyclicText":
+                      newText = new CyclicText(...serializedText.texts);
+                      break;
+                    case "SequentialText":
+                      newText = new SequentialText(...serializedText.texts);
+                      break;
+                    case "PagedText":
+                      newText = new PagedText(...serializedText.texts);
+                      break;
+                    case "RandomText":
+                      newText = new RandomText(...serializedText.texts);
+                      break;
+                    case "DeferredRandomText":
+                      newText = new DeferredRandomText(...serializedText.texts);
+                      break;
+                    case "ManagedText":
+                      newText = serializedText.phases
+                        .reduce(
+                          (builder, phase) => builder.withText(reconstructText(phase.text)).times(phase.times),
+                          new ManagedText.Builder()
+                        )
+                        .build();
+                      break;
+                  }
+
+                  // Now we need to set the remaining changed properties that couldn't be set via the constructor.
+                  Object.entries(value)
+                    .filter(
+                      ([textProperty]) =>
+                        textProperty !== "texts" && textProperty !== "phases" && textProperty !== "type"
+                    )
+                    .forEach(([textProperty, textValue]) => (newText[textProperty] = textValue));
+
+                  return newText;
+                };
+
+                // Finally, set the new Text on the appropriate field of the item.
+                itemToUpdate[property] = reconstructText(value);
               }
             } else {
               itemToUpdate[property] = value;

@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 
 import { initStore } from "./redux/store";
 import { getPersistor, getStore } from "./redux/storeRegistry";
-import { addEvent as eventAdded, newGame, recordChanges } from "./redux/gameActions";
+import { addEvent as eventAdded, addValue, newGame, recordChanges, updateValue } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { clearPage, deleteSave, goToRoom, loadSave } from "./utils/lifecycle";
@@ -168,6 +168,18 @@ function setHintNodeId(nodeId) {
   game.hintNode = nodeId;
 }
 
+function store(propertyName, value) {
+  getStore().dispatch(addValue(propertyName, value));
+}
+
+function update(propertyName, value) {
+  getStore().dispatch(updateValue(propertyName, value));
+}
+
+function retrieve(propertyName) {
+  return getStore().getState().customState[propertyName];
+}
+
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door, newDoor, Key } from "./game/items/door";
@@ -203,5 +215,8 @@ export {
   setHelp,
   giveHint,
   addHintNodes,
-  setHintNodeId
+  setHintNodeId,
+  store,
+  update,
+  retrieve
 };
