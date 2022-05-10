@@ -70,20 +70,23 @@ export class SnapshotPersistor {
     }
   }
 
+  /**
+   * Revives a deserialized value using the appropriate additional deserializer, if any.
+   */
+  revive(key, value) {
+    const deserializer = this.config.deserializers[key];
+
+    if (deserializer) {
+      return deserializer(value);
+    }
+
+    return value;
+  }
+
   /*
    * Retrieve a state snapshot from local storage and dispatch it to the store.
    */
   loadSnapshot() {
-    const reviver = (key, value) => {
-      const deserializer = this.config.deserializers[key];
-
-      if (deserializer) {
-        return deserializer(value);
-      }
-
-      return value;
-    };
-
     if (typeof localStorage !== "undefined") {
       const snapshotString = localStorage.getItem(this.key);
 
@@ -93,7 +96,7 @@ export class SnapshotPersistor {
         /* Run the reviver on each entry. Doing it here rather than in JSON.parse() because I
            don't want it to be run recursively on the output. */
         const revivedSnapshot = Object.entries(snapshot).reduce((acc, [key, value]) => {
-          acc[key] = reviver(key, value);
+          acc[key] = this.revive(key, value);
           return acc;
         }, {});
 
@@ -108,15 +111,13 @@ export class SnapshotPersistor {
     localStorage.removeItem(this.key);
   }
 
-  resetState() {
+  loadInitialStateSnapshot() {
     /* Create an object looking like a snapshot, but comprising of initial state. Only
      * include keys from the whitelist of persisted keys. */
-    const initialSnapshot = this.config.whitelist.reduce((acc, key) => {
-      acc[key] = this.initialState[key];
+    return this.config.whitelist.reduce((acc, key) => {
+      acc[key] = this.revive(key, this.initialState[key]);
       return acc;
     }, {});
-
-    this.store.dispatch(this.loadSnapshotAction(initialSnapshot));
   }
 
   get name() {

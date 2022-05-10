@@ -5,6 +5,7 @@ import thunk from "redux-thunk";
 import { SnapshotPersistor } from "./snapshotPersistor";
 import { setPlayer } from "./gameActions";
 import { selectAllItems, selectRooms } from "../utils/selectors";
+import { moveItem } from "../utils/itemFunctions";
 import { initialState } from "./reducers/gameReducer";
 import { Item } from "../game/items/item";
 import {
@@ -19,7 +20,7 @@ import {
 export const initStore = (name) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));
   const persistor = new SnapshotPersistor(store, initialState, {
-    version: 6,
+    version: 7,
     name, // TODO This doesn't work yet as there's no way of passing a name in.
     whitelist: ["turn", "itemNames", "room", "allItems", "customState"],
     serializers: {
@@ -36,6 +37,11 @@ export const initStore = (name) => {
     deserializers: {
       itemNames: (value) => new Set(value),
       room: (roomName) => {
+        if (roomName === null) {
+          // Initial state is null, so this is fine.
+          return null;
+        }
+
         const rooms = selectRooms();
         const room = rooms[roomName];
         if (!room) {
@@ -52,7 +58,13 @@ export const initStore = (name) => {
           Object.entries(snapshotItem).forEach(([property, value]) => {
             if (value?.isItem) {
               // The value's a pointer to an Item, so get the full item from the store's list.
-              itemToUpdate[property] = stateAllItems.find((item) => item.name === value.name);
+              const actualItem = stateAllItems.find((item) => item.name === value.name);
+
+              if (property === "container") {
+                moveItem(itemToUpdate, actualItem);
+              } else {
+                itemToUpdate[property] = actualItem;
+              }
 
               if (!itemToUpdate[property]) {
                 console.error(

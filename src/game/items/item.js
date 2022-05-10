@@ -7,6 +7,7 @@ import { getStore } from "../../redux/storeRegistry";
 import { addItem, itemsRevealed } from "../../redux/gameActions";
 import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
+import { moveItem } from "../../utils/itemFunctions";
 
 export function newItem(config, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
@@ -104,11 +105,7 @@ export class Item {
             );
           },
           [
-            () => {
-              this.container.removeItem(this);
-              selectInventory().addItem(this);
-              this.containerListing = null;
-            },
+            () => moveItem(this, selectInventory()),
             () => {
               const article = this.properNoun ? "" : "the ";
               return new RandomText(
@@ -406,7 +403,9 @@ export class Item {
 
       getStore().dispatch(itemsRevealed(this.hidesItems.map((item) => item.name)));
 
-      this.hidesItems = [];
+      if (this.hidesItems.length) {
+        this.hidesItems = [];
+      }
     }
   }
 

@@ -1,5 +1,6 @@
 import { goToRoom, initGame, Item, retrieve, Room, store, update } from "../gonorth";
 import { handleTurnEnd } from "../utils/lifecycle";
+import { moveItem } from "../utils/itemFunctions";
 import { changeRoom, loadSnapshot, newGame, recordChanges } from "./gameActions";
 import { initStore } from "./store";
 import { getPersistor, getStore, unregisterStore } from "./storeRegistry";
@@ -14,12 +15,13 @@ let persistor;
 let mockStorage;
 let result;
 let vase;
+let room;
 
 const setUpStoreTests = () => {
   unregisterStore();
   initStore();
   getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
-  const room = new Room("Hydroponics");
+  room = new Room("Hydroponics");
   getStore().dispatch(changeRoom(room));
   persistor = getPersistor();
 
@@ -269,5 +271,14 @@ describe("deserializing snapshots", () => {
 
   it("throws an error if a property that doesn't exist is updated", () => {
     expect(() => update("cheese", "stilton")).toThrow();
+  });
+
+  it("moves moved items to their new containers", () => {
+    moveItem(vase, otherRoom);
+    const snapshot = persistSnapshotAndLoad();
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    expect(Object.is(revivedVase.container, otherRoom)).toBe(true);
+    expect(room.items.vase).toBeUndefined();
+    expect(otherRoom.items.vase).toBeDefined();
   });
 });

@@ -51,5 +51,6 @@ export function deleteSave() {
   }
 
   // Reset state whether we're skipping persistence or not.
-  getPersistor().resetState();
+  const snapshot = getPersistor().loadInitialStateSnapshot();
+  getStore().dispatch(loadSnapshot(snapshot));
 }
