@@ -1,8 +1,17 @@
 import { processEvent } from "./eventUtils";
-import { getPersistor, getStore, unregisterStore } from "../redux/storeRegistry";
+import { getPersistor, getStore } from "../redux/storeRegistry";
 import { selectConfig, selectEvents, selectGame } from "./selectors";
-import { nextTurn, changeInteraction, newGame, changeRoom, loadSnapshot } from "../redux/gameActions";
+import {
+  nextTurn,
+  changeInteraction,
+  changeRoom,
+  loadSnapshot,
+  cleanState,
+  setPlayer,
+  recordChanges
+} from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";
+import { Item } from "../game/items/item";
 
 export async function handleTurnEnd() {
   const events = selectEvents();
@@ -51,6 +60,13 @@ export function deleteSave() {
   }
 
   // Reset state whether we're skipping persistence or not.
-  const snapshot = getPersistor().loadInitialStateSnapshot();
-  getStore().dispatch(loadSnapshot(snapshot));
+  getStore().dispatch(cleanState());
+  createPlayer();
+  selectGame().initialiser();
+  getStore().dispatch(recordChanges());
+}
+
+export function createPlayer() {
+  // Create the player after registering the store as Items need to inspect an existing store.
+  getStore().dispatch(setPlayer(new Item("player", "You look as you normally do.", false)));
 }

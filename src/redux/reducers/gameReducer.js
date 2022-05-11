@@ -25,7 +25,8 @@ export const initialState = {
   items: {}, // Keyed by alias
   allItems: new Set(),
   optionGraphs: {},
-  customState: {}
+  customState: {},
+  startingRoom: null
 };
 
 export default function (state = initialState, action) {
@@ -121,6 +122,15 @@ export default function (state = initialState, action) {
         );
       }
       return { ...state, customState: { ...state.customState, [action.propertyName]: action.value } };
+    case type.CLEAN_STATE:
+      return {
+        ...initialState,
+        game: state.game,
+        debugMode: state.debugMode,
+        keywords: state.keywords
+      };
+    case type.SET_STARTING_ROOM:
+      return { ...state, startingRoom: action.startingRoom };
     default:
       return state;
   }

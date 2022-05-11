@@ -150,3 +150,12 @@ export const updateValue = (propertyName, value) => ({
   propertyName,
   value
 });
+
+export const cleanState = () => ({
+  type: type.CLEAN_STATE
+});
+
+export const setStartRoom = (startingRoom) => ({
+  type: type.SET_STARTING_ROOM,
+  startingRoom
+});

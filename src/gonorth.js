@@ -2,14 +2,21 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { initStore } from "./redux/store";
-import { getPersistor, getStore, unregisterStore } from "./redux/storeRegistry";
-import { addEvent as eventAdded, addValue, newGame, recordChanges, updateValue } from "./redux/gameActions";
+import { getStore, unregisterStore } from "./redux/storeRegistry";
+import {
+  addEvent as eventAdded,
+  addValue,
+  newGame,
+  recordChanges,
+  setStartRoom,
+  updateValue
+} from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import { clearPage, deleteSave, goToRoom, loadSave } from "./utils/lifecycle";
+import { clearPage, createPlayer, deleteSave, goToRoom, loadSave } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
-import { selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
+import { selectRoom, selectTurn, selectPlayer, selectStartingRoom } from "./utils/selectors";
 import { OptionGraph } from "./game/interactions/optionGraph";
 import { PagedText } from "./game/interactions/text";
 import { createKeywords } from "./game/verbs/keywords";
@@ -19,25 +26,24 @@ const game = {};
 function initGame(title, author, config, initialiser) {
   unregisterStore();
   initStore(config?.storeName);
+  createPlayer();
   game.title = title;
   game.author = author;
   game.config = config;
   game.container = null;
   game.introActions = new ActionChain(() => goToStartingRoom());
   game.schedules = [];
-  game._startingRoom = new Room("Empty Room", "The room is completely devoid of anything interesting.");
   game.help = getHelpGraph();
   game.hintGraph = getHintGraph();
   game.hintNode = "default";
   game.initialiser = initialiser;
 
+  getStore().dispatch(setStartRoom(new Room("Empty Room", "The room is completely devoid of anything interesting.")));
+
   // Set up the game's rooms and items etc.
   if (initialiser) {
     initialiser();
   }
-
-  // TEMP - Set the store name.
-  getPersistor().name = config?.storeName;
 
   createKeywords();
   getStore().dispatch(newGame(game, game.config.debugMode));
@@ -127,14 +133,14 @@ function setIntro(intro) {
 }
 
 function goToStartingRoom() {
-  return goToRoom(game._startingRoom);
+  return goToRoom(selectStartingRoom());
 }
 
 /**
  * @param {Room} room
  */
 function setStartingRoom(room) {
-  game._startingRoom = room;
+  getStore().dispatch(setStartRoom(room));
 }
 
 function getRoom() {

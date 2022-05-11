@@ -3,9 +3,8 @@
  * snapshots on demand and dispatch the appropriate store action to apply them.
  */
 export class SnapshotPersistor {
-  constructor(store, initialState, config = {}) {
+  constructor(store, config = {}) {
     this.store = store;
-    this.initialState = initialState;
     this.config = config;
   }
 
@@ -109,15 +108,6 @@ export class SnapshotPersistor {
 
   purgeSnapshot() {
     localStorage.removeItem(this.key);
-  }
-
-  loadInitialStateSnapshot() {
-    /* Create an object looking like a snapshot, but comprising of initial state. Only
-     * include keys from the whitelist of persisted keys. */
-    return this.config.whitelist.reduce((acc, key) => {
-      acc[key] = this.revive(key, this.initialState[key]);
-      return acc;
-    }, {});
   }
 
   get name() {

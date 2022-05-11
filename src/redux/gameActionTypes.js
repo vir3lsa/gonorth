@@ -19,3 +19,5 @@ export const RECORD_CHANGES = "RECORD_CHANGES";
 export const SET_PLAYER = "SET_PLAYER";
 export const ADD_VALUE = "ADD_VALUE";
 export const UPDATE_VALUE = "UPDATE_VALUE";
+export const CLEAN_STATE = "CLEAN_STATE";
+export const SET_STARTING_ROOM = "SET_STARTING_ROOM";

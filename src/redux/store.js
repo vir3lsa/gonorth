@@ -3,11 +3,8 @@ import gameReducer from "./reducers";
 import { registerStore } from "./storeRegistry";
 import thunk from "redux-thunk";
 import { SnapshotPersistor } from "./snapshotPersistor";
-import { setPlayer } from "./gameActions";
 import { selectAllItems, selectRooms } from "../utils/selectors";
 import { moveItem } from "../utils/itemFunctions";
-import { initialState } from "./reducers/gameReducer";
-import { Item } from "../game/items/item";
 import {
   CyclicText,
   SequentialText,
@@ -19,13 +16,13 @@ import {
 
 export const initStore = (name) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));
-  const persistor = new SnapshotPersistor(store, initialState, {
+  const persistor = new SnapshotPersistor(store, {
     version: 7,
     name,
     whitelist: ["turn", "itemNames", "room", "allItems", "customState"],
     serializers: {
       itemNames: (value) => [...value],
-      room: (room) => room.name.toLowerCase(),
+      room: (room) => room?.name.toLowerCase(),
       allItems: (items) =>
         [...items]
           .filter((item) => item._alteredProperties.size)
@@ -136,7 +133,4 @@ export const initStore = (name) => {
   });
 
   registerStore(store, persistor);
-
-  // Create the player after registering the store as Items need to inspect an existing store.
-  store.dispatch(setPlayer(new Item("player", "You look as you normally do.", false)));
 };

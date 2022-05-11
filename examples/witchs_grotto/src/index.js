@@ -30,7 +30,7 @@ const uiTestMode = UI_TEST_MODE;
 
 // The function that'll initialise all of the rooms and items etc.
 const setUpGrotto = () => {
-  initCellar();
+  const cellar = initCellar();
 
   getWitch().addEncounter(
     () => witchArrival.cancel(),
@@ -40,6 +40,7 @@ const setUpGrotto = () => {
   );
 
   setInventoryCapacity(10);
+  setStartingRoom(cellar);
 };
 
 initGame(
@@ -55,8 +56,6 @@ initGame(
 );
 setIntro("Now's your chance. Quickly! Make your escape whilst the witch is out.");
 initHints("bedroom1");
-
-setStartingRoom(getCellar());
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");

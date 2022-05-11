@@ -25,3 +25,4 @@ export const selectConfig = () => getStore().getState().game.config;
 export const selectActionChainPromise = () => getStore().getState().actionChainPromise;
 export const selectEvents = () => getStore().getState().events;
 export const selectRecordChanges = () => getStore().getState().recordChanges;
+export const selectStartingRoom = () => getStore().getState().startingRoom;
