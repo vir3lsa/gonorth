@@ -1,6 +1,6 @@
 import { Room } from "../game/items/room";
 import { getStore, unregisterStore } from "../redux/storeRegistry";
-import { newGame, changeInteraction } from "../redux/gameActions";
+import { changeInteraction } from "../redux/gameActions";
 import { Parser } from "../game/parser";
 import { Door } from "../game/items/door";
 import { Item } from "../game/items/item";
@@ -8,7 +8,6 @@ import { Verb } from "../game/verbs/verb";
 import { initGame } from "../gonorth";
 import { goToRoom } from "./lifecycle";
 import { PagedText } from "../game/interactions/text";
-import { initStore } from "../redux/store";
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { selectCurrentPage } from "./testSelectors";
 
@@ -34,7 +33,7 @@ const inputTest = async (input, expectedOutput, ...expectedOmissions) => {
 describe("debugFunctions", () => {
   beforeEach(() => {
     unregisterStore();
-    initStore();
+    game = initGame("The Giant's Castle", "", { debugMode: false });
 
     hall = new Room("Hall", "grand");
     north = new Room("Garden", "");
@@ -64,8 +63,6 @@ describe("debugFunctions", () => {
     north.addItems(door, chair, chairman, cushion, redBall, redBox, blueBox);
     north.setNorth(new Room("Orangery", "Light and airy"));
 
-    game = initGame("The Giant's Castle", "", { debugMode: false });
-    getStore().dispatch(newGame(game, true));
     goToRoom(hall);
     door.open = false;
     getStore().dispatch(changeInteraction(new PagedText("")));

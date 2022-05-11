@@ -1,6 +1,5 @@
 import { initGame } from "../../gonorth";
-import { newGame, recordChanges } from "../../redux/gameActions";
-import { initStore } from "../../redux/store";
+import { recordChanges } from "../../redux/gameActions";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Container } from "./container";
 
@@ -13,11 +12,9 @@ let game;
 
 beforeEach(() => {
   unregisterStore();
-  initStore();
 
   // Pretend we're in the browser
   game = initGame("Jolly Capers", "", { debugMode: false });
-  getStore().dispatch(newGame(game, true, false));
 });
 
 describe("serialization", () => {

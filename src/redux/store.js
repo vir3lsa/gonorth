@@ -21,7 +21,7 @@ export const initStore = (name) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));
   const persistor = new SnapshotPersistor(store, initialState, {
     version: 7,
-    name, // TODO This doesn't work yet as there's no way of passing a name in.
+    name,
     whitelist: ["turn", "itemNames", "room", "allItems", "customState"],
     serializers: {
       itemNames: (value) => [...value],

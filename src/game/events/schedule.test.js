@@ -3,7 +3,6 @@ import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { addSchedule, initGame } from "../../gonorth";
 import { unregisterStore } from "../../redux/storeRegistry";
-import { initStore } from "../../redux/store";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -14,7 +13,6 @@ let x;
 
 beforeEach(() => {
   unregisterStore();
-  initStore();
   initGame("", "", { debugMode: false });
   x = 1;
 });

@@ -13,7 +13,7 @@ const consoleIO = require("../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
+initGame("test", "", { debugMode: false });
 
 const clickNext = () => {
   let res;

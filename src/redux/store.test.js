@@ -1,8 +1,7 @@
 import { goToRoom, initGame, Item, retrieve, Room, store, update } from "../gonorth";
 import { handleTurnEnd } from "../utils/lifecycle";
 import { moveItem } from "../utils/itemFunctions";
-import { changeRoom, loadSnapshot, newGame, recordChanges } from "./gameActions";
-import { initStore } from "./store";
+import { changeRoom, loadSnapshot, recordChanges } from "./gameActions";
 import { getPersistor, getStore, unregisterStore } from "./storeRegistry";
 import { SequentialText, RandomText, ManagedText } from "../game/interactions/text";
 
@@ -19,8 +18,7 @@ let room;
 
 const setUpStoreTests = () => {
   unregisterStore();
-  initStore();
-  getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
+  initGame("test", "", { debugMode: false }), true, false;
   room = new Room("Hydroponics");
   getStore().dispatch(changeRoom(room));
   persistor = getPersistor();
@@ -64,14 +62,15 @@ describe("basic persistor tests", () => {
 });
 
 describe("changing items", () => {
-  const otherRoom = new Room("Forest");
-  const externalText = new RandomText("a", "b");
-  const externalManagedText = new ManagedText.Builder()
-    .withText(new SequentialText("1", "2"))
-    .withText(new RandomText("3", "4"))
-    .build();
+  let otherRoom, externalText, externalManagedText;
 
   beforeEach(() => {
+    otherRoom = new Room("Forest");
+    externalText = new RandomText("a", "b");
+    externalManagedText = new ManagedText.Builder()
+      .withText(new SequentialText("1", "2"))
+      .withText(new RandomText("3", "4"))
+      .build();
     getStore().dispatch(recordChanges());
   });
 
@@ -133,16 +132,16 @@ describe("changing items", () => {
 });
 
 describe("deserializing snapshots", () => {
-  let otherRoom;
-  const externalText = new RandomText("a", "b");
-  const externalManagedText = new ManagedText.Builder()
-    .withText(new SequentialText("1", "2"))
-    .withText(new RandomText("3", "4"))
-    .build();
+  let otherRoom, externalText, externalManagedText;
 
   const setUpDeserializationTests = () => {
     otherRoom = new Room("Garden");
     otherRoom.addItems(new Item("ornament"));
+    externalText = new RandomText("a", "b");
+    externalManagedText = new ManagedText.Builder()
+      .withText(new SequentialText("1", "2"))
+      .withText(new RandomText("3", "4"))
+      .build();
     getStore().dispatch(recordChanges());
   };
 

@@ -1,8 +1,8 @@
 import { Verb, Item } from "../../../../lib/gonorth";
-import { alchemy } from "./cauldron";
+import { getAlchemy } from "./cauldron";
 
 export class MagicWord extends Item {
-  constructor(name, aliases = [], sayingDescription, action = () => alchemy.sayWords(this), recall = true) {
+  constructor(name, aliases = [], sayingDescription, action = () => getAlchemy().sayWords(this), recall = true) {
     super(name);
     this.size = 0;
     this.aliases = aliases || [];

@@ -1,5 +1,5 @@
 import { processEvent } from "./eventUtils";
-import { getPersistor, getStore } from "../redux/storeRegistry";
+import { getPersistor, getStore, unregisterStore } from "../redux/storeRegistry";
 import { selectConfig, selectEvents, selectGame } from "./selectors";
 import { nextTurn, changeInteraction, newGame, changeRoom, loadSnapshot } from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";

@@ -1,6 +1,6 @@
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
-import { newGame, changeInteraction, changeRoom, recordChanges } from "../../redux/gameActions";
+import { changeInteraction, changeRoom, recordChanges } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
 import { Item } from "./item";
 import { initGame } from "../../gonorth";
@@ -8,15 +8,11 @@ import { Parser } from "../parser";
 import { selectInteraction, selectCurrentPage } from "../../utils/testSelectors";
 import { clickNext } from "../../utils/testFunctions";
 import { selectRoom } from "../../utils/selectors";
-import { initStore } from "../../redux/store";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
-
-// Prevent console logging
-getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
 
 const clickNextAndWait = async () => {
   await clickNext();
@@ -25,14 +21,18 @@ const clickNextAndWait = async () => {
 
 let hall, north, south, east, west;
 
-beforeEach(() => {
-  unregisterStore();
-  initStore();
+const initRooms = () => {
   hall = new Room("Hall", "");
   north = new Room("Garden", "");
   south = new Room("Kitchen", "");
   east = new Room("Scullery", "");
   west = new Room("Pantry", "the pantry");
+};
+
+beforeEach(() => {
+  unregisterStore();
+  initGame("test", "", { debugMode: false });
+  initRooms();
   getStore().dispatch(changeInteraction(new Interaction("")));
 });
 
@@ -122,9 +122,11 @@ describe("Room", () => {
     let game;
 
     beforeEach(() => {
+      unregisterStore();
       game = initGame("The Giant's Castle", "", { debugMode: false });
-      getStore().dispatch(newGame(game, true));
+      initRooms();
       getStore().dispatch(changeRoom(hall));
+      getStore().dispatch(changeInteraction(new Interaction("")));
     });
 
     it("doesn't change room if not navigable as boolean", () => {

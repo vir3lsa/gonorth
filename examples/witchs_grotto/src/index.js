@@ -17,10 +17,10 @@ import {
   Verb,
   selectRoom
 } from "../../../lib/gonorth";
-import { cellar } from "./rooms/cellar";
-import { pantry } from "./rooms/pantry";
-import { witch } from "./rooms/garden";
-import { hottingUp } from "./rooms/insideOven";
+import { initCellar, getCellar } from "./rooms/cellar";
+import { getPantry } from "./rooms/pantry";
+import { getWitch } from "./rooms/garden";
+import { initHottingUp } from "./rooms/insideOven";
 import { strengthTimer } from "./rooms/apothecary";
 import { RandomText } from "../../../lib/game/interactions/text";
 import { initHints } from "./utils/hints";
@@ -28,16 +28,35 @@ import { initHints } from "./utils/hints";
 // Variable injected by the Webpack Define plugin.
 const uiTestMode = UI_TEST_MODE;
 
-initGame("The Lady of Bramble Wood", "Rich Locke", {
-  storeName: "grotto",
-  debugMode: true,
-  skipReactionTimes: uiTestMode,
-  skipPersistence: uiTestMode
-});
+// The function that'll initialise all of the rooms and items etc.
+const setUpGrotto = () => {
+  initCellar();
+
+  getWitch().addEncounter(
+    () => witchArrival.cancel(),
+    `The witch is here.
+    
+  Your blood runs cold as her icy blue eyes fix you to the spot. For a moment, neither of you move, then suddenly she *lunges* for you, a snarl twisting her face.`
+  );
+
+  setInventoryCapacity(10);
+};
+
+initGame(
+  "The Lady of Bramble Wood",
+  "Rich Locke",
+  {
+    storeName: "grotto",
+    debugMode: true,
+    skipReactionTimes: uiTestMode,
+    skipPersistence: uiTestMode
+  },
+  setUpGrotto
+);
 setIntro("Now's your chance. Quickly! Make your escape whilst the witch is out.");
 initHints("bedroom1");
 
-setStartingRoom(cellar);
+setStartingRoom(getCellar());
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
@@ -67,8 +86,8 @@ addKeyword(
 );
 
 const witchArrival = new Route.Builder()
-  .withSubject(witch)
-  .withCondition(() => getRoom() === pantry)
+  .withSubject(getWitch())
+  .withCondition(() => getRoom() === getPantry())
   .withContinueOnFail(false)
   .withFindPlayerText(
     "You hear a noise behind you and whirl round in time to see a tall woman dressed in a black shawl slip into the room."
@@ -78,14 +97,10 @@ const witchArrival = new Route.Builder()
   .withText("A door slams somewhere nearby. The witch is coming!")
   .go("west")
   .withDelay(2, TIMEOUT_TURNS)
-  .withText(
-    "You hear footsteps. Sounds like they're coming from the kitchen. Hide!"
-  )
+  .withText("You hear footsteps. Sounds like they're coming from the kitchen. Hide!")
   .go("south")
   .withDelay(10000, TIMEOUT_MILLIS)
-  .withText(
-    "A door creaks, sending shivers down your spine. The witch is looking for you."
-  )
+  .withText("A door creaks, sending shivers down your spine. The witch is looking for you.")
   .go("east")
   .withDelay(3, TIMEOUT_TURNS)
   .withText("Another door slams. Where *is* she?")
@@ -95,15 +110,8 @@ const witchArrival = new Route.Builder()
   .build();
 
 addSchedule(witchArrival);
-addSchedule(hottingUp);
+addSchedule(initHottingUp());
 addSchedule(strengthTimer);
-
-witch.addEncounter(
-  () => witchArrival.cancel(),
-  `The witch is here.
-  
-Your blood runs cold as her icy blue eyes fix you to the spot. For a moment, neither of you move, then suddenly she *lunges* for you, a snarl twisting her face.`
-);
 
 const upstairsSounds = new RandomText(
   "Somewhere there's a dog barking.",
@@ -156,5 +164,4 @@ addEvent(
   )
 );
 
-setInventoryCapacity(10);
 play();

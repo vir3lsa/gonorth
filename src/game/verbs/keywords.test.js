@@ -15,9 +15,8 @@ let game;
 
 beforeEach(() => {
   unregisterStore();
-  initStore();
-  createKeywords();
   game = initGame("Jolly Capers", "", { debugMode: false });
+  createKeywords();
 });
 
 test("inventory lists a single item", async () => {

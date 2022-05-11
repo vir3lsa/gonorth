@@ -1,4 +1,4 @@
-import { newGame, changeInteraction, recordChanges } from "../../redux/gameActions";
+import { changeInteraction, recordChanges } from "../../redux/gameActions";
 import { Door, Key } from "./door";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
@@ -6,10 +6,6 @@ import { Interaction } from "../interactions/interaction";
 import { initGame } from "../../gonorth";
 import { Item } from "./item";
 import { selectCurrentPage } from "../../utils/testSelectors";
-import { initStore } from "../../redux/store";
-
-// Prevent console logging
-getStore().dispatch(newGame({}, true, false));
 
 let game, room, door;
 
@@ -20,12 +16,10 @@ consoleIO.showOptions = jest.fn();
 
 beforeEach(() => {
   unregisterStore();
-  initStore();
+  game = initGame("The Giant's Castle", "", { debugMode: false });
+  getStore().dispatch(changeInteraction(new Interaction("")));
   room = new Room("Hall", "");
   door = new Door("heavy oak door", "", false, true);
-  getStore().dispatch(changeInteraction(new Interaction("")));
-  game = initGame("The Giant's Castle", "", { debugMode: false });
-  getStore().dispatch(newGame(game, true));
   game.room = room;
 });
 

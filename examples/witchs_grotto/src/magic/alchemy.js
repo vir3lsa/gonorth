@@ -1,11 +1,4 @@
-import {
-  Item,
-  Text,
-  RandomText,
-  CyclicText,
-  Verb,
-  selectTurn
-} from "../../../../lib/gonorth";
+import { Item, Text, RandomText, CyclicText, ManagedText, Verb, selectTurn } from "../../../../lib/gonorth";
 import { potionEffects, DRINK } from "./magicEffects";
 
 export const STEP_INGREDIENTS = "ingredients";
@@ -16,27 +9,27 @@ export const STEP_FAT = "fat";
 export const STEP_BLOOD = "blood";
 export const STEP_WORDS = "words";
 
-const errors = new CyclicText(
-  "The cauldron's contents become dull and grey. This doesn't seem right.",
-  "The concoction in the pot turns a vile yellow and begins to smell of rotten eggs. Something's gone wrong.",
-  "The potion acquires a thick oily skin and seems to have lost its potency. You've made a mistake somewhere."
-);
-const errorShorts = new CyclicText(
-  "dull and grey",
-  "yellow and smells of rotten eggs, covered in a thick skin",
-  "covered by a thick oily skin"
-);
-const inert = new RandomText(
-  "The mixture doesn't seem to be doing anything at all. It's no potion.",
-  "The concoction seems totally inert. There's no magic to be seen.",
-  "The contents sit dully in the pot. There's no evidence of anything happening."
-);
-
 export class Alchemy {
   constructor(spiritContainer) {
     this.spiritContainer = spiritContainer;
     this.procedures = [];
     this.flush();
+
+    this.errors = new CyclicText(
+      "The cauldron's contents become dull and grey. This doesn't seem right.",
+      "The concoction in the pot turns a vile yellow and begins to smell of rotten eggs. Something's gone wrong.",
+      "The potion acquires a thick oily skin and seems to have lost its potency. You've made a mistake somewhere."
+    );
+    this.errorShorts = new CyclicText(
+      "dull and grey",
+      "yellow and smells of rotten eggs, covered in a thick skin",
+      "covered by a thick oily skin"
+    );
+    this.inert = new RandomText(
+      "The mixture doesn't seem to be doing anything at all. It's no potion.",
+      "The concoction seems totally inert. There's no magic to be seen.",
+      "The contents sit dully in the pot. There's no evidence of anything happening."
+    );
   }
 
   flush() {
@@ -134,17 +127,13 @@ export class Alchemy {
         // No matching procedures - potion has failed
         if (this.makingPotion) {
           this.makingPotion = false;
-          this.stepText = errors;
-          this.shortDescription = errorShorts.next();
+          this.stepText = this.errors;
+          this.shortDescription = this.errorShorts.next();
           this.heatLeniency = 0;
           this.stirLeniency = 0;
           this.errorMessageOnTurn = turn;
-        } else if (
-          this.liquidLevel &&
-          this.ingredientsAdded &&
-          turn > this.errorMessageOnTurn
-        ) {
-          this.stepText = inert.next();
+        } else if (this.liquidLevel && this.ingredientsAdded && turn > this.errorMessageOnTurn) {
+          this.stepText = this.inert.next();
           this.errorMessageOnTurn = turn;
         }
 
@@ -184,11 +173,7 @@ export class Alchemy {
         switch (stepType) {
           case STEP_INGREDIENTS:
           case STEP_WORDS:
-            if (
-              stepToConsider.value.some(
-                (value) => value.toLowerCase() === ingredient.name.toLowerCase()
-              )
-            ) {
+            if (stepToConsider.value.some((value) => value.toLowerCase() === ingredient.name.toLowerCase())) {
               matchingStep = stepToConsider;
             }
             break;
@@ -279,7 +264,7 @@ export class Alchemy {
     return new Procedure(
       {
         ...proc.procedure,
-        steps: this.copySteps(proc.procedure.steps),
+        steps: this.copySteps(proc.procedure.steps)
       },
       proc.potion // No need to deep copy the potion
     );
@@ -295,11 +280,11 @@ export class Alchemy {
       }
 
       // Clone Texts so their state is independent of the originals
-      if (stepCopy.text && stepCopy.text instanceof Text) {
+      if (stepCopy.text && (stepCopy.text instanceof Text || stepCopy.text instanceof ManagedText)) {
         stepCopy.text = stepCopy.text.clone();
       }
 
-      if (stepCopy.short && stepCopy.short instanceof Text) {
+      if (stepCopy.short && (stepCopy.short instanceof Text || stepCopy.short instanceof ManagedText)) {
         stepCopy.short = stepCopy.short.clone();
       }
 
@@ -361,18 +346,14 @@ export class Alchemy {
   }
 
   doesSpiritMatch(requiredSpirit) {
-    const spirit = [...this.spiritContainer.uniqueItems].map(
-      (item) => item.spirit
-    );
+    const spirit = [...this.spiritContainer.uniqueItems].map((item) => item.spirit);
 
     if (spirit.length !== requiredSpirit.length) {
       return false;
     }
 
     // Find the first required spirit that's not in the actual spirit. If we find none then spirit is correct.
-    const missingSpirit = requiredSpirit.find(
-      (required) => spirit.find((actual) => actual === required) === undefined
-    );
+    const missingSpirit = requiredSpirit.find((required) => spirit.find((actual) => actual === required) === undefined);
 
     return !Boolean(missingSpirit);
   }

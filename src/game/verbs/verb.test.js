@@ -25,7 +25,7 @@ let verb;
 const storeHasVerb = (verbName) => selectVerbNames()[verbName];
 
 // Prevent console logging
-getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
+initGame("test", "", { debugMode: false });
 
 beforeEach(() => {
   verb = new Verb(

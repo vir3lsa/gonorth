@@ -1,6 +1,4 @@
 import { initGame, Item, Room } from "../gonorth";
-import { newGame } from "../redux/gameActions";
-import { getStore } from "../redux/storeRegistry";
 import { goToRoom } from "./lifecycle";
 import { selectPlayer } from "./selectors";
 import { inSameRoomAs } from "./sharedFunctions";
@@ -11,7 +9,7 @@ consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
 // Prevent console logging
-getStore().dispatch(newGame(initGame("test", "", { debugMode: false }), true, false));
+initGame("test", "", { debugMode: false });
 
 const parlour = new Room("parlour", "");
 const scullery = new Room("scullery", "");

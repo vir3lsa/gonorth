@@ -1,1 +1,1 @@
-export { snug } from "./snug";
+export { getSnug, initSnug, getMemoCard, initMemoCard } from "./snug";

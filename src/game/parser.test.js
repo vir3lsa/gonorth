@@ -1,6 +1,6 @@
 import { Room } from "./items/room";
 import { getStore, unregisterStore } from "../redux/storeRegistry";
-import { newGame, changeInteraction } from "../redux/gameActions";
+import { changeInteraction } from "../redux/gameActions";
 import { Parser } from "./parser";
 import { Door } from "./items/door";
 import { Item } from "./items/item";
@@ -10,7 +10,6 @@ import { goToRoom } from "../utils/lifecycle";
 import { PagedText } from "./interactions/text";
 import { selectCurrentPage, selectInteraction } from "../utils/testSelectors";
 import { selectRoom } from "../utils/selectors";
-import { initStore } from "../redux/store";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -38,7 +37,7 @@ const inputTest = async (input, expectedOutput) => {
 
 beforeEach(() => {
   unregisterStore();
-  initStore();
+  game = initGame("The Giant's Castle", "", { debugMode: false });
 });
 
 describe("parser", () => {
@@ -74,19 +73,8 @@ describe("parser", () => {
       hall.setSouth(south);
       hall.setEast(east);
       hall.setWest(west);
-      hall.addItems(
-        door,
-        chair,
-        chairman,
-        cushion,
-        redBall,
-        blueBall,
-        redBox,
-        blueBox
-      );
+      hall.addItems(door, chair, chairman, cushion, redBall, blueBall, redBox, blueBox);
 
-      game = initGame("The Giant's Castle", "", { debugMode: false });
-      getStore().dispatch(newGame(game, true));
       goToRoom(hall);
       door.open = false;
       getStore().dispatch(changeInteraction(new PagedText("")));
@@ -104,14 +92,10 @@ describe("parser", () => {
     it("responds to alias", () => directionTest("forward", "Garden"));
     it("responds to another alias", () => directionTest("left", "Pantry"));
     it("responds to an item alias", () => openDoorTest("open hatch"));
-    it("responds when the direction verb is the second word", () =>
-      directionTest("go north", "Garden"));
-    it("responds when the direction verb is the third word", () =>
-      directionTest("now go north", "Garden"));
-    it("responds when there are words between verb and item", () =>
-      openDoorTest("now open the heavy trap door"));
-    it("responds to multi-word verbs", () =>
-      openDoorTest("now give a shove to the trapdoor"));
+    it("responds when the direction verb is the second word", () => directionTest("go north", "Garden"));
+    it("responds when the direction verb is the third word", () => directionTest("now go north", "Garden"));
+    it("responds when there are words between verb and item", () => openDoorTest("now open the heavy trap door"));
+    it("responds to multi-word verbs", () => openDoorTest("now give a shove to the trapdoor"));
     it("gives a suitable message if the player types nonsense", () =>
       inputTest("feed bread to the ducks", "confusion"));
     it("gives message if verb is recognised but not item", () =>
@@ -124,43 +108,30 @@ describe("parser", () => {
       inputTest("jump on chair", "can't see how to jump on the chair"));
     it("gives message if global verb and no local item found", () =>
       inputTest("jump on skateboard", "don't seem able to jump on that"));
-    it("tries more specific items first", () =>
-      inputTest("x chair man", "impressive"));
-    it("handles prepositional verbs", () =>
-      inputTest("put the cushion in the chair", "cushion in the chair"));
+    it("tries more specific items first", () => inputTest("x chair man", "impressive"));
+    it("handles prepositional verbs", () => inputTest("put the cushion in the chair", "cushion in the chair"));
     it("gives feedback when the first item isn't recognised", () =>
       inputTest("put mug in chair", "You can't put that in the chair"));
     it("gives feedback when the second item isn't recognised", () =>
       inputTest("put cushion in sofa", "Put the cushion where?"));
-    it("gives feedback when no second item is given", () =>
-      inputTest("put cushion", "Put the cushion where?"));
+    it("gives feedback when no second item is given", () => inputTest("put cushion", "Put the cushion where?"));
     it("gives feedback when the second item isn't a container, deferring to verb", () =>
       inputTest("put cushion in chair man", "can't put the cushion"));
     it("allows interaction with items inside other items", async () => {
-      await inputTest(
-        "put cushion in chair",
-        "You put the cushion in the chair"
-      );
+      await inputTest("put cushion in chair", "You put the cushion in the chair");
       await inputTest("take cushion", "the cushion");
     });
-    it("allows rooms to be referred to by name", () =>
-      inputTest("x hall", "grand"));
-    it("allows rooms to be referred to generically", () =>
-      inputTest("x room", "grand"));
+    it("allows rooms to be referred to by name", () => inputTest("x hall", "grand"));
+    it("allows rooms to be referred to generically", () => inputTest("x room", "grand"));
     it("allows items to be put on the floor", () =>
       inputTest("put cushion on the floor", "You put the cushion in the Hall"));
-    it("asks for clarification of duplicate aliases", () =>
-      inputTest("x ball", "Which ball do you mean?"));
-    it("chooses the correct item", () =>
-      inputTest("x red ball", "It's a rouge ball"));
-    it("chooses the correct other item", () =>
-      inputTest("x blue ball", "It's an azure ball"));
+    it("asks for clarification of duplicate aliases", () => inputTest("x ball", "Which ball do you mean?"));
+    it("chooses the correct item", () => inputTest("x red ball", "It's a rouge ball"));
+    it("chooses the correct other item", () => inputTest("x blue ball", "It's an azure ball"));
     it("asks for clarification of duplicate secondary aliases", () =>
       inputTest("put red ball in box", "Which box do you mean?"));
-    it("chooses correct secondary item", () =>
-      inputTest("put red ball in red box", "red ball in the red box"));
-    it("chooses correct other secondary item", () =>
-      inputTest("put red ball in blue box", "red ball in the blue box"));
+    it("chooses correct secondary item", () => inputTest("put red ball in red box", "red ball in the red box"));
+    it("chooses correct other secondary item", () => inputTest("put red ball in blue box", "red ball in the blue box"));
     it("bails if both items are ambiguous", () => inputTest("put ball in box", "You need to be more specific."));
     it("mentions primary duplicate if secondary is defined", () =>
       inputTest("put ball in red box", "Which ball do you mean?"));

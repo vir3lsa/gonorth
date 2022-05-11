@@ -6,11 +6,8 @@ import {
   goToStartingRoom,
   setStartingRoom
 } from "./gonorth";
-import { unregisterStore, getStore } from "./redux/storeRegistry";
-import { initStore } from "./redux/store";
-import { newGame } from "./redux/gameActions";
+import { unregisterStore } from "./redux/storeRegistry";
 import { Room } from "./game/items/room";
-import { Option } from "./game/interactions/option";
 import { ActionChain } from "./utils/actionChain";
 import { Verb } from "./game/verbs/verb";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event } from "./game/events/event";
@@ -37,10 +34,8 @@ const eventTest = async (event, expectation) => {
 describe("Game class", () => {
   beforeEach(() => {
     unregisterStore();
-    initStore();
     game = initGame("title", "", { debugMode: false });
     room = new Room("stairs", "description");
-    getStore().dispatch(newGame(game, true, false));
     setStartingRoom(room);
     x = y = 0;
   });
@@ -180,7 +175,6 @@ describe("Game class", () => {
 describe("goNORTH", () => {
   beforeEach(() => {
     unregisterStore();
-    initStore();
     consoleIO.output = jest.fn();
     consoleIO.showOptions = jest.fn();
   });

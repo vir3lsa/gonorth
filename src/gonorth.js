@@ -2,12 +2,11 @@ import React from "react";
 import ReactDOM from "react-dom";
 
 import { initStore } from "./redux/store";
-import { getPersistor, getStore } from "./redux/storeRegistry";
+import { getPersistor, getStore, unregisterStore } from "./redux/storeRegistry";
 import { addEvent as eventAdded, addValue, newGame, recordChanges, updateValue } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { clearPage, deleteSave, goToRoom, loadSave } from "./utils/lifecycle";
-import { Item } from "./game/items/item";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
 import { selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
@@ -15,11 +14,11 @@ import { OptionGraph } from "./game/interactions/optionGraph";
 import { PagedText } from "./game/interactions/text";
 import { createKeywords } from "./game/verbs/keywords";
 
-initStore();
-
 const game = {};
 
-function initGame(title, author, config) {
+function initGame(title, author, config, initialiser) {
+  unregisterStore();
+  initStore(config?.storeName);
   game.title = title;
   game.author = author;
   game.config = config;
@@ -30,8 +29,14 @@ function initGame(title, author, config) {
   game.help = getHelpGraph();
   game.hintGraph = getHintGraph();
   game.hintNode = "default";
+  game.initialiser = initialiser;
 
-  // Set the store name.
+  // Set up the game's rooms and items etc.
+  if (initialiser) {
+    initialiser();
+  }
+
+  // TEMP - Set the store name.
   getPersistor().name = config?.storeName;
 
   createKeywords();

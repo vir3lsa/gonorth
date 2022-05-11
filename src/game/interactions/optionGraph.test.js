@@ -1,7 +1,5 @@
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { initGame } from "../../gonorth";
-import { initStore } from "../../redux/store";
-import { newGame } from "../../redux/gameActions";
 import { OptionGraph } from "./optionGraph";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { selectRoom, selectTurn, selectInventory } from "../../utils/selectors";
@@ -14,8 +12,7 @@ const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let game, optionGraph, x;
-const doIt = new Verb("do it", true, () => x++);
+let game, optionGraph, x, doIt;
 
 const graphNodes = [
   {
@@ -142,15 +139,18 @@ const inventoryNodes = [
   }
 ];
 
-const room = new Room("room", "turret");
+let room, roomOptionNodes;
 
-const roomOptionNodes = [
-  {
-    id: "start",
-    actions: "test",
-    options: { one: { actions: () => x++, room } }
-  }
-];
+const setupRoomOptionNodes = () => {
+  room = new Room("room", "turret");
+  roomOptionNodes = [
+    {
+      id: "start",
+      actions: "test",
+      options: { one: { actions: () => x++, room } }
+    }
+  ];
+};
 
 const createGraph = (nodes) => {
   const graph = new OptionGraph("test", ...nodes);
@@ -159,13 +159,12 @@ const createGraph = (nodes) => {
 
 beforeEach(async () => {
   unregisterStore();
-  initStore();
 
   // Pretend we're in the browser
   game = initGame("Jolly Capers", "", { debugMode: false });
   optionGraph = new OptionGraph("jollyCapers", ...graphNodes);
+  doIt = new Verb("do it", true, () => x++);
   x = 0;
-  getStore().dispatch(newGame(game, true, false));
   await optionGraph.commence().chain();
 });
 
@@ -353,6 +352,7 @@ test("options can explicitly exit the graph", async () => {
 });
 
 test("options can specify a room to go to", async () => {
+  setupRoomOptionNodes();
   await createGraph(roomOptionNodes);
   await selectOptions()[0].action();
   expect(selectOptions()).toBeNull();

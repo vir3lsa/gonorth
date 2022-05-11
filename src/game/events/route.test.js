@@ -1,11 +1,10 @@
 import { Route } from "./route";
 import { TIMEOUT_TURNS } from "./event";
 import { Room } from "../items/room";
-import { initStore } from "../../redux/store";
 import { Npc } from "../items/npc";
 import { CyclicText } from "../interactions/text";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
-import { changeRoom, newGame } from "../../redux/gameActions";
+import { changeRoom } from "../../redux/gameActions";
 import { addSchedule, initGame } from "../../gonorth";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { selectCurrentPage } from "../../utils/testSelectors";
@@ -39,9 +38,7 @@ function createRoute(subject, condition, continueOnFail, text = "", ...direction
 
 beforeEach(() => {
   unregisterStore();
-  initStore();
   game = initGame("", "", { debugMode: false });
-  getStore().dispatch(newGame(game, true, false));
 
   nw = new Room("nw");
   sw = new Room("sw");

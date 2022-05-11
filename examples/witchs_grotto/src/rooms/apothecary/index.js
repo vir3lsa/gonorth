@@ -1,1 +1,1 @@
-export { apothecary, strengthTimer, ironGate } from "./apothecary";
+export { getApothecary, initApothecary, strengthTimer } from "./apothecary";
