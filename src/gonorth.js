@@ -13,12 +13,20 @@ import {
 } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import { clearPage, createPlayer, deleteSave, goToRoom, loadSave } from "./utils/lifecycle";
+import {
+  clearPage,
+  createPlayer,
+  deleteSave,
+  goToRoom,
+  loadSave,
+  resetStateToPrePlay,
+  resetToCheckpoint
+} from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
 import { selectRoom, selectTurn, selectPlayer, selectStartingRoom } from "./utils/selectors";
 import { OptionGraph } from "./game/interactions/optionGraph";
-import { PagedText } from "./game/interactions/text";
+import { PagedText, RandomText } from "./game/interactions/text";
 import { createKeywords } from "./game/verbs/keywords";
 
 const game = {};
@@ -191,6 +199,31 @@ function retrieve(propertyName) {
   return getStore().getState().customState[propertyName];
 }
 
+function gameOver() {
+  const resurrectionText = new RandomText(
+    "Groggily, you get to your feet.",
+    "Had it been a premonition or just a bad dream? You shiver and try to forget it.",
+    "Why are your eyes closed? You open them and find yourself back where you were before."
+  );
+
+  const gameOverGraph = new OptionGraph("gameOver", {
+    id: "root",
+    actions: new PagedText("# GAME OVER"),
+    options: {
+      "Reload checkpoint": {
+        actions: [() => clearPage(), resurrectionText, resetToCheckpoint, () => goToRoom(selectRoom())],
+        exit: true
+      },
+      "Return to main menu": {
+        actions: [resetStateToPrePlay, play],
+        exit: true
+      }
+    }
+  });
+
+  return gameOverGraph.commence().chain();
+}
+
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door, newDoor, Key } from "./game/items/door";
@@ -230,5 +263,6 @@ export {
   setHintNodeId,
   store,
   update,
-  retrieve
+  retrieve,
+  gameOver
 };

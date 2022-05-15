@@ -60,6 +60,10 @@ export function deleteSave() {
   }
 
   // Reset state whether we're skipping persistence or not.
+  resetStateToPrePlay();
+}
+
+export function resetStateToPrePlay() {
   getStore().dispatch(cleanState());
   createPlayer();
   selectGame().initialiser();
@@ -69,4 +73,9 @@ export function deleteSave() {
 export function createPlayer() {
   // Create the player after registering the store as Items need to inspect an existing store.
   getStore().dispatch(setPlayer(new Item("player", "You look as you normally do.", false)));
+}
+
+export function resetToCheckpoint() {
+  resetStateToPrePlay();
+  loadSave();
 }

@@ -19,6 +19,7 @@ export class Npc extends Item {
     if (this.container instanceof Room) {
       const adjacent = this.container.adjacentRooms[direction];
 
+      // TODO Attempt to open the door if there is one, then retry the test.
       if (adjacent && adjacent.test()) {
         this.container.removeItem(this);
         adjacent.room.addItem(this);

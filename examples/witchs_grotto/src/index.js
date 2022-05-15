@@ -15,9 +15,10 @@ import {
   selectPlayer,
   addKeyword,
   Verb,
-  selectRoom
+  selectRoom,
+  gameOver
 } from "../../../lib/gonorth";
-import { initCellar, getCellar } from "./rooms/cellar";
+import { initCellar } from "./rooms/cellar";
 import { getPantry } from "./rooms/pantry";
 import { getWitch } from "./rooms/garden";
 import { initHottingUp } from "./rooms/insideOven";
@@ -36,7 +37,8 @@ const setUpGrotto = () => {
     () => witchArrival.cancel(),
     `The witch is here.
     
-  Your blood runs cold as her icy blue eyes fix you to the spot. For a moment, neither of you move, then suddenly she *lunges* for you, a snarl twisting her face.`
+  Your blood runs cold as her icy blue eyes fix you to the spot. For a moment, neither of you move, then suddenly she *lunges* for you, a snarl twisting her face.`,
+    gameOver // TODO The first time you encounter the witch, she should stuff you in the oven. It's a game over the next time though.
   );
 
   setInventoryCapacity(10);

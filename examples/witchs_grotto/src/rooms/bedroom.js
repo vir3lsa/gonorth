@@ -75,7 +75,7 @@ export const initBedroom = () => {
 
   const mirror = new Item(
     "mirror",
-    "At first glance it appears entirely like an ordinary mirror - flat, reflective, projecting the room back at you. As you continue to gaze at it, it begins to resemble something from a fairground Hall of Mirrors, twisting and distorting the things it shows you. It goes even further than that, you realise, completely changing some of the objects reflected in its enchanted surface. You feel the need to inspect everything you can see, just to discover in what bizarre and unexpected ways the mirror has changed them."
+    "At first glance it appears entirely like an ordinary mirror - flat, reflective, projecting the room back at you. As you continue to gaze at it, it begins to resemble something from a fairground Hall of Mirrors, twisting and distorting the things it shows you. It goes even further than that, you realise, completely changing some of the objects reflected in its enchanted surface."
   );
 
   mirrorEffects.add(

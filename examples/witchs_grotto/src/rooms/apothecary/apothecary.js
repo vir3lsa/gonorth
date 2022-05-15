@@ -34,8 +34,9 @@ import { getPentagram } from "../../magic/pentagram";
 import { initDolittleProcedure } from "../../magic/dolittleDecoction";
 import { initBookShelf } from "./bookshelf";
 import roomImage from "./apothecary.png";
+import { initPhiltreOfFelineVision } from "../../magic/philtreOfFelineSight";
 
-let apothecary, ironGate;
+let apothecary;
 
 export const getApothecary = () => apothecary;
 
@@ -53,6 +54,9 @@ export const initApothecary = () => {
   const contents = getContents();
   const tap = getTap();
   const fire = getFire();
+
+  // TODO need the procedure for creating this potion.
+  initPhiltreOfFelineVision();
 
   const bureau = new Item(
     "bureau",

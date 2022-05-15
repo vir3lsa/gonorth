@@ -179,8 +179,8 @@ export class OptionGraph {
             optionActions.push(() => this.activateNode(node, false));
           } else if (value?.room) {
             optionActions.push(() => goToRoom(value.room));
-          } else {
-            optionActions.push(() => (optionId ? this.activateNode(optionNode, !skipNodeActions) : null));
+          } else if (optionId) {
+            optionActions.push(() => this.activateNode(optionNode, !skipNodeActions));
           }
 
           if (

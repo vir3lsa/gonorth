@@ -379,23 +379,17 @@ export class Potion extends Item {
 
     const drink = new Verb(
       "drink",
-      () => potionEffects.isSuccessful(this, DRINK),
-      [
-        () => this.container.removeItem(this),
-        () => potionEffects.apply(this, DRINK),
-      ],
-      () => potionEffects.apply(this, DRINK),
+      (helper, item) => potionEffects.isSuccessful(item, DRINK),
+      [(helper, item) => item.container.removeItem(item), (helper, item) => potionEffects.apply(item, DRINK)],
+      (helper, item) => potionEffects.apply(item, DRINK),
       ["swallow"]
     );
 
     const pour = new Verb(
       "pour",
-      (helper, item, other) => potionEffects.isSuccessful(this, other),
-      [
-        () => this.container.removeItem(this),
-        (helper, item, other) => potionEffects.apply(this, other),
-      ],
-      (helper, item, other) => potionEffects.apply(this, other),
+      (helper, item, other) => potionEffects.isSuccessful(item, other),
+      [(helper, item) => item.container.removeItem(item), (helper, item, other) => potionEffects.apply(item, other)],
+      (helper, item, other) => potionEffects.apply(item, other),
       ["tip", "apply"]
     );
     pour.makePrepositional("on what");
