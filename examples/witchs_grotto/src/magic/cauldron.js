@@ -133,7 +133,7 @@ export const initCauldron = () => {
 
   const stir = new Verb(
     "stir",
-    (helper, item, other) => other === ladle,
+    ({ other }) => other === ladle,
     stirGraph.commence(),
     "That won't be any good for stirring.",
     ["mix"],

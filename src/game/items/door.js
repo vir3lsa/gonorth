@@ -46,17 +46,17 @@ export class Door extends Item {
     this.addVerb(
       new Verb(
         "unlock",
-        (helper, door, key) => helper.object.locked && (this.key ? this.key.name === key?.name : true),
+        ({ item: door, other: key }) => door.locked && (door.key ? door.key.name === key?.name : true),
         [
           (helper) => (helper.object.locked = false),
-          () =>
+          ({ item: door }) =>
             unlockSuccessText ||
-            (this.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)
+            (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)
         ],
-        (helper, door, key) => {
-          if (this.key && key && this.key.name !== key.name) {
+        ({ item: door, other: key }) => {
+          if (door.key && key && door.key.name !== key.name) {
             return `The ${key.name} doesn't fit.`;
-          } else if (this.key && !key) {
+          } else if (door.key && !key) {
             return `The ${name} appears to need a key.`;
           } else {
             return `The ${name} is already unlocked.`;

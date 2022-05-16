@@ -106,8 +106,8 @@ export class ActionChain {
       actionFunction = () => action;
     }
 
-    return (...args) => {
-      let value = actionFunction(this.helpers, ...args);
+    return (item, other, ...args) => {
+      let value = actionFunction({ ...this.helpers, item, other }, ...args);
       let renderNextForThisAction = true;
 
       if (value instanceof Action) {
@@ -130,7 +130,7 @@ export class ActionChain {
         throw Error("Custom options are only supported at the end of action chains.");
       }
 
-      return this.handleValue(value, postScript, nextIfNoOptions, args, lastAction);
+      return this.handleValue(value, postScript, nextIfNoOptions, [item, other, ...args], lastAction);
     };
   }
 
@@ -159,7 +159,14 @@ export class ActionChain {
     } else if (value instanceof OptionGraph) {
       return this.handleOptionGraph(value, args, nextIfNoOptions);
     } else if (typeof value === "function") {
-      return this.handleValue(value(this.helpers, ...args), postScript, nextIfNoOptions, args, lastAction);
+      const [item, other, ...remainingArgs] = args;
+      return this.handleValue(
+        value({ ...this.helpers, item, other }, ...remainingArgs),
+        postScript,
+        nextIfNoOptions,
+        args,
+        lastAction
+      );
     }
 
     // This is an arbitrary action that shouldn't create a new interaction

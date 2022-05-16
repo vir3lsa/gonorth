@@ -33,7 +33,7 @@ export const initBedroom = () => {
   const examine = new Verb(
     "examine",
     true,
-    (helper, item, other) => {
+    ({ item, other }) => {
       if (other) {
         return mirrorEffects.apply(item, other);
       } else {

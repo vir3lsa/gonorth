@@ -274,95 +274,95 @@ test("no potion is produced if too much water is added earlier on", () => {
   expect(alchemy.potion).toBe(null);
 });
 
-// test("no potion is produced if the mixture is stirred too much", () => {
-//   addWater(4);
-//   addIngredients(cockroachSaliva, horehound);
-//   stir(4);
-//   addIngredients(wormwood);
-//   expect(alchemy.potion).toBe(null);
-// });
+test("no potion is produced if the mixture is stirred too much", () => {
+  addWater(4);
+  addIngredients(cockroachSaliva, horehound);
+  stir(4);
+  addIngredients(wormwood);
+  expect(alchemy.potion).toBe(null);
+});
 
-// test("no potion is produced if the mixture is not stirred enough", () => {
-//   addWater(4);
-//   addIngredients(cockroachSaliva, horehound);
-//   stir(2);
-//   addIngredients(wormwood);
-//   expect(alchemy.potion).toBe(null);
-// });
+test("no potion is produced if the mixture is not stirred enough", () => {
+  addWater(4);
+  addIngredients(cockroachSaliva, horehound);
+  stir(2);
+  addIngredients(wormwood);
+  expect(alchemy.potion).toBe(null);
+});
 
-// test("no potion is produced if the mixture is not stirred at the right time", () => {
-//   addWater(4);
-//   addIngredients(cockroachSaliva, horehound);
-//   stir(2);
-//   addIngredients(wormwood);
-//   stir(1);
-//   expect(alchemy.potion).toBe(null);
-// });
+test("no potion is produced if the mixture is not stirred at the right time", () => {
+  addWater(4);
+  addIngredients(cockroachSaliva, horehound);
+  stir(2);
+  addIngredients(wormwood);
+  stir(1);
+  expect(alchemy.potion).toBe(null);
+});
 
-// test("correct text is returned when potion steps are reached", () => {
-//   addWater(4);
-//   addIngredients(cockroachSaliva, horehound);
-//   const text = alchemy.stir();
-//   expect(text instanceof CyclicText).toBe(true);
-//   expect(text.next()).toBe("The mixture turns brown.");
-// });
+test("correct text is returned when potion steps are reached", () => {
+  addWater(4);
+  addIngredients(cockroachSaliva, horehound);
+  const text = alchemy.stir();
+  expect(text instanceof CyclicText).toBe(true);
+  expect(text.next()).toBe("The mixture turns brown.");
+});
 
-// test("is lenient with heat", () => {
-//   followMendingProcedure();
-//   addHeat(3);
-//   expect(alchemy.potion.name).toBe(mendingPotion.name);
-// });
+test("is lenient with heat", () => {
+  followMendingProcedure();
+  addHeat(3);
+  expect(alchemy.potion.name).toBe(mendingPotion.name);
+});
 
-// test("isn't lenient forever", () => {
-//   followMendingProcedure();
-//   addHeat(4);
-//   expect(alchemy.potion).toBe(null);
-// });
+test("isn't lenient forever", () => {
+  followMendingProcedure();
+  addHeat(4);
+  expect(alchemy.potion).toBe(null);
+});
 
-// test("follows steps after leniency", () => {
-//   addWater(1);
-//   addIngredients(horehound);
-//   stir(2);
-//   addIngredients(wormwood);
-//   expect(alchemy.potion.name).toBe(anotherPotion.name);
-// });
+test("follows steps after leniency", () => {
+  addWater(1);
+  addIngredients(horehound);
+  stir(2);
+  addIngredients(wormwood);
+  expect(alchemy.potion.name).toBe(anotherPotion.name);
+});
 
-// test("matches step when required spirit is present", () => {
-//   pentagram.addItem(moonstone);
-//   addFat(1);
-//   expect(alchemy.candidates.length).toBe(1);
-//   expect(alchemy.candidates[0].procedure.steps.length).toBe(3);
-// });
+test("matches step when required spirit is present", () => {
+  pentagram.addItem(moonstone);
+  addFat(1);
+  expect(alchemy.candidates.length).toBe(1);
+  expect(alchemy.candidates[0].procedure.steps.length).toBe(3);
+});
 
-// test("does not match step when required spirit is not present", () => {
-//   addFat(1);
-//   expect(alchemy.candidates.length).toBe(0);
-// });
+test("does not match step when required spirit is not present", () => {
+  addFat(1);
+  expect(alchemy.candidates.length).toBe(0);
+});
 
-// test("matches step with multiple spirit requirements", () => {
-//   pentagram.addItems(moonstone, firestone);
-//   addFat(1);
-//   expect(alchemy.candidates.length).toBe(1);
-//   expect(alchemy.candidates[0].procedure.steps.length).toBe(3);
-// });
+test("matches step with multiple spirit requirements", () => {
+  pentagram.addItems(moonstone, firestone);
+  addFat(1);
+  expect(alchemy.candidates.length).toBe(1);
+  expect(alchemy.candidates[0].procedure.steps.length).toBe(3);
+});
 
-// test("does not match if too many spirit items are present", () => {
-//   pentagram.addItems(moonstone, bloodstone);
-//   addFat(1);
-//   expect(alchemy.candidates.length).toBe(0);
-// });
+test("does not match if too many spirit items are present", () => {
+  pentagram.addItems(moonstone, bloodstone);
+  addFat(1);
+  expect(alchemy.candidates.length).toBe(0);
+});
 
-// test("matches correct magic word", () => {
-//   alchemy.sayWords(abracadabra);
-//   expect(alchemy.candidates.length).toBe(1);
-// });
+test("matches correct magic word", () => {
+  alchemy.sayWords(abracadabra);
+  expect(alchemy.candidates.length).toBe(1);
+});
 
-// test("gives magic word response", () => {
-//   const response = alchemy.sayWords(abracadabra);
-//   expect(response).toBe("Kaboom");
-// });
+test("gives magic word response", () => {
+  const response = alchemy.sayWords(abracadabra);
+  expect(response).toBe("Kaboom");
+});
 
-// test("doesn't match wrong magic word", () => {
-//   alchemy.sayWords(new MagicWord("alakazam"));
-//   expect(alchemy.candidates.length).toBe(0);
-// });
+test("doesn't match wrong magic word", () => {
+  alchemy.sayWords(new MagicWord("alakazam"));
+  expect(alchemy.candidates.length).toBe(0);
+});

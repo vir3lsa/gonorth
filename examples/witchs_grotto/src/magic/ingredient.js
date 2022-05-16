@@ -7,9 +7,9 @@ export class Ingredient extends Item {
     super(name, description, true, 1);
     this.article = "";
     this.verbs.put.onSuccess = [
-      (helper, item, other) => {
+      ({ item, other }) => {
         if (other === getCauldron()) {
-          const name = `some ${this.name}`;
+          const name = `some ${item.name}`;
           if (!other.items[name.toLowerCase()]) {
             const someIngredient = new Ingredient(name);
             someIngredient.doNotList = true;
@@ -17,17 +17,17 @@ export class Ingredient extends Item {
             return other.addItem(someIngredient); // Add copy to cauldron
           }
         } else {
-          this.container.removeItem(this);
-          return other.addItem(this);
+          item.container.removeItem(item);
+          return other.addItem(item);
         }
       },
-      (helper, item, other) => {
-        const text = `You put ${this.article.length ? this.article : "some"} ${this.name} ${other.preposition} the ${
+      ({ item, other }) => {
+        const text = `You put ${item.article.length ? item.article : "some"} ${item.name} ${other.preposition} the ${
           other.name
         }.`;
 
         if (other === getCauldron()) {
-          const alchemyText = getAlchemy().addIngredient(this);
+          const alchemyText = getAlchemy().addIngredient(item);
           return [text, alchemyText]; // Array components will be concatenated
         }
 
@@ -38,21 +38,22 @@ export class Ingredient extends Item {
 
     const grind = new Verb(
       "grind",
-      (_, other) => !this.powdered && other === getPestleAndMortar(),
+      ({ item, other }) => !item.powdered && other === getPestleAndMortar(),
       [
-        () => {
-          const name = `${this.name} powder`;
+        ({ item }) => {
+          const name = `${item.name} powder`;
           if (!selectPlayer().items[name.toLowerCase()]) {
-            const powder = new Ingredient(name, `A sample of ${this.name} that has been ground to a fine dust.`);
+            const powder = new Ingredient(name, `A sample of ${item.name} that has been ground to a fine dust.`);
             powder.powdered = true;
             return selectPlayer().addItem(powder);
           }
         },
-        `You carefully crush some of the ${this.name} with the rough stone implements, grinding it down until it forms a fine powder.`
+        ({ item }) =>
+          `You carefully crush some of the ${item.name} with the rough stone implements, grinding it down until it forms a fine powder.`
       ],
-      (_, other) => {
-        if (this.powdered) {
-          return `The ${this.name} is already powdered. There's no point in grinding it further.`;
+      ({ item, other }) => {
+        if (item.powdered) {
+          return `The ${item.name} is already powdered. There's no point in grinding it further.`;
         }
         return `The ${other.name} won't make a very good grinder, unfortunately.`;
       }

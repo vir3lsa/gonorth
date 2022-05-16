@@ -347,9 +347,9 @@ describe("serialization", () => {
 
     test("hidden items have a container change recorded when they're revealed", async () => {
       chest.hidesItems = ball;
-      chest.verbs.open.attempt();
+      chest.verbs.open.attempt(chest);
       await selectActionChainPromise();
-      chest.verbs.examine.attempt();
+      chest.verbs.examine.attempt(chest);
       await selectActionChainPromise();
       expectRecordedProperties(ball, "container");
     });

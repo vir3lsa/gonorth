@@ -153,14 +153,17 @@ export class Verb {
     this.interrogative = interrogative;
   }
 
-  attempt(...args) {
+  attempt(item, other, ...args) {
     // All tests must be successful for verb to proceed.
-    const success = this._tests.reduce((successAcc, test) => successAcc && test(this.helpers, ...args), true);
+    const success = this._tests.reduce(
+      (successAcc, test) => successAcc && test({ ...this.helpers, item, other }, ...args),
+      true
+    );
 
     if (success) {
-      return this.onSuccess.chain(...args);
+      return this.onSuccess.chain(item, other, ...args);
     } else {
-      return this.onFailure.chain(...args);
+      return this.onFailure.chain(item, other, ...args);
     }
   }
 

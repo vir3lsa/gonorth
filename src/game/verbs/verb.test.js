@@ -30,8 +30,8 @@ initGame("test", "", { debugMode: false });
 beforeEach(() => {
   verb = new Verb(
     "twirl",
-    (helper, x) => x > 2,
-    [(helper, x) => (y = x + 1), "You twirl beautifully"],
+    (helpers, x) => x > 2,
+    [(helpers, x) => (y = x + 1), "You twirl beautifully"],
     "You fall over",
     ["spin", "rotate"]
   );
@@ -39,23 +39,25 @@ beforeEach(() => {
   getStore().dispatch(changeInteraction(new Interaction("")));
 });
 
+const attempt = (arg) => verb.attempt(null, null, arg);
+
 it("prints the failure text if the test fails", () => {
-  verb.attempt(1);
+  attempt(1);
   expect(selectCurrentPage()).toBe("You fall over");
 });
 
 it("prints the success text if the test succeeds", async () => {
-  await verb.attempt(3);
+  await attempt(3);
   expect(selectCurrentPage()).toBe("You twirl beautifully");
 });
 
 it("does not perform the action if the test fails", () => {
-  verb.attempt(1);
+  attempt(1);
   expect(y).toBe(0);
 });
 
 it("performs the action if the test passes", () => {
-  verb.attempt(3);
+  attempt(3);
   expect(y).toBe(4);
 });
 
@@ -77,19 +79,19 @@ it("adds new aliases to the global registry", () => {
 describe("chainable actions", () => {
   it("supports cyclic text", async () => {
     verb.onSuccess = new CyclicText("a", "b", "c");
-    await verb.attempt(3);
+    await attempt(3);
     expect(selectCurrentPage()).toBe("a");
-    await verb.attempt(3);
+    await attempt(3);
     expect(selectCurrentPage()).toBe("a\n\nb");
-    await verb.attempt(3);
+    await attempt(3);
     expect(selectCurrentPage()).toBe("a\n\nb\n\nc");
-    await verb.attempt(3);
+    await attempt(3);
     expect(selectCurrentPage()).toBe("a\n\nb\n\nc\n\na");
   });
 
   it("supports sequential text", async () => {
     verb.onSuccess = new SequentialText("a", "b", "c");
-    const promise = verb.attempt(3);
+    const promise = attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
     expect(selectCurrentPage()).toInclude("b");
@@ -100,7 +102,7 @@ describe("chainable actions", () => {
 
   it("supports paged text", async () => {
     verb.onSuccess = new PagedText("a", "b", "c");
-    const promise = verb.attempt(3);
+    const promise = attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
     expect(selectCurrentPage()).toBe("b");
@@ -112,7 +114,7 @@ describe("chainable actions", () => {
   it("supports sequential text earlier in the chain", async () => {
     let pass = false;
     verb.onSuccess = [new PagedText("a", "b"), () => (pass = true)];
-    const promise = verb.attempt(3);
+    const promise = attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
     expect(selectCurrentPage()).toBe("b");
@@ -123,7 +125,7 @@ describe("chainable actions", () => {
 
   it("supports sequential text followed by normal text", async () => {
     verb.onSuccess = [new PagedText("a", "b"), "c"];
-    const promise = verb.attempt(3);
+    const promise = attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
     expect(selectCurrentPage()).toBe("b");
@@ -135,7 +137,7 @@ describe("chainable actions", () => {
   it("supports appending sequential text earlier in the chain", async () => {
     let pass = false;
     verb.onSuccess = [new SequentialText("a", "b"), () => (pass = true)];
-    const promise = verb.attempt(3);
+    const promise = attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
     expect(selectCurrentPage().includes("b")).toBe(true);
@@ -146,7 +148,7 @@ describe("chainable actions", () => {
 
   it("supports appending sequential text followed by normal text", async () => {
     verb.onSuccess = [new SequentialText("a", "b"), "c"];
-    const promise = verb.attempt(3);
+    const promise = attempt(3);
     expect(selectCurrentPage()).toBe("a");
     await clickNextAndWait();
     expect(selectCurrentPage().includes("b")).toBe(true);
@@ -157,7 +159,7 @@ describe("chainable actions", () => {
 
   it("supports nested arrays as chained actions - nested arrays are sub-action-chains", async () => {
     verb.onSuccess = [["a", "b"], "c"];
-    verb.attempt(3);
+    attempt(3);
     expect(selectCurrentPage()).toBe("a");
     expect(selectCurrentPage()).not.toInclude("b");
     await clickNextAndWait();
@@ -172,23 +174,23 @@ describe("chainable actions", () => {
 
   it("cycles through messages", () => {
     verb.onSuccess = new CyclicText("a", "b", "c");
-    verb.attempt(3);
+    attempt(3);
     expect(selectCurrentPage()).toBe("a");
-    verb.attempt(3);
+    attempt(3);
     expect(selectCurrentPage()).toBe("a\n\nb");
-    verb.attempt(3);
+    attempt(3);
     expect(selectCurrentPage()).toBe("a\n\nb\n\nc");
-    verb.attempt(3);
+    attempt(3);
     expect(selectCurrentPage()).toBe("a\n\nb\n\nc\n\na");
   });
 
   it("selects random messages", () => {
     verb.onSuccess = new RandomText("x", "y", "z");
-    verb.attempt(3);
+    attempt(3);
     const page1 = selectCurrentPage();
-    verb.attempt(3);
+    attempt(3);
     const page2 = selectCurrentPage();
-    verb.attempt(3);
+    attempt(3);
     const page3 = selectCurrentPage();
     expect(page2).not.toEqual(page1);
     expect(page3).not.toEqual(page2);
@@ -197,13 +199,13 @@ describe("chainable actions", () => {
   it("Renders a Next button when the previous and next interactions do not", async () => {
     verb.onSuccess = ["blah", new Interaction("bob")];
     getStore().dispatch(changeInteraction(new Interaction("Previous interaction")));
-    verb.attempt(3);
+    attempt(3);
     expect(selectInteraction().options[0].label).toBe("Next");
   });
 
   it("Clears the page for paged text", async () => {
     verb.onSuccess = ["blah", new PagedText("jam")];
-    const promise = verb.attempt(3);
+    const promise = attempt(3);
     expect(selectCurrentPage()).toBe("blah");
     clickNext();
     await promise;
@@ -212,7 +214,7 @@ describe("chainable actions", () => {
 
   it("Does not render Next buttons forever", async () => {
     verb.onSuccess = new SequentialText("one", "two");
-    verb.attempt(3);
+    attempt(3);
     await clickNextAndWait();
     expect(selectInteraction().options).toBeNull();
   });
@@ -220,7 +222,7 @@ describe("chainable actions", () => {
   it("Throws error if custom options in middle of chain", async () => {
     verb.onSuccess = [new Interaction("risky", new Option("Custom")), "Text"];
     try {
-      await verb.attempt(3);
+      await attempt(3);
       throw Error("Expected Error not thrown");
     } catch (error) {
       expect(error.message).toEqual(expect.stringContaining("Custom options"));
@@ -240,13 +242,13 @@ describe("chainable actions", () => {
 
   it("succeeds with multiple tests", async () => {
     const verb = new Verb("jump", ["yes".length > 1, true !== false, (_, x) => x > 0], "you jump", "you fall");
-    await verb.attempt(1);
+    await verb.attempt(null, null, 1);
     expect(selectCurrentPage()).toBe("you jump");
   });
 
   it("fails if just one test fails", async () => {
     const verb = new Verb("jump", ["yes".length > 1, true !== false, (_, x) => x > 0], "you jump", "you fall");
-    await verb.attempt(0);
+    await verb.attempt(null, null, 0);
     expect(selectCurrentPage()).toBe("you fall");
   });
 });

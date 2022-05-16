@@ -84,7 +84,7 @@ export class Item {
     aliases.forEach((alias) => this.createAliases(alias));
 
     this.addVerb(
-      new Verb("examine", true, [() => this.revealItems(), () => this.getFullDescription()], null, [
+      new Verb("examine", true, [({ item }) => item.revealItems(), ({ item }) => item.getFullDescription()], null, [
         "ex",
         "x",
         "look",
@@ -96,34 +96,34 @@ export class Item {
       this.addVerb(
         new Verb(
           "take",
-          () => {
+          ({ item }) => {
             const inventory = selectInventory();
             return (
-              this.container.itemsVisibleFromSelf &&
-              this.container !== inventory &&
-              (inventory.capacity === -1 || this.size <= inventory.free)
+              item.container.itemsVisibleFromSelf &&
+              item.container !== inventory &&
+              (inventory.capacity === -1 || item.size <= inventory.free)
             );
           },
           [
-            () => moveItem(this, selectInventory()),
-            () => {
-              const article = this.properNoun ? "" : "the ";
+            ({ item }) => moveItem(item, selectInventory()),
+            ({ item }) => {
+              const article = item.properNoun ? "" : "the ";
               return new RandomText(
-                `You take ${article}${this.name}.`,
-                `You pick up ${article}${this.name}.`,
-                `You grab ${article}${this.name}.`
+                `You take ${article}${item.name}.`,
+                `You pick up ${article}${item.name}.`,
+                `You grab ${article}${item.name}.`
               );
             }
           ],
-          () => {
-            const article = this.properNoun ? "" : "the ";
+          ({ item }) => {
+            const article = item.properNoun ? "" : "the ";
             const inventory = selectInventory();
-            if (!this.container.itemsVisibleFromSelf) {
+            if (!item.container.itemsVisibleFromSelf) {
               return "You can't see that.";
-            } else if (this.container !== inventory && inventory.capacity > -1 && this.size > inventory.free) {
-              return `You don't have enough room for ${article}${this.name}.`;
-            } else if (this.container === inventory) {
-              return `You're already carrying ${article}${this.name}!`;
+            } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.free) {
+              return `You don't have enough room for ${article}${item.name}.`;
+            } else if (item.container === inventory) {
+              return `You're already carrying ${article}${item.name}!`;
             }
           },
           ["pick up", "steal", "grab", "hold"]
@@ -132,26 +132,22 @@ export class Item {
 
       const putVerb = new Verb(
         "put",
-        (helper, item, other) => other !== this && other.canHoldItems && (other.free === -1 || this.size <= other.free),
+        ({ item, other }) => other !== item && other.canHoldItems && (other.free === -1 || item.size <= other.free),
         [
-          (helper, item, other) => {
-            this.containerListing = null;
-            this.container.removeItem(this);
-            return other.addItem(this);
-          },
-          (helper, item, other) => {
-            const article = this.properNoun ? "" : "the ";
-            return `You put ${article}${this.name} ${other.preposition} the ${other.name}.`;
+          ({ item, other }) => moveItem(item, other),
+          ({ item, other }) => {
+            const article = item.properNoun ? "" : "the ";
+            return `You put ${article}${item.name} ${other.preposition} the ${other.name}.`;
           }
         ],
-        (helper, item, other) => {
-          const article = this.properNoun ? "" : "the ";
+        ({ item, other }) => {
+          const article = item.properNoun ? "" : "the ";
           if (other === this) {
-            return `You can't put ${article}${this.name} ${other.preposition} itself. That would be nonsensical.`;
+            return `You can't put ${article}${item.name} ${other.preposition} itself. That would be nonsensical.`;
           } else if (other.canHoldItems) {
             return `There's no room ${other.preposition} the ${other.name}.`;
           } else {
-            return `You can't put ${article}${this.name} ${other.preposition} the ${other.name}.`;
+            return `You can't put ${article}${item.name} ${other.preposition} the ${other.name}.`;
           }
         },
         ["place", "drop"]
@@ -164,19 +160,15 @@ export class Item {
       const giveVerb = new Verb(
         "give",
         () => false,
-        (helper, item, other) => {
-          this.containerListing = null;
-          this.container.removeItem(this);
-          return other.addItem(this);
-        },
-        (helper, item, other) => {
-          const article = this.properNoun ? "" : "the ";
-          if (other === this) {
-            return `You can't give ${article}${this.name} to itself. Obviously.`;
+        ({ item, other }) => moveItem(item, other),
+        ({ item, other }) => {
+          const article = item.properNoun ? "" : "the ";
+          if (other === item) {
+            return `You can't give ${article}${item.name} to itself. Obviously.`;
           } else if (other._isNpc) {
-            return `It doesn't look like ${other.name} wants ${article}${this.name}.`;
+            return `It doesn't look like ${other.name} wants ${article}${item.name}.`;
           } else {
-            return `You know you can't give ${article}${this.name} to the ${other.name}. So just stop it.`;
+            return `You know you can't give ${article}${item.name} to the ${other.name}. So just stop it.`;
           }
         },
         ["offer", "pass", "show"]

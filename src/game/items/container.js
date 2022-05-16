@@ -71,19 +71,23 @@ export class Container extends Item {
 
     this.openVerb = new Verb(
       "open",
-      () => !this.open && !this.locked,
-      [() => (this.open = true), () => (this.itemsVisibleFromSelf = true), () => this.openText],
-      () => {
-        if (this.locked) return this.lockedText;
-        return this.alreadyOpenText;
+      ({ item }) => !item.open && !item.locked,
+      [({ item }) => (item.open = true), ({ item }) => (item.itemsVisibleFromSelf = true), ({ item }) => item.openText],
+      ({ item }) => {
+        if (item.locked) return item.lockedText;
+        return item.alreadyOpenText;
       }
     );
 
     this.closeVerb = new Verb(
       "close",
-      () => this.open,
-      [() => (this.open = false), () => (this.itemsVisibleFromSelf = false), () => this.closeText],
-      () => this.alreadyClosedText,
+      ({ item }) => item.open,
+      [
+        ({ item }) => (item.open = false),
+        ({ item }) => (item.itemsVisibleFromSelf = false),
+        ({ item }) => item.closeText
+      ],
+      ({ item }) => item.alreadyClosedText,
       ["shut"]
     );
 
