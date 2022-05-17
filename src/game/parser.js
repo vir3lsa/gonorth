@@ -32,7 +32,7 @@ export class Parser {
     if (tokens[0] === "debug") {
       // Need case-sensitive args for the debug command.
       const args = this.input.trim().split(/\s+/).slice(1);
-      return selectKeywords().debug.attempt(null, null, ...args);
+      return selectKeywords().debug.attempt(args[0], args.slice(1));
     }
 
     const room = selectRoom();

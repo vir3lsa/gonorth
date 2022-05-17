@@ -24,7 +24,8 @@ export class Verb {
     aliases = [],
     isKeyword = false,
     description = "",
-    object = null
+    object = null,
+    expectedArgs = ["item"]
   ) {
     this.name = name;
     this.isKeyword = isKeyword;
@@ -37,6 +38,7 @@ export class Verb {
     this.interrogative = null;
     this.description = description;
     this.expectsArgs = false; // Used by some keywords.
+    this.expectedArgs = expectedArgs;
 
     this.helpers = {
       object: this.object
@@ -151,19 +153,23 @@ export class Verb {
     this.prepositional = true;
     this.prepositionOptional = prepositionOptional;
     this.interrogative = interrogative;
+    this.expectedArgs.push("other");
   }
 
-  attempt(item, other, ...args) {
+  attempt(...args) {
+    // Turn the anonymous args into key/value pairs based on the expected args. Any additional unexpected args won't be included.
+    const context = this.expectedArgs.reduce((acc, key, index) => {
+      acc[key] = args[index];
+      return acc;
+    }, {});
+
     // All tests must be successful for verb to proceed.
-    const success = this._tests.reduce(
-      (successAcc, test) => successAcc && test({ ...this.helpers, item, other }, ...args),
-      true
-    );
+    const success = this._tests.reduce((successAcc, test) => successAcc && test({ ...this.helpers, ...context }), true);
 
     if (success) {
-      return this.onSuccess.chain(item, other, ...args);
+      return this.onSuccess.chain(context);
     } else {
-      return this.onFailure.chain(item, other, ...args);
+      return this.onFailure.chain(context);
     }
   }
 

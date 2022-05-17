@@ -28,18 +28,16 @@ const storeHasVerb = (verbName) => selectVerbNames()[verbName];
 initGame("test", "", { debugMode: false });
 
 beforeEach(() => {
-  verb = new Verb(
-    "twirl",
-    (helpers, x) => x > 2,
-    [(helpers, x) => (y = x + 1), "You twirl beautifully"],
-    "You fall over",
-    ["spin", "rotate"]
-  );
+  verb = new Verb("twirl", ({ x }) => x > 2, [({ x }) => (y = x + 1), "You twirl beautifully"], "You fall over", [
+    "spin",
+    "rotate"
+  ]);
+  verb.expectedArgs = ["x"];
   y = 0;
   getStore().dispatch(changeInteraction(new Interaction("")));
 });
 
-const attempt = (arg) => verb.attempt(null, null, arg);
+const attempt = (x) => verb.attempt(x);
 
 it("prints the failure text if the test fails", () => {
   attempt(1);
@@ -241,8 +239,14 @@ describe("chainable actions", () => {
   });
 
   it("succeeds with multiple tests", async () => {
-    const verb = new Verb("jump", ["yes".length > 1, true !== false, (_, x) => x > 0], "you jump", "you fall");
-    await verb.attempt(null, null, 1);
+    const verb = new Verb(
+      "jump",
+      [() => "yes".length > 1, () => true !== false, ({ x }) => x > 0],
+      "you jump",
+      "you fall"
+    );
+    verb.expectedArgs = ["x"];
+    await verb.attempt(1);
     expect(selectCurrentPage()).toBe("you jump");
   });
 

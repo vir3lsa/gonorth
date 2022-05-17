@@ -106,8 +106,8 @@ export class ActionChain {
       actionFunction = () => action;
     }
 
-    return (item, other, ...args) => {
-      let value = actionFunction({ ...this.helpers, item, other }, ...args);
+    return (context) => {
+      let value = actionFunction({ ...this.helpers, ...context });
       let renderNextForThisAction = true;
 
       if (value instanceof Action) {
@@ -130,11 +130,11 @@ export class ActionChain {
         throw Error("Custom options are only supported at the end of action chains.");
       }
 
-      return this.handleValue(value, postScript, nextIfNoOptions, [item, other, ...args], lastAction);
+      return this.handleValue(value, postScript, nextIfNoOptions, context, lastAction);
     };
   }
 
-  handleValue(value, postScript, nextIfNoOptions, args, lastAction) {
+  handleValue(value, postScript, nextIfNoOptions, context, lastAction) {
     if (
       lastAction &&
       ((typeof value === "string" && value) ||
@@ -145,11 +145,11 @@ export class ActionChain {
     }
 
     if (value instanceof ActionChain) {
-      return this.handleActionChain(value, args, nextIfNoOptions);
+      return this.handleActionChain(value, context, nextIfNoOptions);
     } else if (typeof value === "string" && value) {
       return this.dispatchAppend(`${value}${postScript}`, this.options, nextIfNoOptions, false);
     } else if (Array.isArray(value)) {
-      return this.handleActionChain(new ActionChain(...value), args, nextIfNoOptions);
+      return this.handleActionChain(new ActionChain(...value), context, nextIfNoOptions);
     } else if (value instanceof SequentialText) {
       return this.expandSequentialText(value, this.options, nextIfNoOptions, postScript);
     } else if (value instanceof Text) {
@@ -157,34 +157,27 @@ export class ActionChain {
     } else if (value instanceof Interaction) {
       return getStore().dispatch(changeInteraction(value));
     } else if (value instanceof OptionGraph) {
-      return this.handleOptionGraph(value, args, nextIfNoOptions);
+      return this.handleOptionGraph(value, context, nextIfNoOptions);
     } else if (typeof value === "function") {
-      const [item, other, ...remainingArgs] = args;
-      return this.handleValue(
-        value({ ...this.helpers, item, other }, ...remainingArgs),
-        postScript,
-        nextIfNoOptions,
-        args,
-        lastAction
-      );
+      return this.handleValue(value({ ...this.helpers, ...context }), postScript, nextIfNoOptions, context, lastAction);
     }
 
     // This is an arbitrary action that shouldn't create a new interaction
     return value;
   }
 
-  async handleActionChain(actionChain, args, nextIfNoOptions, paged) {
-    await actionChain.chain(...args);
+  async handleActionChain(actionChain, context, nextIfNoOptions, paged) {
+    await actionChain.chain(context);
     if (nextIfNoOptions && actionChain.lastActionProducedText) {
       // If we're expecting to add options (e.g. Next) and there aren't current options (also e.g. Next), add them.
       return this.dispatchAppend(this.postScript || "", this.options, nextIfNoOptions, paged);
     }
   }
 
-  handleOptionGraph(optionGraph, args, nextIfNoOptions) {
+  handleOptionGraph(optionGraph, context, nextIfNoOptions) {
     return optionGraph
       .commence()
-      .chain(...args)
+      .chain(context)
       .then(() => optionGraph.promise)
       .then(() => {
         if (nextIfNoOptions) {
@@ -217,7 +210,7 @@ export class ActionChain {
     }
   }
 
-  async chain(...args) {
+  async chain(context) {
     let chainResolve, result;
     const chainPromise = new Promise((resolve) => (chainResolve = resolve));
     getStore().dispatch(chainStarted(chainPromise));
@@ -225,7 +218,7 @@ export class ActionChain {
     for (let i in this._actions) {
       const action = this._actions[i];
 
-      result = await action(...args);
+      result = await action(context);
 
       if (this.failed) {
         // Failing an action breaks the chain

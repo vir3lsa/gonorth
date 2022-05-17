@@ -84,8 +84,15 @@ test("Options are propagated if requested", async () => {
 });
 
 test("Nested functions will be called until a value is returned", async () => {
-  const chain = new ActionChain(() => () => () => () => (_, value) => `The value is ${value}`);
-  await chain.chain(null, null, 42);
+  const chain = new ActionChain(
+    () =>
+      () =>
+      () =>
+      () =>
+      ({ value }) =>
+        `The value is ${value}`
+  );
+  await chain.chain({ value: 42 });
   expect(selectCurrentPage()).toInclude("The value is 42");
 });
 

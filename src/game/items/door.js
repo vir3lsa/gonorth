@@ -68,6 +68,8 @@ export class Door extends Item {
         this
       )
     );
+
+    this.verbs.unlock.makePrepositional("with what", true);
   }
 
   get open() {

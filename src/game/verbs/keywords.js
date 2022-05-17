@@ -111,10 +111,11 @@ export function createKeywords() {
 
   const debug = newVerb({
     name: "debug",
-    onSuccess: (helpers, operation, ...args) => handleDebugOperations(operation, ...args),
+    onSuccess: ({ operation, args }) => handleDebugOperations(operation, ...args),
     isKeyword: true,
     doNotList: true,
-    expectsArgs: true
+    expectsArgs: true,
+    expectedArgs: ["operation", "args"]
   });
 
   addKeyword(inventoryVerb);
