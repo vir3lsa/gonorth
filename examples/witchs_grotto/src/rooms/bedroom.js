@@ -10,7 +10,10 @@ import {
   TIMEOUT_TURNS,
   inSameRoomAs,
   RandomText,
-  newContainer
+  newContainer,
+  store,
+  retrieve,
+  update
 } from "../../../../lib/gonorth";
 import { mirrorEffects } from "../magic/magicEffects";
 import { MagicWord } from "../magic/magicWord";
@@ -116,11 +119,12 @@ export const initBedroom = () => {
     name: "keepsake box",
     aliases: ["jewellery"],
     closedDescription: () => {
-      if (keepsakeBox.solidity === 1) {
+      const solidity = retrieve("keepsakeBoxSolidity");
+      if (solidity === 1) {
         return "The box is visible more as an impression or a shadow. If you look directly at it you can barely see it at all, but squint or turn your head to look at it from the corner of your eye and you can definitely make out that *something* is there. It's like the reflection of a reflection glimpsed in a window's glass.";
-      } else if (keepsakeBox.solidity === 2) {
+      } else if (solidity === 2) {
         return "It's much easier to see now, though it's still translucent. Looking at it reminds you of that effect when you close one eye and try to touch the tips of the index fingers of each hand, struggling against the lack of depth perception. It lacks a certain solidity, or corporeality, like it's an illusion or a trick played with mirrors. Which, upon reflection, you suppose it is. A reflection made material.";
-      } else if (keepsakeBox.solidity >= 3) {
+      } else if (solidity >= 3) {
         return "It's completely solid now, giving no hint that it apparently materialised from thin air. It's a walnut keepsake box with a delicately engraved scene of a forest at night, complete with crescent moon, owl and cat. The corners are rounded and the two parts are connected with a pair of brass hinges. It's currently closed.";
       }
     },
@@ -135,7 +139,7 @@ export const initBedroom = () => {
     openText:
       "You open the lid of the box with no resistance at all. It smoothly folds back on its hinges and comes to a stop at a little before 180 degrees from its starting point.",
     lockedText: () => {
-      if (keepsakeBox.solidity >= 3) {
+      if (retrieve("keepsakeBoxSolidity") >= 3) {
         return "The lid won't budge, though you can't see what's holding it closed. Magic, you wonder?";
       } else {
         return "When you reach out to touch the box, your fingers seem to pass straight through it, as though it's nothing but a mirage.";
@@ -144,7 +148,7 @@ export const initBedroom = () => {
   });
 
   keepsakeBox.addVerb(examine);
-  keepsakeBox.addTest("take", () => keepsakeBox.solidity >= 3);
+  keepsakeBox.addTest("take", () => retrieve("keepsakeBoxSolidity") >= 3);
   keepsakeBox.addAction(
     "take",
     "You half expect it to disappear or slip through your fingers as you reach for it, but it does neither. It feels sturdy and real, like a perfectly normal box."
@@ -164,15 +168,16 @@ export const initBedroom = () => {
     true,
     true
   );
+  store("keepsakeBoxSolidity", 0);
 
   mirrorEffects.add(bedsideTable, mirror, true, [
     () => {
-      if (!keepsakeBox.solidity) {
+      if (!retrieve("keepsakeBoxSolidity")) {
         bedsideTable.addItem(keepsakeBox);
         mirrorEffects.add(keepsakeBox, mirror, true, () => {
-          keepsakeBox.solidity++;
+          update("keepsakeBoxSolidity", retrieve("keepsakeBoxSolidity") + 1);
 
-          if (keepsakeBox.solidity === 2) {
+          if (retrieve("keepsakeBoxSolidity") === 2) {
             return "Focussing on the box in the mirror, it solidifies in your mind, becoming more real. You can make out the fine details of the scene carved into the lid and the grain of the wood beneath the glossy varnish.";
           }
 
@@ -181,8 +186,8 @@ export const initBedroom = () => {
       }
     },
     () => {
-      if (!keepsakeBox.solidity) {
-        keepsakeBox.solidity = 1;
+      if (!retrieve("keepsakeBoxSolidity")) {
+        update("keepsakeBoxSolidity", 1);
         setHintNodeId("bedroomBox");
         return "The small table looks much the same as before when viewed in the mirror, but...there's something on top of it, where it was empty before. It looks like a wooden keepsake or jewellery box, not much larger than the hand, with brass hinges. It's closed.";
       }
@@ -255,7 +260,7 @@ export const initBedroom = () => {
       ["miow", "miao"],
       miaowResults,
       () => {
-        if (inSameRoomAs(keepsakeBox) && keepsakeBox.solidity >= 3) {
+        if (inSameRoomAs(keepsakeBox) && retrieve("keepsakeBoxSolidity") >= 3) {
           keepsakeBoxTimer.commence();
         }
       },

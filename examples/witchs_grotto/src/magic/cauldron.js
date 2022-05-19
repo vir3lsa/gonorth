@@ -194,7 +194,8 @@ export const initCauldron = () => {
     onFailure: "The fire's already roaring.",
     aliases: ["ignite"],
     prepositional: true,
-    interrogative: "with what"
+    interrogative: "with what",
+    expectedArgs: ["item", "other"]
   });
   const extinguish = newVerb({
     name: "extinguish",

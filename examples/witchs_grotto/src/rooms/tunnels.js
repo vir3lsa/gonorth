@@ -421,11 +421,11 @@ export const initTunnelsGraph = () => {
         },
         "open rickety door": {
           condition: () => !ricketyDoor.open,
-          actions: () => ricketyDoor.getVerb("open").attempt()
+          actions: () => ricketyDoor.getVerb("open").attempt(ricketyDoor)
         },
         "close rickety door": {
           condition: () => ricketyDoor.open,
-          actions: () => ricketyDoor.getVerb("close").attempt()
+          actions: () => ricketyDoor.getVerb("close").attempt(ricketyDoor)
         },
         "enter room": {
           condition: () => ricketyDoor.open,
@@ -473,10 +473,13 @@ export const initTunnelsGraph = () => {
           node: "crossroads",
           actions: () => setTraversal(left)
         },
-        "open carved door": { condition: () => !carvedDoor.open, actions: () => carvedDoor.getVerb("open").attempt() },
+        "open carved door": {
+          condition: () => !carvedDoor.open,
+          actions: () => carvedDoor.getVerb("open").attempt(carvedDoor)
+        },
         "close carved door": {
           condition: () => carvedDoor.open,
-          actions: () => carvedDoor.getVerb("close").attempt()
+          actions: () => carvedDoor.getVerb("close").attempt(carvedDoor)
         },
         "enter room": {
           condition: () => carvedDoor.open,
@@ -686,10 +689,10 @@ export const initTunnelsGraph = () => {
             }
           }
         },
-        "open oak door": { condition: () => !oakDoor.open, actions: () => oakDoor.getVerb("open").attempt() },
+        "open oak door": { condition: () => !oakDoor.open, actions: () => oakDoor.getVerb("open").attempt(oakDoor) },
         "close oak door": {
           condition: () => oakDoor.open,
-          actions: () => oakDoor.getVerb("close").attempt()
+          actions: () => oakDoor.getVerb("close").attempt(oakDoor)
         },
         "enter room": {
           condition: () => oakDoor.open,

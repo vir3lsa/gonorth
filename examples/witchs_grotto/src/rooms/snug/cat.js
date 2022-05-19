@@ -375,7 +375,7 @@ export const initCatGraph = () => {
 
   const speak = new Verb(
     "speak",
-    () => selectPlayer().dolittle,
+    () => retrieve("dolittle"),
     () => catGraph.commence(),
     [
       () => {

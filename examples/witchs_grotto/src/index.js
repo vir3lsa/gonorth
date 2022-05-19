@@ -118,7 +118,7 @@ const upstairsSounds = new RandomText(
   "Somewhere there's a dog barking.",
   "Is that a baby crying?",
   "The distant clatter of something metallic being dropped reminds you you're not alone here.",
-  "Floorboards creek. Was it just your imagination?",
+  "Floorboards creak. Was it just your imagination?",
   "What was that? Something went scuttling into the corner.",
   "A flock of crows loudly takes flight from a tree outside.",
   "An owl hoots dolefully. Such an otherworldly sound."

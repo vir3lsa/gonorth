@@ -104,7 +104,7 @@ const optionNodes = [
     id: "haveFun",
     actions: [
       `To view these help pages again, type "help".\n\nGood luck, and have fun.`,
-      () => selectRoom().verbs.examine.attempt()
+      () => selectRoom().verbs.examine.attempt(selectRoom())
     ]
   }
 ];

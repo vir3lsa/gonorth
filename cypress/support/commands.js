@@ -24,10 +24,6 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add("choose", (label) => {
-  cy.contains("button", label, { matchCase: false }).click();
-});
-
 Cypress.Commands.add("shows", (text) => {
   cy.contains(".gonorth", text, { matchCase: false });
 });
@@ -36,8 +32,20 @@ Cypress.Commands.add("showsLast", (text) => {
   cy.contains(".gonorth h6:last-of-type ~ p", text, { matchCase: false });
 });
 
-Cypress.Commands.add("say", (text) => {
+Cypress.Commands.add("choose", (label, expected) => {
+  cy.contains("button", label, { matchCase: false }).click();
+
+  if (expected) {
+    cy.shows(expected);
+  }
+});
+
+Cypress.Commands.add("say", (text, expected) => {
   cy.get("input").type(`${text}{enter}`);
+
+  if (expected) {
+    cy.shows(expected);
+  }
 });
 
 Cypress.Commands.add("startGame", () => {
