@@ -6,6 +6,7 @@ import { getStore, unregisterStore } from "./redux/storeRegistry";
 import {
   addEvent as eventAdded,
   addValue,
+  forgetValue,
   newGame,
   recordChanges,
   setStartRoom,
@@ -199,6 +200,10 @@ function retrieve(propertyName) {
   return getStore().getState().customState[propertyName];
 }
 
+function forget(propertyName) {
+  getStore().dispatch(forgetValue(propertyName));
+}
+
 function gameOver() {
   const resurrectionText = new RandomText(
     "Groggily, you get to your feet.",
@@ -264,5 +269,6 @@ export {
   store,
   update,
   retrieve,
+  forget,
   gameOver
 };

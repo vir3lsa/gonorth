@@ -4,7 +4,8 @@ import {
   Append,
   AppendInput
 } from "../../game/interactions/interaction";
-// import { Item } from "../../game/items/item";
+
+const outputSnippetLength = 30;
 
 export const initialState = {
   turn: 1,
@@ -26,7 +27,10 @@ export const initialState = {
   allItems: new Set(),
   optionGraphs: {},
   customState: {},
-  startingRoom: null
+  startingRoom: null,
+  cyCommands: [],
+  cySay: null,
+  cyChoose: null
 };
 
 export default function (state = initialState, action) {
@@ -35,6 +39,7 @@ export default function (state = initialState, action) {
       return { ...state, ...action.payload };
     case type.CHANGE_INTERACTION:
       const interaction = action.payload;
+      const updatedState = updateCyCommands(state, interaction.currentPage);
 
       if (interaction instanceof Append && state.interaction.currentPage) {
         interaction.currentPage =
@@ -51,7 +56,11 @@ export default function (state = initialState, action) {
         }
       }
 
-      return { ...state, interaction, lastChange: Date.now() };
+      return {
+        ...updatedState,
+        interaction,
+        lastChange: Date.now()
+      };
     case type.CHANGE_IMAGE:
       return { ...state, image: action.payload };
     case type.RECEIVE_INPUT:
@@ -122,6 +131,10 @@ export default function (state = initialState, action) {
         );
       }
       return { ...state, customState: { ...state.customState, [action.propertyName]: action.value } };
+    case type.FORGET_VALUE:
+      const customStateCopy = { ...state.customState };
+      delete customStateCopy[action.propertyName];
+      return { ...state, customState: customStateCopy };
     case type.CLEAN_STATE:
       return {
         ...initialState,
@@ -131,7 +144,36 @@ export default function (state = initialState, action) {
       };
     case type.SET_STARTING_ROOM:
       return { ...state, startingRoom: action.startingRoom };
+    case type.CY_SAY:
+      return { ...state, cySay: action.cySay, cyChoose: null };
+    case type.CY_CHOOSE:
+      return { ...state, cyChoose: action.cyChoose, cySay: null };
+    case type.CY_RECORD:
+      return { ...state, cyCommands: [], cySay: null, cyChoose: null };
     default:
       return state;
+  }
+}
+
+function updateCyCommands(state, output) {
+  if (output) {
+    const funcName = state.cySay ? "say" : state.cyChoose ? "choose" : null;
+
+    if (!funcName) {
+      return state;
+    }
+
+    // Construct the new Cypress command
+    const newLineIndex = output.indexOf("\n");
+    const cutoffIndex = Math.min(newLineIndex, outputSnippetLength);
+    const outputSnippet = output.substring(0, newLineIndex > -1 ? cutoffIndex : outputSnippetLength);
+    const lastIndex = Math.max(outputSnippet.lastIndexOf(" "), outputSnippet.lastIndexOf("."));
+    const input = state.cySay ? state.cySay : state.cyChoose;
+    const command = `cy.${funcName}("${input}", "${outputSnippet.substring(0, lastIndex)}");`;
+
+    // Update Cypress commands and remove the Cypress records so we don't add them again.
+    return { ...state, cyCommands: [...state.cyCommands, command], cySay: null, cyChoose: null };
+  } else {
+    return state;
   }
 }

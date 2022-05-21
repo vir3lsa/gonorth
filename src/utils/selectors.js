@@ -26,3 +26,4 @@ export const selectActionChainPromise = () => getStore().getState().actionChainP
 export const selectEvents = () => getStore().getState().events;
 export const selectRecordChanges = () => getStore().getState().recordChanges;
 export const selectStartingRoom = () => getStore().getState().startingRoom;
+export const selectCyCommands = () => getStore().getState().cyCommands;

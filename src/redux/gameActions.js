@@ -52,6 +52,11 @@ export const receivePlayerInput = (input) => (dispatch, getState) => {
     payload: input
   });
 
+  dispatch({
+    type: type.CY_SAY,
+    cySay: input
+  });
+
   const state = getState();
   const debugMode = selectDebugMode(state);
   const currentInput = selectPlayerInput(state);
@@ -151,6 +156,11 @@ export const updateValue = (propertyName, value) => ({
   value
 });
 
+export const forgetValue = (propertyName) => ({
+  type: type.FORGET_VALUE,
+  propertyName
+});
+
 export const cleanState = () => ({
   type: type.CLEAN_STATE
 });
@@ -158,4 +168,13 @@ export const cleanState = () => ({
 export const setStartRoom = (startingRoom) => ({
   type: type.SET_STARTING_ROOM,
   startingRoom
+});
+
+export const cyChoose = (choice) => ({
+  type: type.CY_CHOOSE,
+  cyChoose: choice
+});
+
+export const cyRecord = () => ({
+  type: type.CY_RECORD
 });

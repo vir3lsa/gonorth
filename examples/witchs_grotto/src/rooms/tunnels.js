@@ -16,7 +16,11 @@ import {
   Action,
   selectInventory,
   FixedSubjectEffects,
-  Key
+  Key,
+  store,
+  retrieve,
+  gameOver,
+  update
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 import { initCavern } from "./cavern";
@@ -27,13 +31,10 @@ const down = "down";
 const left = "left";
 const right = "right";
 
-let monsterLocation = "topLeftGaol";
-
 let meetTheMonster;
-let beingChased = false;
-let hiding = false;
+
+// Don't need to store traversal direction is it's set when entering the graph.
 let traversal = forward;
-let metTheMonster = false;
 let tunnelsGraph;
 let monster;
 
@@ -53,6 +54,8 @@ export const getTunnelsGraph = () => {
 export const initTunnelsGraph = () => {
   initMonster();
   const cavern = initCavern();
+
+  store("monsterLocation", "topLeftGaol");
 
   let mouldRoom = new Room(
     "Mould Room",
@@ -87,7 +90,7 @@ export const initTunnelsGraph = () => {
       wait: "hide",
       leave: {
         exit: true,
-        actions: [() => (hiding = false), "You lift the barrel and scramble out into the dimly lit room."]
+        actions: [() => forget("hiding"), "You lift the barrel and scramble out into the dimly lit room."]
       }
     }
   });
@@ -97,7 +100,7 @@ export const initTunnelsGraph = () => {
       "hide",
       true,
       [
-        () => (hiding = true),
+        () => store("hiding", true),
         "Scrabbling with your fingers to get a purchase on the underside of the barrel, you lift its surprising heft and awkwardly crawl beneath it. You let it drop back to the cobblestones with a rotten sounding thud, being careful not to trap your fingers.",
         () => barrelHideGraph.commence()
       ],
@@ -280,7 +283,7 @@ export const initTunnelsGraph = () => {
     {
       id: "leave",
       actions: [
-        () => (hiding = false),
+        () => forget("hiding"),
         "You haul yourself back up the rope, your small arms burning with the effort, and reach the top. With the help of the iron crossbar you maneouvre yourself over the marble lip surrounding the pit and back onto solid ground."
       ]
     }
@@ -292,7 +295,7 @@ export const initTunnelsGraph = () => {
       "The circular wall around the well shaft is constructed from gleaming white marble. At least, it would be gleaming if it weren't eneveloped by this Stygian darkness. A rope descends into the shaft before disappearing out of sight into the even greater pitch blackness lurking in its depths like some obliterating shroud. You wonder whether there's a bucket attached to the end.\n\nIt occurs to you that one could climb a little way down the rope, if one so wished, in order to hide from a pursuer."
     )
     .withVerbs(
-      new Verb("hide", true, [() => (hiding = true), () => wellGraph.commence()], null, [
+      new Verb("hide", true, [() => store("hiding", true), () => wellGraph.commence()], null, [
         "climb",
         "descend",
         "hang",
@@ -500,13 +503,13 @@ export const initTunnelsGraph = () => {
           return "Beyond the bend, the roof of the passage that was previously a few feet above your head abruptly lifts to twice the height, fantastic vaulted spaces lending a cathedral-like air. You soon come upon a crossroads, the meeting point of the four paths capped by a hemispherical dome. Despite the grandeur, it's still as dark as a crypt down here.";
         } else if (traversal === down) {
           return `You ${
-            beingChased ? "sprint" : "trudge"
+            retrieve("beingChased") ? "sprint" : "trudge"
           } back along the passage until you return to the vaulted crossroads you passed earlier. It seems somehow less impressive now. \n\nPaths go off in all directions.`;
         } else if (traversal === left) {
           return "The richly decorated corridor turns to the right, then takes on a cathedral like grandiosity, with high, vaulted ceilings. A little further on you reach a crossroads, the meeting point of the four paths capped by a hemispherical dome. Despite the grandeur, it's still so dark you wouldn't be able to see past your nose if it weren't for the potion.";
         } else if (traversal === right) {
           return `${
-            beingChased ? "Dashing round" : "Turning"
+            retrieve("beingChased") ? "Dashing round" : "Turning"
           } the corner, you follow the passage back until its ceiling lifts away and you find yourself back at the cathedral-like crossroads beneath the stone dome.`;
         }
       },
@@ -547,12 +550,12 @@ export const initTunnelsGraph = () => {
       actions: () => {
         if (traversal === down) {
           return `Along the corridor, the ceiling drops lower and any sign of elegance is quickly left behind. The stone tunnel veers left then presents you with a flight of steep, worn steps leading down into the deeper darkness below. You ${
-            beingChased
+            retrieve("beingChased")
               ? "hurtle down them, praying you don't"
               : "take them carefully, one at a time, making sure not to"
           } slip on the polished-smooth treads. It would be a long, painful way down. As you descend, the air becomes perceptibly colder and a certain sense of dread begins to pervade your thoughts. What might be lurking down here, lying in wait? When you eventually reach the bottom, there's a sharp left turn ahead of you.`;
         } else if (traversal === up) {
-          if (beingChased) {
+          if (retrieve("beingChased")) {
             return "You fly round the bend in a mad panic and sprint towards the steep stone steps. A bigger person would take them two at a time, but you have to make do with one, much to your frustration and horror. Even so, you bound up the stairs at an unwise pace, heedless of the danger of slipping, your mind on the much greater danger of the thing pursuing you. You reach the top, and a corner to the right.";
           } else {
             return "placeholder";
@@ -576,7 +579,7 @@ export const initTunnelsGraph = () => {
       actions: () =>
         new SequentialText(
           `The tunnel's floor slopes slightly to the left making ${
-            beingChased ? "running" : "walking"
+            retrieve("beingChased") ? "running" : "walking"
           } along it hard on your feet. A little further along, the whole passage seems to tilt to the left, its rectangular cross-section leaning crazily away from the vertical, giving you the feeling that you're on some great subterranean ship on choppy waters. You follow a dog-leg to the right, then shortly back to the left, before the tunnel dives downwards, taking you deeper.`,
           "Abruptly, you're forced to stop. The way forward is blocked by a ceiling-high pile of rubble and boulder. The tunnel must have collapsed in on itself who knows how many years ago. There's no hope of continuing in this direction."
         ),
@@ -592,13 +595,13 @@ export const initTunnelsGraph = () => {
       name: "dank tunnel",
       actions: [
         () => {
-          if (metTheMonster && !beingChased) {
+          if (retrieve("metTheMonster") && !retrieve("beingChased")) {
             return "Nervously, you peek around the corner, praying that monstrosity won't be lurking where you found it the first time. Well...you don't see it. Maybe that means it's gone?";
-          } else if (metTheMonster && beingChased) {
+          } else if (retrieve("metTheMonster") && retrieve("beingChased")) {
             return "You fly round the bend and start off along the tunnel, towards the sound of running water.";
           } else {
             meetTheMonster.manualCommence();
-            metTheMonster = true;
+            store("metTheMonster", true);
             return "Beyond the bend the corridor stretches away into the darkness. From somewhere not too far away there's the sound of dripping and trickling water.";
           }
         }
@@ -608,7 +611,7 @@ export const initTunnelsGraph = () => {
           node: "topLeftGaol",
           actions: () => {
             setTraversal(down);
-            if (metTheMonster) {
+            if (retrieve("metTheMonster")) {
               return "You creep along the tunnel, half expecting to hear those horrible wails again at any moment. To your immense relief, they don't come. As you progress, the sound of running water becomes louder.";
             }
           }
@@ -758,7 +761,7 @@ export const initTunnelsGraph = () => {
     actions = Array.isArray(actions) ? actions : [actions];
     actions.unshift(
       new Action(() => {
-        if (beingChased) {
+        if (retrieve("beingChased")) {
           return beingChasedText;
         }
       }, false)
@@ -772,7 +775,7 @@ export const initTunnelsGraph = () => {
   meetTheMonster = new Event(
     "meet the monster",
     [
-      () => (beingChased = true),
+      () => store("beingChased", true),
       new SequentialText(
         "You strain your eyes to make out details in the subfusc illumination, sure that there's a...shape...a little way down the tunnel from you. It's too tall to be a person; it stretches right the way from floor to ceiling - a good eight feet. It's narrow; if it *were* a person, they would have to be extremely tall and thin. The shape of the outline gives the impression of a hooded cloak - wide at the feet, narrowing at the neck, before billowing out again around the head. The feeling of dread is almost palpable now and it's directed towards that...thing...blocking the tunnel in front of you. It hasn't moved since you began staring at it...but...you have the horrible sense that it's staring back at you, assessing, waiting. Perhaps if you stay very still...",
         "Without a sound, it starts moving towards you, gliding inhumanly down the tunnel. Terror seizes you - there are just seconds before the thing will be upon you. You need to run. Now!"
@@ -784,10 +787,16 @@ export const initTunnelsGraph = () => {
   );
 
   const monsterEncounter = () => {
-    if (tunnelsGraph.currentNode && monsterLocation === tunnelsGraph.currentNode.id) {
-      return 'Suddenly, the shadows seem to loom up around you and you find yourself staring into the cold, lifeless eyes of the thing pursuing you. "So it does have eyes," you have time to think, before the shadows envelop you and everything becomes cold and dark.'; // TODO Game-over state
-    } else if (monsterLocation === selectRoom() && !hiding) {
-      return "Suddenly, it's in the room with you. A tall, black spectre of undeniable malace, it bears down on you immediately, like a predator pouncing on its quarry. Your legs fail you and you crash to the floor as the shadows deepen and everything goes dark."; // TODO Game-over state
+    if (tunnelsGraph.currentNode && retrieve("monsterLocation") === tunnelsGraph.currentNode.id) {
+      return [
+        'Suddenly, the shadows seem to loom up around you and you find yourself staring into the cold, lifeless eyes of the wraith pursuing you. "So it does have eyes," you have time to think, before the shadows envelop you and everything becomes cold and dark.',
+        gameOver
+      ];
+    } else if (retrieve("monsterLocation") === selectRoom().name && !retrieve("hiding")) {
+      return [
+        "Suddenly, it's in the room with you. A tall, black spectre of undeniable malace, it bears down on you immediately, like a predator pouncing on its quarry. Your legs fail you and you crash to the floor as the shadows deepen and everything goes dark.",
+        gameOver
+      ];
     }
   };
 
@@ -834,7 +843,7 @@ export const initTunnelsGraph = () => {
   const monsterChase = new Event(
     "monster chase",
     () => {
-      const playerLocation = selectRoom().name === "Cellar Nook" ? tunnelsGraph.currentNode.id : selectRoom();
+      const playerLocation = selectRoom().name === "Cellar Nook" ? tunnelsGraph.currentNode.id : selectRoom().name;
 
       const triedNodes = [];
 
@@ -868,9 +877,9 @@ export const initTunnelsGraph = () => {
         }
       };
 
-      const pathToPlayer = findPlayer(monsterLocation);
+      const pathToPlayer = findPlayer(retrieve("monsterLocation"));
 
-      if (!hiding && (!pathToPlayer || !pathToPlayer.length)) {
+      if (!retrieve("hiding") && (!pathToPlayer || !pathToPlayer.length)) {
         // The monster's in the same location as the player - will be picked up by encounter
         return;
       }
@@ -880,13 +889,13 @@ export const initTunnelsGraph = () => {
 
       if (newMonsterLocation instanceof Room) {
         // TODO What about the door?
-        monsterLocation = newMonsterLocation;
-        monsterLocationName = monsterLocation.name;
+        update("monsterLocation", newMonsterLocation.name);
+        monsterLocationName = newMonsterLocation.name;
         monster.container.removeItem(monster);
         newMonsterLocation.addItem(monster);
       } else if (newMonsterLocation) {
-        monsterLocation = pathToPlayer[0];
-        monsterLocationName = tunnelsGraph.getNode(monsterLocation).name;
+        update("monsterLocation", newMonsterLocation);
+        monsterLocationName = tunnelsGraph.getNode(newMonsterLocation).name;
       }
 
       const distanceToPlayer = pathToPlayer.length ? pathToPlayer.length - 1 : 0;
@@ -896,14 +905,14 @@ export const initTunnelsGraph = () => {
         return outsideRoomText;
       } else if (playerInRoom && distanceToPlayer) {
         return nearbyText.next(monsterLocationName, true);
-      } else if (playerInRoom && hiding) {
+      } else if (playerInRoom && retrieve("hiding")) {
         searchingCount++; // The monster's looking for the player in the room.
         if (searchingCount <= 2) {
           return seekingInRoomText;
         } else {
           searchingCount = 0;
-          beingChased = false;
-          monsterLocation = "bottomRightGaol";
+          forget("beingChased"); // TODO Add forget function
+          update("monsterLocation", "bottomRightGaol");
           monster.container.removeItem(monster); // Is it sufficient to just do this? Or do I need to put the monster back in the Cellar Nook?
           return "The sickening sense of dread pervading your mind slowly recedes. The spectral pursuer must have finally given up its hunt for you and left. The coast is clear, or so you hope.";
         }
@@ -919,7 +928,7 @@ export const initTunnelsGraph = () => {
         return monsterEncounter();
       }
     },
-    () => beingChased,
+    () => retrieve("beingChased"),
     4000,
     TIMEOUT_MILLIS
   );

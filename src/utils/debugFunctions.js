@@ -1,6 +1,7 @@
 import { goToRoom } from "./lifecycle";
 import {
   selectAllItemNames,
+  selectCyCommands,
   selectItemNames,
   selectItems,
   selectOptionGraphs,
@@ -10,7 +11,7 @@ import {
 import { newItem } from "../game/items/item";
 import disambiguate from "./disambiguation";
 import { getStore } from "../redux/storeRegistry";
-import { itemsRevealed } from "../redux/gameActions";
+import { cyRecord, itemsRevealed } from "../redux/gameActions";
 
 const helpText = `Usage: \`debug operation [args]\`
 - e.g. \`debug show rooms\`
@@ -21,7 +22,8 @@ Operations:
 - \`goto\` / \`go\`                                - go to a room
 - \`show\` / \`list\`                              - list something
 - \`spawn\` / \`create\` / \`make\`                - create an item
-- \`commence\` / \`graph\` / \`join\` / \`start \` - join an option graph at the specified node, or the default node`;
+- \`commence\` / \`graph\` / \`join\` / \`start \` - join an option graph at the specified node, or the default node
+- \`cypress\` / \`integration\` / \`test\`          - produce Cypress commands from the actions you perform`;
 
 const gotoHelp = `Usage: \`debug goto [room]\`
 - e.g. \`debug goto kitchen\`
@@ -46,6 +48,16 @@ const commenceHelp = `Usage: \`debug commence [graph] [node]\`
 - e.g. \`debug commence conversation\`
 - e.g. \`debug commence conversation weather\``;
 
+const cypressHelp = `Usage \`debug cypress [command]\`
+
+Commands:
+- \`record\`   - start recording Cypress commands
+- \`print\`    - list Cypress commands for recorded sequence of events
+
+Examples:
+- e.g. \`debug cypress record\`
+- e.g. \`debug cypress print\``;
+
 export function handleDebugOperations(operation, ...args) {
   switch (operation.toLowerCase()) {
     case "go":
@@ -65,6 +77,10 @@ export function handleDebugOperations(operation, ...args) {
     case "join":
     case "start":
       return commence(args);
+    case "cypress":
+    case "integration":
+    case "test":
+      return cypress(args);
     default:
       return `Unrecognised debug operation: ${operation}`;
   }
@@ -194,6 +210,19 @@ function commence(args) {
       graphId += ` ${args[argsIndex]}`;
     } else {
       return `Unable to find option graph and node using input ${args.join(" ")}`;
+    }
+  }
+}
+
+function cypress(args) {
+  if (args.length === 1 && args[0] === "help") {
+    return cypressHelp;
+  } else if (args.length === 1) {
+    if (args[0] === "record") {
+      getStore().dispatch(cyRecord());
+      return "Recording commands.";
+    } else if (args[0] === "print") {
+      return `* ${selectCyCommands().join("\n* ")}`;
     }
   }
 }

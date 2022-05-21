@@ -1,5 +1,5 @@
 import { getStore } from "../../redux/storeRegistry";
-import { changeInteraction } from "../../redux/gameActions";
+import { changeInteraction, cyChoose } from "../../redux/gameActions";
 import { AppendInput } from "./interaction";
 import { ActionChain } from "../../utils/actionChain";
 import { handleTurnEnd } from "../../utils/lifecycle";
@@ -23,6 +23,8 @@ export class Option {
     this._action = async (...args) => {
       // Record player decision
       getStore().dispatch(changeInteraction(new AppendInput(this.label)));
+      getStore().dispatch(cyChoose(this.label));
+
       // First perform the player actions
       await actionChain.chain(...args);
 
