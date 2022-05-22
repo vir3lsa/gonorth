@@ -1,6 +1,5 @@
 import { ActionChain } from "../../utils/actionChain";
-import { getStore } from "../../redux/storeRegistry";
-import { selectActionChainPromise, selectOptions } from "../../utils/selectors";
+import { selectActionChainPromise, selectEventTimeoutOverride, selectOptions } from "../../utils/selectors";
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
@@ -71,10 +70,12 @@ export class Event {
 
   commence() {
     this.state = PENDING;
+    const timeoutOverride = selectEventTimeoutOverride();
+    const timeout = timeoutOverride !== null ? timeoutOverride : this.timeout;
 
     if (this.timeout) {
       if (this.timeoutType === TIMEOUT_MILLIS) {
-        this.timeoutId = setTimeout(() => this.trigger(), this.timeout);
+        this.timeoutId = setTimeout(() => this.trigger(), timeout);
       } else {
         this.countdown = this.timeout;
       }

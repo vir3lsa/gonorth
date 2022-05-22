@@ -6,13 +6,15 @@ describe("keywords", () => {
   });
 
   it("lists player's items", () => {
+    const emptyInventoryRegex = /(holding anything|carrying anything|got nothing|hands are empty)/;
+
     // Check full word
     cy.say("inventory");
-    cy.shows("not holding anything");
+    cy.shows(emptyInventoryRegex);
 
     // Same again with alias
     cy.say("i");
-    cy.showsLast("not holding anything");
+    cy.showsLast(emptyInventoryRegex);
 
     // Spawn some items
     cy.say("debug spawn apple");

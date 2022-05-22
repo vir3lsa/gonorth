@@ -20,7 +20,8 @@ import {
   store,
   retrieve,
   gameOver,
-  update
+  update,
+  forget
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 import { initCavern } from "./cavern";
@@ -787,7 +788,11 @@ export const initTunnelsGraph = () => {
   );
 
   const monsterEncounter = () => {
-    if (tunnelsGraph.currentNode && retrieve("monsterLocation") === tunnelsGraph.currentNode.id) {
+    if (
+      tunnelsGraph.currentNode &&
+      retrieve("monsterLocation") === tunnelsGraph.currentNode.id &&
+      !tunnelsRoomNames.includes(selectRoom().name)
+    ) {
       return [
         'Suddenly, the shadows seem to loom up around you and you find yourself staring into the cold, lifeless eyes of the wraith pursuing you. "So it does have eyes," you have time to think, before the shadows envelop you and everything becomes cold and dark.',
         gameOver
@@ -800,7 +805,7 @@ export const initTunnelsGraph = () => {
     }
   };
 
-  monster.addEncounter(monsterEncounter);
+  monster.addEncounterWithCondition(() => tunnelsGraph.currentNode, monsterEncounter);
 
   const rightBehingYouText = new CyclicText(
     "It's right behind you! Don't stop!",
@@ -840,22 +845,25 @@ export const initTunnelsGraph = () => {
 
   let firstChase = true;
   let searchingCount = 0;
+  const tunnelsRoomNames = ["Mould Room", "Dank Cell", "Well Room"];
+
   const monsterChase = new Event(
     "monster chase",
     () => {
-      const playerLocation = selectRoom().name === "Cellar Nook" ? tunnelsGraph.currentNode.id : selectRoom().name;
-
-      const triedNodes = [];
+      const roomName = selectRoom().name;
+      const playerLocation = tunnelsRoomNames.includes(roomName) ? roomName : tunnelsGraph.currentNode.id;
+      const monsterLocation = retrieve("monsterLocation");
 
       const findPlayer = (location, path = []) => {
-        if (location === playerLocation) {
-          return path;
-        }
-
-        if (triedNodes.includes(location)) {
+        if (path.includes(location)) {
+          // Don't revisit the same node twice in a given path.
           return;
         } else {
-          triedNodes.push(location);
+          path.push(location);
+        }
+
+        if (location === playerLocation || location.name === playerLocation) {
+          return path;
         }
 
         let node = tunnelsGraph.getNode(location);
@@ -865,11 +873,11 @@ export const initTunnelsGraph = () => {
             let searchResult;
 
             if (typeof option === "string") {
-              searchResult = findPlayer(option, [...path, option]);
+              searchResult = findPlayer(option, [...path], option);
             } else if (option.node) {
-              searchResult = findPlayer(option.node, [...path, option.node]);
+              searchResult = findPlayer(option.node, [...path], option.node);
             } else if (option.room) {
-              searchResult = findPlayer(option.room, [...path, option.room]);
+              searchResult = findPlayer(option.room, [...path], option.room);
             }
 
             return !result || (searchResult && searchResult.length < result.length) ? searchResult : result;
@@ -877,14 +885,14 @@ export const initTunnelsGraph = () => {
         }
       };
 
-      const pathToPlayer = findPlayer(retrieve("monsterLocation"));
+      const pathToPlayer = findPlayer(monsterLocation);
 
-      if (!retrieve("hiding") && (!pathToPlayer || !pathToPlayer.length)) {
+      if (!retrieve("hiding") && (!pathToPlayer || pathToPlayer.length === 1)) {
         // The monster's in the same location as the player - will be picked up by encounter
         return;
       }
 
-      const newMonsterLocation = pathToPlayer.length && pathToPlayer[0];
+      const newMonsterLocation = pathToPlayer.length > 1 ? pathToPlayer[1] : null;
       let monsterLocationName;
 
       if (newMonsterLocation instanceof Room) {
@@ -899,7 +907,7 @@ export const initTunnelsGraph = () => {
       }
 
       const distanceToPlayer = pathToPlayer.length ? pathToPlayer.length - 1 : 0;
-      const playerInRoom = selectRoom().name !== "Cellar Nook"; // If in the Cellar Nook, the player's actually in the tunnels.
+      const playerInRoom = tunnelsRoomNames.includes(roomName);
 
       if (playerInRoom && distanceToPlayer === 1) {
         return outsideRoomText;
@@ -911,7 +919,7 @@ export const initTunnelsGraph = () => {
           return seekingInRoomText;
         } else {
           searchingCount = 0;
-          forget("beingChased"); // TODO Add forget function
+          forget("beingChased");
           update("monsterLocation", "bottomRightGaol");
           monster.container.removeItem(monster); // Is it sufficient to just do this? Or do I need to put the monster back in the Cellar Nook?
           return "The sickening sense of dread pervading your mind slowly recedes. The spectral pursuer must have finally given up its hunt for you and left. The coast is clear, or so you hope.";
@@ -939,4 +947,4 @@ export const initTunnelsGraph = () => {
   wellRoom.setWest(() => tunnelsGraph.commence("topLeftPretzel"), carvedDoor);
 
   return tunnelsGraph;
-};
+};;

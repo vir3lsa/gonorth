@@ -38,7 +38,11 @@ export class Npc extends Item {
   }
 
   addEncounter(...actions) {
-    const encounter = new Event(`${this.name} encounter`, actions, () => this.container === selectRoom());
+    this.addEncounterWithCondition(() => this.container === selectRoom(), ...actions);
+  }
+
+  addEncounterWithCondition(condition, ...actions) {
+    const encounter = new Event(`${this.name} encounter`, actions, condition);
     encounter.recurring = true;
     this.encounters.push(encounter);
     getStore().dispatch(addEvent(encounter));

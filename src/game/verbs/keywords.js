@@ -19,6 +19,13 @@ export const directionAliases = {
 };
 
 export function createKeywords() {
+  const emptyInventoryText = new RandomText(
+    "You're not holding anything.",
+    "You're not carrying anything.",
+    "You got nothing except your determination.",
+    "Your hands are empty."
+  );
+
   const inventoryVerb = new Verb(
     "inventory",
     true,
@@ -26,7 +33,7 @@ export function createKeywords() {
       const inventory = selectInventory();
 
       if (!inventory.itemArray.filter((item) => !item.doNotList).length) {
-        return "You're not holding anything.";
+        return emptyInventoryText;
       }
 
       return `You're carrying ${inventory.basicItemList}.`;

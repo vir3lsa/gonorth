@@ -80,11 +80,12 @@ describe("tunnels", () => {
     cy.shows("never close again");
   });
 
-  it("traverses the tunnels", () => {
+  it("traverses the tunnels and hides under barrel", () => {
     // Drink potion
     cy.say("debug spawn feline", "spawned feline");
     cy.say("drink feline", "tastes of fish");
     cy.choose("next", "less dark now");
+    cy.say("debug event 100", "100 milliseconds");
 
     // Enter tunnels
     cy.say("west", "Going West");
@@ -108,5 +109,15 @@ describe("tunnels", () => {
     cy.choose("go round corner");
     cy.choose("go right", "rickety wooden door");
     cy.choose("open rickety door", "swings open limply");
+    cy.choose("enter room", "Passing the open door, you");
+    cy.choose("Next", "The tiny room is dank and");
+    cy.say("x barrel", "It's standing on the jagged");
+    cy.say("hide under barrel", "Scrabbling with your fingers");
+    cy.choose("Next", "You can see much of the dank");
+    cy.choose("wait", "You can see much of the dank");
+    cy.choose("wait", "looking for you");
+    cy.choose("wait", "hammering heart");
+    cy.choose("wait", "given up its hunt");
+    cy.choose("leave", "You lift the barrel and");
   });
 });

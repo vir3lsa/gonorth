@@ -178,3 +178,8 @@ export const cyChoose = (choice) => ({
 export const cyRecord = () => ({
   type: type.CY_RECORD
 });
+
+export const overrideEventTimeout = (eventTimeoutOverride) => ({
+  type: type.OVERRIDE_EVENT_TIMEOUT,
+  eventTimeoutOverride
+});

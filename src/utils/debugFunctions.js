@@ -11,7 +11,7 @@ import {
 import { newItem } from "../game/items/item";
 import disambiguate from "./disambiguation";
 import { getStore } from "../redux/storeRegistry";
-import { cyRecord, itemsRevealed } from "../redux/gameActions";
+import { cyRecord, itemsRevealed, overrideEventTimeout } from "../redux/gameActions";
 
 const helpText = `Usage: \`debug operation [args]\`
 - e.g. \`debug show rooms\`
@@ -23,7 +23,8 @@ Operations:
 - \`show\` / \`list\`                              - list something
 - \`spawn\` / \`create\` / \`make\`                - create an item
 - \`commence\` / \`graph\` / \`join\` / \`start \` - join an option graph at the specified node, or the default node
-- \`cypress\` / \`integration\` / \`test\`          - produce Cypress commands from the actions you perform`;
+- \`cypress\` / \`integration\` / \`test\`         - produce Cypress commands from the actions you perform
+- \`event\` / \`timeout\`                          - override event timeouts`;
 
 const gotoHelp = `Usage: \`debug goto [room]\`
 - e.g. \`debug goto kitchen\`
@@ -48,7 +49,7 @@ const commenceHelp = `Usage: \`debug commence [graph] [node]\`
 - e.g. \`debug commence conversation\`
 - e.g. \`debug commence conversation weather\``;
 
-const cypressHelp = `Usage \`debug cypress [command]\`
+const cypressHelp = `Usage: \`debug cypress [command]\`
 
 Commands:
 - \`record\`   - start recording Cypress commands
@@ -58,7 +59,16 @@ Examples:
 - e.g. \`debug cypress record\`
 - e.g. \`debug cypress print\``;
 
+const eventHelp = `Usage: \`debug event [timeout_millis|reset]\`
+- e.g. \`debug event 10\`
+- e.g. \`debug timeout 2000\`
+- e.g. \`debug event reset\``;
+
 export function handleDebugOperations(operation, ...args) {
+  if (!operation) {
+    return helpText;
+  }
+
   switch (operation.toLowerCase()) {
     case "go":
     case "goto":
@@ -81,6 +91,9 @@ export function handleDebugOperations(operation, ...args) {
     case "integration":
     case "test":
       return cypress(args);
+    case "event":
+    case "timeout":
+      return events(args);
     default:
       return `Unrecognised debug operation: ${operation}`;
   }
@@ -224,5 +237,19 @@ function cypress(args) {
     } else if (args[0] === "print") {
       return `* ${selectCyCommands().join("\n* ")}`;
     }
+  }
+}
+
+function events(args) {
+  if (args.length === 1 && args[0] === "help") {
+    return eventHelp;
+  } else if (args.length === 1) {
+    if (args[0] === "reset") {
+      getStore().dispatch(overrideEventTimeout(null));
+      return "Event timeouts reset to defaults.";
+    }
+    const timeout = new Number(args[0]);
+    getStore().dispatch(overrideEventTimeout(timeout));
+    return `Event timeouts set to ${timeout} milliseconds.`;
   }
 }

@@ -28,6 +28,10 @@ Cypress.Commands.add("shows", (text) => {
   cy.contains(".gonorth", text, { matchCase: false });
 });
 
+Cypress.Commands.add("doesNotShow", (text) => {
+  cy.contains(text).should("not.exist");
+});
+
 Cypress.Commands.add("showsLast", (text) => {
   cy.contains(".gonorth h6:last-of-type ~ p", text, { matchCase: false });
 });
@@ -48,13 +52,38 @@ Cypress.Commands.add("say", (text, expected) => {
   }
 });
 
+/**
+ * Starts a brand new game, (automatically) deleting any previous save game.
+ */
 Cypress.Commands.add("startGame", () => {
   cy.visit("http://localhost:8080/");
   cy.choose("play");
   cy.shows("Now's your chance");
-  cy.choose("next");
-  cy.shows("The game you're playing");
-  cy.choose("cancel help");
-  cy.shows("Good luck");
-  cy.choose("next");
+  cy.choose("next", "The game you're playing");
+  cy.choose("cancel help", "Good luck");
+  cy.choose("next", "smells of rotting Earth");
+});
+
+/**
+ * Reloads the game and uses a saved game to return to a previous checkpoint.
+ */
+Cypress.Commands.add("reloadGame", (expected) => {
+  cy.visit("http://localhost:8080/");
+  cy.choose("continue");
+
+  if (expected) {
+    cy.shows(expected);
+  }
+});
+
+/**
+ * Reloads the game and uses a saved game to return to a previous checkpoint.
+ */
+Cypress.Commands.add("newGame", () => {
+  cy.visit("http://localhost:8080/");
+  cy.choose("new game", "want to continue?");
+  cy.choose("yes", "Now's your chance");
+  cy.choose("next", "The game you're playing");
+  cy.choose("cancel help", "Good luck");
+  cy.choose("next", "smells of rotting Earth");
 });

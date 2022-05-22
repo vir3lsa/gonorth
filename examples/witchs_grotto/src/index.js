@@ -51,8 +51,7 @@ initGame(
   {
     storeName: "grotto",
     debugMode: true,
-    skipReactionTimes: uiTestMode,
-    skipPersistence: uiTestMode
+    skipReactionTimes: uiTestMode
   },
   setUpGrotto
 );

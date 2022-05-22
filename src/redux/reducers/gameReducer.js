@@ -30,7 +30,8 @@ export const initialState = {
   startingRoom: null,
   cyCommands: [],
   cySay: null,
-  cyChoose: null
+  cyChoose: null,
+  eventTimeoutOverride: null
 };
 
 export default function (state = initialState, action) {
@@ -150,6 +151,8 @@ export default function (state = initialState, action) {
       return { ...state, cyChoose: action.cyChoose, cySay: null };
     case type.CY_RECORD:
       return { ...state, cyCommands: [], cySay: null, cyChoose: null };
+    case type.OVERRIDE_EVENT_TIMEOUT:
+      return { ...state, eventTimeoutOverride: action.eventTimeoutOverride };
     default:
       return state;
   }
