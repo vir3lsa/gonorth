@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import { connect } from "react-redux";
 import { Element, scroller } from "react-scroll";
@@ -6,6 +6,14 @@ import { debounce } from "debounce";
 import { DecisionBar } from "./decisionBar";
 import { ParserBar } from "./parserBar";
 import { SceneImage } from "./sceneImage";
+import { makeStyles } from "@material-ui/styles";
+
+const useStyles = makeStyles((theme) => ({
+  scrollPane: {
+    flex: 2,
+    overflow: "auto"
+  }
+}));
 
 const debouncedScroll = debounce(
   () =>
@@ -20,6 +28,7 @@ const debouncedScroll = debounce(
 
 const IODevice = (props) => {
   const { interaction } = props;
+  const classes = useStyles();
   useEffect(debouncedScroll, [interaction.currentPage]);
 
   return (
@@ -33,7 +42,7 @@ const IODevice = (props) => {
       }}
     >
       {props.image && <SceneImage />}
-      <div id="scrollPane" style={{ flex: 2, overflow: "auto" }}>
+      <div id="scrollPane" className={classes.scrollPane}>
         <ReactMarkdown source={interaction.currentPage} className="gonorth" />
         <Element name="scrollTarget" />
       </div>

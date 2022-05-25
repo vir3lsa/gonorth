@@ -77,3 +77,12 @@ div.MuiInput-underline:after {
 th:first-child {
   width: 40%;
 }
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #9be;
+  border-radius: 3px;
+}
