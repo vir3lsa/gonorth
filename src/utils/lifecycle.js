@@ -1,6 +1,6 @@
 import { processEvent } from "./eventUtils";
 import { getPersistor, getStore } from "../redux/storeRegistry";
-import { selectConfig, selectEvents, selectGame } from "./selectors";
+import { selectConfig, selectEvents, selectGame, selectRoom, selectTurn } from "./selectors";
 import {
   nextTurn,
   changeInteraction,
@@ -12,6 +12,8 @@ import {
 } from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";
 import { Item } from "../game/items/item";
+import { RandomText, PagedText } from "../game/interactions/text";
+import { OptionGraph } from "../game/interactions/optionGraph";
 
 export async function handleTurnEnd() {
   const events = selectEvents();
@@ -78,4 +80,83 @@ export function createPlayer() {
 export function resetToCheckpoint() {
   resetStateToPrePlay();
   loadSave();
+}
+
+export function play() {
+  const game = selectGame();
+  let titlePage = `# ${game.title || "Untitled"}`;
+
+  if (game.author) {
+    titlePage += `\n### By ${game.author}`;
+  }
+
+  const titleScreenGraph = new OptionGraph(
+    "titleScreen",
+    {
+      id: "root",
+      actions: new PagedText(titlePage),
+      options: {
+        play: {
+          condition: () => selectTurn() === 1,
+          actions: () => game.introActions.chain(),
+          exit: true
+        },
+        continue: {
+          condition: () => selectTurn() > 1,
+          actions: () => goToRoom(selectRoom()).chain(),
+          exit: true
+        },
+        "New Game": {
+          condition: () => selectTurn() > 1,
+          node: "newGameWarning"
+        }
+      }
+    },
+    {
+      id: "newGameWarning",
+      actions: new PagedText(
+        "This will delete the current save game file and start a new game.\n\nDo you want to continue?"
+      ),
+      options: {
+        yes: {
+          actions: () => {
+            deleteSave();
+            game.introActions.chain();
+          },
+          exit: true
+        },
+        cancel: "root"
+      }
+    }
+  );
+
+  getStore().dispatch(recordChanges());
+  loadSave(); // This must be after we start recording changes.
+  return titleScreenGraph.commence().chain();
+}
+
+export function gameOver() {
+  const resurrectionText = new RandomText(
+    "Groggily, you get to your feet.",
+    "Had it been a premonition or just a bad dream? You shiver and try to forget it.",
+    "Why are your eyes closed? You open them and find yourself back where you were before."
+  );
+
+  const gameOverGraph = new OptionGraph("gameOver", {
+    id: "root",
+    actions: new PagedText("# GAME OVER"),
+    options: {
+      "Reload checkpoint": {
+        actions: [() => clearPage(), resurrectionText, resetToCheckpoint, () => goToRoom(selectRoom())],
+        exit: true
+      },
+      "Return to main menu": {
+        actions: play,
+        exit: true
+      }
+    }
+  });
+
+  selectEvents().forEach((event) => event.cancel());
+  return gameOverGraph.commence().chain();
 }

@@ -22,7 +22,7 @@ export function createKeywords() {
   const emptyInventoryText = new RandomText(
     "You're not holding anything.",
     "You're not carrying anything.",
-    "You got nothing except your determination.",
+    "You've got nothing except your determination.",
     "Your hands are empty."
   );
 

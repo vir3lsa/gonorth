@@ -3,7 +3,7 @@
 describe("bedroom", () => {
   beforeEach(() => {
     cy.startGame();
-    cy.say("debug goto bedroom", "witch's lavish bed chamber");
+    cy.say("debug goto bedroom", "witch's lavish bed chamber", { global: true });
   });
 
   it("retrieves and opens the keepsake box", () => {

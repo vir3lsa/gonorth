@@ -34,7 +34,7 @@ const right = "right";
 
 let meetTheMonster;
 
-// Don't need to store traversal direction is it's set when entering the graph.
+// Don't need to store traversal direction as it's set when entering the graph.
 let traversal = forward;
 let tunnelsGraph;
 let monster;

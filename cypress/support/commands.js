@@ -36,20 +36,24 @@ Cypress.Commands.add("showsLast", (text) => {
   cy.contains(".gonorth h6:last-of-type ~ p", text, { matchCase: false });
 });
 
-Cypress.Commands.add("choose", (label, expected) => {
-  cy.contains("button", label, { matchCase: false }).click();
-
+const checkExpected = (expected, options) => {
   if (expected) {
-    cy.shows(expected);
+    if (options?.global) {
+      cy.shows(expected);
+    } else {
+      cy.showsLast(expected);
+    }
   }
+};
+
+Cypress.Commands.add("choose", (label, expected, options) => {
+  cy.contains("button", label, { matchCase: false }).click();
+  checkExpected(expected, options);
 });
 
-Cypress.Commands.add("say", (text, expected) => {
+Cypress.Commands.add("say", (text, expected, options) => {
   cy.get("input").type(`${text}{enter}`);
-
-  if (expected) {
-    cy.shows(expected);
-  }
+  checkExpected(expected, options);
 });
 
 /**
@@ -59,21 +63,18 @@ Cypress.Commands.add("startGame", () => {
   cy.visit("http://localhost:8080/");
   cy.choose("play");
   cy.shows("Now's your chance");
-  cy.choose("next", "The game you're playing");
+  cy.choose("next", "The game you're playing", { global: true });
   cy.choose("cancel help", "Good luck");
-  cy.choose("next", "smells of rotting Earth");
+  cy.choose("next", "smells of rotting Earth", { global: true });
 });
 
 /**
  * Reloads the game and uses a saved game to return to a previous checkpoint.
  */
-Cypress.Commands.add("reloadGame", (expected) => {
+Cypress.Commands.add("reloadGame", (expected, options) => {
   cy.visit("http://localhost:8080/");
   cy.choose("continue");
-
-  if (expected) {
-    cy.shows(expected);
-  }
+  checkExpected(expected, options);
 });
 
 /**
@@ -81,9 +82,9 @@ Cypress.Commands.add("reloadGame", (expected) => {
  */
 Cypress.Commands.add("newGame", () => {
   cy.visit("http://localhost:8080/");
-  cy.choose("new game", "want to continue?");
-  cy.choose("yes", "Now's your chance");
-  cy.choose("next", "The game you're playing");
+  cy.choose("new game", "want to continue?", { global: true });
+  cy.choose("yes", "Now's your chance", { global: true });
+  cy.choose("next", "The game you're playing", { global: true });
   cy.choose("cancel help", "Good luck");
-  cy.choose("next", "smells of rotting Earth");
+  cy.choose("next", "smells of rotting Earth", { global: true });
 });

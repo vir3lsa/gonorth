@@ -40,7 +40,7 @@ export default function (state = initialState, action) {
       return { ...state, ...action.payload };
     case type.CHANGE_INTERACTION:
       const interaction = action.payload;
-      const updatedState = updateCyCommands(state, interaction.currentPage);
+      const updatedState = updateCyCommands(state, interaction.currentPage, !(interaction instanceof Append));
 
       if (interaction instanceof Append && state.interaction.currentPage) {
         interaction.currentPage =
@@ -158,7 +158,7 @@ export default function (state = initialState, action) {
   }
 }
 
-function updateCyCommands(state, output) {
+function updateCyCommands(state, output, paged) {
   if (output) {
     const funcName = state.cySay ? "say" : state.cyChoose ? "choose" : null;
 
@@ -172,7 +172,9 @@ function updateCyCommands(state, output) {
     const outputSnippet = output.substring(0, newLineIndex > -1 ? cutoffIndex : outputSnippetLength);
     const lastIndex = Math.max(outputSnippet.lastIndexOf(" "), outputSnippet.lastIndexOf("."));
     const input = state.cySay ? state.cySay : state.cyChoose;
-    const command = `cy.${funcName}("${input}", "${outputSnippet.substring(0, lastIndex)}");`;
+    const firstOutput = !state.interaction.currentPage.includes("###### `>`") || paged;
+    const options = firstOutput ? ", { global: true }" : "";
+    const command = `cy.${funcName}("${input}", "${outputSnippet.substring(0, lastIndex)}"${options});`;
 
     // Update Cypress commands and remove the Cypress records so we don't add them again.
     return { ...state, cyCommands: [...state.cyCommands, command], cySay: null, cyChoose: null };

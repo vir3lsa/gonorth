@@ -3,31 +3,13 @@ import ReactDOM from "react-dom";
 
 import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
-import {
-  addEvent as eventAdded,
-  addValue,
-  forgetValue,
-  newGame,
-  recordChanges,
-  setStartRoom,
-  updateValue
-} from "./redux/gameActions";
+import { addEvent as eventAdded, addValue, forgetValue, newGame, setStartRoom, updateValue } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import {
-  clearPage,
-  createPlayer,
-  deleteSave,
-  goToRoom,
-  loadSave,
-  resetStateToPrePlay,
-  resetToCheckpoint
-} from "./utils/lifecycle";
+import { clearPage, createPlayer, goToRoom, play } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
-import { selectRoom, selectTurn, selectPlayer, selectStartingRoom } from "./utils/selectors";
-import { OptionGraph } from "./game/interactions/optionGraph";
-import { PagedText, RandomText } from "./game/interactions/text";
+import { selectRoom, selectPlayer, selectStartingRoom } from "./utils/selectors";
 import { createKeywords } from "./game/verbs/keywords";
 
 const game = {};
@@ -67,58 +49,6 @@ function attach(container) {
 
   game.container = container;
   renderTopLevel();
-}
-
-function play() {
-  let titlePage = `# ${game.title || "Untitled"}`;
-
-  if (game.author) {
-    titlePage += `\n### By ${game.author}`;
-  }
-
-  const titleScreenGraph = new OptionGraph(
-    "titleScreen",
-    {
-      id: "root",
-      actions: new PagedText(titlePage),
-      options: {
-        play: {
-          condition: () => selectTurn() === 1,
-          actions: () => game.introActions.chain(),
-          exit: true
-        },
-        continue: {
-          condition: () => selectTurn() > 1,
-          actions: () => goToRoom(selectRoom()).chain(),
-          exit: true
-        },
-        "New Game": {
-          condition: () => selectTurn() > 1,
-          node: "newGameWarning"
-        }
-      }
-    },
-    {
-      id: "newGameWarning",
-      actions: new PagedText(
-        "This will delete the current save game file and start a new game.\n\nDo you want to continue?"
-      ),
-      options: {
-        yes: {
-          actions: () => {
-            deleteSave();
-            game.introActions.chain();
-          },
-          exit: true
-        },
-        cancel: "root"
-      }
-    }
-  );
-
-  getStore().dispatch(recordChanges());
-  loadSave(); // This must be after we start recording changes.
-  return titleScreenGraph.commence().chain();
 }
 
 function renderTopLevel() {
@@ -204,31 +134,6 @@ function forget(propertyName) {
   getStore().dispatch(forgetValue(propertyName));
 }
 
-function gameOver() {
-  const resurrectionText = new RandomText(
-    "Groggily, you get to your feet.",
-    "Had it been a premonition or just a bad dream? You shiver and try to forget it.",
-    "Why are your eyes closed? You open them and find yourself back where you were before."
-  );
-
-  const gameOverGraph = new OptionGraph("gameOver", {
-    id: "root",
-    actions: new PagedText("# GAME OVER"),
-    options: {
-      "Reload checkpoint": {
-        actions: [() => clearPage(), resurrectionText, resetToCheckpoint, () => goToRoom(selectRoom())],
-        exit: true
-      },
-      "Return to main menu": {
-        actions: [resetStateToPrePlay, play],
-        exit: true
-      }
-    }
-  });
-
-  return gameOverGraph.commence().chain();
-}
-
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door, newDoor, Key } from "./game/items/door";
@@ -241,7 +146,7 @@ export * from "./game/interactions/text";
 export { Schedule } from "./game/events/schedule";
 export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
-export { goToRoom } from "./utils/lifecycle";
+export { goToRoom, gameOver, play } from "./utils/lifecycle";
 export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
 export { selectInventory, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
 export { Effects, FixedSubjectEffects } from "./utils/effects";
@@ -253,7 +158,6 @@ export * from "./utils/itemFunctions";
 export {
   initGame,
   attach,
-  play,
   setIntro,
   setStartingRoom,
   goToStartingRoom,
@@ -269,6 +173,5 @@ export {
   store,
   update,
   retrieve,
-  forget,
-  gameOver
+  forget
 };

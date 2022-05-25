@@ -110,7 +110,7 @@ describe("tunnels", () => {
     cy.choose("go right", "rickety wooden door");
     cy.choose("open rickety door", "swings open limply");
     cy.choose("enter room", "Passing the open door, you");
-    cy.choose("Next", "The tiny room is dank and");
+    cy.choose("Next", "The tiny room is dank and", { global: true });
     cy.say("x barrel", "It's standing on the jagged");
     cy.say("hide under barrel", "Scrabbling with your fingers");
     cy.choose("Next", "You can see much of the dank");
@@ -119,5 +119,82 @@ describe("tunnels", () => {
     cy.choose("wait", "hammering heart");
     cy.choose("wait", "given up its hunt");
     cy.choose("leave", "You lift the barrel and");
+  });
+
+  it("hides from the monster in the well", () => {
+    cy.say("debug event 100", "100 milliseconds");
+    cy.say("debug commence tunnels meetTheMonster", "Beyond the bend the corridor");
+    cy.choose("Next", "Without a sound, it starts");
+    cy.choose("go round corner", "bound up the stairs");
+    cy.choose("go round corner", "ceiling lifts away");
+    cy.choose("straight on", "carved wooden door");
+    cy.choose("open carved door", "Lifting an iron latch, you");
+    cy.choose("enter room", "Passing the now open door,");
+    cy.choose("Next", "In the centre of the room", { global: true });
+    cy.say("x well", "The circular wall around the");
+    cy.say("hide in well", "First you hop up onto the");
+    cy.choose("descend further", "You slide further down the");
+    cy.choose("descend further", "You climb down ever further,");
+    cy.choose("search water", "Plunging your hand into the");
+    cy.choose("wait", "The sound of your breathing");
+    cy.choose("wait", "Your arms are aching terribly");
+    cy.choose("climb out", "You haul yourself back up the");
+  });
+
+  const reloadTextRegex = /(get to your feet|just a bad dream|find yourself back)/;
+
+  it("gets caught by the monster in the tunnels and loads a checkpoint", () => {
+    cy.say("debug event 10", "10 milliseconds");
+    cy.say("take pale", "the pale");
+    cy.say("x", "smells of rotting Earth", { global: true });
+    cy.say("debug commence tunnels meetTheMonster", "Beyond the bend the corridor");
+    cy.choose("Next", "Without a sound, it starts");
+    cy.choose("go round corner", "bound up the stairs");
+    cy.choose("go round corner", "ceiling lifts away");
+    cy.choose("go right", "rickety wooden door");
+    cy.choose("open rickety door", "swings open limply");
+    cy.shows("shadows seem to loom up");
+    cy.choose("next", "GAME OVER", { global: true });
+    cy.choose("reload checkpoint", reloadTextRegex, { global: true });
+    cy.choose("next", "smells of rotting Earth", { global: true });
+
+    // Check the monster chases and catches you again.
+    cy.say("debug event 1", "1 milliseconds");
+    cy.say("i", "pale");
+    cy.say("debug commence tunnels meetTheMonster", "Beyond the bend the corridor");
+    cy.choose("Next", "Without a sound, it starts");
+    cy.choose("back up stairs", "right behind you");
+    cy.choose("go round corner", "hot on your tail");
+    cy.choose("go right", "glance over your shoulder");
+    cy.choose("open rickety door", "shadows seem to loom up");
+    cy.choose("next", "GAME OVER", { global: true });
+  });
+
+  it("gets caught by the monster in a room and starts a new game", () => {
+    cy.say("debug event 100", "100 milliseconds");
+    cy.say("take pale", "pale");
+    cy.say("x", "smells of rotting Earth", { global: true });
+    cy.say("debug commence tunnels meetTheMonster", "Beyond the bend the corridor");
+    cy.choose("Next", "Without a sound, it starts");
+    cy.choose("go round corner", "bound up the stairs");
+    cy.choose("go round corner", "ceiling lifts away");
+    cy.choose("go right", "rickety wooden door");
+    cy.choose("open rickety door", "swings open limply");
+    cy.choose("enter room", "Passing the open door, you");
+    cy.choose("Next", "The tiny room is dank and", { global: true });
+    cy.say("x barrel", "edges of the wooden staves");
+    cy.say("hide under barrel", "Scrabbling with your fingers");
+    cy.choose("Next", "You can see much of the dank");
+    cy.shows("heart-stopping wail");
+    cy.choose("leave", "You lift the barrel and");
+    cy.shows("in the room with you");
+    cy.choose("next", "GAME OVER", { global: true });
+    cy.choose("return to main menu", "lady of bramble", { global: true });
+
+    // The monster should chase you again after starting a new game.
+    cy.newGame();
+    cy.say("i", /(holding anything|carrying anything|got nothing|hands are empty)/);
+    cy.say("debug commence tunnels meetTheMonster", "Beyond the bend the corridor");
+    cy.choose("Next", "Without a sound, it starts");
   });
 });
