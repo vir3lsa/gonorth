@@ -16,7 +16,7 @@ const consoleIO = require("../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let game, hall, north, south, east, west, door, chair, redBall, blueBall, redBox, blueBox, chairman, cushion;
+let hall, north, south, east, west, door, chair, redBall, blueBall, redBox, blueBox, chairman, cushion, pillar;
 
 const directionTest = async (input, expectedRoom) => {
   const actionPromise = new Parser(input).parse();
@@ -37,7 +37,7 @@ const inputTest = async (input, expectedOutput) => {
 
 beforeEach(() => {
   unregisterStore();
-  game = initGame("The Giant's Castle", "", { debugMode: false });
+  initGame("The Giant's Castle", "", { debugMode: false });
 });
 
 describe("parser", () => {
@@ -54,6 +54,7 @@ describe("parser", () => {
       blueBall = new Item("blue ball", "It's an azure ball", true);
       redBox = new Item("red box");
       blueBox = new Item("blue box");
+      pillar = new Item("pillar");
       redBall.aliases = "ball";
       blueBall.aliases = "ball";
       redBox.aliases = "box";
@@ -68,12 +69,20 @@ describe("parser", () => {
       new Verb("jump on"); // Should add verb to global registry
       door.aliases = ["hatch", "trap door", "door"];
       door.getVerb("open").addAliases("give a shove to");
+      pillar.addVerb(
+        new Verb.Builder()
+          .withName("take")
+          .withTest(false)
+          .withOnFailure("It's too big")
+          .withAliases("grab, snatch")
+          .build()
+      );
 
       hall.setNorth(north);
       hall.setSouth(south);
       hall.setEast(east);
       hall.setWest(west);
-      hall.addItems(door, chair, chairman, cushion, redBall, blueBall, redBox, blueBox);
+      hall.addItems(door, chair, chairman, cushion, redBall, blueBall, redBox, blueBox, pillar);
 
       goToRoom(hall);
       door.open = false;
@@ -139,5 +148,6 @@ describe("parser", () => {
       await inputTest("take red ball", "the red ball");
       await inputTest("x ball", "Which ball do you mean?");
     });
+    it("allows the use of verbs with duplicate names", () => inputTest("take pillar", "It's too big"));
   });
 });

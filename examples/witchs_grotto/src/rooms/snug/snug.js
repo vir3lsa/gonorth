@@ -47,7 +47,41 @@ export const initSnug = () => {
   drawers.closeText = "You push the drawers closed with a soft thud.";
   drawers.alreadyClosedText = "The drawers are already closed.";
 
-  snug.addItems(initCat(), drawers);
+  const fireplace = new Item.Builder()
+    .withName("fireplace")
+    .withAliases("fire", "hearth", "embers", "chimney")
+    .withDescription(
+      "A roaring fire must have been lit here a few hours ago; the logs have burnt down to oddly-shaped smouldering embers, occasionally spitting a spark or two onto the narrow stone hearth."
+    )
+    .hidesItems(
+      new Container.Builder()
+        .withName("log basket")
+        .withAliases("wicker")
+        .withContainerListing("Sitting on the hearth is a squat wicker log basket.")
+        .withOpenDescription(
+          "A wicker basket with two big handles extending from the rim. It's only big enough to carry a modest bundle of logs."
+        )
+        .isHoldable()
+        .withSize(8)
+        .withCapacity(8)
+        .isOpen()
+        .isCloseable(false)
+        .hidesItems(
+          new Item.Builder()
+            .withName("toy cart")
+            .withAliases("model", "horse", "drawn", "trap", "wagon", "carriage")
+            .withContainerListing("There aren't any logs in it, but there is...a model wagon?")
+            .withDescription(
+              "It's quite a lovely thing, with intricate wooden details including the driver's box, a passenger cabin complete with four curtained cross-framed windows, big multi-spoked wagon wheels and carriage steps to climb aboard.\n\nThere's something not quite right about it, though. Some sense that what you're seeing isn't what's really in front of you, like a mirage or an optical illusion."
+            )
+            .isHoldable()
+            .build()
+        )
+        .build()
+    )
+    .build();
+
+  snug.addItems(initCat(), drawers, fireplace);
 
   return snug;
 };

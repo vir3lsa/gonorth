@@ -14,6 +14,8 @@ export function newContainer(config) {
     open,
     holdable,
     size,
+    closeable,
+    verbs,
     ...remainingConfig
   } = config;
   const container = new Container(
@@ -26,8 +28,13 @@ export function newContainer(config) {
     locked,
     open,
     holdable,
-    size
+    size,
+    closeable
   );
+
+  if (verbs) {
+    container.addVerbs(...verbs);
+  }
 
   Object.entries(remainingConfig).forEach(([key, value]) => (container[key] = value));
 
@@ -45,7 +52,8 @@ export class Container extends Item {
     locked = false,
     open = false,
     holdable = false,
-    size = 1
+    size = 1,
+    closeable = true
   ) {
     const dynamicOpenDescription = createDynamicText(openDescription);
     const dynamicClosedDescription = createDynamicText(closedDescription);
@@ -63,35 +71,42 @@ export class Container extends Item {
     this.itemsVisibleFromSelf = open;
     this.open = open;
     this.locked = locked;
+    this.closeable = closeable;
     this.lockedText = `The ${this.name} is locked.`;
     this.openText = `The ${this.name} opens easily.`;
     this.alreadyOpenText = `The ${this.name} is already open.`;
     this.closeText = `You close the ${this.name} with a soft thud.`;
-    this.alreadyClosedText = `The ${this.name} is already closed`;
+    this.alreadyClosedText = `The ${this.name} is already closed.`;
 
-    this.openVerb = new Verb(
-      "open",
-      ({ item }) => !item.open && !item.locked,
-      [({ item }) => (item.open = true), ({ item }) => (item.itemsVisibleFromSelf = true), ({ item }) => item.openText],
-      ({ item }) => {
-        if (item.locked) return item.lockedText;
-        return item.alreadyOpenText;
-      }
-    );
+    if (this.closeable) {
+      this.openVerb = new Verb(
+        "open",
+        ({ item }) => !item.open && !item.locked,
+        [
+          ({ item }) => (item.open = true),
+          ({ item }) => (item.itemsVisibleFromSelf = true),
+          ({ item }) => item.openText
+        ],
+        ({ item }) => {
+          if (item.locked) return item.lockedText;
+          return item.alreadyOpenText;
+        }
+      );
 
-    this.closeVerb = new Verb(
-      "close",
-      ({ item }) => item.open,
-      [
-        ({ item }) => (item.open = false),
-        ({ item }) => (item.itemsVisibleFromSelf = false),
-        ({ item }) => item.closeText
-      ],
-      ({ item }) => item.alreadyClosedText,
-      ["shut"]
-    );
+      this.closeVerb = new Verb(
+        "close",
+        ({ item }) => item.open,
+        [
+          ({ item }) => (item.open = false),
+          ({ item }) => (item.itemsVisibleFromSelf = false),
+          ({ item }) => item.closeText
+        ],
+        ({ item }) => item.alreadyClosedText,
+        ["shut"]
+      );
 
-    this.addVerbs(this.openVerb, this.closeVerb);
+      this.addVerbs(this.openVerb, this.closeVerb);
+    }
   }
 
   addOpenAliases(...aliases) {
@@ -163,5 +178,89 @@ export class Container extends Item {
   set alreadyClosedText(text) {
     this.recordAlteredProperty("alreadyClosedText", text);
     this._alreadyClosedText = text;
+  }
+
+  static get Builder() {
+    return Builder;
+  }
+}
+
+class Builder {
+  constructor() {
+    this.config = {};
+  }
+
+  withName(name) {
+    this.config.name = name;
+    return this;
+  }
+
+  isHoldable(holdable = true) {
+    this.config.holdable = true;
+    return this;
+  }
+
+  withSize(size) {
+    this.config.size = size;
+    return this;
+  }
+
+  withVerbs(...verbs) {
+    this.config.verbs = verbs;
+    return this;
+  }
+
+  withAliases(...aliases) {
+    this.config.aliases = aliases;
+    return this;
+  }
+
+  hidesItems(...items) {
+    this.config.hidesItems = items;
+    return this;
+  }
+
+  withContainerListing(containerListing) {
+    this.config.containerListing = containerListing;
+    return this;
+  }
+
+  withClosedDescription(closedDescription) {
+    this.config.closedDescription = closedDescription;
+    return this;
+  }
+
+  withOpenDescription(openDescription) {
+    this.config.openDescription = openDescription;
+    return this;
+  }
+
+  withCapacity(capacity) {
+    this.config.capacity = capacity;
+    return this;
+  }
+
+  withPreposition(preposition) {
+    this.config.preposition = preposition;
+    return this;
+  }
+
+  isLocked(locked = true) {
+    this.config.locked = locked;
+    return this;
+  }
+
+  isOpen(open = true) {
+    this.config.open = open;
+    return this;
+  }
+
+  isCloseable(closeable = true) {
+    this.config.closeable = closeable;
+    return this;
+  }
+
+  build() {
+    return newContainer(this.config);
   }
 }

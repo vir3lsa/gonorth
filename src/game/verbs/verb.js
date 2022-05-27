@@ -174,47 +174,52 @@ export class Verb {
   }
 
   static get Builder() {
-    class Builder {
-      constructor() {
-        this.config = {};
-      }
-
-      withName(name) {
-        this.config.name = name;
-        return this;
-      }
-
-      withDescription(description) {
-        this.config.description = description;
-        return this;
-      }
-
-      withAliases(...aliases) {
-        this.config.aliases = aliases;
-        return this;
-      }
-
-      withOnSuccess(...onSuccess) {
-        this.config.onSuccess = onSuccess;
-        return this;
-      }
-
-      withOnFailure(...onFailure) {
-        this.config.onFailure = onFailure;
-        return this;
-      }
-
-      makeKeyword() {
-        this.config.isKeyword = true;
-        return this;
-      }
-
-      build() {
-        return newVerb(this.config);
-      }
-    }
-
     return Builder;
+  }
+}
+
+class Builder {
+  constructor() {
+    this.config = {};
+  }
+
+  withName(name) {
+    this.config.name = name;
+    return this;
+  }
+
+  withTest(test) {
+    this.config.test = test;
+    return this;
+  }
+
+  withDescription(description) {
+    this.config.description = description;
+    return this;
+  }
+
+  withAliases(...aliases) {
+    this.config.aliases = aliases;
+    return this;
+  }
+
+  withOnSuccess(...onSuccess) {
+    this.config.onSuccess = onSuccess;
+    return this;
+  }
+
+  withOnFailure(...onFailure) {
+    this.config.onFailure = onFailure;
+    return this;
+  }
+
+  makeKeyword() {
+    this.config.isKeyword = true;
+    return this;
+  }
+
+  build() {
+    return newVerb(this.config);
   }
 }
 

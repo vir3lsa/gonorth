@@ -224,6 +224,10 @@ export class Item {
   }
 
   addVerb(verb) {
+    if (verb instanceof Verb.Builder) {
+      throw Error(`Tried to add a verb to ${this.name} but received a Builder. Did you forget to call build()?`);
+    }
+
     this._verbs[verb.name.toLowerCase()] = verb;
     verb.parent = this;
   }
@@ -313,6 +317,10 @@ export class Item {
    * @param {Item} item The item to add.
    */
   addItem(item) {
+    if (item instanceof Item.Builder) {
+      throw Error(`Tried to add an item to ${this.name} but received a Builder. Did you forget to call build()?`);
+    }
+
     if (this.uniqueItems.has(item)) {
       debug(`Not adding ${item.name} to ${this.name} as it's already present.`);
       return;
@@ -762,51 +770,56 @@ export class Item {
   }
 
   static get Builder() {
-    class Builder {
-      constructor() {
-        this.config = {};
-      }
-
-      withName(name) {
-        this.config.name = name;
-        return this;
-      }
-
-      withDescription(description) {
-        this.config.description = description;
-        return this;
-      }
-
-      makeHoldable() {
-        this.config.holdable = true;
-        return this;
-      }
-
-      withSize(size) {
-        this.config.size = size;
-        return this;
-      }
-
-      withVerbs(...verbs) {
-        this.config.verbs = verbs;
-        return this;
-      }
-
-      withAliases(...aliases) {
-        this.config.aliases = aliases;
-        return this;
-      }
-
-      hidesItems(...items) {
-        this.config.hidesItems = items;
-        return this;
-      }
-
-      build() {
-        return newItem(this.config);
-      }
-    }
-
     return Builder;
+  }
+}
+
+class Builder {
+  constructor() {
+    this.config = {};
+  }
+
+  withName(name) {
+    this.config.name = name;
+    return this;
+  }
+
+  withDescription(description) {
+    this.config.description = description;
+    return this;
+  }
+
+  isHoldable(holdable = true) {
+    this.config.holdable = holdable;
+    return this;
+  }
+
+  withSize(size) {
+    this.config.size = size;
+    return this;
+  }
+
+  withVerbs(...verbs) {
+    this.config.verbs = verbs;
+    return this;
+  }
+
+  withAliases(...aliases) {
+    this.config.aliases = aliases;
+    return this;
+  }
+
+  hidesItems(...items) {
+    this.config.hidesItems = items;
+    return this;
+  }
+
+  withContainerListing(containerListing) {
+    this.config.containerListing = containerListing;
+    return this;
+  }
+
+  build() {
+    return newItem(this.config);
   }
 }

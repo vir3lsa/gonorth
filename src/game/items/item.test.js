@@ -98,12 +98,14 @@ describe("basic item tests", () => {
     await cup.try("take");
     expect(selectCurrentPage()).toInclude("already carrying");
   });
+});
 
+describe("builder tests", () => {
   test("items can be built with a builder", () => {
     const pipe = new Item.Builder()
       .withName("pipe")
       .withDescription("This is not a pipe")
-      .makeHoldable()
+      .isHoldable()
       .withSize(1)
       .withAliases("pope")
       .build();
@@ -115,12 +117,20 @@ describe("basic item tests", () => {
   });
 
   test("items built with a builder have the correct verbs", () => {
-    const pipe = new Item.Builder().withName("pipe").makeHoldable().withVerbs(new Verb("smoke")).build();
+    const pipe = new Item.Builder().withName("pipe").isHoldable().withVerbs(new Verb("smoke")).build();
     expect(pipe.name).toBe("pipe");
     expect(pipe.holdable).toBe(true);
     expect(pipe.getVerb("examine")).not.toBeUndefined();
     expect(pipe.getVerb("take")).not.toBeUndefined();
     expect(pipe.getVerb("smoke")).not.toBeUndefined();
+  });
+
+  test("a helpful error message is provided when adding an item if build() is not called", () => {
+    expect(() => room.addItem(new Item.Builder().withName("unfinished"))).toThrow("forget to call build()?");
+  });
+
+  test("a helpful error message is provided when adding a verb if build() is not called", () => {
+    expect(() => room.addVerb(new Verb.Builder().withName("unfinished"))).toThrow("forget to call build()?");
   });
 });
 
@@ -445,7 +455,7 @@ describe("serialization", () => {
     const car = new Item.Builder()
       .withName("car")
       .withDescription("fast")
-      .makeHoldable()
+      .isHoldable()
       .withSize(50)
       .withVerbs(new Verb("drive"))
       .withAliases("motor")
