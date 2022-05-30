@@ -28,3 +28,4 @@ export const selectRecordChanges = () => getStore().getState().recordChanges;
 export const selectStartingRoom = () => getStore().getState().startingRoom;
 export const selectCyCommands = () => getStore().getState().cyCommands;
 export const selectEventTimeoutOverride = () => getStore().getState().eventTimeoutOverride;
+export const selectEffects = () => getStore().getState().effects;

@@ -4,13 +4,19 @@ import { ActionChain } from "../../utils/actionChain";
 import { selectRoom } from "../../utils/selectors";
 
 export function newVerb(config) {
-  const { name } = config;
+  const { name, test, onSuccess, onFailure, aliases, isKeyword, prepositional, interrogative, prepositionOptional } =
+    config;
 
   if (!name) {
     throw Error("You must at least set the verb name.");
   }
 
-  const verb = new Verb(name);
+  const verb = new Verb(name, test, onSuccess, onFailure, aliases, isKeyword);
+
+  if (prepositional) {
+    verb.makePrepositional(interrogative, prepositionOptional);
+  }
+
   Object.entries(config).forEach(([key, value]) => (verb[key] = value));
   return verb;
 }
@@ -213,8 +219,15 @@ class Builder {
     return this;
   }
 
-  makeKeyword() {
-    this.config.isKeyword = true;
+  isKeyword(isKeyword = true) {
+    this.config.isKeyword = isKeyword;
+    return this;
+  }
+
+  makePrepositional(interrogative, prepositionOptional) {
+    this.config.prepositional = true;
+    this.config.interrogative = interrogative;
+    this.config.prepositionOptional = prepositionOptional;
     return this;
   }
 

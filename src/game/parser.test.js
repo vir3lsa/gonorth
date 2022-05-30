@@ -5,7 +5,7 @@ import { Parser } from "./parser";
 import { Door } from "./items/door";
 import { Item } from "./items/item";
 import { Verb } from "./verbs/verb";
-import { initGame } from "../gonorth";
+import { addEffect, addWildcardEffect, initGame } from "../gonorth";
 import { goToRoom } from "../utils/lifecycle";
 import { PagedText } from "./interactions/text";
 import { selectCurrentPage, selectInteraction } from "../utils/testSelectors";
@@ -65,6 +65,7 @@ describe("parser", () => {
       chair.preposition = "in";
       chairman = new Item("chair man", "impressive");
       chairman.aliases = [];
+      chairman.capacity = 5;
       cushion = new Item("cushion", "plush", true, 2);
       new Verb("jump on"); // Should add verb to global registry
       door.aliases = ["hatch", "trap door", "door"];
@@ -77,6 +78,18 @@ describe("parser", () => {
           .withAliases("grab, snatch")
           .build()
       );
+
+      // Add an effect
+      redBall.addVerb(
+        new Verb.Builder()
+          .withName("throw")
+          .makePrepositional("at what")
+          .withOnSuccess(({ item, other }) => `The ${item.name} hits the ${other.name}.`)
+          .build()
+      );
+      redBall.addVerb(new Verb.Builder().withName("hide").makePrepositional("from whom").build());
+      addEffect(redBall, chairman, "throw", true, "The chair man catches the ball.");
+      addWildcardEffect(chairman, "hide", true, ({ itemName }) => `The chair man can't find the ${itemName}.`);
 
       hall.setNorth(north);
       hall.setSouth(south);
@@ -125,7 +138,7 @@ describe("parser", () => {
       inputTest("put cushion in sofa", "Put the cushion where?"));
     it("gives feedback when no second item is given", () => inputTest("put cushion", "Put the cushion where?"));
     it("gives feedback when the second item isn't a container, deferring to verb", () =>
-      inputTest("put cushion in chair man", "can't put the cushion"));
+      inputTest("put cushion in red ball", "can't put the cushion"));
     it("allows interaction with items inside other items", async () => {
       await inputTest("put cushion in chair", "You put the cushion in the chair");
       await inputTest("take cushion", "the cushion");
@@ -149,5 +162,15 @@ describe("parser", () => {
       await inputTest("x ball", "Which ball do you mean?");
     });
     it("allows the use of verbs with duplicate names", () => inputTest("take pillar", "It's too big"));
+    it("uses the interrogative when no indirect item is given", () =>
+      inputTest("throw red ball", "Throw the red ball at what?"));
+    it("performs standard prepositional verb when there's no effect between the items", () =>
+      inputTest("throw red ball at cushion", "The red ball hits the cushion."));
+    it("performs standard prepositional verb when there's no effect for that verb", () =>
+      inputTest("put red ball in chair man", "put the red ball in the chair man"));
+    it("applies an effect when one is registered", () =>
+      inputTest("throw red ball at chair man", "The chair man catches the ball."));
+    it("applies wildcard effects", () =>
+      inputTest("hide red ball from the chair man", "The chair man can't find the red ball."));
   });
 });

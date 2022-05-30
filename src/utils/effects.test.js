@@ -1,79 +1,72 @@
 import { unregisterStore } from "../redux/storeRegistry";
 import { initStore } from "../redux/store";
 import { Item } from "../game/items/item";
-import { Effects, FixedSubjectEffects } from "./effects";
+import { Effects } from "./effects";
 import { selectCurrentPage } from "./testSelectors";
 
-let effects, subjectEffects;
+let effects;
 
 beforeEach(() => {
   unregisterStore();
   initStore();
 
   const paint = new Item("paint");
-  effects = new Effects((primary, secondary) => `The ${primary.name} doesn't do anything to the ${secondary.name}.`);
-  effects.add(paint, new Item("canvas"), true, "A beautiful picture appears on the canvas.");
-  effects.add(paint, new Item("face"), false, "It's the wrong kind of paint for face painting.");
-
-  subjectEffects = new FixedSubjectEffects(
-    new Item("car"),
-    (primary) => `The ${primary.name} doesn't do anything to the car.`
-  );
-  subjectEffects.add(new Item("driver"), true, "The driver drives the car");
-  subjectEffects.add(new Item("toddler"), false, "The toddler's out of its depth.");
+  effects = new Effects();
+  effects.add(paint, new Item("canvas"), "apply", true, "A beautiful picture appears on the canvas.");
+  effects.add(paint, new Item("face"), "apply", false, "It's the wrong kind of paint for face painting.");
+  effects.addWildcard("pool", "put", true, ({ itemName }) => `The ${itemName} hits the water with a splash.`);
+  effects.addWildcard("fire", "put", false, ({ itemName }) => `The ${itemName} doesn't seem to want to catch fire.`);
 });
 
 test("we can ask whether an item will have an effect on another item", () => {
-  expect(effects.hasEffect("paint", "canvas")).toBe(true);
-  expect(effects.hasEffect("paint", "floor")).toBe(false);
+  expect(effects.hasEffect("paint", "canvas", "apply")).toBe(true);
+  expect(effects.hasEffect("paint", "floor", "apply")).toBe(false);
+  expect(effects.hasEffect("paint", "canvas", "remove")).toBe(false);
 });
 
 test("we can ask whether an effect will be considered successful", () => {
-  expect(effects.isSuccessful("paint", "canvas")).toBe(true);
-  expect(effects.isSuccessful("paint", "face")).toBe(false);
+  expect(effects.isSuccessful("paint", "canvas", "apply")).toBe(true);
+  expect(effects.isSuccessful("paint", "face", "apply")).toBe(false);
+  expect(effects.isSuccessful("paint", "canvas", "remove")).toBe(false);
 });
 
 test("non-registered effects are considered unsuccessful", () => {
-  expect(effects.isSuccessful("paint", "door")).toBe(false);
-  expect(effects.isSuccessful("mouse", "flower")).toBe(false);
+  expect(effects.isSuccessful("paint", "door", "apply")).toBe(false);
+  expect(effects.isSuccessful("mouse", "flower", "climb")).toBe(false);
 });
 
 test("effects are realised", async () => {
-  await effects.apply("paint", "canvas").chain();
+  await effects.apply("paint", "canvas", "apply").chain();
   expect(selectCurrentPage()).toInclude("beautiful picture");
 });
 
 test("effects are realised even when considered unsuccessful", async () => {
-  await effects.apply("paint", "face").chain();
+  await effects.apply("paint", "face", "apply").chain();
   expect(selectCurrentPage()).toInclude("wrong kind of paint");
 });
 
-test("we can ask whether an item will have an effect on the subject", () => {
-  expect(subjectEffects.hasEffect("driver")).toBe(true);
-  expect(subjectEffects.hasEffect("dancer")).toBe(false);
-});
-
-test("we can ask whether an effect on a subject will be considered successful", () => {
-  expect(subjectEffects.isSuccessful("driver")).toBe(true);
-  expect(subjectEffects.isSuccessful("toddler")).toBe(false);
-});
-
-test("non-registered effects on subjects are considered unsuccessful", () => {
-  expect(subjectEffects.isSuccessful("dancer")).toBe(false);
-});
-
-test("effects on subjects are realised", async () => {
-  await subjectEffects.apply("driver").chain();
-  expect(selectCurrentPage()).toInclude("drives the car");
-});
-
-test("effects on subjects are realised even when considered unsuccessful", async () => {
-  await subjectEffects.apply("toddler").chain();
-  expect(selectCurrentPage()).toInclude("out of its depth");
-});
-
 test("effects can be added using item names", async () => {
-  effects.add("cat", "dog", true, "The cat bests the dog");
-  await effects.apply("cat", "dog").chain();
+  effects.add("cat", "dog", "pit", true, "The cat bests the dog");
+  await effects.apply("cat", "dog", "pit").chain();
   expect(selectCurrentPage()).toInclude("The cat bests");
+});
+
+test("we can ask whether an item will have a wildcard effect on another item", () => {
+  expect(effects.hasEffect("noodle", "pool", "put")).toBe(true);
+  expect(effects.hasEffect("whale", "pool", "put")).toBe(true);
+});
+
+test("we can ask whether a wildcard effect will be considered successful", () => {
+  expect(effects.isSuccessful("noodle", "pool", "put")).toBe(true);
+  expect(effects.isSuccessful("bowl", "fire", "put")).toBe(false);
+});
+
+test("wildcard effects are realised", async () => {
+  await effects.apply("noodle", "pool", "put").chain({ itemName: "noodle" });
+  expect(selectCurrentPage()).toInclude("The noodle hits the water");
+});
+
+test("wildcard effects are realised even when considered unsuccessful", async () => {
+  await effects.apply("bowl", "fire", "put").chain({ itemName: "bowl" });
+  expect(selectCurrentPage()).toInclude("The bowl doesn't seem to want to catch fire");
 });

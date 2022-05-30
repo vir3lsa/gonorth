@@ -6,7 +6,8 @@ import {
   selectRoom,
   selectItemNames,
   selectInventory,
-  selectKeywords
+  selectKeywords,
+  selectEffects
 } from "../utils/selectors";
 import { toTitleCase, getArticle } from "../utils/textFunctions";
 import disambiguate from "../utils/disambiguation";
@@ -74,28 +75,26 @@ export class Parser {
           const item = itemsWithName[0];
           this.roomItem = item || this.roomItem;
 
-          if (item && item.visible && item.verbs[possibleVerb]) {
+          if (item?.visible && item.verbs[possibleVerb]) {
             this.actualVerb = item.verbs[possibleVerb];
             this.verbSupported = true;
             let indirectItemsWithName, indirectItem, indirectAlias;
-            let validCombination = false;
+            let validCombination = true;
 
-            if (this.actualVerb.prepositional) {
-              indirectAlias = itemDetails[1]?.alias;
-              indirectItemsWithName = itemDetails[1]?.itemsWithName;
+            // Do we have a valid indirect item?
+            indirectAlias = itemDetails[1]?.alias;
+            indirectItemsWithName = itemDetails[1]?.itemsWithName;
 
-              if (indirectItemsWithName) {
-                indirectItem = indirectItemsWithName[0];
+            if (indirectItemsWithName) {
+              indirectItem = indirectItemsWithName[0];
 
-                if (indirectItem && indirectItem.visible) {
-                  this.indirectItem = indirectItem;
-                  validCombination = true;
-                }
-              } else if (this.actualVerb.prepositionOptional) {
-                validCombination = true;
+              if (indirectItem && indirectItem.visible) {
+                this.indirectItem = indirectItem;
               }
-            } else {
-              validCombination = true;
+            }
+
+            if (this.actualVerb.prepositional && !this.actualVerb.prepositionOptional && !this.indirectItem) {
+              validCombination = false;
             }
 
             if (validCombination) {
@@ -114,7 +113,17 @@ export class Parser {
                 return this.giveFeedback();
               }
 
-              return item.try(possibleVerb, indirectItem);
+              if (this.indirectItem) {
+                // See if there's an effect for this combination of items and verb.
+                const effectResult = selectEffects().apply(item, this.indirectItem, this.actualVerb.name);
+
+                if (effectResult) {
+                  return effectResult.chain({ itemName: item.name });
+                }
+              }
+
+              // If there's no effect registered (or no indirect item), try the verb as usual.
+              return item.try(possibleVerb, this.indirectItem);
             }
           }
         }
@@ -153,7 +162,10 @@ export class Parser {
         if (!itemDetails.length) {
           // Is the first item registered globally?
           const itemExists = selectItemNames().has(possibleItem);
-          this.registeredItem = itemExists ? possibleItem : this.registeredItem;
+
+          if (itemExists && (!this.registeredItem || possibleItem.length > this.registeredItem.length)) {
+            this.registeredItem = possibleItem;
+          }
         }
 
         // Is the item in the room and visible? Does it support the verb?
@@ -170,6 +182,7 @@ export class Parser {
           this.recordItems(possibleItem, itemsWithName, itemDetails, itemIndex, numItemWords, usedIndices);
         }
 
+        // Once we have two items, stop looking. Should we keep looking, in case of false positives?
         if (itemDetails.length > 1) {
           return itemDetails;
         }
@@ -187,7 +200,6 @@ export class Parser {
 
     if (itemDetails.length) {
       if (itemIndex < itemDetails[0].itemIndex) {
-        // console.log("SHIFTING" + itemsWithName[0].name);
         return itemDetails.unshift({ alias, itemsWithName, itemIndex });
       }
     }

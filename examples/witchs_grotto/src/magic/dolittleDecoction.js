@@ -1,11 +1,16 @@
 import { CyclicText, store, update } from "../../../../lib/gonorth";
 import { Potion, Procedure, STEP_FAT, STEP_WATER, STEP_WORDS, STEP_INGREDIENTS, STEP_HEAT, STEP_STIR } from "./alchemy";
-import { potionEffects, DRINK } from "./magicEffects";
 
 let dolittleProcedure;
 
 export const initDolittleProcedure = () => {
-  const dolittleDecoction = new Potion("Dolittle Decoction", "It's thick like treacle but a bright sickly green.");
+  const dolittleDecoction = new Potion(
+    "Dolittle Decoction",
+    "It's thick like treacle but a bright sickly green.",
+    true,
+    () => update("dolittle", true),
+    "Throwing your head back, you down the vial of Dolittle Decoction in one, as though it were foul medicine. To your surprise, the flavour, whilst a little meaty, is not unpleasant.\n\nYou don't feel any different, but something must have happened, right?"
+  );
 
   dolittleProcedure = new Procedure(
     {
@@ -101,12 +106,5 @@ export const initDolittleProcedure = () => {
 
   store("dolittle", false);
 
-  potionEffects.add(
-    dolittleDecoction,
-    DRINK,
-    true,
-    () => update("dolittle", true),
-    "Throwing your head back, you down the vial of Dolittle Decoction in one, as though it were foul medicine. To your surprise, the flavour, whilst a little meaty, is not unpleasant.\n\nYou don't feel any different, but something must have happened, right?"
-  );
   return dolittleProcedure;
 };

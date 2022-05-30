@@ -1,5 +1,4 @@
 import { Item, Text, RandomText, CyclicText, ManagedText, Verb, selectTurn } from "../../../../lib/gonorth";
-import { potionEffects, DRINK } from "./magicEffects";
 
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
@@ -367,29 +366,32 @@ export class Procedure {
 }
 
 export class Potion extends Item {
-  constructor(name, description) {
-    super(name, description, true, 1);
+  clone() {
+    const copy = new Potion(`${this.name} copy`, this.description, this.drinkable, [...this.drinkEffects]);
+    copy.name = this.name; // Set the real name - okay for a clone because it won't be serialized.
+    return copy;
+  }
 
-    potionEffects.add(
-      this,
-      DRINK,
-      false,
-      `Other than leaving a foul taste in your mouth and the vague feeling of regret in your heart, there's no discernible effect from drinking the ${name}.`
-    );
+  constructor(name, description, drinkable = false, ...drinkEffects) {
+    super(name, description, true, 1);
+    this.drinkable = drinkable;
+    this.drinkEffects = drinkEffects;
 
     const drink = new Verb(
       "drink",
-      ({ item }) => potionEffects.isSuccessful(item, DRINK),
-      [({ item }) => item.container.removeItem(item), ({ item }) => potionEffects.apply(item, DRINK)],
-      ({ item }) => potionEffects.apply(item, DRINK),
+      ({ item }) => item.drinkable,
+      [({ item }) => item.container.removeItem(item), ...this.drinkEffects],
+      ({ item }) =>
+        `Other than leaving a foul taste in your mouth and the vague feeling of regret in your heart, there's no discernible effect from drinking the ${item.name}.`,
       ["swallow"]
     );
 
     const pour = new Verb(
       "pour",
-      ({ item, other }) => potionEffects.isSuccessful(item, other),
-      [({ item }) => item.container.removeItem(item), ({ item, other }) => potionEffects.apply({ item, other })],
-      ({ item, other }) => potionEffects.apply(item, other),
+      false,
+      null,
+      ({ item, other }) =>
+        `You carefully pour a drop of the potion onto the ${other.name} but nothing happens. It doesn't appear to be affected by the ${item.name}.`,
       ["tip", "apply"]
     );
     pour.makePrepositional("on what");

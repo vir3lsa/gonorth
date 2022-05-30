@@ -6,10 +6,10 @@ import { getStore, unregisterStore } from "./redux/storeRegistry";
 import { addEvent as eventAdded, addValue, forgetValue, newGame, setStartRoom, updateValue } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import { clearPage, createPlayer, goToRoom, play } from "./utils/lifecycle";
+import { clearPage, createPlayer, goToRoom } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
-import { selectRoom, selectPlayer, selectStartingRoom } from "./utils/selectors";
+import { selectRoom, selectPlayer, selectStartingRoom, selectEffects } from "./utils/selectors";
 import { createKeywords } from "./game/verbs/keywords";
 
 const game = {};
@@ -134,6 +134,14 @@ function forget(propertyName) {
   getStore().dispatch(forgetValue(propertyName));
 }
 
+function addEffect(primaryItem, secondaryItem, verbName, successful, ...effects) {
+  selectEffects().add(primaryItem, secondaryItem, verbName, successful, ...effects);
+}
+
+function addWildcardEffect(secondaryItem, verbName, successful, ...effects) {
+  selectEffects().addWildcard(secondaryItem, verbName, successful, ...effects);
+}
+
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door, newDoor, Key } from "./game/items/door";
@@ -149,7 +157,6 @@ export { Npc } from "./game/items/npc";
 export { goToRoom, gameOver, play } from "./utils/lifecycle";
 export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
 export { selectInventory, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
-export { Effects, FixedSubjectEffects } from "./utils/effects";
 export { ActionChain, Action } from "./utils/actionChain";
 export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 export { inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";
@@ -173,5 +180,7 @@ export {
   store,
   update,
   retrieve,
-  forget
+  forget,
+  addEffect,
+  addWildcardEffect
 };

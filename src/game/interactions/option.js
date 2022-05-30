@@ -20,13 +20,13 @@ export class Option {
     const actionArray = Array.isArray(action) ? action : [action];
     const actionChain = new ActionChain(...actionArray);
 
-    this._action = async (...args) => {
+    this._action = async () => {
       // Record player decision
       getStore().dispatch(changeInteraction(new AppendInput(this.label)));
       getStore().dispatch(cyChoose(this.label));
 
       // First perform the player actions
-      await actionChain.chain(...args);
+      await actionChain.chain({ option: this.label });
 
       if (!selectActionChainPromise() && this.endTurn) {
         // Do the end of turn actions if there's no enclosing chain i.e. we came from room options

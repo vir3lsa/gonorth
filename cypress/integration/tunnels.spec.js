@@ -7,13 +7,17 @@ describe("tunnels", () => {
 
   it("opens cell door with rusty key", () => {
     // Spawn key
+    cy.say("take pale");
     cy.say("debug spawn rusty iron key", "spawned rusty iron key");
     cy.say("take key");
     cy.say("i");
     cy.showsLast("rusty iron key");
+    cy.showsLast("pale");
 
     // Jump to door
     cy.say("debug commence tunnels middleGaol", "heavy oak door");
+    cy.choose("unlock oak door", "use which item?");
+    cy.choose("pale", "You're not going to be able to open the door with the pale.");
     cy.choose("unlock oak door", "use which item?");
     cy.choose("rusty iron key", "force the rusty key into the lock");
 
@@ -49,15 +53,20 @@ describe("tunnels", () => {
     // Spawn key
     cy.say("debug spawn organic");
     cy.shows("spawned organic");
+    cy.say("debug spawn feline", "spawned feline");
     cy.say("take organic");
+    cy.say("take feline");
     cy.say("i");
     cy.showsLast("organic dissolution accelerator");
+    cy.showsLast("philtre of feline vision");
 
     // Jump to door
     cy.say("debug commence tunnels middleGaol");
     cy.shows("heavy oak door");
     cy.choose("unlock oak door");
     cy.shows("use which item?");
+    cy.choose("philtre of feline vision", "philtre of feline vision splashes onto the door");
+    cy.choose("unlock oak door");
     cy.choose("organic dissolution accelerator");
     cy.shows("pour a good quantity");
 

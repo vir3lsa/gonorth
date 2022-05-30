@@ -4,6 +4,7 @@ import {
   Append,
   AppendInput
 } from "../../game/interactions/interaction";
+import { Effects } from "../../utils/effects";
 
 const outputSnippetLength = 30;
 
@@ -31,7 +32,8 @@ export const initialState = {
   cyCommands: [],
   cySay: null,
   cyChoose: null,
-  eventTimeoutOverride: null
+  eventTimeoutOverride: null,
+  effects: new Effects()
 };
 
 export default function (state = initialState, action) {

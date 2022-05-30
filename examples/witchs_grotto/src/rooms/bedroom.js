@@ -13,9 +13,10 @@ import {
   newContainer,
   store,
   retrieve,
-  update
+  update,
+  addEffect,
+  addWildcardEffect
 } from "../../../../lib/gonorth";
-import { mirrorEffects } from "../magic/magicEffects";
 import { MagicWord } from "../magic/magicWord";
 import { getCatGraph } from "./snug/cat";
 import { getMemoCard } from "./snug/snug";
@@ -33,23 +34,6 @@ export const initBedroom = () => {
     true
   );
 
-  const examine = new Verb(
-    "examine",
-    true,
-    ({ item, other }) => {
-      if (other) {
-        return mirrorEffects.apply(item, other);
-      } else {
-        item.revealItems();
-        return item.getFullDescription();
-      }
-    },
-    null,
-    ["ex", "x", "look", "inspect"]
-  );
-
-  examine.makePrepositional("with what", true);
-
   const bedsideTable = new Item("bedside table", () => {
     let description =
       "It stands against the wall on four spindly legs. The top is polished to a dull gleam but is otherwise featureless.";
@@ -64,7 +48,6 @@ export const initBedroom = () => {
   bedsideTable.canHoldItems = true;
   bedsideTable.preposition = "on";
   bedsideTable.capacity = 3;
-  bedsideTable.addVerb(examine);
 
   const dresser = new Item(
     "dresser",
@@ -74,16 +57,24 @@ export const initBedroom = () => {
   dresser.canHoldItems = true;
   dresser.preposition = "on";
   dresser.capacity = 5;
-  dresser.addVerb(examine);
 
   const mirror = new Item(
     "mirror",
     "At first glance it appears entirely like an ordinary mirror - flat, reflective, projecting the room back at you. As you continue to gaze at it, it begins to resemble something from a fairground Hall of Mirrors, twisting and distorting the things it shows you. It goes even further than that, you realise, completely changing some of the objects reflected in its enchanted surface."
   );
 
-  mirrorEffects.add(
+  addWildcardEffect(
+    mirror,
+    "examine",
+    false,
+    ({ itemName }) =>
+      `Looking at the ${itemName} in the mirror changes nothing about its appearance. It's the same as ever.`
+  );
+
+  addEffect(
     dresser,
     mirror,
+    "examine",
     true,
     "You can't see much of the dresser in the mirror as the mirror is attached to it, but, what you can see by getting the angle just right is that the clean, white-painted, wooden surface has been replaced with what looks like dense foliage, as though the whole table is made from dark green leaves, gently swaying in some phantom breeze."
   );
@@ -147,7 +138,6 @@ export const initBedroom = () => {
     }
   });
 
-  keepsakeBox.addVerb(examine);
   keepsakeBox.addTest("take", () => retrieve("keepsakeBoxSolidity") >= 3);
   keepsakeBox.addAction(
     "take",
@@ -170,11 +160,15 @@ export const initBedroom = () => {
   );
   store("keepsakeBoxSolidity", 0);
 
-  mirrorEffects.add(bedsideTable, mirror, true, [
+  addEffect(
+    bedsideTable,
+    mirror,
+    "examine",
+    true,
     () => {
       if (!retrieve("keepsakeBoxSolidity")) {
         bedsideTable.addItem(keepsakeBox);
-        mirrorEffects.add(keepsakeBox, mirror, true, () => {
+        addEffect(keepsakeBox, mirror, "examine", true, () => {
           update("keepsakeBoxSolidity", retrieve("keepsakeBoxSolidity") + 1);
 
           if (retrieve("keepsakeBoxSolidity") === 2) {
@@ -194,7 +188,7 @@ export const initBedroom = () => {
 
       return "When viewed in the mirror, the bedside table has a small keepsake box on it.";
     }
-  ]);
+  );
 
   keepsakeBox.addVerb(
     new Verb("unlock", false, null, () => {
@@ -211,8 +205,11 @@ export const initBedroom = () => {
   keepsakeBox.addPostscript("close", "The box emits a quiet **click**. It's locked again.");
 
   const memoCard = getMemoCard();
-  memoCard.addVerb(examine);
-  mirrorEffects.add(memoCard, mirror, true, [
+  addEffect(
+    memoCard,
+    mirror,
+    "examine",
+    true,
     () => {
       if (!selectPlayer().items["WOAIM"]) {
         selectPlayer().addItem(
@@ -227,7 +224,7 @@ export const initBedroom = () => {
     },
     `Your heart skips a beat. When you look at the card in the enchanted mirror, a word appears in block capitals:
   ## WOAIM`
-  ]);
+  );
 
   const keepsakeBoxTimer = new Schedule.Builder()
     .addEvent(() => {

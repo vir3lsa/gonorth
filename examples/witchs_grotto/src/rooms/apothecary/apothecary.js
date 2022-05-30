@@ -12,7 +12,9 @@ import {
   Door,
   Schedule,
   retrieve,
-  store
+  store,
+  addEffect,
+  forget
 } from "../../../../../lib/gonorth";
 import { Ingredient } from "../../magic/ingredient";
 import {
@@ -25,7 +27,6 @@ import {
   STEP_BLOOD,
   STEP_FAT
 } from "../../magic/alchemy";
-import { potionEffects, DRINK } from "../../magic/magicEffects";
 import { getLowerSpiral } from "../lowerSpiral";
 import { initPestleAndMortar } from "../../magic/pestleAndMortar";
 import { getAlchemy, initCauldron, getContents, getTap, getFire } from "../../magic/cauldron";
@@ -316,7 +317,14 @@ export const initApothecary = () => {
     woodwormPotion
   );
 
-  const strengthPotion = new Potion("Elixir of Might", "It's a deep purple colour, flecked with gold.");
+  const strengthPotion = new Potion(
+    "Elixir of Might",
+    "It's a deep purple colour, flecked with gold.",
+    true,
+    () => store("strong", true),
+    "You lift the sweet-smelling elixir to your lips and take a tentative sip. You feel vaguely invigorated as the potion slips down your throat. Feeling suddenly confident, you glug down the rest of the potion from the vial. For a moment nothing happens.",
+    "Then, suddenly, you begin to feel *powerful*. Your shirt starts to feel extremely tight as your muscles swell and bulge. You've never felt so strong. You are *ripped*."
+  );
   strengthPotion.addAliases("strength");
 
   const strengthProcedure = new Procedure(
@@ -431,9 +439,10 @@ Recite the Lunar Incantation.`,
 
   alchemy.addProcedures(mendingProcedure, woodwormProcedure, strengthProcedure, initDolittleProcedure());
 
-  potionEffects.add(
+  addEffect(
     woodwormPotion,
     bureau,
+    "pour",
     true,
     () => {
       bureau.description =
@@ -445,15 +454,6 @@ Recite the Lunar Incantation.`,
     },
     "You carefully pour a droplet of the Organic Dissolution Accelerator onto the surface of the desk. Immediately it starts foaming and producing white steam. When it finishes hissing and bubbling, there's a depression the size of a grape in the heavy oak worktop.",
     "You tip the entire contents of the vial onto the bureau, watching in horror and delight as the ferocious substance devours the wood, eating its way right through to the drawers beneath. By the time the potion has done its work, the top of the desk is almost entirely gone and the once-locked drawers are easily accessible."
-  );
-
-  potionEffects.add(
-    strengthPotion,
-    DRINK,
-    true,
-    () => (selectPlayer().strong = true),
-    "You lift the sweet-smelling elixir to your lips and take a tentative sip. You feel vaguely invigorated as the potion slips down your throat. Feeling suddenly confident, you glug down the rest of the potion from the vial. For a moment nothing happens.",
-    "Then, suddenly, you begin to feel *powerful*. Your shirt starts to feel extremely tight as your muscles swell and bulge. You've never felt so strong. You are *ripped*."
   );
 
   const ironGate = new Door(
@@ -502,7 +502,7 @@ Recite the Lunar Incantation.`,
 
   const breakVerb = new Verb(
     "break",
-    () => selectPlayer().strong && !retrieve("ironGateBroken"),
+    () => retrieve("strong") && !retrieve("ironGateBroken"),
     [
       () => store("ironGateBroken", true),
       "Flexing your bulging muscles, you grab hold of the iron bars of the gate and pull with all your might. It turns out all your might wasn't required as the padlock and hinges snap easily under the force of your exaggerated strength and you topple backwards, landing clumsily with the gate on top of you.",
@@ -548,13 +548,10 @@ Recite the Lunar Incantation.`,
 };
 
 export const strengthTimer = new Schedule.Builder()
-  .withCondition(() => selectPlayer().strong)
+  .withCondition(() => retrieve("strong"))
   .addEvent("You're feeling a little less...buff...than before. The strength potion's starting to wear off.")
   .withDelay(10, TIMEOUT_TURNS)
-  .addEvent(
-    () => (selectPlayer().strong = false),
-    "Sure enough, the potion's worn off. You're back to your normal skinny self."
-  )
+  .addEvent(() => forget("strong"), "Sure enough, the potion's worn off. You're back to your normal skinny self.")
   .withDelay(3, TIMEOUT_TURNS)
   .recurring()
   .build();

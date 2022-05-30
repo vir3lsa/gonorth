@@ -15,7 +15,6 @@ import {
   RandomText,
   Action,
   selectInventory,
-  FixedSubjectEffects,
   Key,
   store,
   retrieve,
@@ -25,6 +24,7 @@ import {
 } from "../../../../lib/gonorth";
 import { Ingredient } from "../magic/ingredient";
 import { initCavern } from "./cavern";
+import { Potion } from "../magic/alchemy";
 
 const forward = "f";
 const up = "up";
@@ -138,33 +138,6 @@ export const initTunnelsGraph = () => {
     "You have to apply a lot of pressure to force the rusty key into the lock, but it fits snugly. Using both hands, you turn it a hundred and eighty degrees, producing a satisfying *clunk* from within.",
     ["cell"],
     cellKey
-  );
-
-  const oakDoorEffects = new FixedSubjectEffects(
-    oakDoor,
-    (item) => `The ${item.name} has no discernible effect on the door.`
-  );
-
-  oakDoorEffects.add(
-    "Organic Dissolution Accelerator",
-    true,
-    () => {
-      oakDoor.locked = false;
-    },
-    () => {
-      oakDoor.open = true;
-    },
-    () => {
-      oakDoor.description =
-        "Thanks to the the potion and your shoe, there's not much left of the once sturdy door at all.";
-    },
-    () => {
-      oakDoor.verbs.close.test = false;
-    },
-    () => {
-      oakDoor.verbs.close.onFailure = "The door has been dissolved - it'll never close again.";
-    },
-    "Being *extremely* careful not to get any on yourself, you pour a good quantity of Organic Dissolution Accelerator down the door and stand back. The substance immediately goes to work, eating ravenously into the wood like a horde of angry termites. Within a couple of minutes there's not much left of the door at all; a good kick breaks a hole through it and a few more create a space you can slip through."
   );
 
   let cell = new Room(
@@ -688,8 +661,18 @@ export const initTunnelsGraph = () => {
           inventoryAction: (item) => {
             if (item instanceof Key) {
               return oakDoor.getVerb("unlock").attempt(oakDoor, item);
+            } else if (item.name === "Organic Dissolution Accelerator") {
+              oakDoor.locked = false;
+              oakDoor.open = true;
+              oakDoor.description =
+                "Thanks to the the potion and your shoe, there's not much left of the once sturdy door at all.";
+              oakDoor.verbs.close.test = false;
+              oakDoor.verbs.close.onFailure = "The door has been dissolved - it'll never close again.";
+              return "Being *extremely* careful not to get any on yourself, you pour a good quantity of Organic Dissolution Accelerator down the door and stand back. The substance immediately goes to work, eating ravenously into the wood like a horde of angry termites. Within a couple of minutes there's not much left of the door at all; a good kick breaks a hole through it and a few more create a space you can slip through.";
+            } else if (item instanceof Potion) {
+              return `The ${item.name} splashes onto the door and runs messily down to the floor. It doesn't appear to have any effect.`;
             } else {
-              return oakDoorEffects.apply(item);
+              return `You're not going to be able to open the door with the ${item.name}.`;
             }
           }
         },
