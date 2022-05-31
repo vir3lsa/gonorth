@@ -14,8 +14,8 @@ beforeEach(() => {
   effects = new Effects();
   effects.add(paint, new Item("canvas"), "apply", true, "A beautiful picture appears on the canvas.");
   effects.add(paint, new Item("face"), "apply", false, "It's the wrong kind of paint for face painting.");
-  effects.addWildcard("pool", "put", true, ({ itemName }) => `The ${itemName} hits the water with a splash.`);
-  effects.addWildcard("fire", "put", false, ({ itemName }) => `The ${itemName} doesn't seem to want to catch fire.`);
+  effects.addWildcard("pool", "put", true, ({ item }) => `The ${item.name} hits the water with a splash.`);
+  effects.addWildcard("fire", "put", false, ({ item }) => `The ${item.name} doesn't seem to want to catch fire.`);
 });
 
 test("we can ask whether an item will have an effect on another item", () => {
@@ -62,11 +62,11 @@ test("we can ask whether a wildcard effect will be considered successful", () =>
 });
 
 test("wildcard effects are realised", async () => {
-  await effects.apply("noodle", "pool", "put").chain({ itemName: "noodle" });
+  await effects.apply("noodle", "pool", "put").chain({ item: { name: "noodle" } });
   expect(selectCurrentPage()).toInclude("The noodle hits the water");
 });
 
 test("wildcard effects are realised even when considered unsuccessful", async () => {
-  await effects.apply("bowl", "fire", "put").chain({ itemName: "bowl" });
+  await effects.apply("bowl", "fire", "put").chain({ item: { name: "bowl" } });
   expect(selectCurrentPage()).toInclude("The bowl doesn't seem to want to catch fire");
 });

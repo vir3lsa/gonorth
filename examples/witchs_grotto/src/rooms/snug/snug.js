@@ -1,4 +1,15 @@
-import { Room, Item, Container, addEffect } from "../../../../../lib/gonorth";
+import { SequentialText } from "../../../../../lib/game/interactions/text";
+import {
+  Room,
+  Item,
+  Container,
+  addEffect,
+  store,
+  retrieve,
+  update,
+  forget,
+  selectInventory
+} from "../../../../../lib/gonorth";
 import { initCat } from "./cat";
 
 let snug;
@@ -59,7 +70,37 @@ export const initSnug = () => {
     .withSize(3)
     .build();
 
-  addEffect(toyWagon, "mirror", true, "placeholder");
+  const toyBoat = new Item.Builder()
+    .withName("toy boat")
+    .withAliases("dinghy", "wagon")
+    .withDescription(
+      "A charming model of a wooden dinghy - the kind Grandad used to row out into the middle of the lake in the valley to fish. It won't be any good for rowing in its current state, though, even for dolls, owing to the giant hole in the hull."
+    )
+    .isHoldable()
+    .withSize(3)
+    .build();
+
+  store("toyBoatSolidity", 0);
+  addEffect(toyWagon, "mirror", "examine", true, ({ item: wagon }) => {
+    const solidity = retrieve("toyBoatSolidity");
+
+    if (!solidity) {
+      update("toyBoatSolidity", solidity + 1);
+      wagon.description =
+        "It's a fuzzy blur of colours now, barely identifiable as a wagon. Something at the back of your mind recognises some other object in the distorted jumble of shapes and lines, but you can't quite pin down what it is.";
+      return "In the mirror's magical glass, the wagon begins to blur more dramatically, its edges becoming hazy and indistinct. Another shape you can't quite make out yet is beginning to emerge.";
+    } else {
+      forget("toyBoatSolidity");
+      const container = wagon.container;
+      container.removeItem(wagon);
+      container.addItem(toyBoat);
+      return new SequentialText(
+        "That other shape hidden behind the wagon is coming into focus now. You recognise it at last.",
+        "It's a toy boat - a tiny wooden dinghy, slightly pointed at the prow and flat at the stern. There are two plank seats stretching horizontally across the boat. Something bad appears to have befallen it as there's a jagged hole in the bottom.",
+        "You can see the boat with perfect clarity now - all traces of the wagon are gone."
+      );
+    }
+  });
 
   const fireplace = new Item.Builder()
     .withName("fireplace")

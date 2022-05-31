@@ -118,7 +118,7 @@ export class Parser {
                 const effectResult = selectEffects().apply(item, this.indirectItem, this.actualVerb.name);
 
                 if (effectResult) {
-                  return effectResult.chain({ itemName: item.name });
+                  return effectResult.chain({ item });
                 }
               }
 

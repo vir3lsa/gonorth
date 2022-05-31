@@ -135,10 +135,18 @@ function forget(propertyName) {
 }
 
 function addEffect(primaryItem, secondaryItem, verbName, successful, ...effects) {
+  if (typeof verbName !== "string") {
+    throw Error("Tried to add an effect without specifying a verb name.");
+  }
+
   selectEffects().add(primaryItem, secondaryItem, verbName, successful, ...effects);
 }
 
 function addWildcardEffect(secondaryItem, verbName, successful, ...effects) {
+  if (typeof verbName !== "string") {
+    throw Error("Tried to add a wildcard effect without specifying a verb name.");
+  }
+
   selectEffects().addWildcard(secondaryItem, verbName, successful, ...effects);
 }
 

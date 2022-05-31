@@ -89,7 +89,7 @@ describe("parser", () => {
       );
       redBall.addVerb(new Verb.Builder().withName("hide").makePrepositional("from whom").build());
       addEffect(redBall, chairman, "throw", true, "The chair man catches the ball.");
-      addWildcardEffect(chairman, "hide", true, ({ itemName }) => `The chair man can't find the ${itemName}.`);
+      addWildcardEffect(chairman, "hide", true, ({ item }) => `The chair man can't find the ${item.name}.`);
 
       hall.setNorth(north);
       hall.setSouth(south);

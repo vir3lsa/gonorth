@@ -67,8 +67,8 @@ export const initBedroom = () => {
     mirror,
     "examine",
     false,
-    ({ itemName }) =>
-      `Looking at the ${itemName} in the mirror changes nothing about its appearance. It's the same as ever.`
+    ({ item }) =>
+      `Looking at the ${item.name} in the mirror changes nothing about its appearance. It's the same as ever.`
   );
 
   addEffect(
