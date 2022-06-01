@@ -819,6 +819,11 @@ class Builder {
     return this;
   }
 
+  withCapacity(capacity) {
+    this.config.capacity = capacity;
+    return this;
+  }
+
   build() {
     return newItem(this.config);
   }

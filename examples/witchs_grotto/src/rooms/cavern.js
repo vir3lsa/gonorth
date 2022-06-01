@@ -1,4 +1,4 @@
-import { Item, Room, Verb } from "../../../../lib/gonorth";
+import { addEffect, Item, retrieve, Room, Verb } from "../../../../lib/gonorth";
 
 let cavern;
 
@@ -19,6 +19,7 @@ export const initCavern = () => {
     .withDescription(
       "It's a moderately-proportioned underground lake. Near the shore, the water's shallow and clear enough to see to the stoney bottom. Farther out, where the floor drops away to unknown depths, it's inky black and still. The lake stretches to the other side of the cavern, where a black opening in the rock reveals an underground river outlet."
     )
+    .withCapacity(100)
     .withVerbs(
       new Verb.Builder()
         .withName("swim")
@@ -73,6 +74,36 @@ export const initCavern = () => {
         .build()
     )
     .build();
+
+  addEffect(
+    "toy wagon",
+    lake,
+    "put",
+    true,
+    ({ item: toyWagon }) => {
+      toyWagon.verbs.put.attempt(toyWagon, lake);
+      toyWagon.containerListing =
+        "Floating serenely in the shallow water near the shore, as if discarded by a fickle toddler, is the model wagon.";
+    },
+    "The toy wagon drops into the shallow water with a splash. It floats, owing to its wooden construction, albeit on its side. Close as it is to the shore, there's no current to pull it out of reach."
+  );
+
+  addEffect(
+    "toy boat",
+    lake,
+    "put",
+    true,
+    ({ item: toyBoat }) => toyBoat.verbs.put.attempt(toyBoat, lake),
+    ({ item: toyBoat }) => {
+      if (retrieve("toyBoatMended")) {
+        toyBoat.containerListing = "Floating happily in the shallow waters near the shore is the toy boat.";
+        return "After entering the crystal clear water, its newly intact hull prevents any ingress and keeps it afloat. This close to the shore, there's no current, so there's no danger of losing it.";
+      } else {
+        toyBoat.containerListing = "Half submerged near the shore is the toy boat, floating on its side.";
+        return "After entering the crystal clear water it floats serenely for a moment. Then, however, the water seeping in through the hole in its belly causes it to sit lower and lower, before eventually tipping to one side and partially capsizing. It doesn't sink, per se, owing to its lightweight wooden construction, but it's not exactly seaworthy.\n\nThis close to the shore, there's no current, so there's no danger of losing it.";
+      }
+    }
+  );
 
   cavern.addItems(lake, opening, bats);
   return cavern;
