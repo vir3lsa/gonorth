@@ -172,5 +172,24 @@ describe("parser", () => {
       inputTest("throw red ball at chair man", "The chair man catches the ball."));
     it("applies wildcard effects", () =>
       inputTest("hide red ball from the chair man", "The chair man can't find the red ball."));
+    
+    describe("auto disambiguation", () => {
+      let apple1, apple2;
+      beforeEach(() => {
+        apple1 = new Item("nice apple", "nice and crunchy", true);
+        apple2 = new Item("rotten apple", "squishy and gross", true);
+        apple2.addVerb(new Verb("squish", true, "gross juice squeezes out"));
+        hall.addItems(apple1, apple2);
+      });
+
+      it("auto disambiguates when items are invisible", () => {
+        apple1.visible = false;
+        inputTest("take apple", "the apple");
+      });
+
+      it("auto disambiguates when items don't support the verb", () => {
+        inputTest("squish apple", "gross juice squeezes out");
+      });
+    });
   });
 });

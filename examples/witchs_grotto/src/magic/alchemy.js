@@ -1,4 +1,4 @@
-import { Item, Text, RandomText, CyclicText, ManagedText, Verb, selectTurn } from "../../../../lib/gonorth";
+import { Item, Text, RandomText, CyclicText, ConcatText, ManagedText, Verb, selectTurn } from "../../../../lib/gonorth";
 
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
@@ -28,6 +28,16 @@ export class Alchemy {
       "The mixture doesn't seem to be doing anything at all. It's no potion.",
       "The concoction seems totally inert. There's no magic to be seen.",
       "The contents sit dully in the pot. There's no evidence of anything happening."
+    );
+    this.randomIngredients = new RandomText(
+      "Without a base to add it to, you're not sure what good it'll do.",
+      "It drops into the empty cauldron inertly.",
+      "Perhaps you ought to follow a recipe?"
+    );
+    this.extraIngredients = new RandomText(
+      "Adding more and more ingredients is unlikely to help at this stage.",
+      "Maybe you should call this one a failure and start again?",
+      "The potion doesn't seem to be salvageable at this point."
     );
   }
 
@@ -134,6 +144,10 @@ export class Alchemy {
         } else if (this.liquidLevel && this.ingredientsAdded && turn > this.errorMessageOnTurn) {
           this.stepText = this.inert.next();
           this.errorMessageOnTurn = turn;
+        } else if (!this.liquidLevel && this.ingredientsAdded) {
+          this.stepText = this.randomIngredients.next();
+        } else if (turn > this.errorMessageOnTurn) {
+          this.stepText = this.extraIngredients.next();
         }
 
         this.potion = null;
@@ -309,7 +323,7 @@ export class Alchemy {
 
     let liquidText = `${liquid} gushes into the cauldron. ${readableLabel}`;
 
-    return [liquidText, this.stepText];
+    return new ConcatText(liquidText, this.stepText);
   }
 
   get liquidLevel() {

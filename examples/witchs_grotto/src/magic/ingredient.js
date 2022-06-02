@@ -1,20 +1,30 @@
-import { Item, Verb, selectPlayer } from "../../../../lib/gonorth";
+import { Item, Verb, selectPlayer, getItem, moveItem, ConcatText } from "../../../../lib/gonorth";
 import { getAlchemy, getCauldron } from "./cauldron";
 import { getPestleAndMortar } from "./pestleAndMortar";
 
+export function newIngredient(config) {
+  const { name, description, holdable, size, ...remainingConfig } = config;
+  const item = new Ingredient(name, description, holdable, size);
+  Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
+
+  return item;
+}
+
 export class Ingredient extends Item {
-  constructor(name, description) {
-    super(name, description, true, 1);
+  constructor(name, description, holdable = true, size = 1) {
+    super(name, description, holdable, size);
     this.article = "";
     this.verbs.put.onSuccess = [
       ({ item, other }) => {
         if (other === getCauldron()) {
           const name = `some ${item.name}`;
-          if (!other.items[name.toLowerCase()]) {
-            const someIngredient = new Ingredient(name);
-            someIngredient.doNotList = true;
-            someIngredient.holdable = false;
+          let someIngredient = getItem(name.toLowerCase());
+
+          if (!someIngredient) {
+            someIngredient = new Ingredient.Builder().withName(name).isHoldable(false).isDoNotList(true).build();
             return other.addItem(someIngredient); // Add copy to cauldron
+          } else if (!other.items[name.toLowerCase()]) {
+            return moveItem(someIngredient, other); // Move copy to cauldron
           }
         } else {
           item.container.removeItem(item);
@@ -28,7 +38,7 @@ export class Ingredient extends Item {
 
         if (other === getCauldron()) {
           const alchemyText = getAlchemy().addIngredient(item);
-          return [text, alchemyText]; // Array components will be concatenated
+          return new ConcatText(text, alchemyText); // Concatenate the texts.
         }
 
         return text;
@@ -62,5 +72,15 @@ export class Ingredient extends Item {
     grind.addAliases("crush");
     this.addVerb(grind);
     this.addAliases("ingredient");
+  }
+
+  get Builder() {
+    return Builder;
+  }
+}
+
+class Builder extends Item.Builder {
+  build() {
+    return newIngredient(this.config);
   }
 }

@@ -29,6 +29,7 @@ export const initBookShelf = () => {
     "One in particular catches your eye, however, emblazened in gold leaf with the word *Grimoire*.";
   grimoire.addAliases("book");
   grimoire.addItem(scrap);
+  grimoire.itemsVisibleFromSelf = false;
 
   const grimoireNodes = [
     {
@@ -162,7 +163,7 @@ export const initBookShelf = () => {
   );
 
   bookShelf.capacity = 2;
-  bookShelf.addAliases("library", "books", "bookshelf");
+  bookShelf.addAliases("library", "books", "bookshelf", "shelves");
   bookShelf.hidesItems = [grimoire];
   bookShelf.preposition = "on";
 

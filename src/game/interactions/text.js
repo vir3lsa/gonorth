@@ -152,6 +152,57 @@ export class CyclicText extends Text {
   }
 }
 
+/**
+ * An immutable Text type that concatenates all its values with blank lines.
+ */
+export class ConcatText extends Text {
+  constructor(...texts) {
+    super(...texts);
+    this.separator = "\n\n";
+  }
+
+  get type() {
+    return "ConcatText";
+  }
+
+  clone() {
+    return new ConcatText(...this.texts);
+  }
+
+  next(...args) {
+    const textToString = (text) => {
+      if (typeof text === "function") {
+        const newText = text(...args);
+        return textToString(newText);
+      } else if (text instanceof Text) {
+        return text.next(...args);
+      }
+
+      return text;
+    }
+
+    return this.texts.filter((text) => text).map(textToString).join(this.separator);
+  }
+}
+
+/**
+ * A ConcatText with a custom separator.
+ */
+export class JoinedText extends ConcatText {
+  constructor(separator, ...texts) {
+    super(...texts);
+    this.separator = separator;
+  }
+
+  get type() {
+    return "JoinedText";
+  }
+
+  clone() {
+    return new JoinedText(this.separator, ...this.texts);
+  }
+}
+
 export class SequentialText extends CyclicText {
   constructor(...texts) {
     super(...texts);

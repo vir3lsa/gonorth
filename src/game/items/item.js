@@ -774,7 +774,7 @@ export class Item {
   }
 }
 
-class Builder {
+export class Builder {
   constructor() {
     this.config = {};
   }
@@ -821,6 +821,11 @@ class Builder {
 
   withCapacity(capacity) {
     this.config.capacity = capacity;
+    return this;
+  }
+
+  isDoNotList(doNotList = true) {
+    this.config.doNotList = doNotList;
     return this;
   }
 

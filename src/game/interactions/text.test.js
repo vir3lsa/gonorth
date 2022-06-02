@@ -1,7 +1,16 @@
 import { recordChanges } from "../../redux/gameActions";
 import { initStore } from "../../redux/store";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
-import { CyclicText, DeferredRandomText, ManagedText, PagedText, RandomText, SequentialText } from "./text";
+import {
+  ConcatText,
+  CyclicText,
+  DeferredRandomText,
+  JoinedText,
+  ManagedText,
+  PagedText,
+  RandomText,
+  SequentialText
+} from "./text";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -225,5 +234,39 @@ describe("serialization", () => {
     ]);
     expect(result.type).toBe("ManagedText");
     expect(result.isText).toBe(true);
+  });
+
+  test("concat text concatenates its texts", () => {
+    const text = new ConcatText("a", "b", "c");
+    expect(text.next()).toBe("a\n\nb\n\nc");
+    expect(text.next()).toBe("a\n\nb\n\nc");
+  });
+
+  test("concat text concatenates function texts", () => {
+    const text = new ConcatText(
+      (x) => x + x,
+      "b",
+      (y) => y + y
+    );
+    expect(text.next("z")).toBe("zz\n\nb\n\nzz");
+    expect(text.next("mn")).toBe("mnmn\n\nb\n\nmnmn");
+  });
+
+  test("conact text concatenates text texts", () => {
+    const text = new ConcatText("cat", new SequentialText("dog", "mouse"));
+    expect(text.next()).toBe("cat\n\ndog");
+    expect(text.next()).toBe("cat\n\nmouse");
+  });
+
+  test("concat text calls functions recursively", () => {
+    const text = new ConcatText("zebra", (x) => (x) => (x) => x + x + x);
+    expect(text.next("z")).toBe("zebra\n\nzzz");
+    expect(text.next(1)).toBe("zebra\n\n3");
+  });
+
+  test("joined text uses a custom separator", () => {
+    const text = new JoinedText(" ", "dog", (x) => (x) => `a${x}c`, new SequentialText("z", "y"));
+    expect(text.next("mmm")).toBe("dog ammmc z");
+    expect(text.next("mmm")).toBe("dog ammmc y");
   });
 });

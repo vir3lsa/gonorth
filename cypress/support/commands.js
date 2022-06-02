@@ -32,8 +32,8 @@ Cypress.Commands.add("doesNotShow", (text) => {
   cy.contains(text).should("not.exist");
 });
 
-Cypress.Commands.add("showsLast", (text) => {
-  cy.contains(".gonorth h6:last-of-type ~ p", text, { matchCase: false });
+Cypress.Commands.add("showsLast", (text, element = "p") => {
+  cy.contains(`.gonorth h6:last-of-type ~ ${element}`, text, { matchCase: false });
 });
 
 const checkExpected = (expected, options) => {
@@ -41,7 +41,7 @@ const checkExpected = (expected, options) => {
     if (options?.global) {
       cy.shows(expected);
     } else {
-      cy.showsLast(expected);
+      cy.showsLast(expected, options?.element);
     }
   }
 };

@@ -52,8 +52,8 @@ const commenceHelp = `Usage: \`debug commence [graph] [node]\`
 const cypressHelp = `Usage: \`debug cypress [command]\`
 
 Commands:
-- \`record\`   - start recording Cypress commands
-- \`print\`    - list Cypress commands for recorded sequence of events
+- \`record\`           - start recording Cypress commands
+- \`print\` / \'list\' - list Cypress commands for recorded sequence of events
 
 Examples:
 - e.g. \`debug cypress record\`
@@ -234,7 +234,7 @@ function cypress(args) {
     if (args[0] === "record") {
       getStore().dispatch(cyRecord());
       return "Recording commands.";
-    } else if (args[0] === "print") {
+    } else if (args[0] === "print" || args[0] === "list") {
       return `* ${selectCyCommands().join("\n* ")}`;
     }
   }

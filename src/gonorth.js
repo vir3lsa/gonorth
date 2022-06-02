@@ -9,7 +9,7 @@ import { ActionChain } from "./utils/actionChain";
 import { clearPage, createPlayer, goToRoom } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
-import { selectRoom, selectPlayer, selectStartingRoom, selectEffects } from "./utils/selectors";
+import { selectRoom, selectPlayer, selectStartingRoom, selectEffects, selectItem } from "./utils/selectors";
 import { createKeywords } from "./game/verbs/keywords";
 
 const game = {};
@@ -150,6 +150,21 @@ function addWildcardEffect(secondaryItem, verbName, successful, ...effects) {
   selectEffects().addWildcard(secondaryItem, verbName, successful, ...effects);
 }
 
+function getItem(name) {
+  const items = selectItem(name);
+  const itemList = items ? [...items] : [];
+
+  if (itemList.length > 1) {
+    throw Error(
+      `Tried to get an item called '${name}' but got several with the same alias. Use the item's unique name instead.`
+    );
+  } else if (!itemList.length) {
+    return;
+  }
+
+  return itemList[0];
+}
+
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door, newDoor, Key } from "./game/items/door";
@@ -168,6 +183,7 @@ export { selectInventory, selectRoom, selectTurn, selectPlayer } from "./utils/s
 export { ActionChain, Action } from "./utils/actionChain";
 export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 export { inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";
+export { moveItem } from "./utils/itemFunctions";
 export * from "./utils/textFunctions";
 export * from "./utils/itemFunctions";
 export {
@@ -190,5 +206,6 @@ export {
   retrieve,
   forget,
   addEffect,
-  addWildcardEffect
+  addWildcardEffect,
+  getItem
 };

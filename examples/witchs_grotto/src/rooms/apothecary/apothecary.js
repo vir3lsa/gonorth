@@ -260,14 +260,49 @@ export const initApothecary = () => {
         {
           ordered: false,
           steps: [
-            { type: STEP_WATER, value: 1 },
+            { type: STEP_WATER, value: 1, leniency: 2 },
             {
               type: STEP_INGREDIENTS,
-              value: [dryadToenails.name, alfalfa.name, whiteSage.name]
+              value: [dryadToenails.name, alfalfa.name, whiteSage.name],
+              text: new CyclicText(
+                "Nothing's happening just yet.",
+                "It smells a bit strange, like old socks.",
+                "The concoction's a pale white colour now."
+              ),
+              short: new CyclicText("just water with some ingredients floating around", "funny smelling", "pale white")
             }
           ]
         },
-        { type: STEP_HEAT, value: 3 }
+        {
+          ordered: false,
+          steps: [
+            {
+              type: STEP_HEAT,
+              value: 3,
+              leniency: 5,
+              text: new CyclicText(
+                "Small bubbles are starting to form.",
+                "It's coming to the boil now.",
+                "The mixture's roiling energetically and thickening up nicely."
+              )
+            },
+            {
+              type: STEP_STIR,
+              value: 2,
+              leniency: 5,
+              text: new CyclicText(
+                "The mixture still smells bad - you try not to breathe it in.",
+                "It's darkening now, taking on colour."
+              )
+            }
+          ]
+        },
+        {
+          type: STEP_STIR,
+          value: 1,
+          leniency: 3,
+          text: "It's as thick as syrup and the deep colour of a fresh bruise. Miraculously, the smell's gone."
+        }
       ]
     },
     mendingPotion

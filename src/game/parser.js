@@ -72,10 +72,16 @@ export class Parser {
         if (itemDetails && itemDetails.length) {
           const { alias, itemsWithName } = itemDetails[0];
 
-          const item = itemsWithName[0];
-          this.roomItem = item || this.roomItem;
+          const validItemsWithName = itemsWithName.filter((item) => item?.visible && item.verbs[possibleVerb]);
 
-          if (item?.visible && item.verbs[possibleVerb]) {
+          if (!validItemsWithName.length) {
+            this.roomItem = itemsWithName[0] || this.roomItem; // Record a room item for feedback purposes.
+          }
+
+          for (let itemIndex in validItemsWithName) {
+            const item = validItemsWithName[itemIndex];
+            this.roomItem = item || this.roomItem; // Record a valid room item.
+
             this.actualVerb = item.verbs[possibleVerb];
             this.verbSupported = true;
             let indirectItemsWithName, indirectItem, indirectAlias;
@@ -98,9 +104,9 @@ export class Parser {
             }
 
             if (validCombination) {
-              if (itemsWithName.length > 1) {
+              if (validItemsWithName.length > 1) {
                 // Primary item name is a duplicate
-                this.recordDuplicates(itemsWithName, alias, true);
+                this.recordDuplicates(validItemsWithName, alias, true);
               }
 
               if (indirectItemsWithName?.length > 1) {
@@ -108,7 +114,7 @@ export class Parser {
                 this.recordDuplicates(indirectItemsWithName, indirectAlias, false);
               }
 
-              if (itemsWithName.length > 1 || indirectItemsWithName?.length > 1) {
+              if (validItemsWithName.length > 1 || indirectItemsWithName?.length > 1) {
                 // If we have any duplicates we need to disambiguate.
                 return this.giveFeedback();
               }

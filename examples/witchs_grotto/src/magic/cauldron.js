@@ -4,6 +4,7 @@ import {
   OptionGraph,
   selectInventory,
   RandomText,
+  ConcatText,
   newVerb,
   addEvent,
   TIMEOUT_TURNS,
@@ -116,7 +117,7 @@ export const initCauldron = () => {
   const stirNodes = [
     {
       id: "stir",
-      actions: [[stirText, () => alchemy.stir()]],
+      actions: new ConcatText(stirText, () => alchemy.stir()),
       options: {
         "Keep stirring": "stir",
         "Stop stirring": "stop"
