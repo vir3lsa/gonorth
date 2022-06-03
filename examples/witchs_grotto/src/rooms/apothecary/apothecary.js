@@ -301,7 +301,8 @@ export const initApothecary = () => {
           type: STEP_STIR,
           value: 1,
           leniency: 3,
-          text: "It's as thick as syrup and the deep colour of a fresh bruise. Miraculously, the smell's gone."
+          text: "It's as thick as syrup and the deep colour of a fresh bruise. Miraculously, the smell's gone.",
+          short: "the colour of a dark bruise"
         }
       ]
     },

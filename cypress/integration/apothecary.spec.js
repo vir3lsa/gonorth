@@ -62,7 +62,32 @@ describe("apothecary", () => {
     cy.choose("Next", "You tip the entire contents");
     cy.say("x desk", "The right-hand side of the");
     cy.say("x drawers", "The drawers still don't open");
-    cy.say("take matchbook", "You grab the matchbook");
+    cy.say("take matchbook", "the matchbook");
     cy.say("x matchbook", "It's an old-fashioned");
+  });
+
+  it("creates an elixir of mending", () => {
+    cy.say("debug spawn matches", "Spawned matches in Apothecary");
+    cy.say("take matches", "the matchbook");
+    cy.say("x pipes", "There's a spout above the");
+    cy.say("open valve", "You grab the crank wheel with");
+    cy.say("x jars", "This must be the witch's");
+    cy.say("wait");
+    cy.choose("Keep waiting");
+    cy.choose("Stop waiting");
+    cy.say("close valve", "You spin the valve wheel back");
+    cy.say("add dryad's toenails to cauldron", "Nothing's happening just yet");
+    cy.say("put alfalfa in pot", "smells a bit strange");
+    cy.say("add white sage to pot", "pale white colour now");
+    cy.say("light fire with matches", "Striking one of the big");
+    cy.say("stir pot with ladle", "mixture still smells bad");
+    cy.choose("Keep stirring", "darkening now");
+    cy.choose("Keep stirring", "colour of a fresh bruise");
+    cy.choose("Stop stirring");
+    cy.say("put out fire", "You pull the metal cover over");
+    cy.say("x cauldron", "A large cast-iron pot that", "dark bruise");
+    cy.say("take potion", "You grab an empty vial from");
+    cy.say("x potion", "Which potion do you");
+    cy.choose("Elixir of Mending", "deep purple in colour");
   });
 });

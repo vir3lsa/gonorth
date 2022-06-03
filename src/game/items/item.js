@@ -42,6 +42,10 @@ export class Item {
 
     // Set the real name - okay for a clone because it won't be serialized.
     copy.name = this.name;
+
+    // Remove unwanted aliases added due to our 'sidestep' above.
+    copy.aliases = copy.aliases.filter((alias) => alias !== copy.name && alias !== "copy");
+
     return copy;
   }
 

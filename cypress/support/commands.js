@@ -24,36 +24,47 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 
-Cypress.Commands.add("shows", (text) => {
-  cy.contains(".gonorth", text, { matchCase: false });
+Cypress.Commands.add("shows", (...texts) => {
+  texts.forEach((text) => cy.contains(".gonorth", text, { matchCase: false }));
 });
 
-Cypress.Commands.add("doesNotShow", (text) => {
-  cy.contains(text).should("not.exist");
+Cypress.Commands.add("doesNotShow", (...texts) => {
+  texts.forEach((text) => cy.contains(text).should("not.exist"));
 });
 
-Cypress.Commands.add("showsLast", (text, element = "p") => {
-  cy.contains(`.gonorth h6:last-of-type ~ ${element}`, text, { matchCase: false });
+Cypress.Commands.add("showsLast", (...texts) => {
+  const [expecteds, options] = extractOptions(texts);
+  const element = options?.element || "p";
+  expecteds.forEach((expected) => cy.contains(`.gonorth h6:last-of-type ~ ${element}`, expected, { matchCase: false }));
 });
 
-const checkExpected = (expected, options) => {
-  if (expected) {
+const checkExpected = (expected) => {
+  const [expecteds, options] = extractOptions(expected);
+  if (expecteds?.length) {
     if (options?.global) {
-      cy.shows(expected);
+      cy.shows(...expecteds);
     } else {
-      cy.showsLast(expected, options?.element);
+      cy.showsLast(...expected);
     }
   }
 };
 
-Cypress.Commands.add("choose", (label, expected, options) => {
+const extractOptions = (expected) => {
+  if (expected.length && typeof expected[expected.length - 1] === "object") {
+    return [expected.slice(0, expected.length - 1), expected[expected.length - 1]];
+  }
+
+  return [expected];
+};
+
+Cypress.Commands.add("choose", (label, ...expected) => {
   cy.contains("button", label, { matchCase: false }).click();
-  checkExpected(expected, options);
+  checkExpected(expected);
 });
 
-Cypress.Commands.add("say", (text, expected, options) => {
+Cypress.Commands.add("say", (text, ...expected) => {
   cy.get("input").type(`${text}{enter}`);
-  checkExpected(expected, options);
+  checkExpected(expected);
 });
 
 /**
@@ -71,10 +82,10 @@ Cypress.Commands.add("startGame", () => {
 /**
  * Reloads the game and uses a saved game to return to a previous checkpoint.
  */
-Cypress.Commands.add("reloadGame", (expected, options) => {
+Cypress.Commands.add("reloadGame", (...expected) => {
   cy.visit("http://localhost:8080/");
   cy.choose("continue");
-  checkExpected(expected, options);
+  checkExpected(expected);
 });
 
 /**

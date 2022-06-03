@@ -103,4 +103,9 @@ describe("debugFunctions", () => {
     inputTest("debug commence numbers 4", ["Unable to find option graph and node", "4"]));
   it("shows a warning if the option graph and node combination doesn't exist", () =>
     inputTest("debug commence letters 2", ["Unable to find option graph and node", "letters 2"]));
+  it("allows cloned items to be taken", async () => {
+    await inputTest("debug spawn matches", "Spawned matches in Hall");
+    await inputTest("take matches", "the matches");
+    return inputTest("i", "You're carrying a matches");
+  });
 });
