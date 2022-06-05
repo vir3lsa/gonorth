@@ -414,6 +414,11 @@ describe("serialization", () => {
       ball.article = "an";
       expectRecordedProperties(ball, "article");
     });
+
+    test("new items aren't recorded", () => {
+      const bat = new Item("bat", "the wooden kind");
+      expectRecordedProperties(bat);
+    });
   });
 
   test("changes aren't recorded when recording is off", () => {
@@ -468,5 +473,13 @@ describe("serialization", () => {
     const newBall = ball.clone();
     expectRecordedProperties(newBall);
     expectRecordedProperties(ball);
+  });
+
+  test("cloning an item maintains a function description", () => {
+    let x = "wooden";
+    const bat = new Item("bat", () => `The bat is ${x}`);
+    const batClone = bat.clone();
+    x = "flying";
+    expect(batClone.description).toBe("The bat is flying");
   });
 });

@@ -22,11 +22,11 @@ export class Item {
     const copy = newItem(
       {
         name: `${this.name} copy`, // Have to add 'copy' to sidestep uniqueness check.
-        description: this.description,
+        description: this._description,
         holdable: this.holdable,
         size: this.size,
         verbs: Object.values(this.verbs),
-        aliases: this.aliases,
+        aliases: this._aliases,
         hidesItems: this.hidesItems.map((item) => item.clone()),
         containerListing: this.containerListing,
         canHoldItems: this.canHoldItems,
@@ -182,6 +182,7 @@ export class Item {
       this.addVerb(giveVerb);
     }
 
+    this._constructed = true; // Indicate construction has completed.
     getStore().dispatch(addItem(this));
   }
 
@@ -604,6 +605,10 @@ export class Item {
     return newAliases;
   }
 
+  removeAliases(...aliases) {
+    this.aliases = this.aliases.filter((alias) => !aliases.includes(alias));
+  }
+
   _getActionChain(verbName, onFailure) {
     const verb = this.getVerb(verbName);
     return onFailure ? verb.onFailure : verb.onSuccess;
@@ -743,8 +748,8 @@ export class Item {
 
   // Records an altered property.
   recordAlteredProperty(propertyName, newValue) {
-    if (this._cloned) {
-      // We won't serialize cloned objects, so won't record their changes.
+    if (this._cloned || !this._constructed) {
+      // We won't serialize cloned objects, or objects constructed after recording began, so won't record their changes.
       return;
     }
 

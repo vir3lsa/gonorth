@@ -45,5 +45,14 @@ describe("final puzzle", () => {
     cy.choose("Next", "You can see the boat with");
     cy.say("i", "You're carrying a toy boat");
     cy.say("x boat", "A charming model of a wooden");
+
+    // Fix the boat.
+    cy.say("debug spawn elixir of mending", "Spawned elixir of mending in");
+    cy.say("x elixir", "The substance inside the");
+    cy.say("pour elixir on boat", "You douse the toy boat with");
+    cy.choose("Next", "For a heart-stopping moment,");
+    cy.choose("Next", "As the fibres meet, they");
+    cy.choose("Next", "The boat is mended, as good");
+    cy.say("x boat", "A charming model of a wooden", "fully repaired");
   });
 });

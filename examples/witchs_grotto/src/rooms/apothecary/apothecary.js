@@ -250,8 +250,22 @@ export const initApothecary = () => {
 
   const mendingPotion = new Potion(
     "Elixir of Mending",
-    "The substance inside the bottle is deep purple in colour, with flecks of gold that catch the light as you examine it."
+    "The substance inside the bottle is deep purple in colour, with flecks of gold that catch the light as you examine it.",
+    true,
+    "It tastes surprisingly good - sweet, like syrup. You feel...invigorated. You hadn't realised how tired you'd been until this...energy...coarsed through your veins, washing away any and all physical complaints you might have had, including those you weren't even aware of. You feel as though you could run forever and not even break a sweat."
   );
+
+  addEffect(mendingPotion, "toy boat", "pour", true, () => {
+    if (!retrieve("toyBoatMended")) {
+      store("toyBoatMended", true);
+      return new SequentialText(
+        "You douse the toy boat with the purple elixir, being sure to get plenty around the hole in the hull.",
+        "For a heart-stopping moment, nothing happens. Then, the fibres of the smashed wood begin to grow, tendrils elongating and reaching searchingly across the hole, like long fingers looking for others to clasp onto.",
+        "As the fibres meet, they twist, and knot, and intertwine to reform as a single whole. Gradually, the void in the hull disappears.",
+        "The boat is mended, as good as new."
+      );
+    }
+  });
 
   const mendingProcedure = new Procedure(
     {

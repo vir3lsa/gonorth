@@ -8,7 +8,7 @@ import {
   retrieve,
   update,
   forget,
-  selectInventory
+  JoinedText
 } from "../../../../../lib/gonorth";
 import { initCat } from "./cat";
 
@@ -73,9 +73,21 @@ export const initSnug = () => {
   const toyBoat = new Item.Builder()
     .withName("toy boat")
     .withAliases("dinghy", "wagon")
-    .withDescription(
-      "A charming model of a wooden dinghy - the kind Grandad used to row out into the middle of the lake in the valley to fish. It won't be any good for rowing in its current state, though, even for dolls, owing to the giant hole in the hull."
-    )
+    .withDescription(() => {
+      const descriptionTexts = [
+        "A charming model of a wooden dinghy - the kind Grandad used to row out into the middle of the lake in the valley to fish."
+      ];
+
+      if (retrieve("toyBoatMended")) {
+        descriptionTexts.push("It's fully repaired and in shipshape condition.");
+      } else {
+        descriptionTexts.push(
+          "It won't be any good for rowing in its current state, though, even for dolls, owing to the giant hole in the hull."
+        );
+      }
+
+      return new JoinedText(" ", ...descriptionTexts);
+    })
     .isHoldable()
     .withSize(3)
     .build();
