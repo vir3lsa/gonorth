@@ -7,6 +7,7 @@ import {
   CyclicText,
   RandomText,
   SequentialText,
+  ConcatText,
   store
 } from "../../../../lib/gonorth";
 import { initBedroom } from "./bedroom";
@@ -28,7 +29,7 @@ export const initSouthHall = () => {
   const clockwise = new Item.Builder().withName("clockwise").build();
   const anticlockwise = new Item.Builder()
     .withName("anticlockwise")
-    .withAliases("anti", "anti clockwise", "counterclockwise", "counter", "counter clockwise")
+    .withAliases("anti", "anti clockwise", "counterclockwise", "counter", "counter clockwise", "anticlock")
     .build();
   anticlockwise.removeAliases("clockwise", "clock wise", "clock");
 
@@ -55,37 +56,44 @@ export const initSouthHall = () => {
   );
 
   const armourPuzzleSolution = [
-    { direction: anticlockwise, until: -0.75 },
-    { direction: clockwise, until: -0.25 },
-    { direction: anticlockwise, until: -1.25 },
-    { direction: clockwise, until: -1 }
+    { direction: anticlockwise, until: 6 },
+    { direction: clockwise, until: 9 },
+    { direction: anticlockwise, until: 12 },
+    { direction: clockwise, until: 3 }
   ];
 
-  let rotation = 0;
-  let stage = 0;
+  let halberdRotation = 0;
+  let halberdStage = 0;
 
+  // TODO Add leniency to make it harder to solve through trial and improvement?
   const turnHalberd = (direction) => {
-    const expected = armourPuzzleSolution[stage];
+    const expected = armourPuzzleSolution[halberdStage];
 
     if (direction !== expected.direction) {
-      rotation = 0;
-      stage = 0;
+      halberdRotation = 0;
+      halberdStage = 0;
       return armourPuzzleFail;
     }
 
     if (direction === clockwise) {
-      rotation += 0.25;
+      halberdRotation += 3;
     } else {
-      rotation -= 0.25;
+      halberdRotation -= 3;
     }
 
-    if (rotation === expected.until) {
-      if (stage < armourPuzzleSolution.length - 1) {
-        stage++;
+    if (halberdRotation > 12) {
+      halberdRotation -= 12;
+    } else if (halberdRotation < 1) {
+      halberdRotation += 12;
+    }
+
+    if (halberdRotation === expected.until) {
+      if (halberdStage < armourPuzzleSolution.length - 1) {
+        halberdStage++;
       } else {
         store("armourPuzzleSolved", true);
-        rotation = 0;
-        stage = 0;
+        halberdRotation = 0;
+        halberdStage = 0;
         return new SequentialText(
           "After giving the halberd one final twist, it locks securely in place and a whirring and grinding of gears emanates from inside the metal shell of the armour's chest plate.",
           "With a sudden *snap*, the helmet's visor slides up, revealing an opening over what would be the wearer's face, were anyone inside."
@@ -94,6 +102,85 @@ export const initSouthHall = () => {
     }
 
     return turnHalberdText.next(direction.name);
+  };
+
+  const handWontMove = new RandomText(
+    "The hand won't turn in that direction.",
+    "It doesn't want to budge.",
+    "It's stuck.",
+    (direction) => `You can't seem to turn it ${direction}.`,
+    (direction) => `It won't turn ${direction} right now.`
+  );
+
+  const nervousText = new RandomText(
+    " You glance around nervously. Surely the witch heard that?",
+    "",
+    " You wince fearfully. This is making a lot of noise.",
+    "",
+    " You look from the doors, to the stairs, to the archway to the North, sure that the witch will appear at any moment."
+  );
+
+  const handStageCompleteText = new RandomText(
+    () => `A loud *bong* emanates from inside the clock, reverberating down the hallway.${nervousText.next()}`,
+    () => `The clock chimes loudly, as if marking the hour.${nervousText.next()}`,
+    () => `The grandfather clock *bongs* resonantly, making you jump.${nervousText.next()}`
+  );
+
+  let handPosition = 12;
+  let handStage = 0;
+
+  const handAmountText = new RandomText(
+    " a quarter turn.",
+    ".",
+    () => ` to ${handPosition} o'clock.`,
+    (direction) => ` a quarter of a turn ${direction}.`,
+    (direction) => ` ${direction}.`,
+    (direction) => ` ${direction} to ${handPosition} o'clock.`
+  );
+
+  const turnHandText = new RandomText(
+    (direction) => `Reaching up on tiptoes, you push the hand with your finger${handAmountText.next(direction)}`,
+    (direction) =>
+      `There's a mechanical whirring from inside the clock as the hand turns${handAmountText.next(direction)}`,
+    "The filigreed metal is sturdy and cold to the touch, but moves easily."
+  );
+
+  const turnHand = (direction) => {
+    const expected = armourPuzzleSolution[handStage];
+
+    if (direction !== expected.direction) {
+      return handWontMove.next(direction.name);
+    }
+
+    if (direction === clockwise) {
+      handPosition += 3;
+    } else {
+      handPosition -= 3;
+    }
+
+    if (handPosition > 12) {
+      handPosition -= 12;
+    } else if (handPosition < 1) {
+      handPosition += 12;
+    }
+
+    if (handPosition === expected.until) {
+      if (handStage < armourPuzzleSolution.length - 1) {
+        handStage++;
+        return new ConcatText(turnHandText.next(direction.name), handStageCompleteText);
+      } else {
+        handPosition = 12;
+        handStage = 0;
+        return new SequentialText(
+          "Without warning, a door above the clock face flies open and a pair of figures emerge. Accomponying this is a cacophony of *bongs* and chimes and the whirring of gears.",
+          "One of the figures lowers its head - it's covered by a bag, you realise - to a chopping block, whilst the other jerkily swings an axe towards it. An execution - how charming.",
+          "Once the scene is over, the din mercifully stops and the figures retreat to the innards of the clock. The hour hand winds itself back to the 12 o'clock position.",
+          "You wonder whether to hide. Every bird in the woods must have taken flight from the noise the clock just made."
+        );
+      }
+    }
+
+    return turnHandText.next(direction.name);
   };
 
   const armour = new Item.Builder()
@@ -140,6 +227,34 @@ export const initSouthHall = () => {
     )
     .build();
 
+  const clock = new Item.Builder()
+    .withName("grandfather clock")
+    .withDescription(
+      "Easily twice your height, the regal old grandfather clock is as old as it is charming. Its sturdy walnut construction lends a deep, somewhat ominous resonance to the steady ticking of its clockwork. The clock face itself is pale, with Roman numerals denoting the hours. There's just a single hand - the hour hand. Whether the others were removed at some point in the distant past, or if they were never part of the clock, you can't tell. The hand is uncovered, meaning you could reach up and touch it if you desired."
+    )
+    .hidesItems(
+      new Item.Builder("hour hand")
+        .withDescription(
+          () =>
+            `The single hand is wrought in delicately filigreed black metal. It's just within your reach.\n\nIt's pointing to ${handPosition} o'clock.`
+        )
+        .withVerbs(
+          new Verb.Builder()
+            .withName("take")
+            .withAliases("pick up", "steal", "grab", "hold")
+            .withTest(false)
+            .withOnFailure("The hand's attached to the clock - you can't take it.")
+            .build(),
+          new Verb.Builder("turn")
+            .withAliases("rotate", "wind", "spin", "move", "push")
+            .makePrepositional("which way")
+            .withOnSuccess(({ other: direction }) => turnHand(direction))
+            .build()
+        )
+        .build()
+    )
+    .build();
+
   const ricketyDoor = newDoor({
     name: "rotten door",
     description:
@@ -150,7 +265,7 @@ export const initSouthHall = () => {
   });
 
   const upperSpiral = initUpperSpiral();
-  southHall.addItems(clockwise, anticlockwise, armour, ricketyDoor);
+  southHall.addItems(clockwise, anticlockwise, clock, armour, ricketyDoor);
   upperSpiral.addItems(ricketyDoor);
 
   const staircase = initStaircase();

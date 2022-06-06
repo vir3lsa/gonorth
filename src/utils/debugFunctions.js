@@ -179,7 +179,7 @@ function spawn(args) {
   const spawnItem = (itemToSpawn) => {
     const room = selectRoom();
     room.addItem(itemToSpawn);
-    getStore().dispatch(itemsRevealed([itemToSpawn.name]));
+    getStore().dispatch(itemsRevealed([itemToSpawn.name, ...itemToSpawn.aliases]));
     return `Spawned ${itemName} in ${room.name}.`;
   };
 

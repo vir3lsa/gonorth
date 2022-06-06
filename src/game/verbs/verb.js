@@ -185,8 +185,8 @@ export class Verb {
 }
 
 class Builder {
-  constructor() {
-    this.config = {};
+  constructor(name) {
+    this.config = { name };
   }
 
   withName(name) {

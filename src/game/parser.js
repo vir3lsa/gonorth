@@ -166,7 +166,7 @@ export class Parser {
         const possibleItem = possibleItemWords.join(" ");
 
         if (!itemDetails.length) {
-          // Is the first item registered globally?
+          // Is the item registered globally?
           const itemExists = selectItemNames().has(possibleItem);
 
           if (itemExists && (!this.registeredItem || possibleItem.length > this.registeredItem.length)) {

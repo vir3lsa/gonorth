@@ -191,5 +191,14 @@ describe("parser", () => {
         inputTest("squish apple", "gross juice squeezes out");
       });
     });
+
+    it("records aliases when hidden items are revealed", () => {
+      chairman.hidesItems = new Item.Builder("elephant")
+        .withVerbs(new Verb.Builder("stroke").makePrepositional("with what").build())
+        .build();
+      inputTest("stroke elephant", "shake your head in confusion");
+      inputTest("x chairman", "impressive");
+      inputTest("stroke elephant", "Stroke the elephant with what?");
+    });
   });
 });

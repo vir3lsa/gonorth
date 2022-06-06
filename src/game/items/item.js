@@ -406,7 +406,7 @@ export class Item {
         this.addItem(item);
       });
 
-      getStore().dispatch(itemsRevealed(this.hidesItems.map((item) => item.name)));
+      getStore().dispatch(itemsRevealed(this.hidesItems.flatMap((item) => [item.name, ...item.aliases])));
 
       if (this.hidesItems.length) {
         this.hidesItems = [];
@@ -784,8 +784,8 @@ export class Item {
 }
 
 export class Builder {
-  constructor() {
-    this.config = {};
+  constructor(name) {
+    this.config = { name };
   }
 
   withName(name) {

@@ -16,6 +16,7 @@ export const initialState = {
   image: null,
   lastChange: Date.now(),
   verbNames: {},
+  // The names of items (including aliases) the player has encountered.
   itemNames: new Set(),
   actionChainPromise: null,
   events: [],
