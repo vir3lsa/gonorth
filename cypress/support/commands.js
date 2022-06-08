@@ -38,6 +38,15 @@ Cypress.Commands.add("showsLast", (...texts) => {
   expecteds.forEach((expected) => cy.contains(`.gonorth h6:last-of-type ~ ${element}`, expected, { matchCase: false }));
 });
 
+const extractOptions = (expected) => {
+  const lastArg = expected.length && expected[expected.length - 1];
+  if (lastArg && typeof lastArg === "object" && !(lastArg instanceof RegExp)) {
+    return [expected.slice(0, expected.length - 1), expected[expected.length - 1]];
+  }
+
+  return [expected];
+};
+
 const checkExpected = (expected) => {
   const [expecteds, options] = extractOptions(expected);
   if (expecteds?.length) {
@@ -47,14 +56,6 @@ const checkExpected = (expected) => {
       cy.showsLast(...expected);
     }
   }
-};
-
-const extractOptions = (expected) => {
-  if (expected.length && typeof expected[expected.length - 1] === "object") {
-    return [expected.slice(0, expected.length - 1), expected[expected.length - 1]];
-  }
-
-  return [expected];
 };
 
 Cypress.Commands.add("choose", (label, ...expected) => {

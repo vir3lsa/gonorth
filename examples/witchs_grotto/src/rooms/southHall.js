@@ -59,49 +59,60 @@ export const initSouthHall = () => {
     { direction: anticlockwise, until: 6 },
     { direction: clockwise, until: 9 },
     { direction: anticlockwise, until: 12 },
-    { direction: clockwise, until: 3 }
+    { direction: clockwise, until: 6 }
   ];
 
-  let halberdRotation = 0;
-  let halberdStage = 0;
+  let trackedSequences = [];
 
-  // TODO Add leniency to make it harder to solve through trial and improvement?
   const turnHalberd = (direction) => {
-    const expected = armourPuzzleSolution[halberdStage];
-
-    if (direction !== expected.direction) {
-      halberdRotation = 0;
-      halberdStage = 0;
-      return armourPuzzleFail;
+    if (direction === armourPuzzleSolution[0].direction) {
+      // The direction matches the start of the solution sequence, so track a new possible sequence.
+      trackedSequences.push({ halberdRotation: 0, halberdStage: 0 });
     }
 
-    if (direction === clockwise) {
-      halberdRotation += 3;
-    } else {
-      halberdRotation -= 3;
-    }
+    trackedSequences.forEach((sequence) => {
+      const expected = armourPuzzleSolution[sequence.halberdStage];
 
-    if (halberdRotation > 12) {
-      halberdRotation -= 12;
-    } else if (halberdRotation < 1) {
-      halberdRotation += 12;
-    }
-
-    if (halberdRotation === expected.until) {
-      if (halberdStage < armourPuzzleSolution.length - 1) {
-        halberdStage++;
-      } else {
-        store("armourPuzzleSolved", true);
-        halberdRotation = 0;
-        halberdStage = 0;
-        return new SequentialText(
-          "After giving the halberd one final twist, it locks securely in place and a whirring and grinding of gears emanates from inside the metal shell of the armour's chest plate.",
-          "With a sudden *snap*, the helmet's visor slides up, revealing an opening over what would be the wearer's face, were anyone inside."
-        );
+      if (direction !== expected.direction) {
+        sequence.failed = true;
+        return;
       }
-    }
 
-    return turnHalberdText.next(direction.name);
+      if (direction === clockwise) {
+        sequence.halberdRotation += 3;
+      } else {
+        sequence.halberdRotation -= 3;
+      }
+
+      if (sequence.halberdRotation > 12) {
+        sequence.halberdRotation -= 12;
+      } else if (sequence.halberdRotation < 1) {
+        sequence.halberdRotation += 12;
+      }
+
+      if (sequence.halberdRotation === expected.until) {
+        if (sequence.halberdStage < armourPuzzleSolution.length - 1) {
+          sequence.halberdStage++;
+        } else {
+          store("armourPuzzleSolved", true);
+          sequence.solved = true;
+        }
+      }
+    });
+
+    // Stop tracking failed sequences.
+    trackedSequences = trackedSequences.filter((sequence) => !sequence.failed);
+
+    if (trackedSequences.some((sequence) => sequence.solved)) {
+      // Puzzle is solved - return success text.
+      return new SequentialText(
+        "After giving the halberd one final twist, it locks securely in place and a whirring and grinding of gears emanates from inside the metal shell of the armour's chest plate.",
+        "With a sudden *snap*, the helmet's visor slides up, revealing an opening over what would be the wearer's face, were anyone inside."
+      );
+    } else {
+      // Puzzle isn't yet solved - return standard text.
+      return turnHalberdText.next(direction.name);
+    }
   };
 
   const handWontMove = new RandomText(

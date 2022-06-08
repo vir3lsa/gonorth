@@ -23,21 +23,13 @@ describe("South Hall", () => {
     cy.say("turn halberd anticlockwise", turnWeaponRegex);
     cy.say("turn halberd anticlockwise", turnWeaponRegex);
     cy.say("rotate weapon clock", "The halberd will only rotate");
+    cy.say("turn ax clockwise", turnWeaponRegex);
     cy.say("rotate weapon clockwise", "After giving the halberd one");
     cy.choose("Next", "the helmet's visor slides up");
 
     // Can't turn the halberd any more.
     cy.say("turn axe clockwise", "Having already activated the");
     cy.say("turn axe anticlockwise", "Having already activated the");
-  });
-
-  it("resets the armour puzzle when it's failed", () => {
-    cy.say("x armour", "It's a full metal suit of");
-    cy.say("turn halberd anticlockwise", turnWeaponRegex);
-    cy.say("turn halberd anticlockwise", turnWeaponRegex);
-    cy.say("turn halberd anticlockwise", "A clang and a whirring of");
-    cy.say("turn halberd anticlockwise", turnWeaponRegex);
-    cy.say("turn halberd anticlockwise", turnWeaponRegex);
   });
 
   it("finds the puzzle solution via the clock", () => {
@@ -57,9 +49,32 @@ describe("South Hall", () => {
     cy.say("turn hand clockwise", handWontTurnRegex);
     cy.say("turn hand anticlockwise", turnHandRegex, nextClockStageRegex);
     cy.say("turn hand anticlockwise", handWontTurnRegex);
+    cy.say("turn hand clockwise", turnHandRegex);
     cy.say("turn hand clockwise", "Without warning, a door above");
     cy.choose("Next", "One of the figures lowers its");
     cy.choose("Next", "Once the scene is over, the");
     cy.choose("Next", "You wonder whether to hide.");
+  });
+
+  it("can solve the armour puzzle from any point in the sequence", () => {
+    cy.say("x armour", "It's a full metal suit of");
+
+    // Start following the sequence
+    cy.say("turn halberd anticlockwise", turnWeaponRegex);
+    cy.say("turn weapon anticlockwise", turnWeaponRegex);
+    cy.say("turn ax clockwise", turnWeaponRegex);
+    cy.say("turn halberd anticlockwise", turnWeaponRegex);
+    cy.say("turn halberd anticlockwise", turnWeaponRegex);
+
+    // Start the sequence again from this point
+    cy.say("turn halberd anticlockwise", turnWeaponRegex);
+    cy.say("turn halberd anticlockwise", turnWeaponRegex);
+    cy.say("turn ax clockwise", turnWeaponRegex);
+    cy.say("turn halberd anticlockwise", turnWeaponRegex);
+    cy.say("turn halberd anticlockwise", turnWeaponRegex);
+    cy.say("turn halberd anticlockwise", turnWeaponRegex);
+    cy.say("turn ax clockwise", turnWeaponRegex);
+    cy.say("rotate weapon clockwise", "After giving the halberd one");
+    cy.choose("Next", "the helmet's visor slides up");
   });
 });
