@@ -175,4 +175,15 @@ describe("container", () => {
     lockbox.verbs.open.attempt(lockbox);
     expect(selectCurrentPage()).toBe("The lockbox is locked.");
   });
+
+  test("can't be closed if it's locked", () => {
+    const lockbox = new Container.Builder()
+      .withName("lockbox")
+      .isOpen()
+      .isLocked()
+      .withLockedText("chained open")
+      .build();
+    lockbox.verbs.close.attempt(lockbox);
+    expect(selectCurrentPage()).toBe("chained open");
+  });
 });

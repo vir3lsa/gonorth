@@ -104,6 +104,7 @@ export class Item {
             const inventory = selectInventory();
             return (
               item.container.itemsVisibleFromSelf &&
+              item.container.open !== false &&
               item.container !== inventory &&
               (inventory.capacity === -1 || item.size <= inventory.free)
             );
@@ -124,6 +125,8 @@ export class Item {
             const inventory = selectInventory();
             if (!item.container.itemsVisibleFromSelf) {
               return "You can't see that.";
+            } else if (item.container.open === false) {
+              return `You can't get at it inside the ${item.container.name}.`;
             } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.free) {
               return `You don't have enough room for ${article}${item.name}.`;
             } else if (item.container === inventory) {

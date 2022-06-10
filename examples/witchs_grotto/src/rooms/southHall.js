@@ -3,12 +3,13 @@ import {
   newDoor,
   Item,
   Verb,
-  retrieve,
   CyclicText,
   RandomText,
   SequentialText,
   ConcatText,
-  store
+  Container,
+  getItem,
+  selectInventory
 } from "../../../../lib/gonorth";
 import { initBedroom } from "./bedroom";
 import { initStaircase } from "./staircase";
@@ -94,7 +95,7 @@ export const initSouthHall = () => {
         if (sequence.halberdStage < armourPuzzleSolution.length - 1) {
           sequence.halberdStage++;
         } else {
-          store("armourPuzzleSolved", true);
+          getItem("helmet").open = true;
           sequence.solved = true;
         }
       }
@@ -222,7 +223,7 @@ export const initSouthHall = () => {
             .makePrepositional("which way")
             .withTest(
               ({ other: direction }) =>
-                !retrieve("armourPuzzleSolved") && (direction === clockwise || direction === anticlockwise)
+                !getItem("helmet").open && (direction === clockwise || direction === anticlockwise)
             )
             .withOnSuccess(({ other: direction }) => turnHalberd(direction))
             .withOnFailure(({ other: direction }) => {
@@ -234,6 +235,65 @@ export const initSouthHall = () => {
             })
             .build()
         )
+        .build()
+    )
+    .build();
+
+  const helmet = new Container.Builder("helmet")
+    .withAliases("helm", "head")
+    .withOpenDescription("The visor is now open - wide enough to fit your hand through the opening.")
+    .withClosedDescription(
+      "Highly polished and gleaming despite the dim light, the metal helm features a visor that can be slid up to uncover the face of the wearer. It's currently closed.\n\nThere's a narrow slit in the visor across where the eyes would be."
+    )
+    .withLockedText("The visor's securely attached to the helmet and doesn't budge a millimetre when you tug at it.")
+    .withCapacity(3)
+    .withPreposition("inside")
+    .isOpen(false)
+    .isLocked(true)
+    .isItemsVisibleFromSelf()
+    .withVerbs(
+      new Verb.Builder()
+        .withName("take")
+        .withAliases("pick up", "steal", "grab", "hold")
+        .withTest(false)
+        .withOnFailure(
+          "The helmet's fixed in place atop the suit of armour, somehow, like a rigid sculpture. There's no way to disconnect it."
+        )
+        .build()
+    )
+    .hidesItems(
+      new Item.Builder("visor")
+        .withAliases("mask", "face")
+        .withDescription(
+          () =>
+            `Like the rest of the helmet it's attached to, it's made of gleaming polished metal. It's currently ${
+              getItem("helmet").open ? "open" : "closed"
+            }.`
+        )
+        .withVerbs(
+          new Verb.Builder("open")
+            .withAliases("close", "slide", "rotate", "remove", "take", "snatch", "grab", "steal")
+            .withTest(false)
+            .withOnFailure(
+              "The visor's securely attached to the helmet and doesn't budge a millimetre when you tug at it."
+            )
+            .build()
+        )
+        .build(),
+      new Item.Builder("rolled up paper")
+        .withAliases("torn page")
+        .withContainerListing(
+          "Tucked inside, visible through the opening, is what looks like a rolled up piece of paper."
+        )
+        .withDescription(() => {
+          if (selectInventory().items["rolled up paper"]) {
+            return "holding it placeholder";
+          } else {
+            return "not holding it placeholder";
+          }
+        })
+        .isHoldable()
+        .withSize(1)
         .build()
     )
     .build();
@@ -276,7 +336,7 @@ export const initSouthHall = () => {
   });
 
   const upperSpiral = initUpperSpiral();
-  southHall.addItems(clockwise, anticlockwise, clock, armour, ricketyDoor);
+  southHall.addItems(clockwise, anticlockwise, clock, armour, helmet, ricketyDoor);
   upperSpiral.addItems(ricketyDoor);
 
   const staircase = initStaircase();

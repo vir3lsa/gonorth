@@ -95,13 +95,16 @@ export class Container extends Item {
 
       this.closeVerb = new Verb(
         "close",
-        ({ item }) => item.open,
+        ({ item }) => item.open && !item.locked,
         [
           ({ item }) => (item.open = false),
           ({ item }) => (item.itemsVisibleFromSelf = false),
           ({ item }) => item.closeText
         ],
-        ({ item }) => item.alreadyClosedText,
+        ({ item }) => {
+          if (item.locked) return item.lockedText;
+          return item.alreadyClosedText;
+        },
         ["shut"]
       );
 
@@ -186,8 +189,8 @@ export class Container extends Item {
 }
 
 class Builder {
-  constructor() {
-    this.config = {};
+  constructor(name) {
+    this.config = { name };
   }
 
   withName(name) {
@@ -196,7 +199,7 @@ class Builder {
   }
 
   isHoldable(holdable = true) {
-    this.config.holdable = true;
+    this.config.holdable = holdable;
     return this;
   }
 
@@ -235,6 +238,11 @@ class Builder {
     return this;
   }
 
+  withLockedText(lockedText) {
+    this.config.lockedText = lockedText;
+    return this;
+  }
+
   withCapacity(capacity) {
     this.config.capacity = capacity;
     return this;
@@ -257,6 +265,11 @@ class Builder {
 
   isCloseable(closeable = true) {
     this.config.closeable = closeable;
+    return this;
+  }
+
+  isItemsVisibleFromSelf(itemsVisibleFromSelf = true) {
+    this.config.itemsVisibleFromSelf = itemsVisibleFromSelf;
     return this;
   }
 

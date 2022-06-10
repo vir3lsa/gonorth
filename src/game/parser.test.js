@@ -10,6 +10,7 @@ import { goToRoom } from "../utils/lifecycle";
 import { PagedText } from "./interactions/text";
 import { selectCurrentPage, selectInteraction } from "../utils/testSelectors";
 import { selectRoom } from "../utils/selectors";
+import { Container } from "./items/container";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -172,7 +173,7 @@ describe("parser", () => {
       inputTest("throw red ball at chair man", "The chair man catches the ball."));
     it("applies wildcard effects", () =>
       inputTest("hide red ball from the chair man", "The chair man can't find the red ball."));
-    
+
     describe("auto disambiguation", () => {
       let apple1, apple2;
       beforeEach(() => {
@@ -184,21 +185,30 @@ describe("parser", () => {
 
       it("auto disambiguates when items are invisible", () => {
         apple1.visible = false;
-        inputTest("take apple", "the apple");
+        return inputTest("take apple", "the rotten apple");
       });
 
-      it("auto disambiguates when items don't support the verb", () => {
-        inputTest("squish apple", "gross juice squeezes out");
-      });
+      it("auto disambiguates when items don't support the verb", () =>
+        inputTest("squish apple", "gross juice squeezes out"));
     });
 
-    it("records aliases when hidden items are revealed", () => {
+    it("records names and aliases when hidden items are revealed", async () => {
       chairman.hidesItems = new Item.Builder("elephant")
         .withVerbs(new Verb.Builder("stroke").makePrepositional("with what").build())
         .build();
-      inputTest("stroke elephant", "shake your head in confusion");
-      inputTest("x chairman", "impressive");
-      inputTest("stroke elephant", "Stroke the elephant with what?");
+      await inputTest("stroke elephant", "don't seem able to stroke that");
+      await inputTest("x chair man", "impressive");
+      await inputTest("stroke elephant", "Stroke the elephant with what?");
+    });
+
+    it("can't take items from transparent but closed containers", () => {
+      const glassCabinet = new Container.Builder("glass cabinet").isItemsVisibleFromSelf().isOpen(false).build();
+      const trophy = new Item.Builder("trophy").isHoldable().build();
+
+      glassCabinet.addItem(trophy);
+      hall.addItem(glassCabinet);
+
+      return inputTest("take trophy", "can't get at it inside the glass cabinet");
     });
   });
 });
