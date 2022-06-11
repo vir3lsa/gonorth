@@ -18,6 +18,7 @@ export class Room extends Item {
     this.canHoldItems = true;
     this.aliases = ["room", "floor"];
     this.checkpoint = checkpoint;
+    this.isRoom = true;
     getStore().dispatch(addRoom(this));
   }
 

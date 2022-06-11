@@ -45,6 +45,7 @@ export class Verb {
     this.description = description;
     this.expectsArgs = false; // Used by some keywords.
     this.expectedArgs = expectedArgs;
+    this.remote = false;
 
     this.helpers = {
       object: this.object
@@ -228,6 +229,11 @@ class Builder {
     this.config.prepositional = true;
     this.config.interrogative = interrogative;
     this.config.prepositionOptional = prepositionOptional;
+    return this;
+  }
+
+  isRemote(remote = true) {
+    this.config.remote = remote;
     return this;
   }
 

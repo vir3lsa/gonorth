@@ -189,4 +189,12 @@ describe("Room", () => {
       expect(hall._alteredProperties).toEqual(new Set(["checkpoint"]));
     });
   });
+
+  it("doesn't alter room capacity when adding and removing items", () => {
+    const artifact = new Item.Builder("artifact").isHoldable().withSize(2).build();
+    hall.addItem(artifact);
+    expect(hall.capacity).toBe(-1);
+    hall.removeItem(artifact);
+    expect(hall.capacity).toBe(-1);
+  });
 });

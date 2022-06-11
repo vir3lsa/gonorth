@@ -1,5 +1,4 @@
 import { selectConfig, selectInventory, selectLastChange, selectPlayer, selectRoom } from "./selectors";
-import { Room } from "../game/items/room";
 
 const REACTION_MILLIS = 350;
 
@@ -27,7 +26,7 @@ export function inSameRoomAs(item) {
   let possibleItemRoom = item.container;
   let itemRoom;
 
-  while (possibleItemRoom !== null && !(possibleItemRoom instanceof Room)) {
+  while (possibleItemRoom !== null && !possibleItemRoom.isRoom) {
     possibleItemRoom = possibleItemRoom.container;
   }
 

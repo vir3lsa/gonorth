@@ -36,6 +36,11 @@ const inputTest = async (input, expectedOutput) => {
   expect(selectCurrentPage()).toInclude(expectedOutput);
 };
 
+const regexTest = async (input, expectedRegex) => {
+  await new Parser(input).parse();
+  expect(selectCurrentPage()).toMatch(expectedRegex);
+};
+
 beforeEach(() => {
   unregisterStore();
   initGame("The Giant's Castle", "", { debugMode: false });
@@ -144,6 +149,7 @@ describe("parser", () => {
       await inputTest("put cushion in chair", "You put the cushion in the chair");
       await inputTest("take cushion", "the cushion");
     });
+    it("takes an item before putting it", () => regexTest("put cushion in chair", /(take|grab|pick up) the cushion/));
     it("allows rooms to be referred to by name", () => inputTest("x hall", "grand"));
     it("allows rooms to be referred to generically", () => inputTest("x room", "grand"));
     it("allows items to be put on the floor", () =>

@@ -8,6 +8,7 @@ import { addItem, itemsRevealed } from "../../redux/gameActions";
 import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 import { moveItem } from "../../utils/itemFunctions";
+import { playerHasItem } from "../../utils/sharedFunctions";
 
 export function newItem(config, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
@@ -88,19 +89,46 @@ export class Item {
     aliases.forEach((alias) => this.createAliases(alias));
 
     this.addVerb(
-      new Verb("examine", true, [({ item }) => item.revealItems(), ({ item }) => item.getFullDescription()], null, [
-        "ex",
-        "x",
-        "look",
-        "inspect"
-      ])
+      new Verb.Builder("examine")
+        .withAliases("ex", "x", "look", "inspect")
+        .withTest(true)
+        .withOnSuccess(
+          ({ item }) => item.revealItems(),
+          ({ item }) => item.getFullDescription()
+        )
+        .isRemote()
+        .build()
+    );
+
+    const takeFromRoomText = new RandomText(
+      (item) => `You take ${item.properNoun ? "" : "the "}${item.name}.`,
+      (item) => `You pick up ${item.properNoun ? "" : "the "}${item.name}.`,
+      (item) => `You grab ${item.properNoun ? "" : "the "}${item.name}.`
+    );
+
+    const takeFromContainerText = new RandomText(
+      (item) => `You take ${item.properNoun ? "" : "the "}${item.name}.`,
+      (item) => `You pick up ${item.properNoun ? "" : "the "}${item.name}.`,
+      (item) => `You grab ${item.properNoun ? "" : "the "}${item.name}.`,
+      (item, container) =>
+        `You take ${item.properNoun ? "" : "the "}${item.name} from ${container.properNoun ? "" : "the "}${
+          container.name
+        }.`,
+      (item, container) =>
+        `You pick up ${item.properNoun ? "" : "the "}${item.name} from ${container.properNoun ? "" : "the "}${
+          container.name
+        }.`,
+      (item, container) =>
+        `You grab ${item.properNoun ? "" : "the "}${item.name} from ${container.properNoun ? "" : "the "}${
+          container.name
+        }.`
     );
 
     if (this.holdable) {
       this.addVerb(
-        new Verb(
-          "take",
-          ({ item }) => {
+        new Verb.Builder("take")
+          .withAliases("pick up", "steal", "grab", "hold")
+          .withTest(({ item }) => {
             const inventory = selectInventory();
             return (
               item.container.itemsVisibleFromSelf &&
@@ -108,19 +136,18 @@ export class Item {
               item.container !== inventory &&
               (inventory.capacity === -1 || item.size <= inventory.free)
             );
-          },
-          [
-            ({ item }) => moveItem(item, selectInventory()),
-            ({ item }) => {
-              const article = item.properNoun ? "" : "the ";
-              return new RandomText(
-                `You take ${article}${item.name}.`,
-                `You pick up ${article}${item.name}.`,
-                `You grab ${article}${item.name}.`
-              );
+          })
+          .withOnSuccess(({ item }) => {
+            const container = item.container;
+            moveItem(item, selectInventory());
+
+            if (container && !container.isRoom) {
+              return takeFromContainerText.next(item, container);
             }
-          ],
-          ({ item }) => {
+
+            return takeFromRoomText.next(item);
+          })
+          .withOnFailure(({ item }) => {
             const article = item.properNoun ? "" : "the ";
             const inventory = selectInventory();
             if (!item.container.itemsVisibleFromSelf) {
@@ -132,9 +159,9 @@ export class Item {
             } else if (item.container === inventory) {
               return `You're already carrying ${article}${item.name}!`;
             }
-          },
-          ["pick up", "steal", "grab", "hold"]
-        )
+          })
+          .isRemote()
+          .build()
       );
 
       const putVerb = new Verb(
@@ -308,11 +335,20 @@ export class Item {
    * @param {string} verbName
    * @param  {...any} args to pass to the verb
    */
-  try(verbName, ...args) {
+  async try(verbName, ...args) {
     const verb = this.verbs[verbName.toLowerCase()];
 
     if (verb) {
-      return verb.attempt(this, ...args);
+      if (this.holdable && !verb.remote && !playerHasItem(this)) {
+        // First pick up the item
+        await this.verbs.take.attempt(this);
+
+        if (playerHasItem(this)) {
+          return verb.attempt(this, ...args);
+        }
+      } else {
+        return verb.attempt(this, ...args);
+      }
     }
   }
 
@@ -351,7 +387,7 @@ export class Item {
 
     item.container = this; // This causes the item's aliases to also be added to this item
 
-    if (this.free > 0) {
+    if (this.free > -1) {
       this.free -= item.size;
     }
   }
@@ -376,7 +412,10 @@ export class Item {
     if (this.uniqueItems.has(item)) {
       this.uniqueItems.delete(item);
       item.container = null;
-      this.free += item.size;
+
+      if (this.free > -1) {
+        this.free += item.size;
+      }
     }
 
     // Remove aliases of the item if we're not already removing an alias
