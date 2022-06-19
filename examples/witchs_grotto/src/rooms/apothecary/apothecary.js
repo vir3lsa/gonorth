@@ -36,6 +36,7 @@ import { initDolittleProcedure } from "../../magic/dolittleDecoction";
 import { initBookShelf } from "./bookshelf";
 import roomImage from "./apothecary.png";
 import { initPhiltreOfFelineVision } from "../../magic/philtreOfFelineSight";
+import { getDemonsPasteProcedure, initGrowthProcedure } from "../../magic/growthPotion";
 
 let apothecary;
 
@@ -195,7 +196,10 @@ export const initApothecary = () => {
 
   const dandelion = new Ingredient("Dandelion", "placeholder");
 
-  const devilsClaw = new Ingredient("Devil's Claw", "placeholder");
+  const devilsClaw = new Ingredient.Builder("Devil's Claw")
+    .withAura("demonic")
+    .withDescription("A little pot of spiky devil's claw roots. They resemble horrifying spiders. The aura is demonic.")
+    .build();
 
   const dryadToenails = new Ingredient("Dryad Toenails", "placeholder");
 
@@ -487,7 +491,14 @@ Recite the Lunar Incantation.`,
     }
   });
 
-  alchemy.addProcedures(mendingProcedure, woodwormProcedure, strengthProcedure, initDolittleProcedure());
+  alchemy.addProcedures(
+    mendingProcedure,
+    woodwormProcedure,
+    strengthProcedure,
+    initDolittleProcedure(),
+    initGrowthProcedure(),
+    getDemonsPasteProcedure()
+  );
 
   addEffect(
     woodwormPotion,

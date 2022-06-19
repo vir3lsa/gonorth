@@ -287,9 +287,32 @@ export const initSouthHall = () => {
         )
         .withDescription(() => {
           if (selectInventory().items["rolled up paper"]) {
-            return "holding it placeholder";
+            return new SequentialText(
+              "Unrolling the paper, you examine what's printed on it.",
+              `## Acromegaly Solution
+Growth accelerator. Warning: do not imbibe in confined spaces.
+
+Ingredients      | Process
+:----------------|:------------------------------------------
+Calendula        | Prepare an environment with mountainous spirit
+Demon's paste    | Add a little blood to the pot
+|                | Stir in a little calendula until it dissolves
+|                | Incite the Litany of Change
+|                | Add demon's paste
+|                | Bring to the boil and stir until the mixture congeals
+|                | Elevate the spirit`,
+              `On the other side of the page, there's more:
+
+## Demon's Paste
+
+An invaluable source of concentrated power, used as the basis for many potions.
+
+### Process
+
+Start with a small amount of warm fat and an environment of dark spirit. Add any ingredient with a demonic aura - the stronger the better. Whisper the rite of souls. Stir until a paste forms - it can be rolled into balls for later use.`
+            );
           } else {
-            return "not holding it placeholder";
+            return "It's a rolled up piece of paper that could have been torn from a book.";
           }
         })
         .isHoldable()

@@ -185,11 +185,20 @@ export class Alchemy {
       } else if (stepToConsider.type === stepType) {
         switch (stepType) {
           case STEP_INGREDIENTS:
-          case STEP_WORDS:
-            if (stepToConsider.value.some((value) => value.toLowerCase() === ingredient.name.toLowerCase())) {
+          case STEP_WORDS: {
+            if (
+              stepToConsider.value.some((value) => {
+                const lcValue = value.toLowerCase();
+                return (
+                  lcValue === ingredient.name.toLowerCase() ||
+                  (ingredient.aura && lcValue === ingredient.aura.toLowerCase())
+                );
+              })
+            ) {
               matchingStep = stepToConsider;
             }
             break;
+          }
           default:
             matchingStep = stepToConsider;
             break;
@@ -214,9 +223,10 @@ export class Alchemy {
         case STEP_INGREDIENTS:
         case STEP_WORDS:
           // Remove the matching ingredient from the step
-          matchingStep.value = matchingStep.value.filter(
-            (item) => item.toLowerCase() !== ingredient.name.toLowerCase()
-          );
+          matchingStep.value = matchingStep.value.filter((item) => {
+            const lcItem = item.toLowerCase();
+            return lcItem !== ingredient.name.toLowerCase() && lcItem !== ingredient.aura.toLowerCase();
+          });
 
           if (!matchingStep.value.length) {
             // Remove the empty step
@@ -265,9 +275,9 @@ export class Alchemy {
   }
 
   handleNumericStep(amount, matchingStep, steps) {
-    matchingStep.value -= amount;
+    matchingStep.value[0] -= amount;
 
-    if (matchingStep.value === 0) {
+    if (matchingStep.value[0] === 0) {
       // Remove the completed step
       this.removeStep(steps, matchingStep);
     }
@@ -299,6 +309,11 @@ export class Alchemy {
 
       if (stepCopy.short && (stepCopy.short instanceof Text || stepCopy.short instanceof ManagedText)) {
         stepCopy.short = stepCopy.short.clone();
+      }
+
+      // Ensure that values are arrays
+      if (stepCopy.value && !Array.isArray(stepCopy.value)) {
+        stepCopy.value = [stepCopy.value];
       }
 
       return stepCopy;
@@ -377,6 +392,79 @@ export class Procedure {
     this.procedure = procedure;
     this.potion = potion;
   }
+
+  static get Builder() {
+    return ProcedureBuilder;
+  }
+
+  static get StepBuilder() {
+    return StepBuilder;
+  }
+}
+
+class ProcedureBuilder {
+  constructor() {
+    this.procedure = { steps: [] };
+  }
+
+  isOrdered(ordered = true) {
+    this.procedure.ordered = ordered;
+    return this;
+  }
+
+  withSpirit(...spirit) {
+    this.procedure.spirit = spirit;
+    return this;
+  }
+
+  withPotion(potion) {
+    this.potion = potion;
+    return this;
+  }
+
+  withOrderedSteps(...steps) {
+    this.procedure.steps.push({ ordered: true, steps });
+    return this;
+  }
+
+  withUnorderedSteps(...steps) {
+    this.procedure.steps.push({ ordered: false, steps });
+    return this;
+  }
+
+  withStep(step) {
+    this.procedure.steps.push(step);
+    return this;
+  }
+
+  build() {
+    return new Procedure(this.procedure, this.potion);
+  }
+}
+
+class StepBuilder {
+  constructor(type, ...value) {
+    this.step = { type, value };
+  }
+
+  withLeniency(leniency) {
+    this.step.leniency = leniency;
+    return this;
+  }
+
+  withText(text) {
+    this.step.text = text;
+    return this;
+  }
+
+  withShortText(text) {
+    this.step.short = text;
+    return this;
+  }
+
+  build() {
+    return this.step;
+  }
 }
 
 export class Potion extends Item {
@@ -412,5 +500,40 @@ export class Potion extends Item {
 
     this.addVerbs(drink, pour);
     this.addAliases("potion");
+  }
+
+  static get Builder() {
+    return PotionBuilder;
+  }
+}
+
+class PotionBuilder {
+  constructor(name) {
+    this.name = name;
+    this.drinkEffects = [];
+  }
+
+  withName(name) {
+    this.name = name;
+    return this;
+  }
+
+  withDescription(description) {
+    this.description = description;
+    return this;
+  }
+
+  isDrinkable(drinkable = true) {
+    this.drinkable = drinkable;
+    return this;
+  }
+
+  withDrinkEffects(...effects) {
+    this.drinkEffects = effects;
+    return this;
+  }
+
+  build() {
+    return new Potion(this.name, this.description, this.drinkable, ...this.drinkEffects);
   }
 }

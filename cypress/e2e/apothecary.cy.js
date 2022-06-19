@@ -90,4 +90,36 @@ describe("apothecary", () => {
     cy.say("x potion", "Which potion do you");
     cy.choose("Elixir of Mending", "deep purple in colour");
   });
+
+  it("creates a growth potion", () => {
+    cy.say("debug spawn onyx", "Spawned onyx in Apothecary");
+    cy.say("put onyx on pentagram", "black onyx gemstone on the pentagram");
+    cy.say("x pipes", "There's a spout above the");
+    cy.say("turn dial", "You turn the dial to point at");
+    cy.say("open valve", "You grab the crank wheel with");
+    cy.say("close valve", "You spin the valve wheel back");
+    cy.say("x pentagram", "distinctive spirit of dark");
+    cy.say("debug spawn matches", "Spawned matches in Apothecary");
+    cy.say("light fire with matches", "Striking one of the big");
+    cy.say("wait");
+    cy.choose("Stop waiting");
+    cy.say("put out fire", "You pull the metal cover over");
+    cy.say("x pot", "some kind of liquid");
+    cy.say("x jars", "This must be the witch's");
+    cy.say("add devil's claw to pot", "begins steaming");
+    cy.say("debug spawn rite", "Spawned rite in Apothecary");
+    cy.say("take rite", "rite of souls");
+    cy.say("recite rite", "Solemnly, with eyes downcast");
+    cy.choose("Next", "As the words roll off your");
+    cy.say("x cauldron", "black and nasty looking");
+    cy.say("stir pot with ladle", "sloshes through the black");
+    cy.choose("Keep stirring", "leaving a trail behind");
+    cy.choose("Keep stirring", "hint of deep crimson");
+    cy.choose("Keep stirring", "wet dough-like consistency");
+    cy.choose("Keep stirring", "red-black substance into clumps");
+    cy.choose("Stop stirring");
+    cy.say("x pot", "dark red paste");
+    cy.say("take potion", "You grab an empty vial from");
+    cy.say("x demon's paste", "It's a deep, deep red, almost");
+  });
 });

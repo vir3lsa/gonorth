@@ -133,6 +133,8 @@ const downstairsSounds = new RandomText(
   "A sudden gust of chilled air hits you. Where did it come from?"
 );
 
+const SOUND_CHANCE_ONE_IN_X = 40;
+
 addEvent(
   new Event(
     "environment sounds",
@@ -156,7 +158,7 @@ addEvent(
         return downstairsSounds;
       }
     },
-    () => selectRoom() && Math.random() * 20 > 19,
+    () => selectRoom() && Math.random() * SOUND_CHANCE_ONE_IN_X > SOUND_CHANCE_ONE_IN_X - 1,
     0,
     TIMEOUT_TURNS,
     (x) => x,
