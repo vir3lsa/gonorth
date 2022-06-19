@@ -182,7 +182,13 @@ beforeEach(() => {
 test("it deep copies procedures", () => {
   alchemy.procedures.forEach((procedure, index) => {
     const candidate = alchemy.candidates[index];
-    expect(JSON.stringify(candidate.procedure)).toBe(JSON.stringify(procedure.procedure));
+    expect(candidate.procedure.ordered).toBe(procedure.procedure.ordered);
+    expect(candidate.procedure.steps.length).toBe(procedure.procedure.steps.length);
+
+    procedure.procedure.steps.forEach((step, stepIndex) => {
+      const candidateStep = candidate.procedure.steps[stepIndex];
+      expect(candidateStep.type).toBe(step.type);
+    });
 
     if (procedure.potion) {
       expect(candidate.potion.name).toBe(procedure.potion.name);
