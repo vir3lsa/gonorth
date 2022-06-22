@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { connect } from "react-redux";
 import { Element, scroller } from "react-scroll";
 import { debounce } from "debounce";
@@ -43,7 +44,7 @@ const IODevice = (props) => {
     >
       {props.image && <SceneImage />}
       <div id="scrollPane" className={classes.scrollPane}>
-        <ReactMarkdown source={interaction.currentPage} className="gonorth" />
+        <ReactMarkdown children={interaction.currentPage} remarkPlugins={[remarkGfm]} className="gonorth" />
         <Element name="scrollTarget" />
       </div>
       {interaction.options && interaction.options.length ? (
