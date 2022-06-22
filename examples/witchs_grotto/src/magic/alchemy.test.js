@@ -31,14 +31,14 @@ const mendingProcedure = new Procedure(
       {
         ordered: false,
         steps: [
-          { type: STEP_WATER, value: 0.5 },
+          { type: STEP_WATER, value: 0.5, leniency: 0.25 },
           {
             type: STEP_INGREDIENTS,
             value: [dryadToenails.name, alfalfa.name, whiteSage.name]
           }
         ]
       },
-      { type: STEP_HEAT, value: 3, leniency: 3 }
+      { type: STEP_HEAT, value: 3, leniency: 3, text: new CyclicText("one", "two", "three", "four", "five", "six") }
     ]
   },
   mendingPotion
@@ -106,6 +106,39 @@ const magicWordProcedure = new Procedure({
   steps: [{ type: STEP_WORDS, value: ["abracadabra"], text: "Kaboom" }]
 });
 
+const lenientProcedure = new Procedure(
+  {
+    ordered: true,
+    steps: [
+      { type: STEP_WATER, value: 1, leniency: 2 },
+      {
+        ordered: false,
+        steps: [
+          {
+            type: STEP_HEAT,
+            value: 2,
+            leniency: 2,
+            text: new CyclicText("heat 1", "heat 2")
+          },
+          {
+            type: STEP_STIR,
+            value: 1,
+            leniency: 2,
+            text: "stir 1"
+          }
+        ]
+      },
+      {
+        type: STEP_STIR,
+        value: 1,
+        leniency: 3,
+        text: "finished"
+      }
+    ]
+  },
+  mendingPotion
+);
+
 const moonstone = new Item("moonstone", "shiny", true, 1);
 moonstone.spirit = "moon";
 
@@ -126,14 +159,15 @@ alchemy.addProcedures(
   anotherProcedure,
   spiritProcedure,
   spirit2Procedure,
-  magicWordProcedure
+  magicWordProcedure,
+  lenientProcedure
 );
 
 function addIngredients(...ingredients) {
   ingredients.forEach((ingredient) => alchemy.addIngredient(ingredient));
 }
 
-function addWater(times) {
+function addWater(times = 1) {
   let text;
   for (let i = 0; i < times; i++) {
     text = alchemy.addWater();
@@ -141,7 +175,7 @@ function addWater(times) {
   return text;
 }
 
-function addFat(times) {
+function addFat(times = 1) {
   let text;
   for (let i = 0; i < times; i++) {
     text = alchemy.addFat();
@@ -149,7 +183,7 @@ function addFat(times) {
   return text;
 }
 
-function addHeat(times) {
+function addHeat(times = 1) {
   let text;
   for (let i = 0; i < times; i++) {
     text = alchemy.addHeat();
@@ -157,7 +191,7 @@ function addHeat(times) {
   return text;
 }
 
-function stir(times) {
+function stir(times = 1) {
   let text;
   for (let i = 0; i < times; i++) {
     text = alchemy.stir();
@@ -168,7 +202,7 @@ function stir(times) {
 function followMendingProcedure() {
   addIngredients(dryadToenails, alfalfa, whiteSage);
   addWater(2);
-  addHeat(3);
+  return addHeat(3);
 }
 
 beforeEach(() => {
@@ -254,9 +288,15 @@ test("no potion is produced if not enough heat is added", () => {
   expect(alchemy.potion).toBe(null);
 });
 
-test("no potion is produced if too much water is added", () => {
+test("liquid level may be lenient", () => {
   followMendingProcedure();
   addWater(1);
+  expect(alchemy.potion.name).toBe(mendingPotion.name);
+});
+
+test("no potion is produced if too much water is added", () => {
+  followMendingProcedure();
+  addWater(2);
   expect(alchemy.potion).toBe(null);
 });
 
@@ -308,9 +348,7 @@ test("no potion is produced if the mixture is not stirred at the right time", ()
 test("correct text is returned when potion steps are reached", () => {
   addWater(4);
   addIngredients(cockroachSaliva, horehound);
-  const text = alchemy.stir();
-  expect(text instanceof CyclicText).toBe(true);
-  expect(text.next()).toBe("The mixture turns brown.");
+  expect(alchemy.stir().next()).toBe("The mixture turns brown.");
 });
 
 test("is lenient with heat", () => {
@@ -323,6 +361,16 @@ test("isn't lenient forever", () => {
   followMendingProcedure();
   addHeat(4);
   expect(alchemy.potion).toBe(null);
+});
+
+test("text continues with leniency", () => {
+  const text = followMendingProcedure();
+  text.next();
+  text.next();
+  text.next(); // Cheating slightly as we haven't read the Text during the process.
+  expect(addHeat().next()).toBe("four"); // But now the Text returned from the lenient steps should be correct.
+  expect(addHeat().next()).toBe("five");
+  expect(addHeat().next()).toBe("six");
 });
 
 test("follows steps after leniency", () => {
@@ -371,4 +419,12 @@ test("gives magic word response", () => {
 test("doesn't match wrong magic word", () => {
   alchemy.sayWords(new MagicWord("alakazam"));
   expect(alchemy.candidates.length).toBe(0);
+});
+
+test("moves to next step despite previous lenient step matching in prior group", () => {
+  addWater(4);
+  addHeat();
+  stir();
+  addHeat();
+  expect(stir()).toBe("finished");
 });

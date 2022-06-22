@@ -117,8 +117,13 @@ describe("apothecary", () => {
     cy.choose("Keep stirring", "hint of deep crimson");
     cy.choose("Keep stirring", "wet dough-like consistency");
     cy.choose("Keep stirring", "red-black substance into clumps");
+    // Lenient text
+    cy.choose("Keep stirring", "look very dry");
+    // Lenient text
+    cy.choose("Keep stirring", "solid mass is forming");
     cy.choose("Stop stirring");
-    cy.say("x pot", "dark red paste");
+    // Lenient short text
+    cy.say("x pot", "like a blood clot");
     cy.say("take potion", "You grab an empty vial from");
     cy.say("x demon's paste", "It's a deep, deep red, almost");
   });

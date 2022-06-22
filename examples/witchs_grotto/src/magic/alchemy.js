@@ -51,8 +51,7 @@ export class Alchemy {
     this.potion = null;
     this.makingPotion = false;
     this.shortDescription = null;
-    this.heatLeniency = 0;
-    this.stirLeniency = 0;
+    this.lenientSteps = [];
     this.ingredientsAdded = false;
     this.errorMessageOnTurn = -1;
     this.candidates = this.procedures.map((proc) => this.copyProcedure(proc));
@@ -128,30 +127,23 @@ export class Alchemy {
     } else if (!candidates.length) {
       const turn = selectTurn();
 
-      if (stepType === STEP_HEAT && this.heatLeniency) {
-        return this.heatLeniency--;
-      } else if (stepType === STEP_STIR && this.stirLeniency) {
-        return this.stirLeniency--;
-      } else {
-        // No matching procedures - potion has failed
-        if (this.makingPotion) {
-          this.makingPotion = false;
-          this.stepText = this.errors;
-          this.shortDescription = this.errorShorts.next();
-          this.heatLeniency = 0;
-          this.stirLeniency = 0;
-          this.errorMessageOnTurn = turn;
-        } else if (this.liquidLevel && this.ingredientsAdded && turn > this.errorMessageOnTurn) {
-          this.stepText = this.inert.next();
-          this.errorMessageOnTurn = turn;
-        } else if (!this.liquidLevel && this.ingredientsAdded) {
-          this.stepText = this.randomIngredients.next();
-        } else if (turn > this.errorMessageOnTurn) {
-          this.stepText = this.extraIngredients.next();
-        }
-
-        this.potion = null;
+      // No matching procedures - potion has failed
+      if (this.makingPotion) {
+        this.makingPotion = false;
+        this.stepText = this.errors;
+        this.shortDescription = this.errorShorts.next();
+        this.lenientSteps = [];
+        this.errorMessageOnTurn = turn;
+      } else if (this.liquidLevel && this.ingredientsAdded && turn > this.errorMessageOnTurn) {
+        this.stepText = this.inert.next();
+        this.errorMessageOnTurn = turn;
+      } else if (!this.liquidLevel && this.ingredientsAdded) {
+        this.stepText = this.randomIngredients.next();
+      } else if (turn > this.errorMessageOnTurn) {
+        this.stepText = this.extraIngredients.next();
       }
+
+      this.potion = null;
     }
 
     this.candidates = candidates;
@@ -160,13 +152,8 @@ export class Alchemy {
   findMatchingStep(group, stepType, ingredient) {
     const ordered = group.ordered;
     const steps = group.steps;
-    const numStepsToConsider = ordered ? 1 : steps.length;
+    const numStepsToConsider = steps.length && ordered ? 1 : steps.length;
     let stepToConsider, matchingStep, matchingGroup;
-
-    if (!steps.length) {
-      // No steps to match against - player has probably done too much
-      return false;
-    }
 
     if (group.spirit && !this.doesSpiritMatch(group.spirit)) {
       // Spirit must be correct or no steps can match
@@ -211,11 +198,16 @@ export class Alchemy {
       }
     }
 
+    if (!matchingStep && !matchingGroup) {
+      // If we haven't found a matching step, try lenient steps.
+      matchingStep = this.lenientSteps.find((lenientStep) => lenientStep.type === stepType);
+    }
+
     if (matchingStep) {
       this.stepText = matchingStep.text; // Fine for this to be undefined
       this.shortDescription = matchingStep.short || this.shortDescription;
 
-      if (this.shortDescription instanceof Text) {
+      if (this.shortDescription instanceof Text || this.shortDescription instanceof ManagedText) {
         this.shortDescription = this.shortDescription.next();
       }
 
@@ -244,11 +236,9 @@ export class Alchemy {
           this.handleNumericStep(0.25, matchingStep, steps);
           break;
         case STEP_HEAT:
-          this.heatLeniency = matchingStep.leniency || 0;
           this.handleNumericStep(1, matchingStep, steps);
           break;
         case STEP_STIR:
-          this.stirLeniency = matchingStep.leniency || 0;
           this.handleNumericStep(1, matchingStep, steps);
           break;
         default:
@@ -268,10 +258,24 @@ export class Alchemy {
   }
 
   removeStep(steps, matchingStep) {
-    steps.splice(
-      steps.findIndex((step) => step === matchingStep),
-      1
-    );
+    const stepIndex = steps.findIndex((step) => step === matchingStep);
+
+    if (stepIndex > -1) {
+      steps.splice(
+        steps.findIndex((step) => step === matchingStep),
+        1
+      );
+    }
+
+    this.lenientSteps = this.lenientSteps.filter((step) => step !== matchingStep);
+
+    // We could continue to match against this step if it's lenient.
+    if (matchingStep.leniency) {
+      // Copy the leniency over into the value so we can use it like a normal step.
+      matchingStep.value[0] = matchingStep.leniency;
+      matchingStep.leniency = 0;
+      this.lenientSteps.push(matchingStep);
+    }
   }
 
   handleNumericStep(amount, matchingStep, steps) {
