@@ -4,8 +4,10 @@ module.exports = {
   mode: "development",
   context: __dirname,
   devServer: {
-    contentBase: __dirname,
-    disableHostCheck: true
+    static: {
+      directory: __dirname
+    },
+    allowedHosts: "all"
   },
   output: {
     path: path.resolve(__dirname, "dist-web")
