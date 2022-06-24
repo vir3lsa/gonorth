@@ -94,7 +94,7 @@ describe("tunnels", () => {
     cy.say("debug spawn feline", "spawned feline");
     cy.say("drink feline", "tastes of fish");
     cy.choose("next", "less dark now");
-    cy.say("debug event 100", "100 milliseconds");
+    cy.say("debug event 0", "0 milliseconds");
 
     // Enter tunnels
     cy.say("west", "Going West");
@@ -106,26 +106,26 @@ describe("tunnels", () => {
     cy.choose("jump down", "lower yourself over the edge");
     cy.choose("next", "branches left and right");
     cy.choose("go left", "becoming much narrower");
+
+    // Open the door to the room, ready for the chase later
+    cy.choose("open rickety door", "swings open limply");
     cy.choose("round bend", "fantastic vaulted spaces");
 
     // Meet the monster
     cy.choose("go left", "steep, worn steps");
     cy.choose("go round corner", "too tall to be a person");
     cy.choose("next", "starts moving towards you");
-    cy.choose("back up stairs", "fly round the bend");
+    cy.choose("back up stairs", "fly round the bend", "cry of agony");
 
     // Hide
-    cy.choose("go round corner");
-    cy.choose("go right", "rickety wooden door");
-    cy.choose("open rickety door", "swings open limply");
+    cy.choose("go round corner", "awful moaning cry");
+    cy.choose("go right", "rickety wooden door", "Strain your ears");
     cy.choose("enter room", "Passing the open door, you");
-    cy.choose("Next", "The tiny room is dank and", { global: true });
-    cy.say("x barrel", "It's standing on the jagged");
+    cy.choose("Next", "The tiny room is dank and", "Whimpering cries emanate", { global: true });
+    cy.say("x barrel", "It's standing on the jagged", "heart-stopping wail");
     cy.say("hide under barrel", "Scrabbling with your fingers");
-    cy.choose("Next", "You can see much of the dank");
-    cy.choose("wait", "You can see much of the dank");
-    cy.choose("wait", "looking for you");
-    cy.choose("wait", "hammering heart");
+    cy.choose("Next", "You can see much of the dank", "looking for you");
+    cy.choose("wait", "You can see much of the dank", "hammering heart");
     cy.choose("wait", "given up its hunt");
     cy.choose("leave", "You lift the barrel and");
   });
