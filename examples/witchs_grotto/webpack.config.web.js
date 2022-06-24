@@ -10,9 +10,6 @@ module.exports = (env) => ({
     },
     allowedHosts: "all"
   },
-  output: {
-    path: path.resolve(__dirname, "dist-web")
-  },
   module: {
     rules: [
       {
