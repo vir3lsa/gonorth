@@ -26,7 +26,7 @@ import {
   STEP_STIR,
   STEP_BLOOD,
   STEP_FAT
-} from "../../magic/alchemy";
+} from "../../magic";
 import { getLowerSpiral } from "../lowerSpiral";
 import { initPestleAndMortar } from "../../magic/pestleAndMortar";
 import { getAlchemy, initCauldron, getContents, getTap, getFire } from "../../magic/cauldron";

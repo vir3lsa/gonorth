@@ -22,9 +22,8 @@ import {
   update,
   forget
 } from "../../../../lib/gonorth";
-import { Ingredient } from "../magic/ingredient";
+import { Ingredient, Potion } from "../magic";
 import { initCavern } from "./cavern";
-import { Potion } from "../magic/alchemy";
 
 const forward = "f";
 const up = "up";

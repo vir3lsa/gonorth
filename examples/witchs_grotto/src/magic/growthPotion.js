@@ -1,5 +1,5 @@
 import { CyclicText } from "../../../../lib/gonorth";
-import { Potion, Procedure, STEP_FAT, STEP_HEAT, STEP_INGREDIENTS, STEP_STIR, STEP_WORDS } from "./alchemy";
+import { Potion, Procedure, STEP_BLOOD, STEP_FAT, STEP_HEAT, STEP_INGREDIENTS, STEP_STIR, STEP_WORDS } from ".";
 import { Ingredient } from "./ingredient";
 import { MagicWord } from "./magicWord";
 
@@ -78,7 +78,57 @@ export const initGrowthProcedure = () => {
     )
     .build();
 
-  const growthProcedure = new Procedure.Builder().withPotion(growthPotion).build();
+  growthProcedure = new Procedure.Builder()
+    .withPotion(growthPotion)
+    .isOrdered()
+    .withSpirit("mountainous")
+    .withUnorderedSteps(
+      new Procedure.StepBuilder(STEP_BLOOD, 0.25).withLeniency(0.25).build(),
+      new Procedure.StepBuilder(STEP_INGREDIENTS, "calendula").build()
+    )
+    .withStep(
+      new Procedure.StepBuilder(STEP_WORDS, "litany of change")
+        .withText(
+          "You sense energy building around you, like a great drawing of breath, an inhalation of potential. When you finish the words, all is still, waiting, anticipating."
+        )
+        .withShortText("looks like blood, but possesses a certain energy")
+        .withLeniency(1)
+        .build()
+    )
+    .withStep(
+      new Procedure.StepBuilder(STEP_INGREDIENTS, "demon's paste")
+        .withText("placeholder")
+        .withShortText("placeholder")
+        .withLeniency(1)
+        .build()
+    )
+    .withUnorderedSteps(
+      new Procedure.StepBuilder(STEP_HEAT, 5)
+        .withLeniency(5)
+        .withText("placeholder")
+        .withShortText("placeholder")
+        .build(),
+      new Procedure.StepBuilder(STEP_STIR, 3)
+        .withLeniency(5)
+        .withText("placeholder")
+        .withShortText("placeholder")
+        .build()
+    )
+    .withStep(
+      new Procedure.StepBuilder(STEP_STIR, 1)
+        .withLeniency(3)
+        .withText("placeholder")
+        .withShortText("placeholder")
+        .build()
+    )
+    .withStep(
+      new Procedure.StepBuilder(STEP_WORDS, "spiritual apotheosis")
+        .withSpirit("elevation")
+        .withText("ph")
+        .withShortText("ph")
+        .build()
+    )
+    .build();
 
   // TODO Hide this somewhere.
   const blackOnyx = new Ingredient.Builder("black onyx gemstone")

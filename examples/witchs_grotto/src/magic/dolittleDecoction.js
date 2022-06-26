@@ -1,5 +1,5 @@
 import { CyclicText, store, update } from "../../../../lib/gonorth";
-import { Potion, Procedure, STEP_FAT, STEP_WATER, STEP_WORDS, STEP_INGREDIENTS, STEP_HEAT, STEP_STIR } from "./alchemy";
+import { Potion, Procedure, STEP_FAT, STEP_WATER, STEP_WORDS, STEP_INGREDIENTS, STEP_HEAT, STEP_STIR } from ".";
 
 let dolittleProcedure;
 

@@ -8,10 +8,9 @@ import {
   Potion,
   STEP_FAT,
   STEP_WORDS
-} from "./alchemy";
-import { Ingredient } from "./ingredient";
+} from ".";
+import { Ingredient, MagicWord } from ".";
 import { CyclicText, initGame, Item } from "../../../../lib/gonorth";
-import { MagicWord } from "./magicWord";
 
 initGame("Lord Fenwick's Rash", "Lady Fenwick", { debugMode: false });
 

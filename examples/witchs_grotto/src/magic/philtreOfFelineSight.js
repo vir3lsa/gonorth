@@ -1,5 +1,5 @@
 import { store } from "../../../../lib/gonorth";
-import { Potion } from "./alchemy";
+import { Potion } from ".";
 
 let philtreOfFelineVision;
 
