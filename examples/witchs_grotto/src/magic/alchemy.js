@@ -1,4 +1,5 @@
-import { Item, Text, RandomText, CyclicText, ConcatText, ManagedText, Verb, selectTurn } from "../../../../lib/gonorth";
+import { Text, RandomText, CyclicText, ConcatText, ManagedText, selectTurn } from "../../../../lib/gonorth";
+import { Procedure } from ".";
 
 export const STEP_INGREDIENTS = "ingredients";
 export const STEP_HEAT = "heat";
@@ -51,7 +52,6 @@ export class Alchemy {
     this.potion = null;
     this.makingPotion = false;
     this.shortDescription = null;
-    this.lenientSteps = [];
     this.ingredientsAdded = false;
     this.errorMessageOnTurn = -1;
     this.candidates = this.procedures.map((proc) => this.copyProcedure(proc));
@@ -107,10 +107,16 @@ export class Alchemy {
 
   processStep(stepType, ingredient) {
     this.stepText = null;
+    const candidates = [];
 
-    const candidates = this.candidates.filter((cand) =>
-      this.findMatchingStep(cand.procedure, stepType, ingredient, null)
-    );
+    for (let i in this.candidates) {
+      const candidate = this.candidates[i];
+      const candidateMatches = this.enactMatchingStep(candidate, candidate.procedure, stepType, ingredient);
+
+      if (candidateMatches) {
+        candidates.push(candidate);
+      }
+    }
 
     if (candidates.length && this.liquidLevel && this.ingredientsAdded) {
       this.makingPotion = true;
@@ -132,7 +138,6 @@ export class Alchemy {
         this.makingPotion = false;
         this.stepText = this.errors;
         this.shortDescription = this.errorShorts.next();
-        this.lenientSteps = [];
         this.errorMessageOnTurn = turn;
       } else if (this.liquidLevel && this.ingredientsAdded && turn > this.errorMessageOnTurn) {
         this.stepText = this.inert.next();
@@ -149,7 +154,7 @@ export class Alchemy {
     this.candidates = candidates;
   }
 
-  findMatchingStep(group, stepType, ingredient) {
+  enactMatchingStep(candidate, group, stepType, ingredient) {
     const ordered = group.ordered;
     const steps = group.steps;
     const numStepsToConsider = steps.length && ordered ? 1 : steps.length;
@@ -165,7 +170,7 @@ export class Alchemy {
 
       if (stepToConsider.hasOwnProperty("ordered")) {
         // recurse through the subgroup
-        if (this.findMatchingStep(stepToConsider, stepType, ingredient)) {
+        if (this.enactMatchingStep(candidate, stepToConsider, stepType, ingredient)) {
           matchingGroup = stepToConsider;
           break;
         }
@@ -200,7 +205,7 @@ export class Alchemy {
 
     if (!matchingStep && !matchingGroup) {
       // If we haven't found a matching step, try lenient steps.
-      matchingStep = this.lenientSteps.find((lenientStep) => lenientStep.type === stepType);
+      matchingStep = candidate.lenientSteps.find((lenientStep) => lenientStep.type === stepType);
     }
 
     if (matchingStep) {
@@ -222,24 +227,24 @@ export class Alchemy {
 
           if (!matchingStep.value.length) {
             // Remove the empty step
-            this.removeStep(steps, matchingStep);
+            this.removeStep(candidate, steps, matchingStep);
           }
 
           break;
         case STEP_WATER:
-          this.handleNumericStep(0.25, matchingStep, steps);
+          this.handleNumericStep(candidate, 0.25, matchingStep, steps);
           break;
         case STEP_FAT:
-          this.handleNumericStep(0.25, matchingStep, steps);
+          this.handleNumericStep(candidate, 0.25, matchingStep, steps);
           break;
         case STEP_BLOOD:
-          this.handleNumericStep(0.25, matchingStep, steps);
+          this.handleNumericStep(candidate, 0.25, matchingStep, steps);
           break;
         case STEP_HEAT:
-          this.handleNumericStep(1, matchingStep, steps);
+          this.handleNumericStep(candidate, 1, matchingStep, steps);
           break;
         case STEP_STIR:
-          this.handleNumericStep(1, matchingStep, steps);
+          this.handleNumericStep(candidate, 1, matchingStep, steps);
           break;
         default:
           console.error(`alchemy: Unrecognised step type: ${stepType}`);
@@ -257,7 +262,7 @@ export class Alchemy {
     return matchingStep !== undefined || matchingGroup !== undefined;
   }
 
-  removeStep(steps, matchingStep) {
+  removeStep(candidate, steps, matchingStep) {
     const stepIndex = steps.findIndex((step) => step === matchingStep);
 
     if (stepIndex > -1) {
@@ -267,34 +272,37 @@ export class Alchemy {
       );
     }
 
-    this.lenientSteps = this.lenientSteps.filter((step) => step !== matchingStep);
+    candidate.lenientSteps = candidate.lenientSteps.filter((step) => step !== matchingStep);
 
     // We could continue to match against this step if it's lenient.
     if (matchingStep.leniency) {
       // Copy the leniency over into the value so we can use it like a normal step.
-      matchingStep.value[0] = matchingStep.leniency;
+      matchingStep.value = Array.isArray(matchingStep.leniency) ? matchingStep.leniency : [matchingStep.leniency];
       matchingStep.leniency = 0;
-      this.lenientSteps.push(matchingStep);
+      candidate.lenientSteps.push(matchingStep);
     }
   }
 
-  handleNumericStep(amount, matchingStep, steps) {
+  handleNumericStep(candidate, amount, matchingStep, steps) {
     matchingStep.value[0] -= amount;
 
     if (matchingStep.value[0] === 0) {
       // Remove the completed step
-      this.removeStep(steps, matchingStep);
+      this.removeStep(candidate, steps, matchingStep);
     }
   }
 
   copyProcedure(proc) {
-    return new Procedure(
+    const procedure = new Procedure(
       {
         ...proc.procedure,
         steps: this.copySteps(proc.procedure.steps)
       },
       proc.potion // No need to deep copy the potion
     );
+
+    procedure.lenientSteps = [];
+    return procedure;
   }
 
   copySteps(steps) {
@@ -388,90 +396,5 @@ export class Alchemy {
     const missingSpirit = requiredSpirit.find((required) => spirit.find((actual) => actual === required) === undefined);
 
     return !Boolean(missingSpirit);
-  }
-}
-
-export class Procedure {
-  constructor(procedure, potion) {
-    this.procedure = procedure;
-    this.potion = potion;
-  }
-
-  static get Builder() {
-    return ProcedureBuilder;
-  }
-
-  static get StepBuilder() {
-    return StepBuilder;
-  }
-}
-
-class ProcedureBuilder {
-  constructor() {
-    this.procedure = { steps: [] };
-  }
-
-  isOrdered(ordered = true) {
-    this.procedure.ordered = ordered;
-    return this;
-  }
-
-  withSpirit(...spirit) {
-    this.procedure.spirit = spirit;
-    return this;
-  }
-
-  withPotion(potion) {
-    this.potion = potion;
-    return this;
-  }
-
-  withOrderedSteps(...steps) {
-    this.procedure.steps.push({ ordered: true, steps });
-    return this;
-  }
-
-  withUnorderedSteps(...steps) {
-    this.procedure.steps.push({ ordered: false, steps });
-    return this;
-  }
-
-  withStep(step) {
-    this.procedure.steps.push(step);
-    return this;
-  }
-
-  build() {
-    return new Procedure(this.procedure, this.potion);
-  }
-}
-
-class StepBuilder {
-  constructor(type, ...value) {
-    this.step = { type, value };
-  }
-
-  withSpirit(spirit) {
-    this.step.spirit = spirit;
-    return this;
-  }
-
-  withLeniency(leniency) {
-    this.step.leniency = leniency;
-    return this;
-  }
-
-  withText(text) {
-    this.step.text = text;
-    return this;
-  }
-
-  withShortText(text) {
-    this.step.short = text;
-    return this;
-  }
-
-  build() {
-    return this.step;
   }
 }

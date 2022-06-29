@@ -35,6 +35,7 @@ export const initGrowthProcedure = () => {
     )
     .withStep(
       new Procedure.StepBuilder(STEP_INGREDIENTS, "demonic")
+        .withLeniency("demonic")
         .withText(
           "There's a loud *hiss* as the ingredient drops into the fat. It begins steaming as if it's become suddenly much hotter."
         )
@@ -97,9 +98,11 @@ export const initGrowthProcedure = () => {
     )
     .withStep(
       new Procedure.StepBuilder(STEP_INGREDIENTS, "demon's paste")
-        .withText("placeholder")
-        .withShortText("placeholder")
-        .withLeniency(1)
+        .withText(
+          "There's an instant reaction when the ball of demon's paste drops into the bloody mixture. The liquid begins swirling around inside the cauldron in a mighty vortex, as though a giant plug has been pulled out. After a while, it settles back down, though continues to move restively this way and that."
+        )
+        .withShortText("dancing restlessly back and forth as though stirred by an unseen spoon")
+        .withLeniency("demon's paste")
         .build()
     )
     .withUnorderedSteps(

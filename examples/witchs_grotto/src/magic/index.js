@@ -7,3 +7,4 @@ export * from "./pentagram";
 export * from "./pestleAndMortar";
 export * from "./philtreOfFelineSight";
 export * from "./potion";
+export * from "./procedure";

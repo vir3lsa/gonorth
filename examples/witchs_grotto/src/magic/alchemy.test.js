@@ -1,15 +1,5 @@
-import {
-  Alchemy,
-  Procedure,
-  STEP_INGREDIENTS,
-  STEP_HEAT,
-  STEP_WATER,
-  STEP_STIR,
-  Potion,
-  STEP_FAT,
-  STEP_WORDS
-} from ".";
-import { Ingredient, MagicWord } from ".";
+import { Alchemy, STEP_INGREDIENTS, STEP_HEAT, STEP_WATER, STEP_STIR, Potion, STEP_FAT, STEP_WORDS } from ".";
+import { Ingredient, MagicWord, Procedure } from ".";
 import { CyclicText, initGame, Item } from "../../../../lib/gonorth";
 
 initGame("Lord Fenwick's Rash", "Lady Fenwick", { debugMode: false });
@@ -102,7 +92,11 @@ const spirit2Procedure = new Procedure(
 );
 const magicWordProcedure = new Procedure({
   ordered: true,
-  steps: [{ type: STEP_WORDS, value: ["abracadabra"], text: "Kaboom" }]
+  steps: [{ type: STEP_WORDS, value: ["abracadabra"], leniency: ["abracadabra"], text: "Kaboom" }]
+});
+const lenientIngredientProcedure = new Procedure({
+  ordered: true,
+  steps: [{ type: STEP_INGREDIENTS, value: ["whiteSage"], leniency: ["whiteSage"] }]
 });
 
 const lenientProcedure = new Procedure(
@@ -159,7 +153,8 @@ alchemy.addProcedures(
   spiritProcedure,
   spirit2Procedure,
   magicWordProcedure,
-  lenientProcedure
+  lenientProcedure,
+  lenientIngredientProcedure
 );
 
 function addIngredients(...ingredients) {
@@ -380,6 +375,16 @@ test("follows steps after leniency", () => {
   expect(alchemy.potion.name).toBe(anotherPotion.name);
 });
 
+test("may be lenient with ingredients", () => {
+  addIngredients(whiteSage, whiteSage);
+  expect(alchemy.candidates.length).toBe(1);
+});
+
+test("won't be lenient with ingredients forever", () => {
+  addIngredients(whiteSage, whiteSage, whiteSage);
+  expect(alchemy.candidates.length).toBe(0);
+});
+
 test("matches step when required spirit is present", () => {
   pentagram.addItem(moonstone);
   addFat(1);
@@ -418,6 +423,12 @@ test("gives magic word response", () => {
 test("doesn't match wrong magic word", () => {
   alchemy.sayWords(new MagicWord("alakazam"));
   expect(alchemy.candidates.length).toBe(0);
+});
+
+test("may be lenient with magic word repetition", () => {
+  alchemy.sayWords(abracadabra);
+  alchemy.sayWords(abracadabra);
+  expect(alchemy.candidates.length).toBe(1);
 });
 
 test("moves to next step despite previous lenient step matching in prior group", () => {
