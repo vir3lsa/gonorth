@@ -42,9 +42,8 @@ export class Ingredient extends Item {
           }
         },
         ({ item, other }) => {
-          const text = `You put ${item.article.length ? item.article : "some"} ${item.name} ${other.preposition} the ${
-            other.name
-          }.`;
+          const article = item.spirit ? "the" : item.article.length ? item.article : "some";
+          const text = `You put ${article} ${item.name} ${other.preposition} the ${other.name}.`;
 
           if (other === getCauldron()) {
             const alchemyText = getAlchemy().addIngredient(item);

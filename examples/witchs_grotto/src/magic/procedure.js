@@ -1,3 +1,5 @@
+import { CyclicText } from "../../../../lib/gonorth";
+
 export class Procedure {
   constructor(procedure, potion) {
     this.procedure = procedure;
@@ -68,13 +70,13 @@ class StepBuilder {
     return this;
   }
 
-  withText(text) {
-    this.step.text = text;
+  withText(...text) {
+    this.step.text = text.length > 1 ? new CyclicText(...text) : text;
     return this;
   }
 
-  withShortText(text) {
-    this.step.short = text;
+  withShortText(...text) {
+    this.step.short = text.length > 1 ? new CyclicText(...text) : text;
     return this;
   }
 

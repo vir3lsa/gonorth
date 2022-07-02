@@ -2,6 +2,12 @@ import { Verb, Item } from "../../../../lib/gonorth";
 import { getAlchemy } from "./cauldron";
 
 export class MagicWord extends Item {
+  clone() {
+    const clone = super.clone();
+    clone.recall = this.recall;
+    return clone;
+  }
+
   constructor(name, aliases = [], sayingDescription, action = () => getAlchemy().sayWords(this), recall = true) {
     super(name, "It's more of a concept than a physical thing.", true);
     this.size = 0;

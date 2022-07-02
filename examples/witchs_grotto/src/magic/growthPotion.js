@@ -30,7 +30,7 @@ export const initGrowthProcedure = () => {
       new Procedure.StepBuilder(STEP_FAT, 0.25).withLeniency(0.25).build(),
       new Procedure.StepBuilder(STEP_HEAT, 2)
         .withLeniency(1)
-        .withText(new CyclicText("The fat is fairly cool.", "The fat is warm."))
+        .withText("The fat is fairly cool.", "The fat is warm.")
         .build()
     )
     .withStep(
@@ -54,26 +54,22 @@ export const initGrowthProcedure = () => {
       new Procedure.StepBuilder(STEP_STIR, 5)
         .withLeniency(10)
         .withText(
-          new CyclicText(
-            "The ladle sloshes through the black liquid.",
-            "The liquid has thickened up. The ladle is leaving a trail behind it as it moves.",
-            "The colour has altered ever-so-slightly to contain the barest hint of deep crimson.",
-            "The mixture is less of a liquid now and more of a wet dough-like consistency.",
-            "All traces of wetness are gone. You could form the red-black substance into clumps.",
-            "It's starting to look very dry. Maybe it's finished?",
-            "Such a solid mass is forming that you can no longer really reshape it."
-          )
+          "The ladle sloshes through the black liquid.",
+          "The liquid has thickened up. The ladle is leaving a trail behind it as it moves.",
+          "The colour has altered ever-so-slightly to contain the barest hint of deep crimson.",
+          "The mixture is less of a liquid now and more of a wet dough-like consistency.",
+          "All traces of wetness are gone. You could form the red-black substance into clumps.",
+          "It's starting to look very dry. Maybe it's finished?",
+          "Such a solid mass is forming that you can no longer really reshape it."
         )
         .withShortText(
-          new CyclicText(
-            "an evil-looking black liquid",
-            "an oil-like black liquid",
-            "a thick dark red liquid",
-            "a dark red dough-like substance",
-            "a dark red paste",
-            "a dry, red-black amalgamation",
-            "a solid mass, like a blood clot"
-          )
+          "an evil-looking black liquid",
+          "an oil-like black liquid",
+          "a thick dark red liquid",
+          "a dark red dough-like substance",
+          "a dark red paste",
+          "a dry, red-black amalgamation",
+          "a solid mass, like a blood clot"
         )
         .build()
     )
@@ -106,29 +102,43 @@ export const initGrowthProcedure = () => {
         .build()
     )
     .withUnorderedSteps(
-      new Procedure.StepBuilder(STEP_HEAT, 5)
-        .withLeniency(5)
-        .withText("placeholder")
-        .withShortText("placeholder")
-        .build(),
+      new Procedure.StepBuilder(STEP_HEAT, 5).withLeniency(5).build(),
       new Procedure.StepBuilder(STEP_STIR, 3)
         .withLeniency(5)
-        .withText("placeholder")
-        .withShortText("placeholder")
+        .withText(
+          "The mixture resists the movement of the ladle, as though unseen hands are pushing it in the opposite direction.",
+          "The ceaseless movement of the cauldron's contents intensifies, sloshing this way and that.",
+          "The potion is like a wild animal, furiously whipping back and forth as if trying to escape.",
+          "Disconcertingly, the concoction seems to be swirling in the *opposite* direction to your stirring.",
+          "Whichever way you move the ladle, the crimson liquid rushes against it, creating lashing waves that threaten to splash you."
+        )
+        .withShortText(
+          "energetic and restless",
+          "sloshing about angrily of its own volition",
+          "moving like a caged animal trying to break free",
+          "swirling dizzyingly",
+          "moving at odds to any impetus"
+        )
         .build()
     )
     .withStep(
       new Procedure.StepBuilder(STEP_STIR, 1)
         .withLeniency(3)
-        .withText("placeholder")
-        .withShortText("placeholder")
+        .withText(
+          "The movement of the liquid finally dies down, and, as it does, slimy lumps of semi-solid matter begin to appear, giving the elixir the appearance of vomit.",
+          "The mixture continues to be slimy and lumpy, solidifying unevenly.",
+          "The disgusting appearance of the lumpy mess in the cauldron makes you nautious."
+        )
+        .withShortText("lumpy and semi-solid, like vomit", "slimy and unevenly solidified", "disgusting and congealed")
         .build()
     )
     .withStep(
       new Procedure.StepBuilder(STEP_WORDS, "spiritual apotheosis")
         .withSpirit("elevation")
-        .withText("ph")
-        .withShortText("ph")
+        .withText(
+          "The words roll from your lips, starting as a whisper and progressing to a jubilant shout. Your spirit soars. Before your eyes, the sticky mess in the cauldron coheres and solidifies, becoming a dark red paste."
+        )
+        .withShortText("a very dark red paste")
         .build()
     )
     .build();
@@ -140,10 +150,28 @@ export const initGrowthProcedure = () => {
     .build();
 
   // TODO Hide this somewhere.
-  const riteOfSouls = new MagicWord.Builder("rite of souls")
+  const riteOfSouls = new MagicWord.Builder("Rite of Souls")
     .withSayingDescription(
       "Solemnly, with eyes downcast and head bowed, you recount the litany for the dead. A deep melancholy washes over you and your soul weeps for the departed."
     )
+    .build();
+
+  // TODO Hide this somewhere.
+  const gneissStone = new Ingredient.Builder("gneiss stone")
+    .withDescription(
+      "A rough, greyish-pink stone with many closely-spaced darker bands running through it. Its spirit is distinctly mountainous."
+    )
+    .withSpirit("mountainous")
+    .build();
+
+  // TODO Hide this somewhere.
+  const litanyOfChange = new MagicWord.Builder("Litany of Change")
+    .withSayingDescription("Speaking carefully and slowly, you chant the Litany of Change.")
+    .build();
+
+  // TODO Hide this somewhere.
+  const spiritualApotheosis = new MagicWord.Builder("Spiritual Apotheosis")
+    .withSayingDescription("Voice quavering, you utter the triumphant passages of the Spiritual Apotheosis.")
     .build();
 
   return growthProcedure;
