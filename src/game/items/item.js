@@ -339,11 +339,20 @@ export class Item {
     const verb = this.verbs[verbName.toLowerCase()];
 
     if (verb) {
-      if (this.holdable && !verb.remote && !playerHasItem(this)) {
-        // First pick up the item
-        await this.verbs.take.attempt(this);
+      if (!verb.remote) {
+        if (this.holdable && !playerHasItem(this)) {
+          // First pick up the item
+          await this.verbs.take.attempt(this);
+        }
 
-        if (playerHasItem(this)) {
+        if (verb.prepositional && args.length && args[0].holdable && !playerHasItem(args[0])) {
+          // Pick up the secondary item
+          await args[0].verbs.take.attempt(args[0]);
+
+          if ((!this.holdable || playerHasItem(this)) && playerHasItem(args[0])) {
+            return verb.attempt(this, ...args);
+          }
+        } else if (!this.holdable || playerHasItem(this)) {
           return verb.attempt(this, ...args);
         }
       } else {

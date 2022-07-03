@@ -5,7 +5,7 @@ import { Parser } from "./parser";
 import { Door } from "./items/door";
 import { Item } from "./items/item";
 import { Verb } from "./verbs/verb";
-import { addEffect, addWildcardEffect, initGame } from "../gonorth";
+import { addEffect, addWildcardEffect, initGame, setInventoryCapacity } from "../gonorth";
 import { goToRoom } from "../utils/lifecycle";
 import { PagedText } from "./interactions/text";
 import { selectCurrentPage, selectInteraction } from "../utils/testSelectors";
@@ -36,9 +36,9 @@ const inputTest = async (input, expectedOutput) => {
   expect(selectCurrentPage()).toInclude(expectedOutput);
 };
 
-const regexTest = async (input, expectedRegex) => {
+const regexTest = async (input, ...expectedRegex) => {
   await new Parser(input).parse();
-  expect(selectCurrentPage()).toMatch(expectedRegex);
+  expectedRegex.forEach((regex) => expect(selectCurrentPage()).toMatch(regex));
 };
 
 beforeEach(() => {
@@ -58,8 +58,8 @@ describe("parser", () => {
       chair = new Item("chair", "comfy", false, 0, new Verb("sit in"));
       redBall = new Item("red ball", "It's a rouge ball", true);
       blueBall = new Item("blue ball", "It's an azure ball", true);
-      redBox = new Item("red box");
-      blueBox = new Item("blue box");
+      redBox = new Item("red box", "red", true);
+      blueBox = new Item("blue box", "blue", true, 20);
       pillar = new Item("pillar");
       redBall.aliases = "ball";
       blueBall.aliases = "ball";
@@ -150,6 +150,8 @@ describe("parser", () => {
       await inputTest("take cushion", "the cushion");
     });
     it("takes an item before putting it", () => regexTest("put cushion in chair", /(take|grab|pick up) the cushion/));
+    it("takes both items before putting one", () =>
+      regexTest("put cushion in red box", /(take|grab|pick up) the cushion/, /(take|grab|pick up) the red box/));
     it("allows rooms to be referred to by name", () => inputTest("x hall", "grand"));
     it("allows rooms to be referred to generically", () => inputTest("x room", "grand"));
     it("allows items to be put on the floor", () =>
@@ -215,6 +217,13 @@ describe("parser", () => {
       hall.addItem(glassCabinet);
 
       return inputTest("take trophy", "can't get at it inside the glass cabinet");
+    });
+
+    it("fails if a holdable secondary item can't be picked up", async () => {
+      setInventoryCapacity(10);
+      await regexTest("put cushion in blue box", /(take|grab|pick up) the cushion/);
+      expect(selectCurrentPage()).toInclude("don't have enough room for the blue box");
+      expect(selectCurrentPage()).not.toMatch(/(take|grab|pick up) the blue box/);
     });
   });
 });

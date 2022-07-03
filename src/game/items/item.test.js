@@ -3,7 +3,7 @@ import { initStore } from "../../redux/store";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
 import { newGame, recordChanges } from "../../redux/gameActions";
-import { selectActionChainPromise, selectInventory } from "../../utils/selectors";
+import { selectActionChainPromise, selectInventory, selectInventoryItems } from "../../utils/selectors";
 import { Room } from "./room";
 import { initGame, setInventoryCapacity } from "../../gonorth";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
@@ -145,7 +145,7 @@ describe("putting items", () => {
     table.capacity = 10;
     table.preposition = "on";
 
-    room.addItems(ball, table);
+    room.addItems(ball, table, flowers);
   });
 
   test("adds the item to the container", async () => {
@@ -207,6 +207,22 @@ describe("putting items", () => {
     expect(items["cat"].length).toBe(1);
     expect(items["dog"].length).toBe(2);
     expect(items["black dog"].length).toBe(1);
+  });
+
+  test("picks up the indirect item if it's holdable", async () => {
+    const bag = new Container.Builder("bag").isHoldable().build();
+    room.addItem(bag);
+    await ball.try("put", bag);
+    expect(selectInventoryItems()).toInclude(bag);
+  });
+
+  test("fails if the indirect item is holdable but can't be picked up", async () => {
+    setInventoryCapacity(10);
+    const bag = new Container.Builder("bag").isHoldable().withSize(20).build();
+    room.addItem(bag);
+    await ball.try("put", bag);
+    expect(selectInventoryItems()).toInclude(ball);
+    expect(selectInventoryItems()).not.toInclude(bag);
   });
 });
 

@@ -128,7 +128,7 @@ describe("apothecary", () => {
     cy.say("x demon's paste", "It's a deep, deep red, almost");
   });
 
-  it.only("creates a growth potion", () => {
+  it("creates a growth potion", () => {
     cy.say("debug spawn gneiss", "Spawned gneiss in Apothecary");
     cy.say("x gneiss", "A rough, greyish-pink stone");
     cy.say("put gneiss on pentagram", "the gneiss stone", "stone on the pentagram");

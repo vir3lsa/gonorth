@@ -8,7 +8,8 @@ import {
   newVerb,
   addEvent,
   TIMEOUT_TURNS,
-  Event
+  Event,
+  moveItem
 } from "../../../../lib/gonorth";
 import { Ingredient } from "./ingredient";
 import { Alchemy } from "./alchemy";
@@ -94,7 +95,7 @@ export const initCauldron = () => {
     "ladle",
     "The handle is almost as long as you are tall. It loops over at the end so it can be hung on the metal bar that crosses the cauldron. At the other end there's a deeply capacious spoon that will do equally well for stirring and dispensing.",
     true,
-    7
+    5
   );
   ladle.addAliases("spoon");
 
@@ -126,23 +127,20 @@ export const initCauldron = () => {
     {
       id: "stop",
       noEndTurn: true,
-      actions: stopStirringText
+      actions: [() => moveItem(ladle, "apothecary"), stopStirringText]
     }
   ];
 
   const stirGraph = new OptionGraph("stir", ...stirNodes);
 
-  const stir = new Verb(
-    "stir",
-    ({ other }) => other === ladle,
-    stirGraph.commence(),
-    "That won't be any good for stirring.",
-    ["mix"],
-    false,
-    cauldron
-  );
-
-  stir.makePrepositional("with what");
+  const stir = new Verb.Builder("stir")
+    .withAliases("mix")
+    .withTest(({ other }) => other === ladle)
+    .withOnSuccess(() => stirGraph.commence())
+    .withOnFailure("That won't be any good for stirring.")
+    .makePrepositional("with what")
+    .isRemote()
+    .build();
 
   cauldron.addVerb(stir);
   cauldron.addItem(ladle);
