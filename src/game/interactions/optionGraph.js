@@ -215,4 +215,67 @@ export class OptionGraph {
   deleteFlattenedNode(nodeId) {
     delete this.flattened[nodeId];
   }
+
+  static get Builder() {
+    return OptionGraphBuilder;
+  }
+
+  static get NodeBuilder() {
+    return NodeBuilder;
+  }
+}
+
+class OptionGraphBuilder {
+  constructor(id) {
+    this.id = id;
+  }
+
+  withNodes(...nodes) {
+    const nodeObjs = nodes.map((node) => (node instanceof OptionGraphBuilder ? node.build() : node));
+    this.nodes = nodeObjs;
+    return this;
+  }
+
+  build() {
+    return new OptionGraph(this.id, ...this.nodes);
+  }
+}
+
+class NodeBuilder {
+  constructor(id) {
+    this.id = id;
+  }
+
+  withActions(...actions) {
+    this.actions = actions;
+    return this;
+  }
+
+  withOptions(options) {
+    this.options = options;
+    return this;
+  }
+
+  withOption(label, value) {
+    if (!this.options) {
+      this.options = {};
+    }
+
+    this.options[label] = value;
+    return this;
+  }
+
+  noEndTurn(noEndTurn = true) {
+    this.isNoEndTurn = noEndTurn;
+    return this;
+  }
+
+  build() {
+    return {
+      id: this.id,
+      actions: this.actions,
+      options: this.options,
+      noEndTurn: this.isNoEndTurn
+    };
+  }
 }

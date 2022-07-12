@@ -115,23 +115,15 @@ export const initCauldron = () => {
     "You put the ladle, still dripping, on the floor."
   );
 
-  const stirNodes = [
-    {
-      id: "stir",
-      actions: new ConcatText(stirText, () => alchemy.stir()),
-      options: {
-        "Keep stirring": "stir",
-        "Stop stirring": "stop"
-      }
-    },
-    {
-      id: "stop",
-      noEndTurn: true,
-      actions: [() => moveItem(ladle, "apothecary"), stopStirringText]
-    }
-  ];
-
-  const stirGraph = new OptionGraph("stir", ...stirNodes);
+  const stirGraph = new OptionGraph.Builder("stir")
+    .withNodes(
+      new OptionGraph.NodeBuilder("stir")
+        .withActions(new ConcatText(stirText, () => alchemy.stir()))
+        .withOption("Keep stirring", "stir")
+        .withOption("Stop stirring", "stop"),
+      new OptionGraph.NodeBuilder("stop").noEndTurn().withActions(() => moveItem(ladle, "apothecary"), stopStirringText)
+    )
+    .build();
 
   const stir = new Verb.Builder("stir")
     .withAliases("mix")
