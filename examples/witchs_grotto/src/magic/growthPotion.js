@@ -1,4 +1,13 @@
-import { CyclicText } from "../../../../lib/gonorth";
+import {
+  addSchedule,
+  forget,
+  retrieve,
+  Schedule,
+  SequentialText,
+  store,
+  TIMEOUT_MILLIS,
+  TIMEOUT_TURNS
+} from "../../../../lib/gonorth";
 import { Potion, Procedure, STEP_BLOOD, STEP_FAT, STEP_HEAT, STEP_INGREDIENTS, STEP_STIR, STEP_WORDS } from ".";
 import { Ingredient } from "./ingredient";
 import { MagicWord } from "./magicWord";
@@ -9,12 +18,35 @@ export const getDemonsPasteProcedure = () => demonsPasteProcedure;
 export const getGrowthProcedure = () => growthProcedure;
 
 export const initGrowthProcedure = () => {
+  const playerHugeTimer = new Schedule.Builder()
+    .withCondition(() => retrieve("playerHuge"))
+    .addEvent(
+      "Almost imperceptibly, you're beginning to shrink back towards your normal size. The tingling in your spine is the only real giveaway at this point."
+    )
+    .withDelay(3, TIMEOUT_TURNS)
+    .addEvent(
+      "Your legs are shortening, your arms are retreating back into your shoulders, your spine is compressing. It's a blessed relief that none of this is painful."
+    )
+    .withDelay(5000, TIMEOUT_MILLIS)
+    .addEvent(() => forget("playerHuge"), "You're back to your normal height. Well, that was fun - while it lasted.")
+    .withDelay(5000, TIMEOUT_MILLIS)
+    .recurring()
+    .build();
+  addSchedule(playerHugeTimer);
+
   const growthPotion = new Potion.Builder("Acromegaly Solution")
     .withDescription(
       "You're not sure why it's called a 'solution' - it doesn't even look like a liquid. In fact, it resembles something living; it pulses, throbs and wriggles around inside the bottle. It's vaguely brown in colour and has a faint specularity on its writhing surfaces."
     )
     .isDrinkable()
-    .withDrinkEffects("placeholder")
+    .withDrinkEffects(
+      () => store("playerHuge", true),
+      new SequentialText(
+        "As you bring the bottle to your lips, the wriggling, animal-like thing inside presses itself into the bottle's neck, as if eager to crawl into your mouth. Bracing yourself, you upend the vessel and drink, swallowing quickly before you have time to feel the substance squirming in your throat.",
+        "The effect is instantaneous. With a strange stretching sensation, you find yourself floating up towards the ceiling. Only, you're not floating, because your feet are still on the ground. Your whole body is elongating at an alarming rate. Soon, you find that you have to duck your head to avoid hitting it on the low roof.",
+        "Finally, your growth slows and comes to a stop. You must now be at least eight feet tall, with lanky arms and legs to match your enormous height."
+      )
+    )
     .build();
 
   const demonsPaste = new Ingredient.Builder("Demon's Paste")
