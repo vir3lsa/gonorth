@@ -237,3 +237,31 @@ test("Individual actions can be forced not to produce Next buttons", async () =>
   expect(selectOptions()).toBeNull();
   await deferAction(() => expect(selectCurrentPage()).toInclude("two\n\nthree"));
 });
+
+test("Sequential texts may contain functions", async () => {
+  let x = 0;
+  const chain = new ActionChain(
+    new SequentialText(
+      "one",
+      () => "two",
+      () => x++,
+      "three"
+    )
+  );
+  chain.chain();
+  expect(selectCurrentPage()).toInclude("one");
+  expect(selectCurrentPage()).not.toInclude("two");
+  await clickNext();
+  expect(selectCurrentPage()).toInclude("two");
+  expect(selectCurrentPage()).not.toInclude("three");
+  expect(x).toBe(0);
+  await clickNext();
+  expect(selectCurrentPage()).toInclude("three");
+  expect(x).toBe(1);
+});
+
+test("Args are passed into SequentialText functions", async () => {
+  const chain = new ActionChain(new SequentialText(({ x }) => `${x + 1}`));
+  chain.chain({ x: 12 });
+  expect(selectCurrentPage()).toInclude("13");
+});

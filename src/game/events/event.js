@@ -1,5 +1,10 @@
 import { ActionChain } from "../../utils/actionChain";
-import { selectActionChainPromise, selectEventTimeoutOverride, selectOptions } from "../../utils/selectors";
+import {
+  selectActionChainPromise,
+  selectEventTimeoutOverride,
+  selectEventTurnsOverride,
+  selectOptions
+} from "../../utils/selectors";
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
@@ -71,13 +76,20 @@ export class Event {
   commence() {
     this.state = PENDING;
     const timeoutOverride = selectEventTimeoutOverride();
-    const timeout = timeoutOverride !== null ? timeoutOverride : this.timeout;
+    const turnsOverride = selectEventTurnsOverride();
+    let timeout = this.timeout;
+
+    if (this.timeoutType === TIMEOUT_MILLIS && timeoutOverride !== null) {
+      timeout = timeoutOverride;
+    } else if (this.timeoutType === TIMEOUT_TURNS && turnsOverride !== null) {
+      timeout = turnsOverride;
+    }
 
     if (this.timeout) {
       if (this.timeoutType === TIMEOUT_MILLIS) {
         this.timeoutId = setTimeout(() => this.trigger(), timeout);
       } else {
-        this.countdown = this.timeout;
+        this.countdown = timeout;
       }
     } else {
       // No timeout therefore trigger immediately

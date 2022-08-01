@@ -144,6 +144,8 @@ export class ActionChain {
       this.lastActionProducedText = true;
     }
 
+    const argsContext = { ...this.helpers, ...context };
+
     if (value instanceof ActionChain) {
       return this.handleActionChain(value, context, nextIfNoOptions);
     } else if (typeof value === "string" && value) {
@@ -151,7 +153,7 @@ export class ActionChain {
     } else if (Array.isArray(value)) {
       return this.handleActionChain(new ActionChain(...value), context, nextIfNoOptions);
     } else if (value instanceof SequentialText) {
-      return this.expandSequentialText(value, this.options, nextIfNoOptions, postScript);
+      return this.expandSequentialText(value, this.options, nextIfNoOptions, postScript, argsContext);
     } else if (value instanceof Text) {
       return this.dispatchAppend(`${value.next()}${postScript}`, this.options, nextIfNoOptions, value.paged);
     } else if (value instanceof Interaction) {
@@ -159,7 +161,7 @@ export class ActionChain {
     } else if (value instanceof OptionGraph) {
       return this.handleOptionGraph(value, context, nextIfNoOptions);
     } else if (typeof value === "function") {
-      return this.handleValue(value({ ...this.helpers, ...context }), postScript, nextIfNoOptions, context, lastAction);
+      return this.handleValue(value(argsContext), postScript, nextIfNoOptions, context, lastAction);
     }
 
     // This is an arbitrary action that shouldn't create a new interaction
@@ -196,17 +198,24 @@ export class ActionChain {
     }
   }
 
-  async expandSequentialText(sequentialText, options, nextIfNoOptions, postScript) {
-    const texts = sequentialText.texts;
-    for (let index = 0; index < texts.length; index++) {
-      const lastPage = index === texts.length - 1;
+  async expandSequentialText(sequentialText, options, nextIfNoOptions, postScript, argsContext) {
+    const numTexts = sequentialText.texts.length;
+    let index = 0;
 
-      await this.dispatchAppend(
-        `${texts[index]}${lastPage ? postScript : ""}`,
-        lastPage ? options : null,
-        nextIfNoOptions || !lastPage,
-        sequentialText.paged
-      );
+    while (index < numTexts) {
+      const lastPage = index === numTexts - 1;
+      const text = sequentialText.next(argsContext);
+
+      if (typeof text === "string") {
+        await this.dispatchAppend(
+          `${text}${lastPage ? postScript : ""}`,
+          lastPage ? options : null,
+          nextIfNoOptions || !lastPage,
+          sequentialText.paged
+        );
+      }
+
+      index++;
     }
   }
 

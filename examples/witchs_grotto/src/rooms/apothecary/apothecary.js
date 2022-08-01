@@ -37,6 +37,7 @@ import { initBookShelf } from "./bookshelf";
 import roomImage from "./apothecary.png";
 import { initPhiltreOfFelineVision } from "../../magic/philtreOfFelineSight";
 import { getDemonsPasteProcedure, initGrowthProcedure } from "../../magic/growthPotion";
+import { initShrinkProcedure } from "../../magic/shrinkPotion";
 
 let apothecary;
 
@@ -497,7 +498,8 @@ Recite the Lunar Incantation.`,
     strengthProcedure,
     initDolittleProcedure(),
     initGrowthProcedure(),
-    getDemonsPasteProcedure()
+    getDemonsPasteProcedure(),
+    initShrinkProcedure()
   );
 
   addEffect(

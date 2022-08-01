@@ -179,7 +179,8 @@ export const cyRecord = () => ({
   type: type.CY_RECORD
 });
 
-export const overrideEventTimeout = (eventTimeoutOverride) => ({
+export const overrideEventTimeout = (eventTimeoutOverride, eventTurnsOverride) => ({
   type: type.OVERRIDE_EVENT_TIMEOUT,
-  eventTimeoutOverride
+  eventTimeoutOverride,
+  eventTurnsOverride
 });

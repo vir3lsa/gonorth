@@ -44,7 +44,7 @@ test("inventory lists three items", async () => {
   selectInventory().addItem(newItem({ name: "apron", holdable: true }));
   selectInventory().addItem(newItem({ name: "screwdriver", holdable: true }));
   await getKeyword("inventory").attempt();
-  const expectedText = "You're carrying a spoon, an apron and a screwdriver.";
+  const expectedText = "You're carrying a spoon, an apron, and a screwdriver.";
   expect(selectCurrentPage()).toInclude(expectedText);
 });
 
@@ -54,6 +54,6 @@ test("inventory lists four items", async () => {
   selectInventory().addItem(newItem({ name: "screwdriver", holdable: true }));
   selectInventory().addItem(newItem({ name: "teddy bear", holdable: true }));
   await getKeyword("inventory").attempt();
-  const expectedText = "You're carrying a spoon, an apron, a screwdriver and a teddy bear.";
+  const expectedText = "You're carrying a spoon, an apron, a screwdriver, and a teddy bear.";
   expect(selectCurrentPage()).toInclude(expectedText);
 });

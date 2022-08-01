@@ -9,7 +9,14 @@ import { ActionChain } from "./utils/actionChain";
 import { clearPage, createPlayer, goToRoom } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
-import { selectRoom, selectPlayer, selectStartingRoom, selectEffects, selectItem } from "./utils/selectors";
+import {
+  selectRoom,
+  selectPlayer,
+  selectStartingRoom,
+  selectEffects,
+  selectItem,
+  selectInventoryItems
+} from "./utils/selectors";
 import { createKeywords } from "./game/verbs/keywords";
 
 const game = {};
@@ -96,6 +103,8 @@ function addSchedule(schedule) {
 
 function setInventoryCapacity(size) {
   selectPlayer().capacity = size;
+  const getTotalCarrying = () => selectInventoryItems().reduce((total, item) => total + item.size, 0);
+  selectPlayer().free = size - getTotalCarrying();
 }
 
 function getHelp() {
@@ -164,7 +173,7 @@ export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
 export { goToRoom, gameOver, play } from "./utils/lifecycle";
 export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
-export { selectInventory, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
+export { selectInventory, selectInventoryItems, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
 export { ActionChain, Action } from "./utils/actionChain";
 export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 export { inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";

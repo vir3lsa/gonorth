@@ -34,9 +34,10 @@ export const initGrowthProcedure = () => {
     .build();
   addSchedule(playerHugeTimer);
 
-  const growthPotion = new Potion.Builder("Acromegaly Solution")
+  const growthPotion = new Potion.Builder("Draught of Lengthwise Embiggening")
+    .withAliases("growth", "giant", "grow")
     .withDescription(
-      "You're not sure why it's called a 'solution' - it doesn't even look like a liquid. In fact, it resembles something living; it pulses, throbs and wriggles around inside the bottle. It's vaguely brown in colour and has a faint specularity on its writhing surfaces."
+      "You're not sure why it's called a 'draught' - it doesn't even look like a liquid. In fact, it resembles something living; it pulses, throbs and wriggles around inside the bottle. It's vaguely brown in colour and has a faint specularity on its writhing surfaces."
     )
     .isDrinkable()
     .withDrinkEffects(

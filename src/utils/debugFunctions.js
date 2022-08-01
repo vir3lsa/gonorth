@@ -243,13 +243,15 @@ function cypress(args) {
 function events(args) {
   if (args.length === 1 && args[0] === "help") {
     return eventHelp;
-  } else if (args.length === 1) {
+  } else if (args.length >= 1) {
     if (args[0] === "reset") {
-      getStore().dispatch(overrideEventTimeout(null));
+      getStore().dispatch(overrideEventTimeout(null, null));
       return "Event timeouts reset to defaults.";
     }
+
     const timeout = new Number(args[0]);
-    getStore().dispatch(overrideEventTimeout(timeout));
-    return `Event timeouts set to ${timeout} milliseconds.`;
+    const turns = args.length > 1 ? new Number(args[1]) : undefined;
+    getStore().dispatch(overrideEventTimeout(timeout, turns));
+    return `Event timeouts set to ${timeout} milliseconds${turns !== undefined ? " and " + turns + " turn(s)" : ""}.`;
   }
 }

@@ -1,36 +1,36 @@
 const vowels = ["a", "e", "i", "o", "u"];
 
-export function getBasicItemList(items) {
+export function getBasicItemList(items, definiteArticle) {
   if (items.length < 8) {
-    return commaSeparate(items);
+    return commaSeparate(items, definiteArticle);
   } else {
-    return bulletPointList(items);
+    return bulletPointList(items, definiteArticle);
   }
 }
 
-function commaSeparate(items) {
+function commaSeparate(items, definiteArticle) {
   let text = "";
 
   items.forEach((item, i) => {
-    const prefix = item.article ? `${item.article} ` : "";
+    const prefix = definiteArticle ? "the " : item.article ? `${item.article} ` : "";
     text += `${prefix}${item.name}`;
 
     if (i < items.length - 2) {
       text += ", ";
     } else if (i < items.length - 1) {
-      text += " and ";
+      text += `${items.length > 2 ? "," : ""} and `;
     }
   });
 
   return text;
 }
 
-function bulletPointList(items) {
+export function bulletPointList(items, definiteArticle) {
   return (
     "* " +
     items
-      .map(item => {
-        const prefix = item.article ? `${item.article} ` : "";
+      .map((item) => {
+        const prefix = definiteArticle ? "the " : item.article ? `${item.article} ` : "";
         return `${prefix}${item.name}`;
       })
       .join("\n* ")

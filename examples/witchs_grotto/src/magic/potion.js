@@ -44,10 +44,16 @@ class PotionBuilder {
   constructor(name) {
     this.name = name;
     this.drinkEffects = [];
+    this.aliases = [];
   }
 
   withName(name) {
     this.name = name;
+    return this;
+  }
+
+  withAliases(...aliases) {
+    this.aliases = aliases;
     return this;
   }
 
@@ -67,6 +73,8 @@ class PotionBuilder {
   }
 
   build() {
-    return new Potion(this.name, this.description, this.drinkable, ...this.drinkEffects);
+    const potion = new Potion(this.name, this.description, this.drinkable, ...this.drinkEffects);
+    potion.addAliases(...this.aliases);
+    return potion;
   }
 }

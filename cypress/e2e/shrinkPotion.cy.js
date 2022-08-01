@@ -1,15 +1,15 @@
 /// <reference types="cypress" />
 
-describe("growth potion", () => {
+describe("shrink potion", () => {
   beforeEach(() => {
     cy.startGame();
   });
 
-  it("creates a growth potion", () => {
+  it("creates a shrink potion", () => {
     cy.say("debug goto apothecary", "apothecary or decoction room", { global: true });
-    cy.say("debug spawn gneiss", "Spawned gneiss in Apothecary");
-    cy.say("x gneiss", "A rough, greyish-pink stone");
-    cy.say("put gneiss on pentagram", "the gneiss stone", "stone on the pentagram");
+    cy.say("debug spawn peridot", "Spawned peridot in Apothecary");
+    cy.say("x peridot", "glassy, pale green gemstone");
+    cy.say("put peridot on pentagram", "the peridot gemstone", "gemstone on the pentagram");
     cy.say("x pipes", "There's a spout above the");
     cy.say("turn dial", "You turn the dial to point at");
     cy.say("turn dial", "You turn the dial to point at");
@@ -40,21 +40,31 @@ describe("growth potion", () => {
     cy.say("words", "Spiritual Apotheosis");
     cy.say("say spiritual", "utter the triumphant passages");
     cy.choose("Next", "The words roll from your");
-    cy.say("x pot", "very dark red paste");
+    cy.say("x pot", "very pale blue paste");
     cy.say("take potion", "You grab an empty vial from");
-    cy.say("x embiggening", "You're not sure why it's");
+    cy.say("x tonic", "vaguely blue in colour");
   });
 
   const lightRegex = /(kind where you can|up to it, you can)/;
 
-  it("causes the player to grow", () => {
-    cy.say("debug timeout 0", "timeouts set to 0 milliseconds");
-    cy.say("debug spawn embiggening", "Spawned embiggening in Cellar");
-    cy.say("drink embiggening", "the Draught of Lengthwise Embiggening", "bottle to your lips");
-    cy.choose("Next", "The effect is instantaneous.");
-    cy.choose("Next", "Finally, your growth slows");
-    cy.say("x light", lightRegex);
-    cy.say("x light", lightRegex);
-    cy.say("x light", lightRegex, "beginning to shrink", "legs are shortening", "back to your normal height");
+  it("causes the player to shrink", () => {
+    cy.say("debug timeout 0 1", "timeouts set to 0 milliseconds and 1 turn(s)");
+    cy.say("debug spawn contraction", "Spawned contraction in Cellar");
+    cy.say("drink contraction", "the Tonic of Vertical Contraction", "bottle to your lips");
+    cy.choose("Next", "loom up around you");
+    cy.choose("Next", "shrink and shrink");
+    cy.say("x light", lightRegex, "butterflies in your stomach");
+    cy.say("x light", lightRegex, "arms and legs are aching");
+    cy.say("x light", lightRegex, "you're growing now", "growth is slowing", "your usual size");
+  });
+
+  it.only("causes the player to drop items", () => {
+    cy.say("debug timeout 0 1", "timeouts set to 0 milliseconds and 1 turn(s)");
+    cy.say("pick up bucket", "the pale");
+    cy.say("debug spawn contraction", "Spawned contraction in Cellar");
+    cy.say("drink contraction", "the Tonic of Vertical Contraction", "bottle to your lips");
+    cy.choose("Next", "loom up around you");
+    cy.choose("Next", "forced to drop the pale");
+    cy.choose("Next", "shrink and shrink");
   });
 });

@@ -1,11 +1,4 @@
-import {
-  initGame,
-  play,
-  addEvent,
-  attach,
-  goToStartingRoom,
-  setStartingRoom
-} from "./gonorth";
+import { initGame, play, addEvent, attach, goToStartingRoom, setStartingRoom, setInventoryCapacity } from "./gonorth";
 import { unregisterStore } from "./redux/storeRegistry";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
@@ -13,7 +6,7 @@ import { Verb } from "./game/verbs/verb";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event } from "./game/events/event";
 import { handleTurnEnd } from "./utils/lifecycle";
 import { Parser } from "./game/parser";
-import { selectRoom, selectTurn } from "./utils/selectors";
+import { selectInventory, selectRoom, selectTurn } from "./utils/selectors";
 import { selectCurrentPage } from "./utils/testSelectors";
 import { clickNext } from "./utils/testFunctions";
 
@@ -77,6 +70,12 @@ describe("Game class", () => {
     });
     await new Parser("shimmy").parse();
     expect(selectTurn()).toBe(2);
+  });
+
+  it("updates the inventory capacity", () => {
+    setInventoryCapacity(7);
+    expect(selectInventory().capacity).toBe(7);
+    expect(selectInventory().free).toBe(7);
   });
 
   describe("events", () => {

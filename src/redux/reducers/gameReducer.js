@@ -34,6 +34,7 @@ export const initialState = {
   cySay: null,
   cyChoose: null,
   eventTimeoutOverride: null,
+  eventTurnsOverride: null,
   effects: new Effects()
 };
 
@@ -155,7 +156,11 @@ export default function (state = initialState, action) {
     case type.CY_RECORD:
       return { ...state, cyCommands: [], cySay: null, cyChoose: null };
     case type.OVERRIDE_EVENT_TIMEOUT:
-      return { ...state, eventTimeoutOverride: action.eventTimeoutOverride };
+      return {
+        ...state,
+        eventTimeoutOverride: action.eventTimeoutOverride,
+        eventTurnsOverride: action.eventTurnsOverride
+      };
     default:
       return state;
   }
