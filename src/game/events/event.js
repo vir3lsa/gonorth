@@ -79,9 +79,9 @@ export class Event {
     const turnsOverride = selectEventTurnsOverride();
     let timeout = this.timeout;
 
-    if (this.timeoutType === TIMEOUT_MILLIS && timeoutOverride !== null) {
+    if (this.timeoutType === TIMEOUT_MILLIS && timeoutOverride) {
       timeout = timeoutOverride;
-    } else if (this.timeoutType === TIMEOUT_TURNS && turnsOverride !== null) {
+    } else if (this.timeoutType === TIMEOUT_TURNS && turnsOverride) {
       timeout = turnsOverride;
     }
 

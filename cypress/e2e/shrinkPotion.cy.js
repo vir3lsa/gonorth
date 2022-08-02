@@ -58,7 +58,7 @@ describe("shrink potion", () => {
     cy.say("x light", lightRegex, "you're growing now", "growth is slowing", "your usual size");
   });
 
-  it.only("causes the player to drop items", () => {
+  it("causes the player to drop items", () => {
     cy.say("debug timeout 0 1", "timeouts set to 0 milliseconds and 1 turn(s)");
     cy.say("pick up bucket", "the pale");
     cy.say("debug spawn contraction", "Spawned contraction in Cellar");

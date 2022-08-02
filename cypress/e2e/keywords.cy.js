@@ -26,7 +26,7 @@ describe("keywords", () => {
 
     // List the items
     cy.say("i");
-    cy.showsLast("an apple, an orange and a kitchen sink");
+    cy.showsLast("an apple, an orange, and a kitchen sink");
   });
 
   it("lists keywords", () => {
