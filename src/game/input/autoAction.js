@@ -2,7 +2,7 @@ import { Parser } from "./parser";
 
 export class AutoAction {
   constructor(builder) {
-    this.condition = builder.condition;
+    this.condition = builder.condition || (() => true);
     this.inputs = builder.inputs;
   }
 
