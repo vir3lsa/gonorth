@@ -31,3 +31,4 @@ export const selectEventTimeoutOverride = () => getStore().getState().eventTimeo
 export const selectEventTurnsOverride = () => getStore().getState().eventTurnsOverride;
 export const selectEffects = () => getStore().getState().effects;
 export const selectItem = (name) => getStore().getState().items[name];
+export const selectAutoActions = () => getStore().getState().autoActions;

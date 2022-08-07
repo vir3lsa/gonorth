@@ -1,4 +1,3 @@
-import { SequentialText } from "../../../../../lib/game/interactions/text";
 import {
   Room,
   Item,
@@ -8,8 +7,18 @@ import {
   retrieve,
   update,
   forget,
-  JoinedText
+  SequentialText,
+  JoinedText,
+  Verb
 } from "../../../../../lib/gonorth";
+import {
+  ABOARD_BOAT,
+  ACROSS_LAKE,
+  BOAT_IN_WATER,
+  PLAYER_TINY,
+  TOY_BOAT_MENDED,
+  TOY_BOAT_SOLIDITY
+} from "../../utils/persistentVariables";
 import { initCat } from "./cat";
 
 let snug;
@@ -78,7 +87,7 @@ export const initSnug = () => {
         "A charming model of a wooden dinghy - the kind Grandad used to row out into the middle of the lake in the valley to fish."
       ];
 
-      if (retrieve("toyBoatMended")) {
+      if (retrieve(TOY_BOAT_MENDED)) {
         descriptionTexts.push("It's fully repaired and in shipshape condition.");
       } else {
         descriptionTexts.push(
@@ -90,19 +99,74 @@ export const initSnug = () => {
     })
     .isHoldable()
     .withSize(3)
+    .withVerbs(
+      new Verb.Builder("enter")
+        .withAliases("board", "climb", "go")
+        .isRemote()
+        .withTest(() => retrieve(PLAYER_TINY) && !retrieve(ABOARD_BOAT))
+        .withOnSuccess(
+          () => store(ABOARD_BOAT, true),
+          () => {
+            let description = "You're now the perfect size to step onto the boat. ";
+
+            if (retrieve(BOAT_IN_WATER)) {
+              description +=
+                "Being careful not to fall into the water, you gingerly clamber aboard, the dinghy bobbing slightly as it takes your weight. ";
+            }
+
+            if (retrieve(TOY_BOAT_MENDED)) {
+              return (
+                description +
+                "Marvelling at the craftsmanship of what's ostensibly a toy, you take up your place on the wooden plank that acts as a seat."
+              );
+            }
+
+            return (
+              description +
+              "Your feet dangle right through the ragged hole in the hull as you sit on the wooden plank seat."
+            );
+          }
+        )
+        .withOnFailure(() => {
+          if (!retrieve(PLAYER_TINY)) {
+            return "The boat's tiny. You could crush it under your foot. You can't board it.";
+          } else if (retrieve(ABOARD_BOAT)) {
+            return "You're already aboard the dinghy.";
+          }
+        })
+        .build(),
+      new Verb.Builder("leave")
+        .withAliases("exit", "disembark", "jump")
+        .withTest(() => retrieve(ABOARD_BOAT) && !retrieve(ACROSS_LAKE))
+        .withOnSuccess(() => {
+          if (retrieve(BOAT_IN_WATER)) {
+            return "Daintily, you step out of the boat and onto dry land.";
+          }
+
+          return "You clamber out of the boat.";
+        })
+        .withOnFailure(() => {
+          if (!retrieve(ABOARD_BOAT)) {
+            return "You're not in the boat.";
+          } else if (retrieve(ACROSS_LAKE)) {
+            return "You *could* jump out of the boat into the deep, black, icy cold water...but you decide against it. It would be better to be by the shore first.";
+          }
+        })
+        .build()
+    )
     .build();
 
-  store("toyBoatSolidity", 0);
+  store(TOY_BOAT_SOLIDITY, 0);
   addEffect(toyWagon, "mirror", "examine", true, ({ item: wagon }) => {
-    const solidity = retrieve("toyBoatSolidity");
+    const solidity = retrieve(TOY_BOAT_SOLIDITY);
 
     if (!solidity) {
-      update("toyBoatSolidity", solidity + 1);
+      update(TOY_BOAT_SOLIDITY, solidity + 1);
       wagon.description =
         "It's a fuzzy blur of colours now, barely identifiable as a wagon. Something at the back of your mind recognises some other object in the distorted jumble of shapes and lines, but you can't quite pin down what it is.";
       return "In the mirror's magical glass, the wagon begins to blur more dramatically, its edges becoming hazy and indistinct. Another shape you can't quite make out yet is beginning to emerge.";
     } else {
-      forget("toyBoatSolidity");
+      forget(TOY_BOAT_SOLIDITY);
       const container = wagon.container;
       container.removeItem(wagon);
       container.addItem(toyBoat);

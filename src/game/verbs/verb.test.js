@@ -39,8 +39,8 @@ beforeEach(() => {
 
 const attempt = (x) => verb.attempt(x);
 
-it("prints the failure text if the test fails", () => {
-  attempt(1);
+it("prints the failure text if the test fails", async () => {
+  await attempt(1);
   expect(selectCurrentPage()).toBe("You fall over");
 });
 
@@ -54,8 +54,8 @@ it("does not perform the action if the test fails", () => {
   expect(y).toBe(0);
 });
 
-it("performs the action if the test passes", () => {
-  attempt(3);
+it("performs the action if the test passes", async () => {
+  await attempt(3);
   expect(y).toBe(4);
 });
 
@@ -89,106 +89,111 @@ describe("chainable actions", () => {
 
   it("supports sequential text", async () => {
     verb.onSuccess = new SequentialText("a", "b", "c");
-    const promise = attempt(3);
-    expect(selectCurrentPage()).toBe("a");
-    await clickNextAndWait();
-    expect(selectCurrentPage()).toInclude("b");
-    await clickNextAndWait();
-    expect(selectCurrentPage()).toInclude("c");
-    await promise;
+    setTimeout(async () => {
+      expect(selectCurrentPage()).toBe("a");
+      await clickNextAndWait();
+      expect(selectCurrentPage()).toInclude("b");
+      await clickNextAndWait();
+      expect(selectCurrentPage()).toInclude("c");
+    });
+    await attempt(3);
   });
 
   it("supports paged text", async () => {
     verb.onSuccess = new PagedText("a", "b", "c");
-    const promise = attempt(3);
-    expect(selectCurrentPage()).toBe("a");
-    await clickNextAndWait();
-    expect(selectCurrentPage()).toBe("b");
-    await clickNextAndWait();
-    expect(selectCurrentPage()).toBe("c");
-    await promise;
+    setTimeout(async () => {
+      expect(selectCurrentPage()).toBe("a");
+      await clickNextAndWait();
+      expect(selectCurrentPage()).toBe("b");
+      await clickNextAndWait();
+      expect(selectCurrentPage()).toBe("c");
+    });
+    await attempt(3);
   });
 
   it("supports sequential text earlier in the chain", async () => {
     let pass = false;
     verb.onSuccess = [new PagedText("a", "b"), () => (pass = true)];
-    const promise = attempt(3);
-    expect(selectCurrentPage()).toBe("a");
-    await clickNextAndWait();
-    expect(selectCurrentPage()).toBe("b");
-    clickNext();
-    await promise;
+    setTimeout(async () => {
+      expect(selectCurrentPage()).toBe("a");
+      await clickNextAndWait();
+      expect(selectCurrentPage()).toBe("b");
+      clickNext();
+    });
+    await attempt(3);
     expect(pass).toBeTruthy();
   });
 
   it("supports sequential text followed by normal text", async () => {
     verb.onSuccess = [new PagedText("a", "b"), "c"];
-    const promise = attempt(3);
-    expect(selectCurrentPage()).toBe("a");
-    await clickNextAndWait();
-    expect(selectCurrentPage()).toBe("b");
-    clickNext();
-    await promise;
+    setTimeout(async () => {
+      expect(selectCurrentPage()).toBe("a");
+      await clickNextAndWait();
+      expect(selectCurrentPage()).toBe("b");
+      clickNext();
+    });
+    await attempt(3);
     expect(selectCurrentPage().includes("c")).toBe(true);
   });
 
   it("supports appending sequential text earlier in the chain", async () => {
     let pass = false;
     verb.onSuccess = [new SequentialText("a", "b"), () => (pass = true)];
-    const promise = attempt(3);
-    expect(selectCurrentPage()).toBe("a");
-    await clickNextAndWait();
-    expect(selectCurrentPage().includes("b")).toBe(true);
-    clickNext();
-    await promise;
+    setTimeout(async () => {
+      expect(selectCurrentPage()).toBe("a");
+      await clickNextAndWait();
+      expect(selectCurrentPage().includes("b")).toBe(true);
+      clickNext();
+    });
+    await attempt(3);
     expect(pass).toBeTruthy();
   });
 
   it("supports appending sequential text followed by normal text", async () => {
     verb.onSuccess = [new SequentialText("a", "b"), "c"];
-    const promise = attempt(3);
-    expect(selectCurrentPage()).toBe("a");
-    await clickNextAndWait();
-    expect(selectCurrentPage().includes("b")).toBe(true);
-    clickNext();
-    await promise;
+    setTimeout(async () => {
+      expect(selectCurrentPage()).toBe("a");
+      await clickNextAndWait();
+      expect(selectCurrentPage().includes("b")).toBe(true);
+      clickNext();
+    });
+    await attempt(3);
     expect(selectCurrentPage().includes("c")).toBe(true);
   });
 
   it("supports nested arrays as chained actions - nested arrays are sub-action-chains", async () => {
     verb.onSuccess = [["a", "b"], "c"];
-    attempt(3);
-    expect(selectCurrentPage()).toBe("a");
-    expect(selectCurrentPage()).not.toInclude("b");
-    await clickNextAndWait();
-    expect(selectCurrentPage()).toInclude("b");
-    expect(selectCurrentPage()).not.toInclude("c");
-    await deferAction(async () => {
-      await selectActionChainPromise();
+    setTimeout(async () => {
+      expect(selectCurrentPage()).toBe("a");
+      expect(selectCurrentPage()).not.toInclude("b");
       await clickNextAndWait();
-      expect(selectCurrentPage()).toInclude("c");
+      expect(selectCurrentPage()).toInclude("b");
+      expect(selectCurrentPage()).not.toInclude("c");
+      setTimeout(() => clickNext());
     });
+    await attempt(3);
+    expect(selectCurrentPage()).toInclude("c");
   });
 
-  it("cycles through messages", () => {
+  it("cycles through messages", async () => {
     verb.onSuccess = new CyclicText("a", "b", "c");
-    attempt(3);
+    await attempt(3);
     expect(selectCurrentPage()).toBe("a");
-    attempt(3);
+    await attempt(3);
     expect(selectCurrentPage()).toBe("a\n\nb");
-    attempt(3);
+    await attempt(3);
     expect(selectCurrentPage()).toBe("a\n\nb\n\nc");
-    attempt(3);
+    await attempt(3);
     expect(selectCurrentPage()).toBe("a\n\nb\n\nc\n\na");
   });
 
-  it("selects random messages", () => {
+  it("selects random messages", async () => {
     verb.onSuccess = new RandomText("x", "y", "z");
-    attempt(3);
+    await attempt(3);
     const page1 = selectCurrentPage();
-    attempt(3);
+    await attempt(3);
     const page2 = selectCurrentPage();
-    attempt(3);
+    await attempt(3);
     const page3 = selectCurrentPage();
     expect(page2).not.toEqual(page1);
     expect(page3).not.toEqual(page2);
@@ -197,23 +202,27 @@ describe("chainable actions", () => {
   it("Renders a Next button when the previous and next interactions do not", async () => {
     verb.onSuccess = ["blah", new Interaction("bob")];
     getStore().dispatch(changeInteraction(new Interaction("Previous interaction")));
-    attempt(3);
-    expect(selectInteraction().options[0].label).toBe("Next");
+    setTimeout(() => {
+      expect(selectInteraction().options[0].label).toBe("Next");
+      clickNext();
+    });
+    await attempt(3);
   });
 
   it("Clears the page for paged text", async () => {
     verb.onSuccess = ["blah", new PagedText("jam")];
-    const promise = attempt(3);
-    expect(selectCurrentPage()).toBe("blah");
-    clickNext();
-    await promise;
+    setTimeout(() => {
+      expect(selectCurrentPage()).toBe("blah");
+      clickNext();
+    });
+    await attempt(3);
     expect(selectCurrentPage()).toBe("jam");
   });
 
   it("Does not render Next buttons forever", async () => {
     verb.onSuccess = new SequentialText("one", "two");
-    attempt(3);
-    await clickNextAndWait();
+    setTimeout(() => clickNextAndWait());
+    await attempt(3);
     expect(selectInteraction().options).toBeNull();
   });
 

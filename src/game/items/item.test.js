@@ -5,7 +5,7 @@ import { SequentialText } from "../interactions/text";
 import { newGame, recordChanges } from "../../redux/gameActions";
 import { selectActionChainPromise, selectInventory, selectInventoryItems } from "../../utils/selectors";
 import { Room } from "./room";
-import { initGame, setInventoryCapacity } from "../../gonorth";
+import { initGame, setInventoryCapacity, goToRoom } from "../../gonorth";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { Container } from "./container";
 import { Verb } from "../../../src/game/verbs/verb";
@@ -25,6 +25,7 @@ beforeEach(() => {
   game = initGame("Jolly Capers", "", { debugMode: false });
   room = new Room("red");
   getStore().dispatch(newGame(game, true, false));
+  goToRoom(room);
 });
 
 describe("basic item tests", () => {
@@ -373,10 +374,8 @@ describe("serialization", () => {
 
     test("hidden items have a container change recorded when they're revealed", async () => {
       chest.hidesItems = ball;
-      chest.verbs.open.attempt(chest);
-      await selectActionChainPromise();
-      chest.verbs.examine.attempt(chest);
-      await selectActionChainPromise();
+      await chest.verbs.open.attempt(chest);
+      await chest.verbs.examine.attempt(chest);
       expectRecordedProperties(ball, "container");
     });
 

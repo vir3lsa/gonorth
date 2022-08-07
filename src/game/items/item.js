@@ -9,6 +9,7 @@ import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 import { moveItem } from "../../utils/itemFunctions";
 import { playerHasItem } from "../../utils/sharedFunctions";
+import { AutoAction } from "../input/autoAction";
 
 export function newItem(config, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
@@ -339,25 +340,7 @@ export class Item {
     const verb = this.verbs[verbName.toLowerCase()];
 
     if (verb) {
-      if (!verb.remote) {
-        if (this.holdable && !playerHasItem(this)) {
-          // First pick up the item
-          await this.verbs.take.attempt(this);
-        }
-
-        if (verb.prepositional && args.length && args[0].holdable && !playerHasItem(args[0])) {
-          // Pick up the secondary item
-          await args[0].verbs.take.attempt(args[0]);
-
-          if ((!this.holdable || playerHasItem(this)) && playerHasItem(args[0])) {
-            return verb.attempt(this, ...args);
-          }
-        } else if (!this.holdable || playerHasItem(this)) {
-          return verb.attempt(this, ...args);
-        }
-      } else {
-        return verb.attempt(this, ...args);
-      }
+      return verb.attempt(this, ...args);
     }
   }
 

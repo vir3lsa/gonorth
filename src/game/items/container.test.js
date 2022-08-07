@@ -114,9 +114,11 @@ describe("container", () => {
     expect(bucket.preposition).toBe("within");
     expect(bucket.locked).toBe(false);
 
+    bucket.verbs.close.remote = true;
     await bucket.verbs.close.attempt(bucket);
     expect(bucket.description).toBe("closed");
 
+    bucket.verbs.open.remote = true;
     await bucket.verbs.open.attempt(bucket);
     expect(bucket.description).toBe("open");
   });
@@ -140,13 +142,13 @@ describe("container", () => {
     expect(selectCurrentPage()).toBe("The chest opens easily.");
   });
 
-  test("gives the closed description when closed", () => {
-    chest.verbs.close.attempt(chest);
+  test("gives the closed description when closed", async () => {
+    await chest.verbs.close.attempt(chest);
     expect(chest.description).toBe("it's closed");
   });
 
   test("gives the open description when open and lists visible items", async () => {
-    chest.verbs.open.attempt(chest);
+    await chest.verbs.open.attempt(chest);
     clearPage();
     await chest.verbs.examine.attempt(chest);
     expect(selectCurrentPage()).toBe("it's open\n\nthere's a toy nestled at the bottom of the chest.");
@@ -158,32 +160,32 @@ describe("container", () => {
     expect(bucket.verbs.close).toBeUndefined();
   });
 
-  test("can't be opened if it's already open", () => {
-    chest.verbs.open.attempt(chest);
+  test("can't be opened if it's already open", async () => {
+    await chest.verbs.open.attempt(chest);
     expect(selectCurrentPage()).toBe("The chest is already open.");
   });
 
-  test("can't be closed if it's already closed", () => {
-    chest.verbs.close.attempt(chest);
+  test("can't be closed if it's already closed", async () => {
+    await chest.verbs.close.attempt(chest);
     clearPage();
-    chest.verbs.close.attempt(chest);
+    await chest.verbs.close.attempt(chest);
     expect(selectCurrentPage()).toBe("The chest is already closed.");
   });
 
-  test("can't be opened if it's locked", () => {
+  test("can't be opened if it's locked", async () => {
     const lockbox = new Container.Builder().withName("lockbox").isOpen(false).isLocked().build();
-    lockbox.verbs.open.attempt(lockbox);
+    await lockbox.verbs.open.attempt(lockbox);
     expect(selectCurrentPage()).toBe("The lockbox is locked.");
   });
 
-  test("can't be closed if it's locked", () => {
+  test("can't be closed if it's locked", async () => {
     const lockbox = new Container.Builder()
       .withName("lockbox")
       .isOpen()
       .isLocked()
       .withLockedText("chained open")
       .build();
-    lockbox.verbs.close.attempt(lockbox);
+    await lockbox.verbs.close.attempt(lockbox);
     expect(selectCurrentPage()).toBe("chained open");
   });
 });

@@ -35,7 +35,8 @@ export const initialState = {
   cyChoose: null,
   eventTimeoutOverride: null,
   eventTurnsOverride: null,
-  effects: new Effects()
+  effects: new Effects(),
+  autoActions: []
 };
 
 export default function (state = initialState, action) {
@@ -161,6 +162,8 @@ export default function (state = initialState, action) {
         eventTimeoutOverride: action.eventTimeoutOverride,
         eventTurnsOverride: action.eventTurnsOverride
       };
+    case type.ADD_AUTO_ACTION:
+      return { ...state, autoActions: [...state.autoActions, action.autoAction] };
     default:
       return state;
   }

@@ -12,6 +12,7 @@ import { newItem } from "../game/items/item";
 import disambiguate from "./disambiguation";
 import { getStore } from "../redux/storeRegistry";
 import { cyRecord, itemsRevealed, overrideEventTimeout } from "../redux/gameActions";
+import { forget, retrieve, store, update } from "../gonorth";
 
 const helpText = `Usage: \`debug operation [args]\`
 - e.g. \`debug show rooms\`
@@ -24,7 +25,8 @@ Operations:
 - \`spawn\` / \`create\` / \`make\`                - create an item
 - \`commence\` / \`graph\` / \`join\` / \`start \` - join an option graph at the specified node, or the default node
 - \`cypress\` / \`integration\` / \`test\`         - produce Cypress commands from the actions you perform
-- \`event\` / \`timeout\`                          - override event timeouts`;
+- \`event\` / \`timeout\`                          - override event timeouts
+- \`variable\` / \`var\`                           - store, update, retrieve and forget persistent variables`;
 
 const gotoHelp = `Usage: \`debug goto [room]\`
 - e.g. \`debug goto kitchen\`
@@ -64,6 +66,21 @@ const eventHelp = `Usage: \`debug event [timeout_millis|reset]\`
 - e.g. \`debug timeout 2000\`
 - e.g. \`debug event reset\``;
 
+const variableHelp = `Usage: \`debug variable [store|update|retrieve|forget] [name] [value]\`
+
+Commands:
+- \`help\`               - show this help text
+- \`store\ / \`set\`     - store a persistent variable with the given value
+- \`update\`             - update the value of an existing persistent variable
+- \`retrieve\` / \`get\` - retrieve the current value of a persistent variable
+- \`forget\` / \`erase\` - erase a persistent variable
+
+Examples:
+- e.g. \`debug variable store invisibilityMode true\`
+- e.g. \`debug variable update colourMode red\`
+- e.g. \`debug variable retrieve colourMode\`
+- e.g. \`debug variable forget invisibilityMode\``;
+
 export function handleDebugOperations(operation, ...args) {
   if (!operation) {
     return helpText;
@@ -94,6 +111,9 @@ export function handleDebugOperations(operation, ...args) {
     case "event":
     case "timeout":
       return events(args);
+    case "var":
+    case "variable":
+      return variable(args);
     default:
       return `Unrecognised debug operation: ${operation}`;
   }
@@ -253,5 +273,21 @@ function events(args) {
     const turns = args.length > 1 ? new Number(args[1]) : undefined;
     getStore().dispatch(overrideEventTimeout(timeout, turns));
     return `Event timeouts set to ${timeout} milliseconds${turns !== undefined ? " and " + turns + " turn(s)" : ""}.`;
+  }
+}
+
+function variable(args) {
+  if (args.length === 1 && args[0] === "help") {
+    return variableHelp;
+  } else if (args.length > 1) {
+    if (["store", "set"].includes(args[0]) && args.length === 3) {
+      store(args[1], args[2]);
+    } else if (args[0] === "update" && args.length === 3) {
+      update(args[1], args[2]);
+    } else if (["retrieve", "get"].includes(args[0])) {
+      retrieve(args[1]);
+    } else if (["forget", "erase"].includes(args[0])) {
+      forget(args[1]);
+    }
   }
 }

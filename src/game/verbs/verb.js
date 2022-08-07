@@ -2,6 +2,8 @@ import { getStore } from "../../redux/storeRegistry";
 import { verbCreated } from "../../redux/gameActions";
 import { ActionChain } from "../../utils/actionChain";
 import { selectRoom } from "../../utils/selectors";
+import { playerHasItem } from "../../utils/sharedFunctions";
+import { checkAutoActions } from "../input/autoActionExecutor";
 
 export function newVerb(config) {
   const { name, test, onSuccess, onFailure, aliases, isKeyword, prepositional, interrogative, prepositionOptional } =
@@ -59,6 +61,9 @@ export class Verb {
 
     // Call the onFailure setter
     this.onFailure = onFailure;
+
+    this.addTest(({ item }) => !item || this.remote || !item.holdable || playerHasItem(item));
+    this.addTest(({ other }) => !other || this.remote || !other.holdable || playerHasItem(other));
   }
 
   get name() {
@@ -163,21 +168,39 @@ export class Verb {
     this.expectedArgs.push("other");
   }
 
-  attempt(...args) {
+  /**
+   * Checks auto actions that should precede the verb, tests the verb's conditions and runs the verb's success or
+   * failure actions accordingly.
+   * @param  {...any} args Arguments to pass to the verb functions.
+   * @returns A Promise that resolves when the verb's actions have executed.
+   */
+  async attempt(...args) {
     // Turn the anonymous args into key/value pairs based on the expected args. Any additional unexpected args won't be included.
-    const context = this.expectedArgs.reduce((acc, key, index) => {
-      acc[key] = args[index];
-      return acc;
-    }, {});
+    const context = this.createContext(args);
+
+    // Check for auto actions that need to run before this verb.
+    await checkAutoActions(context);
 
     // All tests must be successful for verb to proceed.
-    const success = this._tests.reduce((successAcc, test) => successAcc && test({ ...this.helpers, ...context }), true);
+    const success = this._tests.reduce((successAcc, test) => successAcc && test(context), true);
 
     if (success) {
       return this.onSuccess.chain(context);
     } else {
       return this.onFailure.chain(context);
     }
+  }
+
+  /*
+   * Turns anonymous args into key/value pairs based on the expected args. Any additional unexpected args won't be included.
+   */
+  createContext(args) {
+    const context = this.expectedArgs.reduce((acc, key, index) => {
+      acc[key] = args[index];
+      return acc;
+    }, {});
+
+    return { ...this.helpers, ...context, verb: this };
   }
 
   static get Builder() {

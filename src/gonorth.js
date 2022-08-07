@@ -3,21 +3,24 @@ import ReactDOM from "react-dom";
 
 import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
-import { addEvent as eventAdded, addValue, forgetValue, newGame, setStartRoom, updateValue } from "./redux/gameActions";
+import {
+  addAutoInput,
+  addEvent as eventAdded,
+  addValue,
+  forgetValue,
+  newGame,
+  setStartRoom,
+  updateValue
+} from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { clearPage, createPlayer, goToRoom } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
-import {
-  selectRoom,
-  selectPlayer,
-  selectStartingRoom,
-  selectEffects,
-  selectItem,
-  selectInventoryItems
-} from "./utils/selectors";
+import { selectRoom, selectPlayer, selectStartingRoom, selectEffects, selectInventoryItems } from "./utils/selectors";
 import { createKeywords } from "./game/verbs/keywords";
+import { AutoAction } from "./game/input/autoAction";
+import { playerHasItem } from "./utils/sharedFunctions";
 
 const game = {};
 
@@ -44,6 +47,7 @@ function initGame(title, author, config, initialiser) {
   }
 
   createKeywords();
+  initAutoActions();
   getStore().dispatch(newGame(game, game.config.debugMode));
 
   return game;
@@ -63,6 +67,21 @@ function renderTopLevel() {
     game.component = <GoNorth />;
     ReactDOM.render(game.component, game.container);
   }
+}
+
+function initAutoActions() {
+  const autoTakeItem = new AutoAction.Builder()
+    .withCondition(({ verb, item }) => !verb.remote && item?.holdable && !playerHasItem(item))
+    .withInputs(({ item }) => `take ${item.name}`)
+    .build();
+
+  const autoTakeOtherItem = new AutoAction.Builder()
+    .withCondition(({ verb, other }) => !verb.remote && other?.holdable && !playerHasItem(other))
+    .withInputs(({ other }) => `take ${other.name}`)
+    .build();
+
+  addAutoAction(autoTakeItem);
+  addAutoAction(autoTakeOtherItem);
 }
 
 /**
@@ -159,6 +178,10 @@ function addWildcardEffect(secondaryItem, verbName, successful, ...effects) {
   selectEffects().addWildcard(secondaryItem, verbName, successful, ...effects);
 }
 
+function addAutoAction(autoAction) {
+  getStore().dispatch(addAutoInput(autoAction));
+}
+
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door, newDoor, Key } from "./game/items/door";
@@ -200,5 +223,6 @@ export {
   retrieve,
   forget,
   addEffect,
-  addWildcardEffect
+  addWildcardEffect,
+  addAutoAction
 };

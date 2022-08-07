@@ -5,10 +5,10 @@ import { ActionChain } from "./utils/actionChain";
 import { Verb } from "./game/verbs/verb";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event } from "./game/events/event";
 import { handleTurnEnd } from "./utils/lifecycle";
-import { Parser } from "./game/parser";
+import { Parser } from "./game/input/parser";
 import { selectInventory, selectRoom, selectTurn } from "./utils/selectors";
 import { selectCurrentPage } from "./utils/testSelectors";
-import { clickNext } from "./utils/testFunctions";
+import { clickNext, deferAction } from "./utils/testFunctions";
 
 const title = "Space Auctioneer 2";
 
@@ -141,21 +141,28 @@ describe("Game class", () => {
     });
 
     it("waits for a chain to finish before triggering", async () => {
-      new Verb("verb", true, ["one", "two"]).attempt();
-      const promise = new Event("", () => x++).trigger();
-      expect(x).toBe(0);
-      clickNext();
-      await promise;
+      let eventPromise = Promise.resolve();
+      setTimeout(() => {
+        eventPromise = new Event("", () => x++).trigger();
+        expect(x).toBe(0);
+        clickNext();
+      });
+      await new Verb("verb", true, ["one", "two"]).attempt();
+      await eventPromise;
       expect(x).toBe(1);
     });
 
     it("triggers waiting events in the right order", async () => {
-      new Verb("verb", true, ["one", "two"]).attempt();
+      let p1 = Promise.resolve();
+      let p2 = Promise.resolve();
       x = 1;
-      const p1 = new Event("", () => x++).trigger();
-      const p2 = new Event("", () => (x *= 3)).trigger();
-      expect(x).toBe(1);
-      clickNext();
+      setTimeout(() => {
+        p1 = new Event("", () => x++).trigger();
+        p2 = new Event("", () => (x *= 3)).trigger();
+        expect(x).toBe(1);
+        clickNext();
+      });
+      await new Verb("verb", true, ["one", "two"]).attempt();
       await p1;
       await p2;
       expect(x).toBe(6);

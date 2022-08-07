@@ -1,6 +1,6 @@
-import { getStore } from "../redux/storeRegistry";
-import { changeInteraction } from "../redux/gameActions";
-import { Append } from "./interactions/interaction";
+import { getStore } from "../../redux/storeRegistry";
+import { changeInteraction } from "../../redux/gameActions";
+import { Append } from "../interactions/interaction";
 import {
   selectVerbNames,
   selectRoom,
@@ -8,9 +8,9 @@ import {
   selectInventory,
   selectKeywords,
   selectEffects
-} from "../utils/selectors";
-import { toTitleCase, getArticle } from "../utils/textFunctions";
-import disambiguate from "../utils/disambiguation";
+} from "../../utils/selectors";
+import { toTitleCase, getArticle } from "../../utils/textFunctions";
+import disambiguate from "../../utils/disambiguation";
 
 export class Parser {
   constructor(input) {

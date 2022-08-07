@@ -1,6 +1,6 @@
 import * as type from "./gameActionTypes";
 import { output, showOptions } from "../utils/consoleIO";
-import { Parser } from "../game/parser";
+import { Parser } from "../game/input/parser";
 import { AppendInput, Append } from "../game/interactions/interaction";
 
 const selectDebugMode = (state) => state.debugMode;
@@ -183,4 +183,9 @@ export const overrideEventTimeout = (eventTimeoutOverride, eventTurnsOverride) =
   type: type.OVERRIDE_EVENT_TIMEOUT,
   eventTimeoutOverride,
   eventTurnsOverride
+});
+
+export const addAutoInput = (autoAction) => ({
+  type: type.ADD_AUTO_ACTION,
+  autoAction
 });

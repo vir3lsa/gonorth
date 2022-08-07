@@ -1,19 +1,19 @@
-import { Room } from "./items/room";
-import { getStore, unregisterStore } from "../redux/storeRegistry";
-import { changeInteraction } from "../redux/gameActions";
+import { Room } from "../items/room";
+import { getStore, unregisterStore } from "../../redux/storeRegistry";
+import { changeInteraction } from "../../redux/gameActions";
 import { Parser } from "./parser";
-import { Door } from "./items/door";
-import { Item } from "./items/item";
-import { Verb } from "./verbs/verb";
-import { addEffect, addWildcardEffect, initGame, setInventoryCapacity } from "../gonorth";
-import { goToRoom } from "../utils/lifecycle";
-import { PagedText } from "./interactions/text";
-import { selectCurrentPage, selectInteraction } from "../utils/testSelectors";
-import { selectRoom } from "../utils/selectors";
-import { Container } from "./items/container";
+import { Door } from "../items/door";
+import { Item } from "../items/item";
+import { Verb } from "../verbs/verb";
+import { addEffect, addWildcardEffect, initGame, setInventoryCapacity } from "../../gonorth";
+import { goToRoom } from "../../utils/lifecycle";
+import { PagedText } from "../interactions/text";
+import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
+import { selectRoom } from "../../utils/selectors";
+import { Container } from "../items/container";
 
-jest.mock("../utils/consoleIO");
-const consoleIO = require("../utils/consoleIO");
+jest.mock("../../utils/consoleIO");
+const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
@@ -26,8 +26,8 @@ const directionTest = async (input, expectedRoom) => {
   expect(selectRoom().name).toBe(expectedRoom);
 };
 
-const openDoorTest = (input) => {
-  new Parser(input).parse();
+const openDoorTest = async (input) => {
+  await new Parser(input).parse();
   expect(door.open).toBe(true);
 };
 

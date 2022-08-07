@@ -1,7 +1,7 @@
 import { Room } from "../game/items/room";
 import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { changeInteraction } from "../redux/gameActions";
-import { Parser } from "../game/parser";
+import { Parser } from "../game/input/parser";
 import { Door } from "../game/items/door";
 import { Item } from "../game/items/item";
 import { Verb } from "../game/verbs/verb";
@@ -85,9 +85,9 @@ describe("debugFunctions", () => {
     inputTest("debug show available items", "Items:\n\n- blue ball", "red ball", "orangery"));
   it("shows all items", () =>
     inputTest("debug show items", ["Items:", "blue ball", "red ball", "Orangery", "chair man"]));
-  it("spawns items not in the room", () => {
-    inputTest("debug spawn red ball", "Spawned red ball in Hall");
-    inputTest("take red ball", "the red ball");
+  it("spawns items not in the room", async () => {
+    await inputTest("debug spawn red ball", "Spawned red ball in Hall");
+    await inputTest("take red ball", "the red ball");
     inputTest("i", "red ball");
   });
   it("disambiguates when spawning items", () => inputTest("debug spawn ball", "Which ball do you mean?"));

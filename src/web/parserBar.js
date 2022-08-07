@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import TextField from "@material-ui/core/TextField";
-import { receiveInput } from "../utils/inputReceiver";
+import { receiveInput } from "../game/input/inputReceiver";
 import { reactionTimePassed } from "../utils/sharedFunctions";
 
 let historyIndex = 0;

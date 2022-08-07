@@ -4,7 +4,7 @@ import { changeInteraction, changeRoom, recordChanges } from "../../redux/gameAc
 import { Interaction } from "../interactions/interaction";
 import { Item } from "./item";
 import { initGame } from "../../gonorth";
-import { Parser } from "../parser";
+import { Parser } from "../input/parser";
 import { selectInteraction, selectCurrentPage } from "../../utils/testSelectors";
 import { clickNext } from "../../utils/testFunctions";
 import { selectRoom } from "../../utils/selectors";
@@ -143,33 +143,33 @@ describe("Room", () => {
 
     it("responds to custom directions", async () => {
       hall.addAdjacentRoom(east, "archway");
-      const actionPromise = new Parser("archway").parse();
-      clickNext();
-      await actionPromise;
+      setTimeout(() => clickNext());
+      await new Parser("archway").parse();
       expect(selectRoom().name).toBe("Scullery");
     });
 
-    it("informs player when a direction doesn't exist", () => {
-      new Parser("east").parse();
+    it("informs player when a direction doesn't exist", async () => {
+      await new Parser("east").parse();
       expect(selectCurrentPage()).toBe("You can't go that way.");
     });
 
-    it("gives custom messages when a direction doesn't exist", () => {
+    it("gives custom messages when a direction doesn't exist", async () => {
       hall.setSouth(null, false, null, "You can't walk through walls");
-      new Parser("south").parse();
+      await new Parser("south").parse();
       expect(selectCurrentPage()).toBe("You can't walk through walls");
     });
 
-    it("prints a message when successfully going in a direction", () => {
+    it("prints a message when successfully going in a direction", async () => {
       hall.setWest(new Room("Chapel"));
-      new Parser("west").parse();
+      setTimeout(() => clickNext());
+      await new Parser("west").parse();
       expect(selectCurrentPage().includes("Going West.")).toBeTruthy();
     });
 
     it("prints new room text", async () => {
       hall.setWest(west);
-      new Parser("west").parse();
-      await clickNextAndWait();
+      setTimeout(() => clickNext());
+      await new Parser("west").parse();
       expect(selectCurrentPage()).toBe("the pantry");
     });
   });

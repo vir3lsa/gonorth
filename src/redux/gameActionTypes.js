@@ -26,3 +26,4 @@ export const CY_SAY = "CY_SAY";
 export const CY_CHOOSE = "CY_CHOOSE";
 export const CY_RECORD = "CY_RECORD";
 export const OVERRIDE_EVENT_TIMEOUT = "OVERRIDE_EVENT_TIMEOUT";
+export const ADD_AUTO_ACTION = "ADD_AUTO_ACTION";
