@@ -9,7 +9,9 @@ import {
   forget,
   SequentialText,
   JoinedText,
-  Verb
+  Verb,
+  AutoAction,
+  addAutoAction
 } from "../../../../../lib/gonorth";
 import {
   ABOARD_BOAT,
@@ -138,13 +140,16 @@ export const initSnug = () => {
       new Verb.Builder("leave")
         .withAliases("exit", "disembark", "jump")
         .withTest(() => retrieve(ABOARD_BOAT) && !retrieve(ACROSS_LAKE))
-        .withOnSuccess(() => {
-          if (retrieve(BOAT_IN_WATER)) {
-            return "Daintily, you step out of the boat and onto dry land.";
-          }
+        .withOnSuccess(
+          () => forget(ABOARD_BOAT),
+          () => {
+            if (retrieve(BOAT_IN_WATER)) {
+              return "Daintily, you step out of the boat and onto dry land.";
+            }
 
-          return "You clamber out of the boat.";
-        })
+            return "You clamber out of the boat.";
+          }
+        )
         .withOnFailure(() => {
           if (!retrieve(ABOARD_BOAT)) {
             return "You're not in the boat.";
@@ -152,9 +157,19 @@ export const initSnug = () => {
             return "You *could* jump out of the boat into the deep, black, icy cold water...but you decide against it. It would be better to be by the shore first.";
           }
         })
+        .isRemote()
         .build()
     )
     .build();
+
+  const boatVerbs = ["row"];
+  const autoLeaveBoat = new AutoAction.Builder()
+    .withCondition(
+      ({ verb }) => retrieve(ABOARD_BOAT) && !boatVerbs.includes(verb.name) && !verb.isKeyword && !verb.remote
+    )
+    .withInputs("leave boat")
+    .build();
+  addAutoAction(autoLeaveBoat);
 
   store(TOY_BOAT_SOLIDITY, 0);
   addEffect(toyWagon, "mirror", "examine", true, ({ item: wagon }) => {

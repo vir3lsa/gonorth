@@ -55,4 +55,18 @@ describe("final puzzle", () => {
     cy.choose("Next", "The boat is mended, as good");
     cy.say("x boat", "A charming model of a wooden", "fully repaired");
   });
+
+  it("automatically leaves the boat", () => {
+    cy.say("debug goto apothecary", "You seem to be in some kind", { global: true });
+    cy.say("debug spawn toy boat", "Spawned toy boat in");
+    cy.say("debug variable store toyBoatMended true", "Variable stored");
+    cy.say("debug variable store playerTiny true", "Variable stored");
+    cy.say("board boat", "You're now the perfect size");
+
+    // Remote verbs don't cause you to leave the boat.
+    cy.say("x pipes", "There's a spout above the");
+
+    // Non-remote ones do.
+    cy.say("turn dial", "You clamber out of the boat", "You turn the dial");
+  });
 });

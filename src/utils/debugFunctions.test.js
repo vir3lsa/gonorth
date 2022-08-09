@@ -16,7 +16,7 @@ const consoleIO = require("./consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let game, hall, north, door, chair, redBall, blueBall, redBox, blueBox, chairman, cushion;
+let hall, north, door, chair, redBall, blueBall, redBox, blueBox, chairman, cushion;
 
 const inputTest = async (input, expectedOutput, ...expectedOmissions) => {
   await new Parser(input).parse();
@@ -33,7 +33,7 @@ const inputTest = async (input, expectedOutput, ...expectedOmissions) => {
 describe("debugFunctions", () => {
   beforeEach(() => {
     unregisterStore();
-    game = initGame("The Giant's Castle", "", { debugMode: false });
+    initGame("The Giant's Castle", "", { debugMode: false });
 
     hall = new Room("Hall", "grand");
     north = new Room("Garden", "");
@@ -107,5 +107,19 @@ describe("debugFunctions", () => {
     await inputTest("debug spawn matches", "Spawned matches in Hall");
     await inputTest("take matches", "the matches");
     return inputTest("i", "You're carrying a matches");
+  });
+  it("sets and retrieves persistent variables", async () => {
+    await inputTest("debug variable store playerName Rich", "Variable stored.");
+    return inputTest("debug variable retrieve playerName", "playerName: Rich");
+  });
+  it("sets, updates and retrieves persistent variables", async () => {
+    await inputTest("debug variable store playerName Rich", "Variable stored.");
+    await inputTest("debug variable update playerName Ted", "Variable updated.");
+    return inputTest("debug variable retrieve playerName", "playerName: Ted");
+  });
+  it("forget persistent variables", async () => {
+    await inputTest("debug variable store playerName Rich", "Variable stored.");
+    await inputTest("debug variable forget playerName", "Variable forgotten.");
+    return inputTest("debug variable retrieve playerName", "playerName: undefined");
   });
 });

@@ -281,13 +281,28 @@ function variable(args) {
     return variableHelp;
   } else if (args.length > 1) {
     if (["store", "set"].includes(args[0]) && args.length === 3) {
-      store(args[1], args[2]);
+      store(args[1], parseVariableValue(args[2]));
+      return "Variable stored.";
     } else if (args[0] === "update" && args.length === 3) {
-      update(args[1], args[2]);
+      update(args[1], parseVariableValue(args[2]));
+      return "Variable updated.";
     } else if (["retrieve", "get"].includes(args[0])) {
-      retrieve(args[1]);
+      return `${args[1]}: ${retrieve(args[1])}`;
     } else if (["forget", "erase"].includes(args[0])) {
       forget(args[1]);
+      return "Variable forgotten.";
     }
   }
+}
+
+function parseVariableValue(raw) {
+  const lowerRaw = raw.toLowerCase();
+
+  if (lowerRaw === "true") {
+    return true;
+  } else if (lowerRaw === "false") {
+    return false;
+  }
+
+  return raw;
 }
