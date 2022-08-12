@@ -76,7 +76,16 @@ describe("basic item tests", () => {
     room.addItem(medicineBall);
     await medicineBall.try("take");
     expect(selectInventory().items["medicine ball"]).toBeUndefined();
-    expect(selectCurrentPage()).toInclude("don't have enough room");
+    expect(selectCurrentPage()).toInclude("too big to pick up");
+  });
+
+  test("items can't be picked up if they're much bigger than the inventory", async () => {
+    setInventoryCapacity(2);
+    const medicineBall = new Item("medicine ball", "big", true, 6);
+    room.addItem(medicineBall);
+    await medicineBall.try("take");
+    expect(selectInventory().items["medicine ball"]).toBeUndefined();
+    expect(selectCurrentPage()).toInclude("far too large");
   });
 
   test("items can't be picked up if there's no room left", async () => {

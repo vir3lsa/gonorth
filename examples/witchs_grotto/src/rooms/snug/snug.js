@@ -16,7 +16,6 @@ import {
 import {
   ABOARD_BOAT,
   ACROSS_LAKE,
-  BOAT_IN_WATER,
   PLAYER_TINY,
   TOY_BOAT_MENDED,
   TOY_BOAT_SOLIDITY
@@ -103,15 +102,15 @@ export const initSnug = () => {
     .withSize(3)
     .withVerbs(
       new Verb.Builder("enter")
-        .withAliases("board", "climb", "go")
+        .withAliases("board", "climb", "go", "get in")
         .isRemote()
         .withTest(() => retrieve(PLAYER_TINY) && !retrieve(ABOARD_BOAT))
         .withOnSuccess(
           () => store(ABOARD_BOAT, true),
-          () => {
+          ({ item }) => {
             let description = "You're now the perfect size to step onto the boat. ";
 
-            if (retrieve(BOAT_IN_WATER)) {
+            if (item.container?.name === "lake") {
               description +=
                 "Being careful not to fall into the water, you gingerly clamber aboard, the dinghy bobbing slightly as it takes your weight. ";
             }
@@ -142,8 +141,8 @@ export const initSnug = () => {
         .withTest(() => retrieve(ABOARD_BOAT) && !retrieve(ACROSS_LAKE))
         .withOnSuccess(
           () => forget(ABOARD_BOAT),
-          () => {
-            if (retrieve(BOAT_IN_WATER)) {
+          ({ item }) => {
+            if (item.container?.name === "lake") {
               return "Daintily, you step out of the boat and onto dry land.";
             }
 

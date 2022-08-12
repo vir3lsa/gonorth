@@ -220,7 +220,7 @@ describe("parser", () => {
     });
 
     it("fails if a holdable secondary item can't be picked up", async () => {
-      setInventoryCapacity(10);
+      setInventoryCapacity(21);
       await regexTest("put cushion in blue box", /(take|grab|pick up) the cushion/);
       expect(selectCurrentPage()).toInclude("don't have enough room for the blue box");
       expect(selectCurrentPage()).not.toMatch(/(take|grab|pick up) the blue box/);

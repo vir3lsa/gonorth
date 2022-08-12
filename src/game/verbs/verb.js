@@ -62,7 +62,10 @@ export class Verb {
     // Call the onFailure setter
     this.onFailure = onFailure;
 
+    // The player must be holding holdable items in order to use them.
     this.addTest(({ item }) => !item || this.remote || !item.holdable || playerHasItem(item));
+
+    // The player must be holding holdable indirect items in order to use them.
     this.addTest(({ other }) => !other || this.remote || !other.holdable || playerHasItem(other));
   }
 

@@ -44,7 +44,7 @@ export const initShrinkProcedure = () => {
   addSchedule(playerTinyTimer);
 
   const shrinkPotion = new Potion.Builder("Tonic of Vertical Contraction")
-    .withAliases("shrink", "tiny")
+    .withAliases("shrink", "tiny", "shrink potion")
     .withDescription(
       "You're not sure why it's called a 'tonic' - it doesn't even look like a liquid. In fact, it resembles something living; it pulses, throbs and wriggles around inside the bottle. It's vaguely blue in colour and has a faint specularity on its writhing surfaces."
     )

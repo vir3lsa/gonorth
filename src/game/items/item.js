@@ -155,6 +155,10 @@ export class Item {
               return "You can't see that.";
             } else if (item.container.open === false) {
               return `You can't get at it inside the ${item.container.name}.`;
+            } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.capacity * 2) {
+              return `The ${item.name} is far too large to pick up.`
+            } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.capacity) {
+              return `The ${item.name} is too big to pick up.`
             } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.free) {
               return `You don't have enough room for ${article}${item.name}.`;
             } else if (item.container === inventory) {
