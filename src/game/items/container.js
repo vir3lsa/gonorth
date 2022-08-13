@@ -97,8 +97,13 @@ export class Container extends Item {
         "close",
         ({ item }) => item.open && !item.locked,
         [
-          ({ item }) => (item.open = false),
-          ({ item }) => (item.itemsVisibleFromSelf = false),
+          ({ item }) => {
+            // Ensure we don't return false to avoid breaking the action chain.
+            item.open = false;
+          },
+          ({ item }) => {
+            item.itemsVisibleFromSelf = false;
+          },
           ({ item }) => item.closeText
         ],
         ({ item }) => {

@@ -264,4 +264,14 @@ describe("chainable actions", () => {
     await verb.attempt(null, null, 0);
     expect(selectCurrentPage()).toBe("you fall");
   });
+
+  it("returns true when successful", async () => {
+    const verb = new Verb("smile", true, "you grin");
+    expect(await verb.attempt()).toBe(true);
+  });
+
+  it("returns false when unsuccessful", async () => {
+    const verb = new Verb("frown", false, null, "you just can't do it");
+    expect(await verb.attempt()).toBe(false);
+  });
 });

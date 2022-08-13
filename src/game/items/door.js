@@ -48,7 +48,10 @@ export class Door extends Item {
         "unlock",
         ({ item: door, other: key }) => door.locked && (door.key ? door.key.name === key?.name : true),
         [
-          (helper) => (helper.object.locked = false),
+          (helper) => {
+            // Ensure we don't return false to avoid breaking the action chain.
+            helper.object.locked = false;
+          },
           ({ item: door }) =>
             unlockSuccessText ||
             (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)

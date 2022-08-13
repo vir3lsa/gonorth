@@ -265,3 +265,25 @@ test("Args are passed into SequentialText functions", async () => {
   chain.chain({ x: 12 });
   expect(selectCurrentPage()).toInclude("13");
 });
+
+test("ActionChains return true if they're considered successful", async () => {
+  const chain = new ActionChain(true);
+  expect(await chain.chain()).toBe(true);
+});
+
+test("ActionChains return false if any action returns false, but continue executing", async () => {
+  let x = 0;
+  const chain = new ActionChain(false, () => x++);
+  expect(await chain.chain()).toBe(false);
+  expect(x).toBe(1);
+});
+
+test("ActionChains return false if they're explicitly failed and do not continue executing", async () => {
+  let x = 0;
+  const chain = new ActionChain(
+    ({ fail }) => fail(),
+    () => x++
+  );
+  expect(await chain.chain()).toBe(false);
+  expect(x).toBe(0);
+});

@@ -1,11 +1,14 @@
 import { AutoAction } from "./autoAction";
 import { Parser } from "./parser";
 
+const mockParse = jest.fn(() => true);
 jest.mock("./parser", () => ({
   Parser: jest.fn().mockImplementation(() => ({
-    parse: jest.fn()
+    parse: mockParse
   }))
 }));
+
+beforeEach(() => Parser.mockClear());
 
 test("AutoAction does not trigger when the condition is not met", () => {
   const x = 1;
@@ -75,4 +78,23 @@ test("AutoAction uses context when evaluating the input", () => {
     .build();
   autoAction.check({ item: "ball" });
   expect(Parser).toHaveBeenCalledWith("take ball");
+});
+
+test("AutoAction performs several actions in sequence", async () => {
+  const autoAction = new AutoAction.Builder()
+    .withCondition(true)
+    .withInputs("take ball", "x ball", "put ball on floor")
+    .build();
+  await autoAction.check();
+  expect(Parser).toHaveBeenCalledWith("take ball");
+  expect(Parser).toHaveBeenCalledWith("x ball");
+  expect(Parser).toHaveBeenCalledWith("put ball on floor");
+});
+
+test("AutoAction halts if an action isn't successful", async () => {
+  mockParse.mockImplementationOnce(() => false); // Returning false indicates a failure.
+  const autoAction = new AutoAction.Builder().withCondition(true).withInputs("contort face", "do starjumps").build();
+  await autoAction.check();
+  expect(Parser).toHaveBeenCalledWith("contort face");
+  expect(Parser).not.toHaveBeenCalledWith("do starjumps");
 });

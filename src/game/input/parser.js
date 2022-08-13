@@ -213,7 +213,7 @@ export class Parser {
     return itemDetails.push({ alias, itemsWithName, itemIndex });
   }
 
-  giveFeedback() {
+  async giveFeedback() {
     let message;
 
     if (this.registeredVerb) {
@@ -255,7 +255,11 @@ export class Parser {
       }
     }
 
-    return getStore().dispatch(changeInteraction(new Append(message)));
+    // Display the message.
+    await getStore().dispatch(changeInteraction(new Append(message)));
+
+    // Indicate the action failure.
+    return false;
   }
 
   /*

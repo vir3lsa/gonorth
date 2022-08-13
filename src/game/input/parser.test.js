@@ -225,5 +225,13 @@ describe("parser", () => {
       expect(selectCurrentPage()).toInclude("don't have enough room for the blue box");
       expect(selectCurrentPage()).not.toMatch(/(take|grab|pick up) the blue box/);
     });
+
+    describe("return values", () => {
+      const parse = (input) => new Parser(input).parse();
+
+      it("returns true following a successful action", async () => expect(await parse("open hatch")).toBe(true));
+      it("returns false when input is unparsable", async () => expect(await parse("open shop")).toBe(false));
+      it("returns false when verb fails", async () => expect(await parse("take trophy")).toBe(false));
+    });
   });
 });

@@ -220,17 +220,20 @@ export class ActionChain {
   }
 
   async chain(context) {
-    let chainResolve, result;
+    let chainResolve;
+    let result = true;
     const chainPromise = new Promise((resolve) => (chainResolve = resolve));
     getStore().dispatch(chainStarted(chainPromise));
 
     for (let i in this._actions) {
       const action = this._actions[i];
 
-      result = await action(context);
+      // Run each action. If any return false, result becomes false.
+      result = (await action(context)) !== false && result;
 
       if (this.failed) {
         // Failing an action breaks the chain
+        result = false;
         break;
       }
     }

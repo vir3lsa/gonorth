@@ -16,7 +16,11 @@ export class AutoAction {
 
   async execute(context) {
     for (const input of this.inputs) {
-      await new Parser(input(context)).parse();
+      const success = await new Parser(input(context)).parse();
+
+      if (!success) {
+        break;
+      }
     }
   }
 

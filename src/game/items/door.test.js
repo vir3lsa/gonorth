@@ -26,39 +26,39 @@ beforeEach(() => {
 test("doors can be unlocked", async () => {
   await door.try("unlock");
   expect(door.locked).toBe(false);
-  expect(selectCurrentPage().includes("unlocks with a soft *click*")).toBeTruthy();
+  expect(selectCurrentPage()).toInclude("unlocks with a soft *click*");
 });
 
 test("doors can only be unlocked once", async () => {
   await door.try("unlock");
   await door.try("unlock");
-  expect(selectCurrentPage().includes("already unlocked")).toBeTruthy();
+  expect(selectCurrentPage()).toInclude("already unlocked");
 });
 
 test("doors can't be opened when they're locked", async () => {
   await door.try("open");
   expect(door.open).toBe(false);
-  expect(selectCurrentPage().includes("is locked")).toBeTruthy();
+  expect(selectCurrentPage()).toInclude("is locked");
 });
 
 test("doors can be opened", async () => {
   await door.try("unlock");
   await door.try("open");
   expect(door.open).toBe(true);
-  expect(selectCurrentPage().includes("opens relatively easily")).toBeTruthy();
+  expect(selectCurrentPage()).toInclude("opens relatively easily");
 });
 
 test("doors can only be opened once", async () => {
   await door.try("unlock");
   await door.try("open");
   await door.try("open");
-  expect(selectCurrentPage().includes("already open")).toBeTruthy();
+  expect(selectCurrentPage()).toInclude("already open");
 });
 
 test("doors can't be unlocked without a key if they require one", async () => {
   door.key = new Key("key");
   await door.try("unlock");
-  expect(selectCurrentPage().includes("appears to need a key"));
+  expect(selectCurrentPage()).toInclude("appears to need a key");
 });
 
 test("doors can be unlocked with the correct key", async () => {

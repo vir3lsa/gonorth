@@ -108,6 +108,7 @@ export class Verb {
 
   set onFailure(onFailure) {
     const onFailureArray = Array.isArray(onFailure) ? onFailure : [onFailure];
+    onFailureArray.unshift(() => false); // Indicate the failure.
     this._onFailure = new ActionChain(...onFailureArray);
     this._onFailure.addHelpers(this.helpers);
   }
