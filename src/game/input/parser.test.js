@@ -82,6 +82,7 @@ describe("parser", () => {
           .withTest(false)
           .withOnFailure("It's too big")
           .withAliases("grab, snatch")
+          .isRemote()
           .build()
       );
 

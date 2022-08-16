@@ -11,7 +11,7 @@ export class AutoAction {
       return this.execute(context);
     }
 
-    return Promise.resolve();
+    return Promise.resolve(true);
   }
 
   async execute(context) {
@@ -19,9 +19,11 @@ export class AutoAction {
       const success = await new Parser(input(context)).parse();
 
       if (!success) {
-        break;
+        return false;
       }
     }
+
+    return true;
   }
 
   static get Builder() {

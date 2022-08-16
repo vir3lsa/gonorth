@@ -1,23 +1,25 @@
 import { getStore } from "../../redux/storeRegistry";
 import { Verb, newVerb } from "./verb";
-import { newGame, changeInteraction } from "../../redux/gameActions";
+import { changeInteraction, changeRoom } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
-import {
-  CyclicText,
-  SequentialText,
-  RandomText,
-  PagedText
-} from "../interactions/text";
+import { CyclicText, SequentialText, RandomText, PagedText } from "../interactions/text";
 import { Option } from "../interactions/option";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { initGame } from "../../gonorth";
 import { clickNext, clickNextAndWait, deferAction } from "../../utils/testFunctions";
-import { selectActionChainPromise, selectVerbNames } from "../../utils/selectors";
+import { selectVerbNames } from "../../utils/selectors";
+import { Item } from "../items/item";
+import { Room } from "../items/room";
+import { checkAutoActions } from "../input/autoActionExecutor";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
+
+jest.mock("../input/autoActionExecutor", () => ({
+  checkAutoActions: jest.fn(async () => true)
+}));
 
 let y;
 let verb;
@@ -26,6 +28,7 @@ const storeHasVerb = (verbName) => selectVerbNames()[verbName];
 
 // Prevent console logging
 initGame("test", "", { debugMode: false });
+getStore().dispatch(changeRoom(new Room("hall")));
 
 beforeEach(() => {
   verb = new Verb("twirl", ({ x }) => x > 2, [({ x }) => (y = x + 1), "You twirl beautifully"], "You fall over", [
@@ -273,5 +276,26 @@ describe("chainable actions", () => {
   it("returns false when unsuccessful", async () => {
     const verb = new Verb("frown", false, null, "you just can't do it");
     expect(await verb.attempt()).toBe(false);
+  });
+
+  it("gives a default message if the verb fails and the player doesn't have a holdable item", async () => {
+    // The auto actions are mocked to return true here
+    const verb = new Verb("squeeze", false, null, "won't happen");
+    verb.attempt(new Item.Builder("ball").isHoldable().build());
+    return deferAction(() => {
+      expect(selectCurrentPage()).toInclude("not holding the ball");
+      expect(selectCurrentPage()).not.toInclude("won't happen");
+    });
+  });
+
+  it("doesn't continue if auto actions fail", async () => {
+    // Mock the auto actions to return false for this test.
+    checkAutoActions.mockImplementationOnce(async () => false);
+    const verb = new Verb("throw", false, null, "won't happen");
+    verb.attempt(new Item.Builder("beanbag").isHoldable().build());
+    return deferAction(() => {
+      expect(selectCurrentPage()).not.toInclude("not holding the beanbag");
+      expect(selectCurrentPage()).not.toInclude("won't happen");
+    });
   });
 });

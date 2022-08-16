@@ -36,6 +36,7 @@ export const initShrinkProcedure = () => {
     .withDelay(5000, TIMEOUT_MILLIS)
     .addEvent(
       () => forget("playerTiny"),
+      () => setInventoryCapacity(10),
       "With great relief, you find yourself back at your usual size. You don't seem to be growing any more."
     )
     .withDelay(5000, TIMEOUT_MILLIS)

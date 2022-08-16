@@ -93,7 +93,16 @@ export const initCavern = () => {
     lake,
     "put",
     true,
-    ({ item: toyBoat }) => toyBoat.verbs.put.attempt(toyBoat, lake),
+    async ({ item: toyBoat, fail }) => {
+      const result = await toyBoat.verbs.put.attempt(toyBoat, lake);
+
+      if (!result) {
+        // Prevent the effect from going any further.
+        fail();
+      }
+
+      return result;
+    },
     ({ item: toyBoat }) => {
       if (retrieve("toyBoatMended")) {
         toyBoat.containerListing = "Floating happily in the shallow waters near the shore is the toy boat.";

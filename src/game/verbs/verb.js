@@ -108,7 +108,15 @@ export class Verb {
 
   set onFailure(onFailure) {
     const onFailureArray = Array.isArray(onFailure) ? onFailure : [onFailure];
-    onFailureArray.unshift(() => false); // Indicate the failure.
+    onFailureArray.unshift(({ item, fail }) => {
+      if (!this.remote && item?.holdable && !playerHasItem(item)) {
+        fail(); // You can't do this verb without holding the item, so we'll say that and go no further.
+        const article = item.properNoun ? "" : "the ";
+        return `You're not holding ${article}${item.name}.`;
+      }
+
+      return false; // Indicate the verb failure to the action chain.
+    });
     this._onFailure = new ActionChain(...onFailureArray);
     this._onFailure.addHelpers(this.helpers);
   }
@@ -183,7 +191,11 @@ export class Verb {
     const context = this.createContext(args);
 
     // Check for auto actions that need to run before this verb.
-    await checkAutoActions(context);
+    const autoActionResult = await checkAutoActions(context);
+
+    if (!autoActionResult) {
+      return false;
+    }
 
     // All tests must be successful for verb to proceed.
     const success = this._tests.reduce((successAcc, test) => successAcc && test(context), true);
