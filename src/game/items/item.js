@@ -8,8 +8,6 @@ import { addItem, itemsRevealed } from "../../redux/gameActions";
 import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 import { moveItem } from "../../utils/itemFunctions";
-import { playerHasItem } from "../../utils/sharedFunctions";
-import { AutoAction } from "../input/autoAction";
 
 export function newItem(config, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
@@ -156,9 +154,9 @@ export class Item {
             } else if (item.container.open === false) {
               return `You can't get at it inside the ${item.container.name}.`;
             } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.capacity * 2) {
-              return `The ${item.name} is far too large to pick up.`
+              return `The ${item.name} is far too large to pick up.`;
             } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.capacity) {
-              return `The ${item.name} is too big to pick up.`
+              return `The ${item.name} is too big to pick up.`;
             } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.free) {
               return `You don't have enough room for ${article}${item.name}.`;
             } else if (item.container === inventory) {

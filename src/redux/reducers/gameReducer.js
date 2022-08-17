@@ -124,9 +124,10 @@ export default function (state = initialState, action) {
     case type.SET_PLAYER:
       return { ...state, player: action.player };
     case type.ADD_VALUE:
-      if (state.customState.hasOwnProperty(action.propertyName)) {
+      if (!action.force && state.customState.hasOwnProperty(action.propertyName)) {
         throw Error(
-          `Tried to add a persistent property called "${action.propertyName}" but a property with that name already exists.`
+          `Tried to add a persistent property called "${action.propertyName}" but a property with that name already exists. ` +
+            "Pass 'force=true' if you're certain you want to overwrite the existing value."
         );
       }
       return { ...state, customState: { ...state.customState, [action.propertyName]: action.value } };

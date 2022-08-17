@@ -144,10 +144,11 @@ export const setPlayer = (player) => ({
   player
 });
 
-export const addValue = (propertyName, value) => ({
+export const addValue = (propertyName, value, force) => ({
   type: type.ADD_VALUE,
   propertyName,
-  value
+  value,
+  force
 });
 
 export const updateValue = (propertyName, value) => ({

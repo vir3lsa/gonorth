@@ -1,9 +1,8 @@
 import { Item, newItem } from "./item";
-import { initStore } from "../../redux/store";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
 import { newGame, recordChanges } from "../../redux/gameActions";
-import { selectActionChainPromise, selectInventory, selectInventoryItems } from "../../utils/selectors";
+import { selectInventory, selectInventoryItems } from "../../utils/selectors";
 import { Room } from "./room";
 import { initGame, setInventoryCapacity, goToRoom } from "../../gonorth";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";

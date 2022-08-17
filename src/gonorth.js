@@ -3,15 +3,7 @@ import ReactDOM from "react-dom";
 
 import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
-import {
-  addAutoInput,
-  addEvent as eventAdded,
-  addValue,
-  forgetValue,
-  newGame,
-  setStartRoom,
-  updateValue
-} from "./redux/gameActions";
+import { addAutoInput, addEvent as eventAdded, newGame, setStartRoom } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { clearPage, createPlayer, goToRoom } from "./utils/lifecycle";
@@ -146,22 +138,6 @@ function setHintNodeId(nodeId) {
   game.hintNode = nodeId;
 }
 
-function store(propertyName, value) {
-  getStore().dispatch(addValue(propertyName, value));
-}
-
-function update(propertyName, value) {
-  getStore().dispatch(updateValue(propertyName, value));
-}
-
-function retrieve(propertyName) {
-  return getStore().getState().customState[propertyName];
-}
-
-function forget(propertyName) {
-  getStore().dispatch(forgetValue(propertyName));
-}
-
 function addEffect(primaryItem, secondaryItem, verbName, successful, ...effects) {
   if (typeof verbName !== "string") {
     throw Error("Tried to add an effect without specifying a verb name.");
@@ -202,6 +178,7 @@ export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs
 export { inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";
 export { moveItem } from "./utils/itemFunctions";
 export { AutoAction } from "./game/input/autoAction";
+export * from "./utils/persistentVariableFunctions";
 export * from "./utils/textFunctions";
 export * from "./utils/itemFunctions";
 export {
@@ -219,10 +196,6 @@ export {
   giveHint,
   addHintNodes,
   setHintNodeId,
-  store,
-  update,
-  retrieve,
-  forget,
   addEffect,
   addWildcardEffect,
   addAutoAction
