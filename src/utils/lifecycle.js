@@ -135,7 +135,15 @@ export function play() {
   return titleScreenGraph.commence().chain();
 }
 
-export function gameOver(message = "GAME OVER") {
+export function gameOver() {
+  return endGame("GAME OVER");
+}
+
+export function theEnd() {
+  return endGame("THE END");
+}
+
+function endGame(message) {
   const resurrectionText = new RandomText(
     "Groggily, you get to your feet.",
     "Had it been a premonition or just a bad dream? You shiver and try to forget it.",

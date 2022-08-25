@@ -170,7 +170,7 @@ export * from "./game/interactions/text";
 export { Schedule } from "./game/events/schedule";
 export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
-export { goToRoom, gameOver, play } from "./utils/lifecycle";
+export { goToRoom, gameOver, theEnd, play } from "./utils/lifecycle";
 export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
 export { selectInventory, selectInventoryItems, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
 export { ActionChain, Action } from "./utils/actionChain";

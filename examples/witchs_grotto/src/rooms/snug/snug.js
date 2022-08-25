@@ -13,7 +13,7 @@ import {
   Verb,
   AutoAction,
   addAutoAction,
-  gameOver
+  theEnd
 } from "../../../../../lib/gonorth";
 import {
   ABOARD_BOAT,
@@ -208,7 +208,7 @@ export const initSnug = () => {
                 "\"Oh, don't worry. She'll be fine. She'll wake up in a few hours and wonder what ever happened. But enough about her. I'm here for *you*, Genevieve. I was simply going to *eat* you, but you've proven yourself quite unexpectedly gifted in certain...arcane arts. It would be a terrible shame for that to go to waste. Come! We have fearful work to do.\"",
                 "With that, she snaps her fingers and, to your horror, your legs move unbidden, following the witch through the kitchen and out into the expectant dusk."
               ),
-              () => gameOver("THE END")
+              theEnd
             ];
           } else {
             store(ACROSS_LAKE, true);
