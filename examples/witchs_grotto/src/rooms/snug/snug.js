@@ -9,9 +9,11 @@ import {
   forget,
   SequentialText,
   JoinedText,
+  PagedText,
   Verb,
   AutoAction,
-  addAutoAction
+  addAutoAction,
+  gameOver
 } from "../../../../../lib/gonorth";
 import {
   ABOARD_BOAT,
@@ -21,6 +23,9 @@ import {
   TOY_BOAT_SOLIDITY
 } from "../../utils/persistentVariables";
 import { initCat } from "./cat";
+
+const DIRECTIONS = ["north", "south", "east", "west"];
+const OPEN_DIRECTIONS = ["north", "south"];
 
 let snug;
 let memoCard;
@@ -157,6 +162,82 @@ export const initSnug = () => {
           }
         })
         .isRemote()
+        .build(),
+      new Verb.Builder("row")
+        .withAliases("paddle")
+        .withTest(
+          ({ item, other }) =>
+            retrieve(PLAYER_TINY) &&
+            retrieve(ABOARD_BOAT) &&
+            retrieve(TOY_BOAT_MENDED) &&
+            item.container?.name === "lake" &&
+            ((!retrieve(ACROSS_LAKE) && other?.name === "south") ||
+              (retrieve(ACROSS_LAKE) && OPEN_DIRECTIONS.includes(other?.name)))
+        )
+        .withOnSuccess(({ other }) => {
+          const acrossLake = retrieve(ACROSS_LAKE);
+
+          if (acrossLake && other.name === "north") {
+            forget(ACROSS_LAKE);
+            return "Return to shore placeholder";
+          } else if (acrossLake && other.name === "south") {
+            forget(ACROSS_LAKE);
+            return [
+              "With a certain amount of trepidation, you paddle the boat slowly but surely into the tunnel mouth. Even as you pass beneath the threshold it remains completely pitch black within, giving no hint at what lies beyond.",
+              new PagedText(
+                "After a short while you turn your head to find that the opening to the cave has dropped further behind than you were expecting - there must be current drawing you along the tunnel. The opening is visible as a dim circle, only slightly brighter than the surrounding blackness."
+              ),
+              new SequentialText(
+                "Sounds are amplified in here, echoing back and forth along the rock walls of the tunnel. The sounds of water dripping from the roof just a couple of feet above your head and lapping at the sides of the boat reverberates loudly, disconcertingly. The space feels very small. It occurs to you that the stone roof could lower suddenly, or jut downwards in rocky outcrops and you'd be completely unaware of the approaching danger in the total darkness. Until you painfully, or even fatally, hit your head on something hard and sharp.",
+                "Loud bumping and scraping alerts you to the fact the boat is colliding with the tunnel wall. The undergound river must be rounding a bend. Using your hands to push off from the wall, you help to ease the boat round the curve. After giving the cold rock a good shove to push the boat back out into the middle of the tunnel, you're rewarded with a few moments of smooth travel before the boat bumps the wall on the other side. This continues for several minutes, the boat ricocheting from one side of the space to the other. You dearly hope this isn't doing any damage to the dinghy.",
+                "Finally, the channel straightens out again and you're afforded more smooth, uninterrupted progress. It's still utterly dark. You can't see your own hand held an inch from your face. You know the pace must have picked up, however, because you can feel a light breeze on your face and hear the sound of rushing water all around you. Any collision now could do serious damage to both you and the little vessel. You sink lower into the boat, choosing to sit on the floor of the hull rather than on the seat where you feel far too exposed.",
+                "Sitting huddled in the bottom of the wooden craft, bobbing along on the river's current, you don't immediately notice the grey light swelling around you. First you can dimly make out your shoes, then the end of the boat. Before long you can see the blacks and greens of the wet rock overhead. You're not moving as quickly now, you notice, so you scramble back up onto the seat and gaze along the shaft ahead of you. In front, about a hundred metres away is one of the most beautiful things you've ever seen. A ragged, almost circular opening, through which the river is flowing and daylight is streaming in. You've almost made it. Your heart beats wildly in your chest. You're going to make it!",
+                "A minute later the dinghy leaves the tunnel and you drift out into a glorious forest evening. You just sit there, barely able to believe it, as the river meanders through the trees in the light of the setting sun. Eventually you come to your senses and steer the boat towards a sandy bank where you moor it and hop out. Just as you do so, the shrink potion wears off, returning you to your normal size. You breathe a sigh of relief that it didn't happen inside the tunnel.",
+                "You know this place, you realise, as you look about you. You've come here to collect water, and to catch fish with Grandad. Just past the oaks over there is a winding path through the bracken that will lead back to the cottage where Mother will no doubt be waiting, wondering why you're not home yet. You set off quickly, keen to get back to safety and to leave this nightmare behind."
+              ),
+              new PagedText(
+                "The little path wends its way through the woods, just like you remember, past familiar bramble bushes, across familiar clearings and over familiar little streams. The sun is completely set by the time you emerge from beneath the slender beeches and see the tiny cottage where you live with Mother."
+              ),
+              new SequentialText(
+                "You enter through the kitchen door and call out, \"Mother! I'm back!\" but there's no reply. That's strange.",
+                'You head through into the living area but there\'s no sign of her in here, just the empty chairs where you sit down for meals. "Mother!" you call again, a little knot of unease forming in the pit of your stomach. Nothing.',
+                "She's not in the bedroom either. Where could she be? Perhaps she's out looking for you now, frantically scouring the woods for any sign. No, you haven't been gone *that* long. She wouldn't have resorted to that yet, would she?",
+                "You turn and step back through into the living room only for your blood to freeze and your heart to stop. You let out a scream. Standing by the kitchen door, staring menacingly straight at you, is the witch. She's found you.",
+                '"Hello, Genevieve," she says, in a voice as smooth as honey, a faint smile flickering on her lips. "Your mother\'s sleeping quite soundly out by the wood store. She must be exhausted with worry, the poor thing."',
+                '"What have you done to her?" you sob.',
+                "\"Oh, don't worry. She'll be fine. She'll wake up in a few hours and wonder what ever happened. But enough about her. I'm here for *you*, Genevieve. I was simply going to *eat* you, but you've proven yourself quite unexpectedly gifted in certain...arcane arts. It would be a terrible shame for that to go to waste. Come! We have fearful work to do.\"",
+                "With that, she snaps her fingers and, to your horror, your legs move unbidden, following the witch through the kitchen and out into the expectant dusk."
+              ),
+              () => gameOver("THE END")
+            ];
+          } else {
+            store(ACROSS_LAKE, true);
+            return new SequentialText(
+              "You take hold of the oar handles and begin rowing. Rhythmically, the blades slide into the water, heave forwards, and emerge, dripping silver droplets. Steadily, the boat inches across the lake.",
+              "Inky black water stretches away from the boat in all directions. You have no way of knowing how deep it is out here in the middle of the lake. In your mind, it stretches downwards, on and on, deeper and deeper into the bowels of the Earth. It descends for miles, hundreds of miles, maybe even forever. You picture the little boat and yourself in it, perched atop this infinite void and feel very small indeed.",
+              "Eventually, you reach the far side of the lake and come to rest beside the tunnel mouth you could see from the shore. Looking back that way, ripples set in motion by your passage across the water still spread over the otherwise smooth surface."
+            );
+          }
+        })
+        .withOnFailure(({ item, other }) => {
+          if (!retrieve(PLAYER_TINY)) {
+            return "The boat's a toy. You can't get in it.";
+          } else if (!retrieve(ABOARD_BOAT)) {
+            return "You'd need to be *on* the boat to row it.";
+          } else if (!retrieve(TOY_BOAT_MENDED)) {
+            return "The boat's not going anywhere with that giant hole in the hull.";
+          } else if (item.container?.name !== "lake") {
+            return "The boat would need to be in water to be rowed.";
+          } else if (!other || !DIRECTIONS.includes(other?.name)) {
+            return "Row which way?";
+          } else if (!OPEN_DIRECTIONS.includes(other?.name)) {
+            return "There's nothing of interest in that direction - just the solid rock walls of the cavern.";
+          } else if (!retrieve(ACROSS_LAKE) && other?.name === "north") {
+            return "You're already on the lake's northern shore.";
+          }
+        })
+        .isRemote()
+        .makePrepositional("which way", true)
         .build()
     )
     .build();

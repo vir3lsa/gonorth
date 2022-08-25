@@ -17,7 +17,7 @@ export const initCavern = () => {
     .withName("lake")
     .withAliases("body of water", "pond", "stream")
     .withDescription(
-      "It's a moderately-proportioned underground lake. Near the shore, the water's shallow and clear enough to see to the stoney bottom. Farther out, where the floor drops away to unknown depths, it's inky black and still. The lake stretches to the other side of the cavern, where a black opening in the rock reveals an underground river outlet."
+      "It's a moderately-proportioned underground lake. Near the shore, the water's shallow and clear enough to see to the stoney bottom. Farther out, where the floor drops away to unknown depths, it's inky black and still. The lake stretches to the southern side of the cavern, where a black opening in the rock reveals an underground river outlet."
     )
     .withCapacity(100)
     .withVerbs(
@@ -114,6 +114,12 @@ export const initCavern = () => {
     }
   );
 
-  cavern.addItems(lake, opening, bats);
+  // Directions we can row in.
+  const north = new Item.Builder("north").build();
+  const south = new Item.Builder("south").build();
+  const east = new Item.Builder("east").build();
+  const west = new Item.Builder("west").build();
+
+  cavern.addItems(lake, opening, bats, north, south, east, west);
   return cavern;
 };

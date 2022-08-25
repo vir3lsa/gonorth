@@ -135,7 +135,7 @@ export function play() {
   return titleScreenGraph.commence().chain();
 }
 
-export function gameOver() {
+export function gameOver(message = "GAME OVER") {
   const resurrectionText = new RandomText(
     "Groggily, you get to your feet.",
     "Had it been a premonition or just a bad dream? You shiver and try to forget it.",
@@ -144,7 +144,7 @@ export function gameOver() {
 
   const gameOverGraph = new OptionGraph("gameOver", {
     id: "root",
-    actions: new PagedText("# GAME OVER"),
+    actions: new PagedText(`# ${message}`),
     options: {
       "Reload checkpoint": {
         actions: [() => clearPage(), resurrectionText, resetToCheckpoint, () => goToRoom(selectRoom())],
