@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import TextField from "@material-ui/core/TextField";
+import TextField from "@mui/material/TextField";
 import { receiveInput } from "../game/input/inputReceiver";
 import { reactionTimePassed } from "../utils/sharedFunctions";
 

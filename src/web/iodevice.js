@@ -7,7 +7,7 @@ import { debounce } from "debounce";
 import { DecisionBar } from "./decisionBar";
 import { ParserBar } from "./parserBar";
 import { SceneImage } from "./sceneImage";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@mui/styles";
 
 const useStyles = makeStyles((theme) => ({
   scrollPane: {
