@@ -1,5 +1,5 @@
 import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 
 import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
@@ -57,7 +57,8 @@ function attach(container) {
 function renderTopLevel() {
   if (game.container) {
     game.component = <GoNorth />;
-    ReactDOM.render(game.component, game.container);
+    const root = createRoot(game.container);
+    root.render(game.component);
   }
 }
 

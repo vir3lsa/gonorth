@@ -8,6 +8,7 @@ import { DecisionBar } from "./decisionBar";
 import { ParserBar } from "./parserBar";
 import { SceneImage } from "./sceneImage";
 import { Box } from "@mui/system";
+import Feedback from "./Feedback";
 
 const debouncedScroll = debounce(
   () =>
@@ -39,11 +40,19 @@ const IODevice = (props) => {
         <ReactMarkdown children={interaction.currentPage} remarkPlugins={[remarkGfm]} className="gonorth" />
         <Element name="scrollTarget" />
       </Box>
-      {interaction.options && interaction.options.length ? (
-        <DecisionBar options={interaction.options} />
-      ) : (
-        <ParserBar />
-      )}
+      <Box sx={{ display: "flex", gap: 1, alignItems: "end", marginTop: 1 }}>
+        <Box sx={{ flex: 1 }}>
+          {interaction.options && interaction.options.length ? (
+            <DecisionBar options={interaction.options} />
+          ) : (
+            <ParserBar />
+          )}
+        </Box>
+        <div>
+          {/* div is the flex item here so we can potentially put multiple things inside it. */}
+          <Feedback />
+        </div>
+      </Box>
     </div>
   );
 };

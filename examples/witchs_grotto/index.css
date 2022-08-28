@@ -55,6 +55,11 @@ button.MuiButton-outlinedPrimary {
   border-color: rgba(255, 255, 255, 0.5);
 }
 
+button.MuiButton-outlinedSecondary {
+  font-family: "masaakiregular";
+  font-size: 1.2rem;
+}
+
 button.MuiButton-outlinedPrimary:hover {
   border-color: white;
 }

@@ -28,6 +28,7 @@ export const DecisionBar = props => {
             color="primary"
             onClick={() => selectOption(option)}
             ref={index === 0 ? buttonRef : null}
+            sx={{ marginBottom: 1 }}
           >
             {option.label}
           </Button>
