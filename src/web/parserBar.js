@@ -83,6 +83,7 @@ export const ParserBar = props => {
       onChange={handleChange}
       inputRef={inputRef}
       autoComplete="off"
+      variant="standard"
     />
   );
 };

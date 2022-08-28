@@ -67,7 +67,7 @@ div.MuiInputBase-root {
 }
 
 div.MuiInputBase-root:hover {
-  border-bottom: 2px solid rgba(255, 255, 255, 0.87);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.87);
 }
 
 div.MuiInput-underline:after {
