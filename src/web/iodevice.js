@@ -7,14 +7,7 @@ import { debounce } from "debounce";
 import { DecisionBar } from "./decisionBar";
 import { ParserBar } from "./parserBar";
 import { SceneImage } from "./sceneImage";
-import { makeStyles } from "@mui/styles";
-
-const useStyles = makeStyles((theme) => ({
-  scrollPane: {
-    flex: 2,
-    overflow: "auto"
-  }
-}));
+import { Box } from "@mui/system";
 
 const debouncedScroll = debounce(
   () =>
@@ -29,7 +22,6 @@ const debouncedScroll = debounce(
 
 const IODevice = (props) => {
   const { interaction } = props;
-  const classes = useStyles();
   useEffect(debouncedScroll, [interaction.currentPage]);
 
   return (
@@ -43,10 +35,10 @@ const IODevice = (props) => {
       }}
     >
       {props.image && <SceneImage />}
-      <div id="scrollPane" className={classes.scrollPane}>
+      <Box id="scrollPane" sx={{ flex: 2, overflow: "auto" }}>
         <ReactMarkdown children={interaction.currentPage} remarkPlugins={[remarkGfm]} className="gonorth" />
         <Element name="scrollTarget" />
-      </div>
+      </Box>
       {interaction.options && interaction.options.length ? (
         <DecisionBar options={interaction.options} />
       ) : (

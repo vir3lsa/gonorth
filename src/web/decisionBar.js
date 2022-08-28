@@ -27,7 +27,7 @@ export const DecisionBar = props => {
             variant="outlined"
             color="primary"
             onClick={() => selectOption(option)}
-            buttonRef={index === 0 ? buttonRef : null}
+            ref={index === 0 ? buttonRef : null}
           >
             {option.label}
           </Button>
