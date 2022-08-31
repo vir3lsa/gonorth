@@ -22,5 +22,11 @@ module.exports = (env) => ({
       }
     ]
   },
-  plugins: [new webpack.DefinePlugin({ UI_TEST_MODE: JSON.stringify((env && env.UI_TEST_MODE) || false) })]
+  plugins: [
+    new webpack.DefinePlugin({
+      DEBUG_MODE: JSON.stringify((env && env.DEBUG_MODE) || false),
+      UI_TEST_MODE: JSON.stringify((env && env.UI_TEST_MODE) || false),
+      USER_TEST_MODE: JSON.stringify((env && env.USER_TEST_MODE) || false)
+    })
+  ]
 });

@@ -114,7 +114,15 @@ export function createKeywords() {
     "Get a hint on how to proceed."
   );
 
-  const clear = new Verb("clear", true, () => clearPage("###### > clear"), null, ["clr"], true, "Start a fresh page.");
+  const clear = new Verb(
+    "clear",
+    true,
+    () => clearPage("###### `>` clear"),
+    null,
+    ["clr"],
+    true,
+    "Start a fresh page."
+  );
 
   const debug = newVerb({
     name: "debug",

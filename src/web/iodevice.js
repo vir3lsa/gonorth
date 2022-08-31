@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { Element, scroller } from "react-scroll";
 import { debounce } from "debounce";
 import { DecisionBar } from "./decisionBar";
@@ -23,6 +23,7 @@ const debouncedScroll = debounce(
 
 const IODevice = (props) => {
   const { interaction } = props;
+  const renderFeedbackBox = useSelector((state) => state.game.config.renderFeedbackBox);
   useEffect(debouncedScroll, [interaction.currentPage]);
 
   return (
@@ -50,7 +51,7 @@ const IODevice = (props) => {
         </Box>
         <div>
           {/* div is the flex item here so we can potentially put multiple things inside it. */}
-          <Feedback />
+          {renderFeedbackBox && <Feedback />}
         </div>
       </Box>
     </div>

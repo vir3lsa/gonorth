@@ -83,6 +83,18 @@ export const ParserBar = props => {
       onChange={handleChange}
       inputRef={inputRef}
       autoComplete="off"
+      color="primary"
+      sx={{
+        "& .MuiInput-root": {
+          borderColor: "#67778f",
+          "&:before": {
+            borderColor: "#67778f"
+          },
+          "&:hover:not(.Mui-disabled):before": {
+            borderBottom: "1px solid #9be"
+          }
+        }
+      }}
     />
   );
 };

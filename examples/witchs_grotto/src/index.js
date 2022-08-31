@@ -26,8 +26,10 @@ import { strengthTimer } from "./rooms/apothecary";
 import { RandomText } from "../../../lib/game/interactions/text";
 import { initHints } from "./utils/hints";
 
-// Variable injected by the Webpack Define plugin.
+// Variables injected by the Webpack Define plugin.
+const debugMode = DEBUG_MODE;
 const uiTestMode = UI_TEST_MODE;
+const userTestMode = USER_TEST_MODE;
 
 // The function that'll initialise all of the rooms and items etc.
 const setUpGrotto = () => {
@@ -50,12 +52,21 @@ initGame(
   "Rich Locke",
   {
     storeName: "grotto",
-    debugMode: true,
-    skipReactionTimes: uiTestMode
+    debugMode,
+    skipReactionTimes: uiTestMode,
+    renderFeedbackBox: userTestMode
   },
   setUpGrotto
 );
-setIntro("Now's your chance. Quickly! Make your escape whilst the witch is out.");
+const disclaimer =
+  "Thanks for helping to test The Witch of Bramble Wood. This game's very much a work-in-progress, so there *will* be bugs and incomplete content and features. It's vitally important that you report any issues you experience via the feedback button in the lower-right corner, so please make heavy use of it. Nothing's too small to report - a typo, an awkward-sounding sentence, something that didn't make sense, something that seemed to be missing - flag it all up and it'll go onto a big backlog of things for me to sort out.\n\nCheers!\n\nRich";
+const intro = ["Now's your chance. Quickly! Make your escape whilst the witch is out."];
+
+if (userTestMode) {
+  intro.unshift(disclaimer);
+}
+
+setIntro(intro);
 initHints("bedroom1");
 
 if (typeof document !== "undefined") {

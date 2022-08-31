@@ -8,8 +8,9 @@
     "test": "jest",
     "test:cypress": "cypress open",
     "coverage": "jest --coverage",
-    "start:grotto": "webpack-dev-server --config 'examples/witchs_grotto/webpack.config.web.js'",
-    "start:grotto-cypress": "webpack-dev-server --env UI_TEST_MODE --config 'examples/witchs_grotto/webpack.config.web.js'",
+    "start:grotto": "webpack-dev-server --env DEBUG_MODE --config 'examples/witchs_grotto/webpack.config.web.js'",
+    "start:grotto-cypress": "webpack-dev-server --env DEBUG_MODE --env UI_TEST_MODE --config 'examples/witchs_grotto/webpack.config.web.js'",
+    "start:grotto-user-test": "webpack-dev-server --env USER_TEST_MODE --config 'examples/witchs_grotto/webpack.config.web.js'",
     "start:bridges": "webpack-dev-server --config 'examples/bridges/webpack.config.web.js'"
   },
   "keywords": [],
