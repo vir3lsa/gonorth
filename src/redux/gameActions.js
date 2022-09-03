@@ -1,5 +1,5 @@
 import * as type from "./gameActionTypes";
-import { output, showOptions } from "../utils/consoleIO";
+import { output, getOptionsString } from "../utils/consoleIO";
 import { Parser } from "../game/input/parser";
 import { AppendInput, Append } from "../game/interactions/interaction";
 
@@ -15,7 +15,7 @@ export const changeInteraction = (interaction) => (dispatch, getState) => {
   const state = getState();
   const debugMode = selectDebugMode(state);
 
-  if (debugMode && !(interaction instanceof AppendInput)) {
+  if (!(interaction instanceof AppendInput)) {
     const currentOutput = interaction.currentPage;
     let currentOptions = interaction.options;
 
@@ -24,12 +24,31 @@ export const changeInteraction = (interaction) => (dispatch, getState) => {
       currentOptions = state.interaction.options;
     }
 
+    let newLog = "";
+
     if (currentOutput) {
-      output(currentOutput);
+      newLog += currentOutput;
+
+      if (debugMode) {
+        output(currentOutput);
+      }
     }
 
     if (currentOptions && currentOptions.length) {
-      showOptions(currentOptions);
+      const optionsString = getOptionsString(currentOptions);
+      newLog += newLog.length ? `\n\n${optionsString}` : optionsString;
+
+      if (debugMode) {
+        output(optionsString);
+      }
+    }
+
+    if (state.game.config.recordLogs) {
+      dispatch({
+        type: type.ADD_LOG_ENTRY,
+        payload: newLog,
+        playerTurn: false
+      });
     }
   }
 
@@ -58,6 +77,15 @@ export const receivePlayerInput = (input) => (dispatch, getState) => {
   });
 
   const state = getState();
+
+  if (state.game.config.recordLogs) {
+    dispatch({
+      type: type.ADD_LOG_ENTRY,
+      payload: input,
+      playerTurn: true
+    });
+  }
+
   const debugMode = selectDebugMode(state);
   const currentInput = selectPlayerInput(state);
 
@@ -171,10 +199,20 @@ export const setStartRoom = (startingRoom) => ({
   startingRoom
 });
 
-export const cyChoose = (choice) => ({
-  type: type.CY_CHOOSE,
-  cyChoose: choice
-});
+export const cyChoose = (choice) => (dispatch, getState) => {
+  if (getState().game.config.recordLogs) {
+    dispatch({
+      type: type.ADD_LOG_ENTRY,
+      payload: `[${choice}]`,
+      playerTurn: true
+    });
+  }
+
+  dispatch({
+    type: type.CY_CHOOSE,
+    cyChoose: choice
+  });
+};
 
 export const cyRecord = () => ({
   type: type.CY_RECORD

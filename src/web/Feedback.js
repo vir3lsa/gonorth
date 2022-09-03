@@ -1,5 +1,6 @@
 import { Button, Card, CardActions, CardContent, Paper, Popover, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
+import { selectRollingLog } from "../utils/selectors";
 
 const Feedback = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -15,7 +16,7 @@ const Feedback = () => {
     const feedbackObj = {
       feedback,
       name,
-      logs: []
+      logs: selectRollingLog()
     };
 
     setSubmittedFeedback(feedback);

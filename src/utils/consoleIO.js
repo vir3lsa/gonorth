@@ -10,7 +10,7 @@ export const debug = (text) => {
   }
 };
 
-export const showOptions = (options) => {
+export const getOptionsString = (options) => {
   const choices = options.map((option) => option.label).join(", ");
-  output(`Choose: ${choices}`);
+  return `Choose: ${choices}`;
 };

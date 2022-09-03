@@ -3,12 +3,14 @@ import { initStore } from "../redux/store";
 import { Item } from "../game/items/item";
 import { Effects } from "./effects";
 import { selectCurrentPage } from "./testSelectors";
+import { initGame } from "../gonorth";
 
 let effects;
 
 beforeEach(() => {
   unregisterStore();
   initStore();
+  initGame("Jolly Capers", "", { debugMode: false });
 
   const paint = new Item("paint");
   effects = new Effects();

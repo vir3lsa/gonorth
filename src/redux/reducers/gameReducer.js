@@ -7,6 +7,7 @@ import {
 import { Effects } from "../../utils/effects";
 
 const outputSnippetLength = 30;
+const ROLLING_LOG_LENGTH = 10;
 
 export const initialState = {
   turn: 1,
@@ -36,7 +37,8 @@ export const initialState = {
   eventTimeoutOverride: null,
   eventTurnsOverride: null,
   effects: new Effects(),
-  autoActions: []
+  autoActions: [],
+  rollingLog: []
 };
 
 export default function (state = initialState, action) {
@@ -165,6 +167,31 @@ export default function (state = initialState, action) {
       };
     case type.ADD_AUTO_ACTION:
       return { ...state, autoActions: [...state.autoActions, action.autoAction] };
+    case type.ADD_LOG_ENTRY:
+      let logObject;
+
+      if (action.playerTurn) {
+        logObject = { input: action.payload };
+        // Add a new log and limit the array's length.
+        return { ...state, rollingLog: [...state.rollingLog, logObject].slice(-ROLLING_LOG_LENGTH) };
+      } else {
+        logObject = state.rollingLog.at(-1);
+
+        if (!logObject) {
+          // This is the first log and it doesn't contain input.
+          logObject = { output: [action.payload] };
+          return { ...state, rollingLog: [logObject] };
+        }
+
+        if (logObject.output) {
+          logObject.output.push(action.payload);
+        } else {
+          logObject.output = [action.payload];
+        }
+
+        // Need to replace the last log with our modified one.
+        return { ...state, rollingLog: [...state.rollingLog.slice(0, -1), logObject] };
+      }
     default:
       return state;
   }

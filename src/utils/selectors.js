@@ -32,3 +32,4 @@ export const selectEventTurnsOverride = () => getStore().getState().eventTurnsOv
 export const selectEffects = () => getStore().getState().effects;
 export const selectItem = (name) => getStore().getState().items[name];
 export const selectAutoActions = () => getStore().getState().autoActions;
+export const selectRollingLog = () => getStore().getState().rollingLog;
