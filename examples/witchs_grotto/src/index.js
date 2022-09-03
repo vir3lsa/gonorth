@@ -25,6 +25,7 @@ import { initHottingUp } from "./rooms/insideOven";
 import { strengthTimer } from "./rooms/apothecary";
 import { RandomText } from "../../../lib/game/interactions/text";
 import { initHints } from "./utils/hints";
+import { handleSubmitFeedback } from "./utils/feedback";
 
 // Variables injected by the Webpack Define plugin.
 const debugMode = DEBUG_MODE;
@@ -55,7 +56,8 @@ initGame(
     debugMode,
     skipReactionTimes: uiTestMode,
     renderFeedbackBox: userTestMode,
-    recordLogs: userTestMode
+    recordLogs: userTestMode,
+    feedbackHandler: handleSubmitFeedback
   },
   setUpGrotto
 );

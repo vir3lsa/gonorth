@@ -1,6 +1,6 @@
-import { Button, Card, CardActions, CardContent, Paper, Popover, TextField, Typography } from "@mui/material";
+import { Button, Card, CardActions, CardContent, Popover, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
-import { selectRollingLog } from "../utils/selectors";
+import { selectConfig, selectRollingLog } from "../utils/selectors";
 
 const Feedback = () => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -13,16 +13,12 @@ const Feedback = () => {
   const id = open ? "feedback-popover" : undefined;
 
   const handleSubmit = () => {
-    const feedbackObj = {
-      feedback,
-      name,
-      logs: selectRollingLog()
-    };
-
+    // Store current values so we don't submit them again.
     setSubmittedFeedback(feedback);
     setSubmittedName(name);
 
-    console.log(feedbackObj);
+    // Call the feedback handler if one is present.
+    selectConfig()?.feedbackHandler?.(feedback, name, selectRollingLog());
   };
 
   return (
