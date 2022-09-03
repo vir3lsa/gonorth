@@ -1,7 +1,7 @@
 {
   "name": "gonorth",
   "version": "0.0.1",
-  "description": "",
+  "description": "A JavaScript interactive fiction engine",
   "main": "./lib/gonorth.js",
   "scripts": {
     "build": "babel src --out-dir lib --ignore '**/*.test.js' --source-maps 'inline'",
