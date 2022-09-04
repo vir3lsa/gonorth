@@ -1,8 +1,14 @@
 {
-  "name": "gonorth",
+  "name": "@vir3lsa/gonorth",
   "version": "0.0.1",
   "description": "A JavaScript interactive fiction engine",
   "main": "./lib/gonorth.js",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "build": "babel src --out-dir lib --ignore '**/*.test.js' --source-maps 'inline'",
     "test": "jest",
