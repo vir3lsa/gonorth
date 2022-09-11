@@ -1,6 +1,6 @@
 {
   "name": "@vir3lsa/gonorth",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "A JavaScript interactive fiction engine",
   "main": "./lib/gonorth.js",
   "publishConfig": {
@@ -11,13 +11,13 @@
   ],
   "scripts": {
     "build": "babel src --out-dir lib --ignore '**/*.test.js' --source-maps 'inline'",
+    "build:whiteroom": "webpack --env UI_TEST_MODE --config 'examples/white_room/webpack.config.js'",
+    "build:cypress": "npm run build && npm run build:whiteroom",
     "test": "jest",
     "test:cypress": "cypress open",
     "coverage": "jest --coverage",
-    "start:grotto": "webpack-dev-server --env DEBUG_MODE --config 'examples/witchs_grotto/webpack.config.web.js'",
-    "start:grotto-cypress": "webpack-dev-server --env DEBUG_MODE --env UI_TEST_MODE --config 'examples/witchs_grotto/webpack.config.web.js'",
-    "start:grotto-user-test": "webpack-dev-server --env USER_TEST_MODE --config 'examples/witchs_grotto/webpack.config.web.js'",
-    "start:bridges": "webpack-dev-server --config 'examples/bridges/webpack.config.web.js'"
+    "start:bridges": "webpack-dev-server --config 'examples/bridges/webpack.config.web.js'",
+    "start:whiteroom": "http-server examples/white_room/dist/"
   },
   "keywords": [],
   "author": "Rich Locke",
@@ -31,6 +31,7 @@
     "@babel/core": "7.6.0",
     "@babel/preset-env": "7.6.0",
     "@babel/preset-react": "7.0.0",
+    "css-loader": "6.7.1",
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "13.3.0",
     "@testing-library/user-event": "14.4.3",
@@ -38,6 +39,9 @@
     "cypress": "10.1.0",
     "jest": "27.2.0",
     "jest-extended": "0.11.5",
+    "html-webpack-plugin": "5.5.0",
+    "http-server": "14.1.1",
+    "style-loader": "3.3.1",
     "webpack": "5.73.0",
     "webpack-cli": "4.10.0",
     "webpack-dev-server": "4.9.2"

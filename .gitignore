@@ -2,7 +2,6 @@
 node_modules
 lib
 .vscode/
-dist-web/
-dist-server/
+dist/
 *.code-workspace
 coverage/

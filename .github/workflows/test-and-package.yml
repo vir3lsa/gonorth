@@ -58,12 +58,14 @@ jobs:
       - name: Cypress run
         uses: cypress-io/github-action@v4
         with:
-          build: npm run build
-          start: npm run start:grotto-cypress
+          build: npm run build:cypress
+          start: npm run start:whiteroom
   
   publish:
     name: Publish Package
-    needs: build
+    needs:
+      - unit-test
+      - cypress-run
     runs-on: ubuntu-latest 
     permissions: 
       contents: read

@@ -74,10 +74,11 @@ Cypress.Commands.add("say", (text, ...expected) => {
 Cypress.Commands.add("startGame", () => {
   cy.visit("http://localhost:8080/");
   cy.choose("play");
-  cy.shows("Now's your chance");
+  cy.shows("You awaken slowly");
+  cy.choose("next", "no idea where you are");
   cy.choose("next", "The game you're playing", { global: true });
   cy.choose("cancel help", "Good luck");
-  cy.choose("next", "smells of rotting Earth", { global: true });
+  cy.choose("next", "a nearly perfect cube", { global: true });
 });
 
 /**
@@ -95,8 +96,9 @@ Cypress.Commands.add("reloadGame", (...expected) => {
 Cypress.Commands.add("newGame", () => {
   cy.visit("http://localhost:8080/");
   cy.choose("new game", "want to continue?", { global: true });
-  cy.choose("yes", "Now's your chance", { global: true });
+  cy.choose("yes", "You awaken slowly", { global: true });
+  cy.choose("next", "no idea where you are");
   cy.choose("next", "The game you're playing", { global: true });
   cy.choose("cancel help", "Good luck");
-  cy.choose("next", "smells of rotting Earth", { global: true });
+  cy.choose("next", "a nearly perfect cube", { global: true });
 });
