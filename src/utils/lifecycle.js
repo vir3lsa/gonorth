@@ -1,6 +1,6 @@
 import { processEvent } from "./eventUtils";
 import { getPersistor, getStore } from "../redux/storeRegistry";
-import { selectConfig, selectEvents, selectGame, selectRoom, selectTurn } from "./selectors";
+import { selectConfig, selectEvents, selectGame, selectItem, selectRoom, selectTurn } from "./selectors";
 import {
   nextTurn,
   changeInteraction,
@@ -31,9 +31,21 @@ export async function handleTurnEnd() {
 }
 
 export function goToRoom(room) {
-  getStore().dispatch(changeRoom(room));
-  room.revealVisibleItems();
-  return room.actionChain;
+  let roomObj = typeof room === "string" ? [...selectItem(room)] : room;
+
+  if (Array.isArray(roomObj) && roomObj.length) {
+    roomObj = roomObj[0];
+  }
+
+  if (!roomObj?.isRoom) {
+    throw Error(
+      `Tried to change room but the object provided is not a Room. Its name field (if any) is: ${roomObj?.name}`
+    );
+  }
+
+  getStore().dispatch(changeRoom(roomObj));
+  roomObj.revealVisibleItems();
+  return roomObj.actionChain;
 }
 
 export function clearPage(newPage) {

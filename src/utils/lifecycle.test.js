@@ -1,23 +1,26 @@
 import { Item } from "../game/items/item";
 import { Room } from "../game/items/room";
-import { initGame } from "../gonorth";
+import { initGame, setStartingRoom } from "../gonorth";
 import { recordChanges } from "../redux/gameActions";
 import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { moveItem } from "./itemFunctions";
-import { checkpoint, deleteSave, loadSave } from "./lifecycle";
-import { selectInventory } from "./selectors";
+import { checkpoint, deleteSave, loadSave, goToRoom } from "./lifecycle";
+import { selectInventory, selectRoom } from "./selectors";
 
 jest.mock("./consoleIO");
 const consoleIO = require("./consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let mockStorage, ball, playground;
+let mockStorage, ball, playground, house;
 
 const initialiser = () => {
   ball = new Item("ball");
   playground = new Room("playground");
   playground.addItem(ball);
+
+  house = new Room("house");
+  playground.setWest(house);
 };
 
 beforeEach(() => {
@@ -32,6 +35,7 @@ beforeEach(() => {
     }
   };
   initGame("test", "", { debugMode: false }, initialiser);
+  setStartingRoom(playground);
 });
 
 test("delete save resets items to initial state", () => {
@@ -64,4 +68,21 @@ test("delete save resets items to initial state", () => {
   expect(ball.container.name).toBe("playground");
   expect(selectInventory().items.ball).toBeUndefined();
   expect(playground.items.ball).toBeDefined();
+});
+
+test("goToRoom fails if the object is not a room", () => {
+  expect(() => goToRoom(ball)).toThrowWithMessage(
+    Error,
+    "Tried to change room but the object provided is not a Room. Its name field (if any) is: ball"
+  );
+});
+
+test("goToRoom succeeds when a room object is passed", () => {
+  goToRoom(house);
+  expect(selectRoom()).toBe(house);
+});
+
+test("goToRoom succeeds when a room name is passed", () => {
+  goToRoom("house");
+  expect(selectRoom()).toBe(house);
 });
