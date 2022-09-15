@@ -1,6 +1,10 @@
-name: Test and Package
+name: Test
 
-on: [push]
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+    branches: [master, develop]
 
 jobs:
   build:
@@ -60,30 +64,3 @@ jobs:
         with:
           build: npm run build:cypress
           start: npm run start:whiteroom
-  
-  publish:
-    name: Publish Package
-    needs:
-      - unit-test
-      - cypress-run
-    runs-on: ubuntu-latest 
-    permissions: 
-      contents: read
-      packages: write 
-    steps:
-      - uses: actions/checkout@v3
-      - name: Download a single artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: lib-directory
-          path: lib
-      # Setup .npmrc file to publish to GitHub Packages
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '16.x'
-          registry-url: 'https://npm.pkg.github.com'
-          always-auth: true
-      - run: npm ci
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

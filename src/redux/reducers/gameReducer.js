@@ -206,14 +206,37 @@ function updateCyCommands(state, output, paged) {
     }
 
     // Construct the new Cypress command
+    let firstIndex = 0;
     const newLineIndex = output.indexOf("\n");
     const cutoffIndex = Math.min(newLineIndex, outputSnippetLength);
     const outputSnippet = output.substring(0, newLineIndex > -1 ? cutoffIndex : outputSnippetLength);
-    const lastIndex = Math.max(outputSnippet.lastIndexOf(" "), outputSnippet.lastIndexOf("."));
+    const lastIndex =
+      cutoffIndex > 0 && cutoffIndex < outputSnippetLength
+        ? outputSnippet.length
+        : Math.max(
+            outputSnippet.lastIndexOf(" "),
+            outputSnippet.lastIndexOf("."),
+            outputSnippet.lastIndexOf(","),
+            outputSnippet.lastIndexOf("?"),
+            outputSnippet.lastIndexOf("!")
+          );
     const input = state.cySay ? state.cySay : state.cyChoose;
     const firstOutput = !state.interaction.currentPage.includes("###### `>`") || paged;
-    const options = firstOutput ? ", { global: true }" : "";
-    const command = `cy.${funcName}("${input}", "${outputSnippet.substring(0, lastIndex)}"${options});`;
+    const h2 = outputSnippet.startsWith("## ");
+    const options = {};
+
+    if (firstOutput) {
+      options.global = true;
+    }
+
+    if (h2) {
+      options.element = "h2";
+      firstIndex = 3;
+    }
+
+    const command = `cy.${funcName}("${input}", "${outputSnippet.substring(firstIndex, lastIndex)}"${
+      Object.keys(options).length ? ", " + JSON.stringify(options) : ""
+    });`;
 
     // Update Cypress commands and remove the Cypress records so we don't add them again.
     return { ...state, cyCommands: [...state.cyCommands, command], cySay: null, cyChoose: null };

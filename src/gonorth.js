@@ -13,6 +13,7 @@ import { selectRoom, selectPlayer, selectStartingRoom, selectEffects, selectInve
 import { createKeywords } from "./game/verbs/keywords";
 import { AutoAction } from "./game/input/autoAction";
 import { playerHasItem } from "./utils/sharedFunctions";
+import seedrandom from "seedrandom";
 
 const game = {};
 
@@ -30,6 +31,9 @@ function initGame(title, author, config, initialiser) {
   game.hintGraph = getHintGraph();
   game.hintNode = "default";
   game.initialiser = initialiser;
+
+  // Seed the RNG for testing purposes.
+  seedrandom(config.randomSeed, { global: true });
 
   getStore().dispatch(setStartRoom(new Room("Empty Room", "The room is completely devoid of anything interesting.")));
 
