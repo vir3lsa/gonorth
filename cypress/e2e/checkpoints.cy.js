@@ -33,5 +33,8 @@ describe("basic checkpoint tests", () => {
     cy.newGame();
     cy.shows("strange device");
     cy.say("i", /(holding anything|carrying anything|got nothing|hands are empty)/);
+
+    // Check the 'auto take' action still exists (there was a defect where it was erased).
+    cy.say("put strange device on table", "You pick up the strange device", "You put the strange device on the table");
   });
 });

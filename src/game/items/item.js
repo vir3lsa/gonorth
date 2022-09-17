@@ -874,6 +874,11 @@ export class Builder {
     return this;
   }
 
+  withPreposition(preposition) {
+    this.config.preposition = preposition;
+    return this;
+  }
+
   build() {
     return newItem(this.config);
   }

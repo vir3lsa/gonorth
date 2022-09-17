@@ -3,16 +3,14 @@ import { createRoot } from "react-dom/client";
 
 import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
-import { addAutoInput, addEvent as eventAdded, newGame, setStartRoom } from "./redux/gameActions";
+import { addEvent as eventAdded, newGame, setStartRoom } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import { clearPage, createPlayer, goToRoom } from "./utils/lifecycle";
+import { clearPage, createPlayer, goToRoom, initAutoActions } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
 import { selectRoom, selectPlayer, selectStartingRoom, selectEffects, selectInventoryItems } from "./utils/selectors";
 import { createKeywords } from "./game/verbs/keywords";
-import { AutoAction } from "./game/input/autoAction";
-import { playerHasItem } from "./utils/sharedFunctions";
 import seedrandom from "seedrandom";
 
 const game = {};
@@ -64,21 +62,6 @@ function renderTopLevel() {
     const root = createRoot(game.container);
     root.render(game.component);
   }
-}
-
-function initAutoActions() {
-  const autoTakeItem = new AutoAction.Builder()
-    .withCondition(({ verb, item }) => !verb.remote && item?.holdable && !playerHasItem(item))
-    .withInputs(({ item }) => `take ${item.name}`)
-    .build();
-
-  const autoTakeOtherItem = new AutoAction.Builder()
-    .withCondition(({ verb, other }) => !verb.remote && other?.holdable && !playerHasItem(other))
-    .withInputs(({ other }) => `take ${other.name}`)
-    .build();
-
-  addAutoAction(autoTakeItem);
-  addAutoAction(autoTakeOtherItem);
 }
 
 /**
@@ -159,10 +142,6 @@ function addWildcardEffect(secondaryItem, verbName, successful, ...effects) {
   selectEffects().addWildcard(secondaryItem, verbName, successful, ...effects);
 }
 
-function addAutoAction(autoAction) {
-  getStore().dispatch(addAutoInput(autoAction));
-}
-
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door, newDoor, Key } from "./game/items/door";
@@ -175,7 +154,7 @@ export * from "./game/interactions/text";
 export { Schedule } from "./game/events/schedule";
 export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
-export { goToRoom, gameOver, theEnd, play } from "./utils/lifecycle";
+export { goToRoom, gameOver, theEnd, play, addAutoAction } from "./utils/lifecycle";
 export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
 export { selectInventory, selectInventoryItems, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
 export { ActionChain, Action } from "./utils/actionChain";
@@ -202,6 +181,5 @@ export {
   addHintNodes,
   setHintNodeId,
   addEffect,
-  addWildcardEffect,
-  addAutoAction
+  addWildcardEffect
 };

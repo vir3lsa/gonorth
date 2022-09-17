@@ -8,12 +8,15 @@ import {
   loadSnapshot,
   cleanState,
   setPlayer,
-  recordChanges
+  recordChanges,
+  addAutoInput
 } from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";
 import { Item } from "../game/items/item";
 import { RandomText, PagedText } from "../game/interactions/text";
 import { OptionGraph } from "../game/interactions/optionGraph";
+import { AutoAction } from "../game/input/autoAction";
+import { playerHasItem } from "./sharedFunctions";
 
 export async function handleTurnEnd() {
   const events = selectEvents();
@@ -81,6 +84,7 @@ export function resetStateToPrePlay() {
   getStore().dispatch(cleanState());
   createPlayer();
   selectGame().initialiser();
+  initAutoActions();
   getStore().dispatch(recordChanges());
 }
 
@@ -179,4 +183,23 @@ function endGame(message) {
 
   selectEvents().forEach((event) => event.cancel());
   return gameOverGraph.commence().chain();
+}
+
+export function initAutoActions() {
+  const autoTakeItem = new AutoAction.Builder()
+    .withCondition(({ verb, item }) => !verb.remote && item?.holdable && !playerHasItem(item))
+    .withInputs(({ item }) => `take ${item.name}`)
+    .build();
+
+  const autoTakeOtherItem = new AutoAction.Builder()
+    .withCondition(({ verb, other }) => !verb.remote && other?.holdable && !playerHasItem(other))
+    .withInputs(({ other }) => `take ${other.name}`)
+    .build();
+
+  addAutoAction(autoTakeItem);
+  addAutoAction(autoTakeOtherItem);
+}
+
+export function addAutoAction(autoAction) {
+  getStore().dispatch(addAutoInput(autoAction));
 }

@@ -30,7 +30,7 @@ initGame(
 function setUp() {
   const whiteRoom = new Room(
     "White Room",
-    "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nA corridor to the East leads to another room.",
+    "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nA corridor to the East leads to another room.",
     true
   );
 
@@ -46,6 +46,12 @@ function setUp() {
     .isHoldable()
     .withSize(2)
     .withDescription("It's a sleek metal object that fits neatly in your hand.")
+    .build();
+
+  const table = new Item.Builder("table")
+    .withCapacity(10)
+    .withDescription("It's plain white and waist height. It's flat enough to act as a table.")
+    .withPreposition("on")
     .build();
 
   const buttonActions = new RandomText(
@@ -68,7 +74,7 @@ function setUp() {
     )
     .build();
 
-  whiteRoom.addItems(strangeDevice, redButton, greenButton);
+  whiteRoom.addItems(strangeDevice, redButton, greenButton, table);
   setInventoryCapacity(10);
   setStartingRoom(whiteRoom);
 }

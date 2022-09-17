@@ -4,8 +4,8 @@ import { initGame, setStartingRoom } from "../gonorth";
 import { recordChanges } from "../redux/gameActions";
 import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { moveItem } from "./itemFunctions";
-import { checkpoint, deleteSave, loadSave, goToRoom } from "./lifecycle";
-import { selectInventory, selectRoom } from "./selectors";
+import { checkpoint, deleteSave, loadSave, goToRoom, resetStateToPrePlay } from "./lifecycle";
+import { selectAutoActions, selectInventory, selectRoom } from "./selectors";
 
 jest.mock("./consoleIO");
 const consoleIO = require("./consoleIO");
@@ -85,4 +85,10 @@ test("goToRoom succeeds when a room object is passed", () => {
 test("goToRoom succeeds when a room name is passed", () => {
   goToRoom("house");
   expect(selectRoom()).toBe(house);
+});
+
+// Had a defect where auto actions were lost - check it's fixed.
+test("resetStateToPrePlay restores auto actions", () => {
+  resetStateToPrePlay();
+  expect(selectAutoActions().length).toBe(2);
 });

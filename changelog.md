@@ -1,5 +1,10 @@
 # goNORTH Changelog
 
+## 0.1.3
+
+* 2022-09-17 Added 'withPreposition' function to Item.Builder.
+* 2022-09-17 Fixed defect where auto actions were lost on erasing a saved game and starting a new one.
+
 ## 0.1.2
 
 * 2022-09-15 Altered Github workflow to only create a package on release.
