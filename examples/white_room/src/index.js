@@ -48,6 +48,10 @@ function setUp() {
     .withDescription("It's a sleek metal object that fits neatly in your hand.")
     .build();
 
+  const apple = new Item.Builder("apple").isHoldable().withSize(1).withDescription("A juicy red apple.").build();
+
+  const orange = new Item.Builder("orange").isHoldable().withSize(1).withDescription("A round, waxy orange.").build();
+
   const table = new Item.Builder("table")
     .withCapacity(10)
     .withDescription("It's plain white and waist height. It's flat enough to act as a table.")
@@ -74,7 +78,7 @@ function setUp() {
     )
     .build();
 
-  whiteRoom.addItems(strangeDevice, redButton, greenButton, table);
+  whiteRoom.addItems(strangeDevice, redButton, greenButton, table, apple, orange);
   setInventoryCapacity(10);
   setStartingRoom(whiteRoom);
 }

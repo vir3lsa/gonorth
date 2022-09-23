@@ -16,17 +16,14 @@ describe("keywords", () => {
     cy.say("i");
     cy.showsLast(emptyInventoryRegex);
 
-    // Spawn some items
-    cy.say("debug spawn apple");
-    cy.say("debug spawn orange");
-    cy.say("debug spawn kitchen sink");
+    // Take some items
     cy.say("take apple");
     cy.say("take orange");
-    cy.say("take kitchen sink");
+    cy.say("take strange device");
 
     // List the items
     cy.say("i");
-    cy.showsLast("an apple, an orange, and a kitchen sink");
+    cy.showsLast("an apple, an orange, and a strange device");
   });
 
   it("lists keywords", () => {

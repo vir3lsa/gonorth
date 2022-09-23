@@ -1,5 +1,10 @@
 # goNORTH Changelog
 
+## Unreleased
+
+* 2022-09-22 Removed ability to spawn non-existent items.
+* 2022-09-17 Added 'add' alias to 'put' verb.
+
 ## 0.1.3
 
 * 2022-09-17 Added 'withPreposition' function to Item.Builder.

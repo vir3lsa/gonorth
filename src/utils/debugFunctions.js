@@ -22,7 +22,7 @@ Operations:
 - \`help\`                                         - show debug help
 - \`goto\` / \`go\`                                - go to a room
 - \`show\` / \`list\`                              - list something
-- \`spawn\` / \`create\` / \`make\`                - create an item
+- \`spawn\` / \`create\` / \`make\` / \`clone\`    - create an item
 - \`commence\` / \`graph\` / \`join\` / \`start \` - join an option graph at the specified node, or the default node
 - \`cypress\` / \`integration\` / \`test\`         - produce Cypress commands from the actions you perform
 - \`event\` / \`timeout\`                          - override event timeouts
@@ -98,6 +98,7 @@ export function handleDebugOperations(operation, ...args) {
     case "create":
     case "make":
     case "spawn":
+    case "clone":
       return spawn(args);
     case "commence":
     case "graph":
@@ -204,7 +205,7 @@ function spawn(args) {
   };
 
   if (!itemsWithName.length) {
-    item = newItem({ name: itemName, holdable: true });
+    return `No item with the name "${itemName}" found to clone.`;
   } else if (itemsWithName.length === 1) {
     item = itemsWithName[0].clone();
   } else {

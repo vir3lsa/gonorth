@@ -187,7 +187,7 @@ export class Item {
             return `You can't put ${article}${item.name} ${other.preposition} the ${other.name}.`;
           }
         },
-        ["place", "drop"]
+        ["place", "drop", "add"]
       );
 
       putVerb.makePrepositional("where");

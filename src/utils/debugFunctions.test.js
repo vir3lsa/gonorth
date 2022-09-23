@@ -104,10 +104,12 @@ describe("debugFunctions", () => {
   it("shows a warning if the option graph and node combination doesn't exist", () =>
     inputTest("debug commence letters 2", ["Unable to find option graph and node", "letters 2"]));
   it("allows cloned items to be taken", async () => {
-    await inputTest("debug spawn matches", "Spawned matches in Hall");
-    await inputTest("take matches", "the matches");
-    return inputTest("i", "You're carrying a matches");
+    await inputTest("debug spawn red ball", "Spawned red ball in Hall");
+    await inputTest("take red ball", "the red ball");
+    return inputTest("i", "You're carrying a red ball");
   });
+  it("doesn't allow new items to be spawned", () =>
+    inputTest("debug spawn monkey paw", 'No item with the name "monkey paw" found to clone.'));
   it("sets and retrieves persistent variables", async () => {
     await inputTest("debug variable store playerName Rich", "Variable stored.");
     return inputTest("debug variable retrieve playerName", "playerName: Rich");
