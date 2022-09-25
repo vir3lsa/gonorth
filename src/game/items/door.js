@@ -105,6 +105,18 @@ export class Door extends Item {
     this.recordAlteredProperty("key", key);
     this._key = key;
   }
+
+  tryUnlock() {
+    return this.verbs.unlock.attempt(this, this.key);
+  }
+
+  tryOpen() {
+    return this.verbs.open.attempt(this);
+  }
+
+  tryClose() {
+    return this.verbs.close.attempt(this);
+  }
 }
 
 /*
