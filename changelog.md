@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* 2022-09-24 Added verb shortcuts to Door.
 * 2022-09-22 Removed ability to spawn non-existent items.
 * 2022-09-17 Added 'add' alias to 'put' verb.
 

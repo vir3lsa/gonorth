@@ -83,6 +83,26 @@ test("keys must be Key instances", () => {
   expect(() => (door.key = new Item("key"))).toThrow("Keys must be Key instances.");
 });
 
+test("shortcut function can be used to unlock doors", async () => {
+  await door.tryUnlock();
+  expect(door.locked).toBe(false);
+  expect(selectCurrentPage()).toInclude("unlocks with a soft *click*");
+});
+
+test("shortcut function can be used to open doors", async () => {
+  door.locked = false;
+  await door.tryOpen();
+  expect(door.open).toBe(true);
+  expect(selectCurrentPage()).toInclude("opens relatively easily");
+});
+
+test("shortcut function can be used to close doors", async () => {
+  door.open = true;
+  await door.tryClose();
+  expect(door.open).toBe(false);
+  expect(selectCurrentPage()).toInclude("close the heavy oak door");
+});
+
 describe("serialization", () => {
   beforeEach(() => {
     getStore().dispatch(recordChanges());
