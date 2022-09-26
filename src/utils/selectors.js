@@ -21,6 +21,7 @@ export const selectAllItemNames = () => getStore().getState().allItemNames;
 export const selectItems = () => getStore().getState().items;
 export const selectAllItems = () => getStore().getState().allItems;
 export const selectOptionGraphs = () => getStore().getState().optionGraphs;
+export const selectOptionGraph = (name) => getStore().getState().optionGraphs[name];
 export const selectConfig = () => getStore().getState().game.config;
 export const selectActionChainPromise = () => getStore().getState().actionChainPromise;
 export const selectEvents = () => getStore().getState().events;

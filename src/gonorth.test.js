@@ -1,5 +1,16 @@
-import { initGame, play, addEvent, attach, goToStartingRoom, setStartingRoom, setInventoryCapacity } from "./gonorth";
+import {
+  initGame,
+  play,
+  addEvent,
+  attach,
+  goToStartingRoom,
+  selectOptionGraph,
+  setStartingRoom,
+  setInventoryCapacity,
+  getItem
+} from "./gonorth";
 import { unregisterStore } from "./redux/storeRegistry";
+import { Item } from "./game/items/item";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { Verb } from "./game/verbs/verb";
@@ -9,6 +20,7 @@ import { Parser } from "./game/input/parser";
 import { selectInventory, selectRoom, selectTurn } from "./utils/selectors";
 import { selectCurrentPage } from "./utils/testSelectors";
 import { clickNext, deferAction } from "./utils/testFunctions";
+import { OptionGraph } from "./game/interactions/optionGraph";
 
 const title = "Space Auctioneer 2";
 
@@ -195,4 +207,14 @@ describe("goNORTH", () => {
     play();
     expect(consoleIO.output.mock.calls[0][0]).toInclude("# Space Auctioneer 2");
   });
+});
+
+test("getItem can be used to retrieve items from the store", () => {
+  new Item.Builder("toolbox").withDescription("red and angular").build();
+  expect(getItem("toolbox").description).toBe("red and angular");
+});
+
+test("selectOptionGraph can be used to retrieve option graphs from the store", () => {
+  new OptionGraph.Builder("test").withNodes(new OptionGraph.NodeBuilder("root")).build();
+  expect(selectOptionGraph("test").nodes.length).toBe(1);
 });

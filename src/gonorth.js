@@ -9,7 +9,14 @@ import { ActionChain } from "./utils/actionChain";
 import { clearPage, createPlayer, goToRoom, initAutoActions } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import { GoNorth } from "./web/GoNorth";
-import { selectRoom, selectPlayer, selectStartingRoom, selectEffects, selectInventoryItems } from "./utils/selectors";
+import {
+  selectRoom,
+  selectPlayer,
+  selectStartingRoom,
+  selectEffects,
+  selectInventoryItems,
+  selectItem
+} from "./utils/selectors";
 import { createKeywords } from "./game/verbs/keywords";
 import seedrandom from "seedrandom";
 
@@ -142,6 +149,21 @@ function addWildcardEffect(secondaryItem, verbName, successful, ...effects) {
   selectEffects().addWildcard(secondaryItem, verbName, successful, ...effects);
 }
 
+/**
+ * Get an item from the store with the provided name or alias.
+ * @param {string} name The name or alias of the item
+ * @param {*} index (Optional) The index of the item if there are multiple items with the provided alias. Defaults to 0.
+ * @returns A item with the given alias, or undefined.
+ */
+function getItem(name, index = 0) {
+  const itemSet = selectItem(name);
+
+  if (itemSet?.size) {
+    const items = [...itemSet];
+    return items[index];
+  }
+}
+
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door, newDoor, Key } from "./game/items/door";
@@ -156,7 +178,14 @@ export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
 export { goToRoom, gameOver, theEnd, play, addAutoAction } from "./utils/lifecycle";
 export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
-export { selectInventory, selectInventoryItems, selectRoom, selectTurn, selectPlayer } from "./utils/selectors";
+export {
+  selectInventory,
+  selectInventoryItems,
+  selectOptionGraph,
+  selectRoom,
+  selectTurn,
+  selectPlayer
+} from "./utils/selectors";
 export { ActionChain, Action } from "./utils/actionChain";
 export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 export { inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";
@@ -176,6 +205,7 @@ export {
   addSchedule,
   setInventoryCapacity,
   getHelp,
+  getItem,
   setHelp,
   giveHint,
   addHintNodes,
