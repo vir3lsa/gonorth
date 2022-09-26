@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## 0.2.0
+
+* 2022-09-25 Exported 'getItem' and 'selectOptionGraph' functions.
+
 ## 0.1.4
 
 * 2022-09-24 Added verb shortcuts to Door.
