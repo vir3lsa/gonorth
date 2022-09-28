@@ -1,5 +1,10 @@
 # goNORTH Changelog
 
+## 0.3.0
+
+* 2022-09-28 Made 'selectEffects' selector available externally.
+* 2022-09-28 Added default message when trying to go through a closed door.
+
 ## 0.2.0
 
 * 2022-09-25 Exported 'getItem' and 'selectOptionGraph' functions.

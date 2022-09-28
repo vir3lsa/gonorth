@@ -179,6 +179,7 @@ export { Npc } from "./game/items/npc";
 export { goToRoom, gameOver, theEnd, play, addAutoAction } from "./utils/lifecycle";
 export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
 export {
+  selectEffects,
   selectInventory,
   selectInventoryItems,
   selectOptionGraph,
