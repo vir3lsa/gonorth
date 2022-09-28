@@ -32,6 +32,7 @@ export class Room extends Item {
 
   addAdjacentRoom(room, directionName, navigable, onSuccess, failureText) {
     let test = navigable;
+    let failText = failureText;
 
     if (typeof navigable === "undefined") {
       test = () => true;
@@ -39,6 +40,7 @@ export class Room extends Item {
       test = () => navigable;
     } else if (navigable instanceof Door) {
       test = () => navigable.open;
+      failText = failText || `The ${navigable.name} is closed.`;
     }
 
     const onSuccessArray = !onSuccess || Array.isArray(onSuccess) ? onSuccess : [onSuccess];
@@ -48,7 +50,7 @@ export class Room extends Item {
       room,
       test,
       onSuccess: onSuccessArray,
-      failureText,
+      failureText: failText,
       direction
     };
 

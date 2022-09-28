@@ -8,6 +8,7 @@ import { Parser } from "../input/parser";
 import { selectInteraction, selectCurrentPage } from "../../utils/testSelectors";
 import { clickNext } from "../../utils/testFunctions";
 import { selectRoom } from "../../utils/selectors";
+import { Door } from "./door";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -157,6 +158,12 @@ describe("Room", () => {
       hall.setSouth(null, false, null, "You can't walk through walls");
       await new Parser("south").parse();
       expect(selectCurrentPage()).toBe("You can't walk through walls");
+    });
+
+    it("refers to the door when it's closed", async () => {
+      hall.setSouth(null, new Door("gate", "iron", false));
+      await new Parser("south").parse();
+      expect(selectCurrentPage()).toBe("The gate is closed.");
     });
 
     it("prints a message when successfully going in a direction", async () => {
