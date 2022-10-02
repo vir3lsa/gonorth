@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2022-10-02 Added feedback component integration tests.
+
 ## 0.3.0
 
 * 2022-09-28 Made 'selectEffects' selector available externally.
