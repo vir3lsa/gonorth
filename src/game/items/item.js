@@ -879,6 +879,11 @@ export class Builder {
     return this;
   }
 
+  withArticle(article) {
+    this.config.article = article;
+    return this;
+  }
+
   build() {
     return newItem(this.config);
   }

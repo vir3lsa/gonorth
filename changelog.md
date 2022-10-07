@@ -1,7 +1,10 @@
 # goNORTH Changelog
 
-# Unreleased
+# 0.4.0
 
+* 2022-10-07 Made containers unlockable with or without keys.
+* 2022-10-03 Added 'withArticle' function to ItemBulder.
+* 2022-10-02 Added 'withOpenText' and 'withCloseText' functions to ContainerBuilder.
 * 2022-10-02 Added feedback component integration tests.
 
 ## 0.3.0
