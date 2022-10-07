@@ -71,8 +71,15 @@ Cypress.Commands.add("say", (text, ...expected) => {
 /**
  * Starts a brand new game, (automatically) deleting any previous save game.
  */
-Cypress.Commands.add("startGame", () => {
-  cy.visit("http://localhost:8080/");
+Cypress.Commands.add("startGame", (options = {}) => {
+  const visitOptions = options.monitorConsole
+    ? {
+        onBeforeLoad(win) {
+          cy.stub(win.console, "log").as("consoleLog");
+        }
+      }
+    : {};
+  cy.visit("http://localhost:8080/", visitOptions);
   cy.choose("play");
   cy.shows("You awaken slowly");
   cy.choose("next", "no idea where you are");

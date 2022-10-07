@@ -6,6 +6,7 @@ import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Container } from "./container";
 import { selectCurrentPage } from "../../utils/testSelectors";
 import { clearPage } from "../../utils/lifecycle";
+import { Key } from "./door";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -71,6 +72,26 @@ describe("serialization", () => {
     box.alreadyClosedText = "it be already closed";
     expectRecordedProperties(box, "alreadyClosedText");
   });
+
+  test("changes to wrongKeyText are recorded", () => {
+    box.wrongKeyText = "it be the wrong key";
+    expectRecordedProperties(box, "wrongKeyText");
+  });
+
+  test("changes to needsKeyText are recorded", () => {
+    box.needsKeyText = "it be needing a key";
+    expectRecordedProperties(box, "needsKeyText");
+  });
+
+  test("changes to alreadyUnlockedText are recorded", () => {
+    box.alreadyUnlockedText = "it be already unlocked";
+    expectRecordedProperties(box, "alreadyUnlockedText");
+  });
+
+  test("changes to unlockSuccessText are recorded", () => {
+    box.unlockSuccessText = "it unlocked";
+    expectRecordedProperties(box, "unlockSuccessText");
+  });
 });
 
 describe("container", () => {
@@ -101,6 +122,14 @@ describe("container", () => {
       .withClosedDescription("closed")
       .withOpenDescription("open")
       .withPreposition("within")
+      .withOpenText("it opens")
+      .withCloseText("it closes")
+      .isLockable()
+      .withKey("key obj")
+      .withWrongKeyText("wrong key")
+      .withNeedsKeyText("needs key")
+      .withAlreadyUnlockedText("already unlocked")
+      .withUnlockSuccessText("unlocked")
       .build();
     expect(bucket.name).toBe("bucket");
     expect(bucket.aliases).toEqual(["pale"]);
@@ -113,6 +142,14 @@ describe("container", () => {
     expect(bucket.containerListing).toBe("there's a bucket in here");
     expect(bucket.preposition).toBe("within");
     expect(bucket.locked).toBe(false);
+    expect(bucket.openText).toBe("it opens");
+    expect(bucket.closeText).toBe("it closes");
+    expect(bucket.lockable).toBe(true);
+    expect(bucket.key).toBe("key obj");
+    expect(bucket.wrongKeyText).toBe("wrong key");
+    expect(bucket.needsKeyText).toBe("needs key");
+    expect(bucket.alreadyUnlockedText).toBe("already unlocked");
+    expect(bucket.unlockSuccessText).toBe("unlocked");
 
     bucket.verbs.close.remote = true;
     await bucket.verbs.close.attempt(bucket);
@@ -187,5 +224,43 @@ describe("container", () => {
       .build();
     await lockbox.verbs.close.attempt(lockbox);
     expect(selectCurrentPage()).toBe("chained open");
+  });
+
+  test("can be unlocked without a key", async () => {
+    const lockbox = new Container.Builder("lockbox").isLockable().isLocked().build();
+    await lockbox.verbs.unlock.attempt(lockbox);
+    expect(lockbox.locked).toBe(false);
+    expect(selectCurrentPage()).toBe("The lockbox unlocks with a soft *click*.");
+  });
+
+  test("can be unlocked with a key", async () => {
+    const key = new Key.Builder("key").build();
+    const lockbox = new Container.Builder("lockbox").isLockable().isLocked().withKey(key).build();
+    await lockbox.verbs.unlock.attempt(lockbox, key);
+    expect(lockbox.locked).toBe(false);
+    expect(selectCurrentPage()).toBe("The key turns easily in the lock.");
+  });
+
+  test("fails to unlock when a key is required", async () => {
+    const key = new Key.Builder("key").build();
+    const lockbox = new Container.Builder("lockbox").isLockable().isLocked().withKey(key).build();
+    await lockbox.verbs.unlock.attempt(lockbox);
+    expect(lockbox.locked).toBe(true);
+    expect(selectCurrentPage()).toBe("The lockbox appears to need a key.");
+  });
+
+  test("fails to unlock with the wrong key", async () => {
+    const key = new Key.Builder("key").build();
+    const lockbox = new Container.Builder("lockbox").isLockable().isLocked().withKey(key).build();
+    await lockbox.verbs.unlock.attempt(lockbox, new Key.Builder("rusty key").build());
+    expect(lockbox.locked).toBe(true);
+    expect(selectCurrentPage()).toBe("The key doesn't fit.");
+  });
+
+  test("can't be unlocked if it's already unlocked", async () => {
+    const lockbox = new Container.Builder("lockbox").isLockable().isLocked(false).build();
+    await lockbox.verbs.unlock.attempt(lockbox);
+    expect(lockbox.locked).toBe(false);
+    expect(selectCurrentPage()).toBe("The lockbox is already unlocked.");
   });
 });

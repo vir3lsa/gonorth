@@ -117,12 +117,14 @@ describe("builder tests", () => {
       .isHoldable()
       .withSize(1)
       .withAliases("pope")
+      .withArticle("thy")
       .build();
     expect(pipe.name).toBe("pipe");
     expect(pipe.description).toBe("This is not a pipe");
     expect(pipe.holdable).toBe(true);
     expect(pipe.size).toBe(1);
     expect(pipe.aliases).toInclude("pope");
+    expect(pipe.article).toBe("thy");
   });
 
   test("items built with a builder have the correct verbs", () => {

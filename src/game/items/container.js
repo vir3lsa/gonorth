@@ -16,6 +16,8 @@ export function newContainer(config) {
     size,
     closeable,
     verbs,
+    lockable,
+    key,
     ...remainingConfig
   } = config;
   const container = new Container(
@@ -29,7 +31,9 @@ export function newContainer(config) {
     open,
     holdable,
     size,
-    closeable
+    closeable,
+    lockable,
+    key
   );
 
   if (verbs) {
@@ -53,7 +57,9 @@ export class Container extends Item {
     open = false,
     holdable = false,
     size = 1,
-    closeable = true
+    closeable = true,
+    lockable = false,
+    key
   ) {
     const dynamicOpenDescription = createDynamicText(openDescription);
     const dynamicClosedDescription = createDynamicText(closedDescription);
@@ -72,11 +78,16 @@ export class Container extends Item {
     this.open = open;
     this.locked = locked;
     this.closeable = closeable;
+    this.lockable = lockable;
+    this.key = key;
     this.lockedText = `The ${this.name} is locked.`;
     this.openText = `The ${this.name} opens easily.`;
     this.alreadyOpenText = `The ${this.name} is already open.`;
     this.closeText = `You close the ${this.name} with a soft thud.`;
     this.alreadyClosedText = `The ${this.name} is already closed.`;
+    this.wrongKeyText = `The key doesn't fit.`;
+    this.needsKeyText = `The ${name} appears to need a key.`;
+    this.alreadyUnlockedText = `The ${name} is already unlocked.`;
 
     if (this.closeable) {
       this.openVerb = new Verb(
@@ -114,6 +125,33 @@ export class Container extends Item {
       );
 
       this.addVerbs(this.openVerb, this.closeVerb);
+    }
+
+    if (this.lockable) {
+      this.addVerb(
+        new Verb.Builder("unlock")
+          .withTest(({ item: door, other: key }) => door.locked && (door.key ? door.key.name === key?.name : true))
+          .withOnSuccess(
+            ({ item: container }) => {
+              // Ensure we don't return false to avoid breaking the action chain.
+              container.locked = false;
+            },
+            ({ item: container }) =>
+              this.unlockSuccessText ||
+              (container.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)
+          )
+          .withOnFailure(({ item: container, other: key }) => {
+            if (container.key && key && container.key.name !== key.name) {
+              return this.wrongKeyText;
+            } else if (container.key && !key) {
+              return this.needsKeyText;
+            } else {
+              return this.alreadyUnlockedText;
+            }
+          })
+          .makePrepositional("with what", true)
+          .build()
+      );
     }
   }
 
@@ -188,6 +226,42 @@ export class Container extends Item {
     this._alreadyClosedText = text;
   }
 
+  get wrongKeyText() {
+    return this._wrongKeyText;
+  }
+
+  set wrongKeyText(text) {
+    this._wrongKeyText = text;
+    this.recordAlteredProperty("wrongKeyText", text);
+  }
+
+  get needsKeyText() {
+    return this._needsKeyText;
+  }
+
+  set needsKeyText(text) {
+    this._needsKeyText = text;
+    this.recordAlteredProperty("needsKeyText", text);
+  }
+
+  get alreadyUnlockedText() {
+    return this._alreadyUnlockedText;
+  }
+
+  set alreadyUnlockedText(text) {
+    this._alreadyUnlockedText = text;
+    this.recordAlteredProperty("alreadyUnlockedText", text);
+  }
+
+  get unlockSuccessText() {
+    return this._unlockSuccessText;
+  }
+
+  set unlockSuccessText(text) {
+    this._unlockSuccessText = text;
+    this.recordAlteredProperty("unlockSuccessText", text);
+  }
+
   static get Builder() {
     return Builder;
   }
@@ -233,8 +307,18 @@ class Builder {
     return this;
   }
 
+  withCloseText(closeText) {
+    this.config.closeText = closeText;
+    return this;
+  }
+
   withClosedDescription(closedDescription) {
     this.config.closedDescription = closedDescription;
+    return this;
+  }
+
+  withOpenText(openText) {
+    this.config.openText = openText;
     return this;
   }
 
@@ -275,6 +359,36 @@ class Builder {
 
   isItemsVisibleFromSelf(itemsVisibleFromSelf = true) {
     this.config.itemsVisibleFromSelf = itemsVisibleFromSelf;
+    return this;
+  }
+
+  isLockable(lockable = true) {
+    this.config.lockable = lockable;
+    return this;
+  }
+
+  withKey(key) {
+    this.config.key = key;
+    return this;
+  }
+
+  withWrongKeyText(text) {
+    this.config.wrongKeyText = text;
+    return this;
+  }
+
+  withNeedsKeyText(text) {
+    this.config.needsKeyText = text;
+    return this;
+  }
+
+  withAlreadyUnlockedText(text) {
+    this.config.alreadyUnlockedText = text;
+    return this;
+  }
+
+  withUnlockSuccessText(text) {
+    this.config.unlockSuccessText = text;
     return this;
   }
 

@@ -20,8 +20,8 @@ initGame(
     debugMode: true,
     skipReactionTimes: true,
     renderFeedbackBox: true,
-    recordLogs: false,
-    feedbackHandler: (x) => x,
+    recordLogs: true,
+    feedbackHandler: (feedback, name, logs) => console.log({ feedback, name, logs }),
     randomSeed: "white-room."
   },
   setUp
