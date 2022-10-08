@@ -92,6 +92,11 @@ describe("serialization", () => {
     box.unlockSuccessText = "it unlocked";
     expectRecordedProperties(box, "unlockSuccessText");
   });
+
+  test("changes to key are recorded", () => {
+    box.key = new Key.Builder("key").build();
+    expectRecordedProperties(box, "key");
+  });
 });
 
 describe("container", () => {
@@ -262,5 +267,13 @@ describe("container", () => {
     await lockbox.verbs.unlock.attempt(lockbox);
     expect(lockbox.locked).toBe(false);
     expect(selectCurrentPage()).toBe("The lockbox is already unlocked.");
+  });
+
+  test("can be given a key by name", async () => {
+    const key = new Key.Builder("key").build();
+    const lockbox = new Container.Builder("lockbox").isLockable().isLocked().withKey("key").build();
+    await lockbox.verbs.unlock.attempt(lockbox, key);
+    expect(lockbox.locked).toBe(false);
+    expect(selectCurrentPage()).toBe("The key turns easily in the lock.");
   });
 });

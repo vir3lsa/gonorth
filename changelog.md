@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2022-10-08 Allowed containers to be given keys by name.
+
 # 0.4.0
 
 * 2022-10-07 Made containers unlockable with or without keys.

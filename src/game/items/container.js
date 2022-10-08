@@ -130,7 +130,10 @@ export class Container extends Item {
     if (this.lockable) {
       this.addVerb(
         new Verb.Builder("unlock")
-          .withTest(({ item: door, other: key }) => door.locked && (door.key ? door.key.name === key?.name : true))
+          .withTest(
+            ({ item: container, other: key }) =>
+              container.locked && (container.key ? container.key === key?.name : true)
+          )
           .withOnSuccess(
             ({ item: container }) => {
               // Ensure we don't return false to avoid breaking the action chain.
@@ -141,7 +144,7 @@ export class Container extends Item {
               (container.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)
           )
           .withOnFailure(({ item: container, other: key }) => {
-            if (container.key && key && container.key.name !== key.name) {
+            if (container.key && key && container.key !== key.name) {
               return this.wrongKeyText;
             } else if (container.key && !key) {
               return this.needsKeyText;
@@ -260,6 +263,17 @@ export class Container extends Item {
   set unlockSuccessText(text) {
     this._unlockSuccessText = text;
     this.recordAlteredProperty("unlockSuccessText", text);
+  }
+
+  get key() {
+    return this._key;
+  }
+
+  set key(key) {
+    if (key) {
+      this._key = typeof key === "string" ? key : key.name;
+      this.recordAlteredProperty("key", this._key);
+    }
   }
 
   static get Builder() {
