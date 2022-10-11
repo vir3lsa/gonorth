@@ -129,12 +129,14 @@ export class Item {
           .withAliases("pick up", "steal", "grab", "hold")
           .withTest(({ item }) => {
             const inventory = selectInventory();
-            return (
-              item.container.itemsVisibleFromSelf &&
-              item.container.open !== false &&
-              item.container !== inventory &&
-              (inventory.capacity === -1 || item.size <= inventory.free)
-            );
+            let containerTest = true;
+
+            if (item.container) {
+              containerTest =
+                item.container.itemsVisibleFromSelf && item.container.open !== false && item.container !== inventory;
+            }
+
+            return containerTest && (inventory.capacity === -1 || item.size <= inventory.free);
           })
           .withOnSuccess(({ item }) => {
             const container = item.container;

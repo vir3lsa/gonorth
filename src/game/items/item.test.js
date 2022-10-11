@@ -107,6 +107,12 @@ describe("basic item tests", () => {
     await cup.try("take");
     expect(selectCurrentPage()).toInclude("already carrying");
   });
+
+  test("items with no container may be taken programmatically", async () => {
+    const dog = new Item.Builder("dog").isHoldable().build();
+    await dog.try("take");
+    expect(selectInventory().items["dog"]).not.toBeUndefined();
+  });
 });
 
 describe("builder tests", () => {
