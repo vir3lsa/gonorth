@@ -2,6 +2,7 @@
 
 ## 0.4.1
 
+* 2022-10-11 Disabled Cypress video.
 * 2022-10-10 Allowed items to be taken when they have no container.
 * 2022-10-08 Allowed containers to be given keys by name.
 
