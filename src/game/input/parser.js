@@ -119,15 +119,6 @@ export class Parser {
                 return this.giveFeedback();
               }
 
-              if (this.indirectItem) {
-                // See if there's an effect for this combination of items and verb.
-                const effectResult = selectEffects().apply(item, this.indirectItem, this.actualVerb.name);
-
-                if (effectResult) {
-                  return effectResult.chain({ item });
-                }
-              }
-
               // If there's no effect registered (or no indirect item), try the verb as usual.
               return item.try(possibleVerb, this.indirectItem);
             }

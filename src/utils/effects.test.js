@@ -14,10 +14,16 @@ beforeEach(() => {
 
   const paint = new Item("paint");
   effects = new Effects();
-  effects.add(paint, new Item("canvas"), "apply", true, "A beautiful picture appears on the canvas.");
-  effects.add(paint, new Item("face"), "apply", false, "It's the wrong kind of paint for face painting.");
-  effects.addWildcard("pool", "put", true, ({ item }) => `The ${item.name} hits the water with a splash.`);
-  effects.addWildcard("fire", "put", false, ({ item }) => `The ${item.name} doesn't seem to want to catch fire.`);
+  effects.add(paint, new Item("canvas"), "apply", true, false, "A beautiful picture appears on the canvas.");
+  effects.add(paint, new Item("face"), "apply", false, false, "It's the wrong kind of paint for face painting.");
+  effects.addWildcard("pool", "put", true, false, ({ item }) => `The ${item.name} hits the water with a splash.`);
+  effects.addWildcard(
+    "fire",
+    "put",
+    false,
+    false,
+    ({ item }) => `The ${item.name} doesn't seem to want to catch fire.`
+  );
 });
 
 test("we can ask whether an item will have an effect on another item", () => {
@@ -48,7 +54,7 @@ test("effects are realised even when considered unsuccessful", async () => {
 });
 
 test("effects can be added using item names", async () => {
-  effects.add("cat", "dog", "pit", true, "The cat bests the dog");
+  effects.add("cat", "dog", "pit", true, false, "The cat bests the dog");
   await effects.apply("cat", "dog", "pit").chain();
   expect(selectCurrentPage()).toInclude("The cat bests");
 });

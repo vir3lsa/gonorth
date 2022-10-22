@@ -3,6 +3,10 @@ import { ActionChain } from "./actionChain";
 const WILDCARD = "__effects:wildcard__";
 
 function getKey(item) {
+  if (!item) {
+    return "__undefined__";
+  }
+
   return typeof item === "string" ? item : item.name;
 }
 
@@ -14,7 +18,7 @@ export class Effects {
     this.effects = {};
   }
 
-  add(primary, secondary, verbName, successful, ...effects) {
+  add(primary, secondary, verbName, successful, continueVerb, ...effects) {
     const primaryKey = getKey(primary);
     const secondaryKey = getKey(secondary);
     const affectedItems = this.effects[primaryKey] || {};
@@ -25,6 +29,7 @@ export class Effects {
 
     affectedPair[verbName] = {
       successful,
+      continueVerb,
       effects: new ActionChain(...effects)
     };
   }
@@ -66,5 +71,12 @@ export class Effects {
         return effects;
       }
     }
+  }
+
+  getEffect(primary, secondary, verbName) {
+    const primaryKey = getKey(primary);
+    const secondaryKey = getKey(secondary);
+
+    return this.effects[primaryKey]?.[secondaryKey]?.[verbName] || this.effects[WILDCARD]?.[secondaryKey]?.[verbName];
   }
 }

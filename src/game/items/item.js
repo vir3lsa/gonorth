@@ -142,13 +142,21 @@ export class Item {
             const container = item.container;
             moveItem(item, selectInventory());
 
+            // If we have custom success text, use it.
+            if (this.takeSuccessText) {
+              return this.takeSuccessText;
+            }
+
+            // Otherwise, if the item's in a room, take from there.
             if (container && !container.isRoom) {
               return takeFromContainerText.next(item, container);
             }
 
+            // Else, take from generic container.
             return takeFromRoomText.next(item);
           })
           .withOnFailure(({ item }) => {
+            // Otherwise, work out what went wrong.
             const article = item.properNoun ? "" : "the ";
             const inventory = selectInventory();
             if (!item.container.itemsVisibleFromSelf) {
@@ -758,6 +766,15 @@ export class Item {
     this._doNotList = value;
   }
 
+  get takeSuccessText() {
+    return this._takeSuccessText;
+  }
+
+  set takeSuccessText(value) {
+    this.recordAlteredProperty("takeSuccessText", value);
+    this._takeSuccessText = value;
+  }
+
   toJSON() {
     return [...this._alteredProperties]
       .map((propertyName) => {
@@ -883,6 +900,11 @@ export class Builder {
 
   withArticle(article) {
     this.config.article = article;
+    return this;
+  }
+
+  withTakeSuccessText(text) {
+    this.config.takeSuccessText = text;
     return this;
   }
 

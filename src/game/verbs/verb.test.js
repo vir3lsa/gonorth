@@ -1,13 +1,20 @@
-import { getStore } from "../../redux/storeRegistry";
+import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Verb, newVerb } from "./verb";
 import { changeInteraction, changeRoom } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
 import { CyclicText, SequentialText, RandomText, PagedText } from "../interactions/text";
 import { Option } from "../interactions/option";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
-import { initGame } from "../../gonorth";
+import {
+  addEffect,
+  addPreVerbEffect,
+  addPreVerbWildcardEffect,
+  addWildcardEffect,
+  initGame,
+  moveItem
+} from "../../gonorth";
 import { clickNext, clickNextAndWait, deferAction } from "../../utils/testFunctions";
-import { selectVerbNames } from "../../utils/selectors";
+import { selectEffects, selectInventory, selectVerbNames } from "../../utils/selectors";
 import { Item } from "../items/item";
 import { Room } from "../items/room";
 import { checkAutoActions } from "../input/autoActionExecutor";
@@ -20,6 +27,9 @@ consoleIO.showOptions = jest.fn();
 jest.mock("../input/autoActionExecutor", () => ({
   checkAutoActions: jest.fn(async () => true)
 }));
+
+// Get the thing we just mocked so we can check for calls on it.
+const autoActionExecutor = require("../input/autoActionExecutor");
 
 let y;
 let verb;
@@ -296,6 +306,77 @@ describe("chainable actions", () => {
     return deferAction(() => {
       expect(selectCurrentPage()).not.toInclude("not holding the beanbag");
       expect(selectCurrentPage()).not.toInclude("won't happen");
+    });
+  });
+
+  describe("effects", () => {
+    let egg, bat;
+
+    beforeEach(() => {
+      unregisterStore();
+      initGame("test", "", { debugMode: false });
+      selectEffects().effects = {};
+
+      egg = new Item.Builder("egg")
+        .isHoldable()
+        .withVerbs(
+          new Verb.Builder("hit")
+            .makePrepositional("with what")
+            .withOnSuccess("hit it good")
+            .withOnFailure("missed it")
+            .build()
+        )
+        .build();
+
+      bat = new Item.Builder("bat").isHoldable().build();
+      moveItem(egg, selectInventory());
+      moveItem(bat, selectInventory());
+    });
+
+    it("triggers effects, after actions, objects available in actions", async () => {
+      addEffect("egg", "bat", "hit", true, false, ({ item, other }) => `${other.name} smash ${item.name}`);
+      await egg.try("hit", bat);
+      expect(selectCurrentPage()).toInclude("bat smash egg");
+      expect(selectCurrentPage()).not.toInclude("hit it good");
+      expect(selectCurrentPage()).not.toInclude("missed it");
+      expect(autoActionExecutor.checkAutoActions).toHaveBeenCalled();
+    });
+
+    it("optionally continues executing the verb after a successful effect", async () => {
+      addPreVerbEffect("egg", "bat", "hit", true, ({ item, other }) => `${other.name} smash ${item.name}`);
+      await egg.try("hit", bat);
+      expect(selectCurrentPage()).toInclude("bat smash egg");
+      expect(selectCurrentPage()).toInclude("hit it good");
+    });
+
+    it("optionally continues executing the verb after a failed effect", async () => {
+      addPreVerbEffect("egg", "bat", "hit", false, ({ item, other }) => `${other.name} brush ${item.name}`);
+      await egg.try("hit", bat);
+      expect(selectCurrentPage()).toInclude("bat brush egg");
+      expect(selectCurrentPage()).toInclude("missed it");
+    });
+
+    it("triggers wildcard effects, objects available in actions", async () => {
+      addWildcardEffect("bat", "hit", true, false, ({ item, other }) => `${other.name} smash ${item.name}`);
+      await egg.try("hit", bat);
+      expect(selectCurrentPage()).toInclude("bat smash egg");
+      expect(selectCurrentPage()).not.toInclude("hit it good");
+      expect(selectCurrentPage()).not.toInclude("missed it");
+      expect(autoActionExecutor.checkAutoActions).toHaveBeenCalled();
+    });
+
+    it("optionally continues executing the verb after a successful effect", async () => {
+      addPreVerbWildcardEffect("bat", "hit", true, ({ item, other }) => `${other.name} smash ${item.name}`);
+      await egg.try("hit", bat);
+      expect(selectCurrentPage()).toInclude("bat smash egg");
+      expect(selectCurrentPage()).toInclude("hit it good");
+    });
+
+    it("optionally continues executing the verb after a failed effect", async () => {
+      addPreVerbWildcardEffect("bat", "hit", false, ({ item, other }) => `${other.name} brush ${item.name}`);
+      await egg.try("hit", bat);
+      expect(selectCurrentPage()).toInclude("bat brush egg");
+      expect(selectCurrentPage()).toInclude("missed it");
     });
   });
 });

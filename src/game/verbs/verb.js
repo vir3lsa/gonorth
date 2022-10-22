@@ -1,7 +1,7 @@
 import { getStore } from "../../redux/storeRegistry";
 import { verbCreated } from "../../redux/gameActions";
 import { ActionChain } from "../../utils/actionChain";
-import { selectRoom } from "../../utils/selectors";
+import { selectEffects, selectRoom } from "../../utils/selectors";
 import { playerHasItem } from "../../utils/sharedFunctions";
 import { checkAutoActions } from "../input/autoActionExecutor";
 
@@ -197,8 +197,28 @@ export class Verb {
       return false;
     }
 
-    // All tests must be successful for verb to proceed.
-    const success = this._tests.reduce((successAcc, test) => successAcc && test(context), true);
+    const { item, other } = context;
+
+    const effect = selectEffects().getEffect(item, other, this.name);
+
+    if (effect) {
+      // See if there's an effect for this combination of items and verb.
+      const effectChain = effect.effects;
+
+      if (effectChain) {
+        const effectResult = effectChain.chain(context);
+        const continueVerb = effect.continueVerb;
+
+        if (!continueVerb) {
+          return effectResult;
+        }
+      }
+    }
+
+    // All tests, or an effect, must be successful for verb to proceed.
+    const success = effect
+      ? effect.successful
+      : this._tests.reduce((successAcc, test) => successAcc && test(context), true);
 
     if (success) {
       return this.onSuccess.chain(context);
