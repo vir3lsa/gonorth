@@ -1,5 +1,11 @@
 # goNORTH Changelog
 
+## 0.5.0
+
+* 2022-10-21 Items may be given custom take success text.
+* 2022-10-18 Effects now trigger after auto-actions and the verb may optionally continue.
+* 2022-10-18 Made getItem function case-insensitive.
+
 ## 0.4.1
 
 * 2022-10-11 Disabled Cypress video.

@@ -138,7 +138,7 @@ function addEffect(primaryItem, secondaryItem, verbName, successful, ...effects)
     throw Error("Tried to add an effect without specifying a verb name.");
   }
 
-  selectEffects().add(primaryItem, secondaryItem, verbName, successful, ...effects);
+  selectEffects().add(primaryItem, secondaryItem, verbName, successful, false, ...effects);
 }
 
 function addWildcardEffect(secondaryItem, verbName, successful, ...effects) {
@@ -146,7 +146,23 @@ function addWildcardEffect(secondaryItem, verbName, successful, ...effects) {
     throw Error("Tried to add a wildcard effect without specifying a verb name.");
   }
 
-  selectEffects().addWildcard(secondaryItem, verbName, successful, ...effects);
+  selectEffects().addWildcard(secondaryItem, verbName, successful, false, ...effects);
+}
+
+function addPreVerbEffect(primaryItem, secondaryItem, verbName, successful, ...effects) {
+  if (typeof verbName !== "string") {
+    throw Error("Tried to add an effect without specifying a verb name.");
+  }
+
+  selectEffects().add(primaryItem, secondaryItem, verbName, successful, true, ...effects);
+}
+
+function addPreVerbWildcardEffect(secondaryItem, verbName, successful, ...effects) {
+  if (typeof verbName !== "string") {
+    throw Error("Tried to add a wildcard effect without specifying a verb name.");
+  }
+
+  selectEffects().addWildcard(secondaryItem, verbName, successful, true, ...effects);
 }
 
 /**
@@ -156,7 +172,7 @@ function addWildcardEffect(secondaryItem, verbName, successful, ...effects) {
  * @returns A item with the given alias, or undefined.
  */
 function getItem(name, index = 0) {
-  const itemSet = selectItem(name);
+  const itemSet = selectItem(name.toLowerCase());
 
   if (itemSet?.size) {
     const items = [...itemSet];
@@ -212,5 +228,7 @@ export {
   addHintNodes,
   setHintNodeId,
   addEffect,
-  addWildcardEffect
+  addWildcardEffect,
+  addPreVerbEffect,
+  addPreVerbWildcardEffect
 };

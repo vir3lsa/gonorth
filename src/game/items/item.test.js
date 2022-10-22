@@ -113,6 +113,12 @@ describe("basic item tests", () => {
     await dog.try("take");
     expect(selectInventory().items["dog"]).not.toBeUndefined();
   });
+
+  test("items may have custom take success text", async () => {
+    const pipe = new Item.Builder("pipe").isHoldable().withTakeSuccessText("be careful").build();
+    await pipe.try("take");
+    expect(selectCurrentPage()).toInclude("be careful");
+  });
 });
 
 describe("builder tests", () => {
@@ -124,6 +130,7 @@ describe("builder tests", () => {
       .withSize(1)
       .withAliases("pope")
       .withArticle("thy")
+      .withTakeSuccessText("yoink")
       .build();
     expect(pipe.name).toBe("pipe");
     expect(pipe.description).toBe("This is not a pipe");
@@ -131,6 +138,7 @@ describe("builder tests", () => {
     expect(pipe.size).toBe(1);
     expect(pipe.aliases).toInclude("pope");
     expect(pipe.article).toBe("thy");
+    expect(pipe.takeSuccessText).toBe("yoink");
   });
 
   test("items built with a builder have the correct verbs", () => {
@@ -446,6 +454,11 @@ describe("serialization", () => {
       expectRecordedProperties(ball, "article");
     });
 
+    test("changes to takeSuccessText are recorded", () => {
+      ball.takeSuccessText = "yoink";
+      expectRecordedProperties(ball, "takeSuccessText");
+    });
+
     test("new items aren't recorded", () => {
       const bat = new Item("bat", "the wooden kind");
       expectRecordedProperties(bat);
@@ -496,6 +509,7 @@ describe("serialization", () => {
       .withVerbs(new Verb("drive"))
       .withAliases("motor")
       .hidesItems(new Item("seat"))
+      .withTakeSuccessText("yoink")
       .build();
     expectRecordedProperties(car);
   });
