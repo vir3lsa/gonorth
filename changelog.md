@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* 2022-10-23 Fixed dependency vulnerability.
 * 2022-10-23 Added 'expectsArgs' function to VerbBuilder.
 
 ## 0.5.0
