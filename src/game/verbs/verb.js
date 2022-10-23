@@ -284,6 +284,11 @@ class Builder {
     return this;
   }
 
+  expectsArgs(expectsArgs = true) {
+    this.config.expectsArgs = expectsArgs;
+    return this;
+  }
+
   makePrepositional(interrogative, prepositionOptional) {
     this.config.prepositional = true;
     this.config.interrogative = interrogative;

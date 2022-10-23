@@ -1,14 +1,7 @@
 import { getStore } from "../../redux/storeRegistry";
 import { changeInteraction } from "../../redux/gameActions";
 import { Append } from "../interactions/interaction";
-import {
-  selectVerbNames,
-  selectRoom,
-  selectItemNames,
-  selectInventory,
-  selectKeywords,
-  selectEffects
-} from "../../utils/selectors";
+import { selectVerbNames, selectRoom, selectItemNames, selectInventory, selectKeywords } from "../../utils/selectors";
 import { toTitleCase, getArticle } from "../../utils/textFunctions";
 import disambiguate from "../../utils/disambiguation";
 

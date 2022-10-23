@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## Unreleased
+
+* 2022-10-23 Added 'expectsArgs' function to VerbBuilder.
+
 ## 0.5.0
 
 * 2022-10-21 Items may be given custom take success text.

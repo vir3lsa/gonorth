@@ -18,6 +18,7 @@ import { selectEffects, selectInventory, selectVerbNames } from "../../utils/sel
 import { Item } from "../items/item";
 import { Room } from "../items/room";
 import { checkAutoActions } from "../input/autoActionExecutor";
+import { ActionChain } from "../../utils/actionChain";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -258,6 +259,29 @@ describe("chainable actions", () => {
     expect(verb.name).toBe("fly");
     expect(verb.aliases).toStrictEqual(["levitate"]);
     expect(verb.isKeyword).toBe(false);
+  });
+
+  it("can be built with a builder", () => {
+    const verb = new Verb.Builder("climb")
+      .withAliases("boulder")
+      .withDescription("up rocks")
+      .withTest(true)
+      .withOnSuccess("yes")
+      .withOnFailure("no")
+      .isKeyword()
+      .isRemote()
+      .expectsArgs()
+      .build();
+
+    expect(verb.name).toBe("climb");
+    expect(verb.aliases).toEqual(["boulder"]);
+    expect(verb.description).toBe("up rocks");
+    expect(Array.isArray(verb.test)).toBe(true);
+    expect(verb.onSuccess instanceof ActionChain).toBe(true);
+    expect(verb.onFailure instanceof ActionChain).toBe(true);
+    expect(verb.isKeyword).toBe(true);
+    expect(verb.remote).toBe(true);
+    expect(verb.expectsArgs).toBe(true);
   });
 
   it("succeeds with multiple tests", async () => {
