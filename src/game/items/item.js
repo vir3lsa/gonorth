@@ -99,6 +99,15 @@ export class Item {
         .build()
     );
 
+    this.addVerb(
+      new Verb.Builder("combine")
+        .withAliases("join", "meld", "insert")
+        .makePrepositional("with what")
+        .withTest(false)
+        .withOnFailure(({ item, other }) => `You can't see a way to combine the ${item.name} and the ${other.name}.`)
+        .build()
+    );
+
     const takeFromRoomText = new RandomText(
       (item) => `You take ${item.properNoun ? "" : "the "}${item.name}.`,
       (item) => `You pick up ${item.properNoun ? "" : "the "}${item.name}.`,

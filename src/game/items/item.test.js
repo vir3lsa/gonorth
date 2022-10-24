@@ -527,4 +527,11 @@ describe("serialization", () => {
     x = "flying";
     expect(batClone.description).toBe("The bat is flying");
   });
+
+  test("items may be combined, but it fails by default", async () => {
+    const clock = new Item.Builder("clock").build();
+    const rivet = new Item.Builder("rivet").build();
+    await clock.try("combine", rivet);
+    expect(selectCurrentPage()).toInclude("can't see a way to combine the clock and the rivet");
+  });
 });

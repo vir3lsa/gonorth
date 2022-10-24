@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-## Unreleased
+## 0.6.0
 
+* 2022-10-25 Added 'combine' verb to Item.
 * 2022-10-23 Fixed dependency vulnerability.
 * 2022-10-23 Added 'expectsArgs' function to VerbBuilder.
 
