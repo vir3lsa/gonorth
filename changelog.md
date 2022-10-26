@@ -1,5 +1,10 @@
 # goNORTH Changelog
 
+## Unreleased
+
+* 2022-10-30 Ensured items are auto-revealed when their container changes.
+* 2022-10-29 Added placeholder subject headings to README.md.
+
 ## 0.6.0
 
 * 2022-10-25 Added 'combine' verb to Item.

@@ -2,7 +2,7 @@ import { Item, newItem } from "./item";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
 import { newGame, recordChanges } from "../../redux/gameActions";
-import { selectInventory, selectInventoryItems } from "../../utils/selectors";
+import { selectInventory, selectInventoryItems, selectItemNames } from "../../utils/selectors";
 import { Room } from "./room";
 import { initGame, setInventoryCapacity, goToRoom } from "../../gonorth";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
@@ -533,5 +533,25 @@ describe("serialization", () => {
     const rivet = new Item.Builder("rivet").build();
     await clock.try("combine", rivet);
     expect(selectCurrentPage()).toInclude("can't see a way to combine the clock and the rivet");
+  });
+
+  test("items are automatically revealed when their container changes", async () => {
+    const ghost = new Item.Builder("ghost").withAliases("ghoul").isHoldable().build();
+    expect(selectItemNames().has("ghost")).toBe(false);
+    expect(selectItemNames().has("ghoul")).toBe(false);
+    // We start recording changes when the game starts.
+    getStore().dispatch(recordChanges());
+    // Taking the item changes its container.
+    await ghost.try("take");
+    expect(selectItemNames().has("ghost")).toBe(true);
+    expect(selectItemNames().has("ghoul")).toBe(true);
+  });
+
+  test("items aren't automatically revealed when their container changes before the game starts", async () => {
+    const ghost = new Item.Builder("ghost").withAliases("ghoul").isHoldable().build();
+    // Taking the item changes its container, but the game hasn't started.
+    await ghost.try("take");
+    expect(selectItemNames().has("ghost")).toBe(false);
+    expect(selectItemNames().has("ghoul")).toBe(false);
   });
 });

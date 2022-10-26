@@ -1,7 +1,7 @@
 import { ManagedText, RandomText, Text } from "../interactions/text";
 import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
-import { selectAllItemNames, selectInventory, selectRecordChanges } from "../../utils/selectors";
+import { selectAllItemNames, selectInventory, selectItemNames, selectRecordChanges } from "../../utils/selectors";
 import { getBasicItemList, toTitleCase, getArticle } from "../../utils/textFunctions";
 import { getStore } from "../../redux/storeRegistry";
 import { addItem, itemsRevealed } from "../../redux/gameActions";
@@ -332,6 +332,11 @@ export class Item {
     this.recordAlteredProperty("container", container);
     this._container = container;
     this._addAliasesToContainer(this.aliases);
+
+    // If recordChanges is true, it indicates the game has started, so we'll reveal items when they move.
+    if (selectRecordChanges() && container && !selectItemNames().has(this.name.toLowerCase())) {
+      getStore().dispatch(itemsRevealed([this.name, ...this.aliases]));
+    }
   }
 
   get container() {
