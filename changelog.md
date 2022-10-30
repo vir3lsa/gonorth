@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-## Unrelease (1.0.0)
+## Unreleased (1.0.0)
 
+* 2022-10-30 Removed 'object' and 'helpers' from Verbs.
 * 2022-10-30 Updated 'addEffect' and 'addWildcardEffect' functions to include 'continueVerb' parameters.
 
 ## Unreleased

@@ -32,14 +32,12 @@ export class Verb {
     aliases = [],
     isKeyword = false,
     description = "",
-    object = null,
     expectedArgs = ["item", "other"]
   ) {
     this.name = name;
     this.isKeyword = isKeyword;
     this.doNotList = !isKeyword;
     this.aliases = aliases || [];
-    this.object = object;
     this._parent = null;
     this.prepositional = false;
     this.prepositionOptional = false;
@@ -48,10 +46,6 @@ export class Verb {
     this.expectsArgs = false; // Used by some keywords.
     this.expectedArgs = expectedArgs;
     this.remote = false;
-
-    this.helpers = {
-      object: this.object
-    };
 
     // Call test setter
     this.test = test;
@@ -103,7 +97,6 @@ export class Verb {
   set onSuccess(onSuccess) {
     const onSuccessArray = Array.isArray(onSuccess) ? onSuccess : [onSuccess];
     this._onSuccess = new ActionChain(...onSuccessArray);
-    this._onSuccess.addHelpers(this.helpers);
   }
 
   set onFailure(onFailure) {
@@ -118,7 +111,6 @@ export class Verb {
       return false; // Indicate the verb failure to the action chain.
     });
     this._onFailure = new ActionChain(...onFailureArray);
-    this._onFailure.addHelpers(this.helpers);
   }
 
   get onSuccess() {
@@ -235,7 +227,7 @@ export class Verb {
       return acc;
     }, {});
 
-    return { ...this.helpers, ...context, verb: this };
+    return { ...context, verb: this };
   }
 
   static get Builder() {

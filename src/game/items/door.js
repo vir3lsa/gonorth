@@ -18,45 +18,37 @@ export class Door extends Item {
     this.key = key;
 
     this.addVerb(
-      new Verb(
-        "open",
-        (helper) => !helper.object.locked && !helper.object.open,
-        [(helper) => (helper.object.open = true), openSuccessText || `The ${name} opens relatively easily.`],
-        (helper) => (helper.object.open ? `The ${name} is already open.` : `The ${name} is locked.`),
-        [],
-        false,
-        null,
-        this
-      )
+      new Verb.Builder("open")
+        .withTest(({ item: door }) => !door.locked && !door.open)
+        .withOnSuccess([
+          ({ item: door }) => (door.open = true),
+          openSuccessText || `The ${name} opens relatively easily.`
+        ])
+        .withOnFailure(({ item: door }) => (door.open ? `The ${name} is already open.` : `The ${name} is locked.`))
+        .build()
     );
 
     this.addVerb(
-      new Verb(
-        "close",
-        (helper) => helper.object.open,
-        [(helper) => (helper.object.open = false), `You close the ${name}.`],
-        `The ${name} is already closed.`,
-        [],
-        false,
-        null,
-        this
-      )
+      new Verb.Builder("close")
+        .withTest(({ item: door }) => door.open)
+        .withOnSuccess([({ item: door }) => (door.open = false), `You close the ${name}.`])
+        .withOnFailure(`The ${name} is already closed.`)
+        .build()
     );
 
     this.addVerb(
-      new Verb(
-        "unlock",
-        ({ item: door, other: key }) => door.locked && (door.key ? door.key.name === key?.name : true),
-        [
-          (helper) => {
+      new Verb.Builder("unlock")
+        .withTest(({ item: door, other: key }) => door.locked && (door.key ? door.key.name === key?.name : true))
+        .withOnSuccess([
+          ({ item: door }) => {
             // Ensure we don't return false to avoid breaking the action chain.
-            helper.object.locked = false;
+            door.locked = false;
           },
           ({ item: door }) =>
             unlockSuccessText ||
             (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)
-        ],
-        ({ item: door, other: key }) => {
+        ])
+        .withOnFailure(({ item: door, other: key }) => {
           if (door.key && key && door.key.name !== key.name) {
             return `The ${key.name} doesn't fit.`;
           } else if (door.key && !key) {
@@ -64,12 +56,8 @@ export class Door extends Item {
           } else {
             return `The ${name} is already unlocked.`;
           }
-        },
-        [],
-        false,
-        null,
-        this
-      )
+        })
+        .build()
     );
 
     this.verbs.unlock.makePrepositional("with what", true);
