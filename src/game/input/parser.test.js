@@ -31,9 +31,9 @@ const openDoorTest = async (input) => {
   expect(door.open).toBe(true);
 };
 
-const inputTest = async (input, expectedOutput) => {
+const inputTest = async (input, ...expectedOutput) => {
   await new Parser(input).parse();
-  expect(selectCurrentPage()).toInclude(expectedOutput);
+  expectedOutput.forEach((output) => expect(selectCurrentPage()).toInclude(output));
 };
 
 const regexTest = async (input, ...expectedRegex) => {
@@ -94,9 +94,13 @@ describe("parser", () => {
           .withOnSuccess(({ item, other }) => `The ${item.name} hits the ${other.name}.`)
           .build()
       );
-      redBall.addVerb(new Verb.Builder().withName("hide").makePrepositional("from whom").build());
-      addEffect(redBall, chairman, "throw", true, "The chair man catches the ball.");
-      addWildcardEffect(chairman, "hide", true, ({ item }) => `The chair man can't find the ${item.name}.`);
+      redBall.addVerb(
+        new Verb.Builder().withName("hide").makePrepositional("from whom").withOnSuccess("It's hidden.").build()
+      );
+      addEffect(redBall, chairman, "throw", true, false, "The chair man catches the ball.");
+      addWildcardEffect(chairman, "hide", true, false, ({ item }) => `The chair man can't find the ${item.name}.`);
+      addEffect(redBall, blueBall, "throw", true, true, "You take careful aim.");
+      addWildcardEffect(blueBall, "hide", true, true, "You hide it from the blue ball.");
 
       hall.setNorth(north);
       hall.setSouth(south);
@@ -182,6 +186,9 @@ describe("parser", () => {
       inputTest("throw red ball at chair man", "The chair man catches the ball."));
     it("applies wildcard effects", () =>
       inputTest("hide red ball from the chair man", "The chair man can't find the red ball."));
+    it("applies a pre-verb effect when one is registered, and continues the verb", () =>
+      inputTest("throw red ball at blue ball", "You take careful aim", "The red ball hits the blue ball"));
+    it("applies wildcard effects", () => inputTest("hide red ball from the blue ball", "You hide it", "It's hidden"));
 
     describe("auto disambiguation", () => {
       let apple1, apple2;

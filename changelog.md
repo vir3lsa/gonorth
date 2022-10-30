@@ -1,6 +1,10 @@
 # goNORTH Changelog
 
-# Unreleased
+## Unrelease (1.0.0)
+
+* 2022-10-30 Updated 'addEffect' and 'addWildcardEffect' functions to include 'continueVerb' parameters.
+
+## Unreleased
 
 * 2022-11-13 Container.Builder now extends Item.Builder. 
 

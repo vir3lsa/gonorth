@@ -367,14 +367,14 @@ describe("chainable actions", () => {
     });
 
     it("optionally continues executing the verb after a successful effect", async () => {
-      addPreVerbEffect("egg", "bat", "hit", true, ({ item, other }) => `${other.name} smash ${item.name}`);
+      addEffect("egg", "bat", "hit", true, true, ({ item, other }) => `${other.name} smash ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat smash egg");
       expect(selectCurrentPage()).toInclude("hit it good");
     });
 
     it("optionally continues executing the verb after a failed effect", async () => {
-      addPreVerbEffect("egg", "bat", "hit", false, ({ item, other }) => `${other.name} brush ${item.name}`);
+      addEffect("egg", "bat", "hit", false, true, ({ item, other }) => `${other.name} brush ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat brush egg");
       expect(selectCurrentPage()).toInclude("missed it");
@@ -389,15 +389,15 @@ describe("chainable actions", () => {
       expect(autoActionExecutor.checkAutoActions).toHaveBeenCalled();
     });
 
-    it("optionally continues executing the verb after a successful effect", async () => {
-      addPreVerbWildcardEffect("bat", "hit", true, ({ item, other }) => `${other.name} smash ${item.name}`);
+    it("optionally continues executing the verb after a successful wildcard effect", async () => {
+      addWildcardEffect("bat", "hit", true, true, ({ item, other }) => `${other.name} smash ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat smash egg");
       expect(selectCurrentPage()).toInclude("hit it good");
     });
 
-    it("optionally continues executing the verb after a failed effect", async () => {
-      addPreVerbWildcardEffect("bat", "hit", false, ({ item, other }) => `${other.name} brush ${item.name}`);
+    it("optionally continues executing the verb after a failed wildcard effect", async () => {
+      addWildcardEffect("bat", "hit", false, true, ({ item, other }) => `${other.name} brush ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat brush egg");
       expect(selectCurrentPage()).toInclude("missed it");

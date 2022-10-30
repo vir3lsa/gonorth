@@ -133,36 +133,20 @@ function setHintNodeId(nodeId) {
   game.hintNode = nodeId;
 }
 
-function addEffect(primaryItem, secondaryItem, verbName, successful, ...effects) {
+function addEffect(primaryItem, secondaryItem, verbName, successful, continueVerb, ...effects) {
   if (typeof verbName !== "string") {
     throw Error("Tried to add an effect without specifying a verb name.");
   }
 
-  selectEffects().add(primaryItem, secondaryItem, verbName, successful, false, ...effects);
+  selectEffects().add(primaryItem, secondaryItem, verbName, successful, continueVerb, ...effects);
 }
 
-function addWildcardEffect(secondaryItem, verbName, successful, ...effects) {
+function addWildcardEffect(secondaryItem, verbName, successful, continueVerb, ...effects) {
   if (typeof verbName !== "string") {
     throw Error("Tried to add a wildcard effect without specifying a verb name.");
   }
 
-  selectEffects().addWildcard(secondaryItem, verbName, successful, false, ...effects);
-}
-
-function addPreVerbEffect(primaryItem, secondaryItem, verbName, successful, ...effects) {
-  if (typeof verbName !== "string") {
-    throw Error("Tried to add an effect without specifying a verb name.");
-  }
-
-  selectEffects().add(primaryItem, secondaryItem, verbName, successful, true, ...effects);
-}
-
-function addPreVerbWildcardEffect(secondaryItem, verbName, successful, ...effects) {
-  if (typeof verbName !== "string") {
-    throw Error("Tried to add a wildcard effect without specifying a verb name.");
-  }
-
-  selectEffects().addWildcard(secondaryItem, verbName, successful, true, ...effects);
+  selectEffects().addWildcard(secondaryItem, verbName, successful, continueVerb, ...effects);
 }
 
 /**
@@ -228,7 +212,5 @@ export {
   addHintNodes,
   setHintNodeId,
   addEffect,
-  addWildcardEffect,
-  addPreVerbEffect,
-  addPreVerbWildcardEffect
+  addWildcardEffect
 };
