@@ -29,6 +29,36 @@ test("events execute at turn end when timeout is reached", async () => {
   expect(x).toBe(2);
 });
 
+test("events may be built with a builder and multiple actions may be added", async () => {
+  addEvent(
+    new Event.Builder("test")
+      .withAction(() => x++)
+      .withAction(() => x++)
+      .withCondition(true)
+      .withTimeout(0)
+      .withTimeoutType(TIMEOUT_TURNS)
+      .build()
+  );
+  await handleTurnEnd();
+  expect(x).toBe(3);
+});
+
+test("builders may add multiple tests at once", async () => {
+  addEvent(
+    new Event.Builder("test")
+      .withActions(
+        () => x++,
+        () => x++
+      )
+      .withCondition(true)
+      .withTimeout(0)
+      .withTimeoutType(TIMEOUT_TURNS)
+      .build()
+  );
+  await handleTurnEnd();
+  expect(x).toBe(3);
+});
+
 test("options return after an event adds text", async () => {
   await getStore().dispatch(changeInteraction(new Interaction("some text", [new Option("one")])));
   expect(selectOptions()[0].label).toBe("one");

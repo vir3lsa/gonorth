@@ -1,7 +1,9 @@
 # goNORTH Changelog
 
-## Unreleased
+## 0.6.1
 
+* 2022-11-04 Verbs always have an 'other' arg so effects can work with normally non-prepositional verbs.
+* 2022-11-04 Added EventBuilder.
 * 2022-10-30 Ensured items are auto-revealed when their container changes.
 * 2022-10-29 Added placeholder subject headings to README.md.
 

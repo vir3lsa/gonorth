@@ -33,7 +33,7 @@ export class Verb {
     isKeyword = false,
     description = "",
     object = null,
-    expectedArgs = ["item"]
+    expectedArgs = ["item", "other"]
   ) {
     this.name = name;
     this.isKeyword = isKeyword;
@@ -177,7 +177,6 @@ export class Verb {
     this.prepositional = true;
     this.prepositionOptional = prepositionOptional;
     this.interrogative = interrogative;
-    this.expectedArgs.push("other");
   }
 
   /**

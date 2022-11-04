@@ -402,5 +402,12 @@ describe("chainable actions", () => {
       expect(selectCurrentPage()).toInclude("bat brush egg");
       expect(selectCurrentPage()).toInclude("missed it");
     });
+
+    it("executes effects for normally non-prepositional verbs", async () => {
+      const microscope = new Item.Builder("microscope").build();
+      addEffect("egg", "microscope", "examine", true, "It looks interesting.");
+      await egg.try("examine", microscope);
+      expect(selectCurrentPage()).toInclude("It looks interesting.");
+    });
   });
 });

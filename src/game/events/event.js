@@ -16,7 +16,7 @@ export const FAILED = "FAILED";
 export const CANCELLED = "CANCELLED";
 
 export class Event {
-  constructor(name, action = [], condition, timeout, timeoutType, onComplete = () => {}, recurring = false) {
+  constructor(name, action = [], condition = true, timeout, timeoutType, onComplete = () => {}, recurring = false) {
     this.name = name;
     this.action = action;
     this.condition = condition;
@@ -142,5 +142,70 @@ export class Event {
     if (this.timeoutId) {
       clearTimeout(this.timeoutId);
     }
+  }
+
+  static get Builder() {
+    return EventBuilder;
+  }
+}
+
+class EventBuilder {
+  constructor(name) {
+    this.name = name;
+  }
+
+  withAction(action) {
+    if (!this.actions) {
+      this.actions = [];
+    }
+
+    this.actions.push(action);
+    return this;
+  }
+
+  withActions(...actions) {
+    if (!this.actions) {
+      this.actions = [];
+    }
+
+    this.actions = [...this.actions, ...actions];
+    return this;
+  }
+
+  withCondition(condition) {
+    this.condition = condition;
+    return this;
+  }
+
+  withTimeout(timeout) {
+    this.timeout = timeout;
+    return this;
+  }
+
+  withTimeoutType(timeoutType) {
+    this.timeoutType = timeoutType;
+    return this;
+  }
+
+  withOnComplete(onComplete) {
+    this.onComplete = onComplete;
+    return this;
+  }
+
+  isRecurring(recurring = true) {
+    this.recurring = recurring;
+    return this;
+  }
+
+  build() {
+    return new Event(
+      this.name,
+      this.actions,
+      this.condition,
+      this.timeout,
+      this.timeoutType,
+      this.onComplete,
+      this.recurring
+    );
   }
 }
