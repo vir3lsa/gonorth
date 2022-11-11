@@ -205,7 +205,7 @@ export class Verb {
       const effectChain = effect.effects;
 
       if (effectChain) {
-        const effectResult = effectChain.chain(context);
+        const effectResult = await effectChain.chain(context);
         const continueVerb = effect.continueVerb;
 
         if (!continueVerb) {

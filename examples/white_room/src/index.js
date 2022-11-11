@@ -42,11 +42,39 @@ function setUp() {
 
   whiteRoom.setEast(redRoom);
 
+  const dial = new Item.Builder("dial").build();
+
   const strangeDevice = new Item.Builder("strange device")
     .isHoldable()
     .withSize(2)
-    .withDescription("It's a sleek metal object that fits neatly in your hand.")
+    .withDescription(
+      (item) =>
+        `It's a sleek metal object that fits neatly in your hand. There's a dial on one side. It's set to ${item.get(
+          "setting"
+        )}.`
+    )
+    .withProperty("setting", "stun")
+    .hidesItems(dial)
     .build();
+
+  dial.addVerb(
+    new Verb.Builder("turn")
+      .withOnSuccess(() => {
+        let setting = strangeDevice.get("setting");
+
+        if (setting === "stun") {
+          setting = "tickle";
+        } else if (setting === "tickle") {
+          setting = "amaze";
+        } else {
+          setting = "stun";
+        }
+
+        strangeDevice.set("setting", setting);
+        return `You turn the dial to ${setting}.`;
+      })
+      .build()
+  );
 
   const apple = new Item.Builder("apple").isHoldable().withSize(1).withDescription("A juicy red apple.").build();
 

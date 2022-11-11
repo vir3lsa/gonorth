@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 0.7.0
+
+* 2022-11-09 Added ability to store serializable properties directly on items.
+
 ## 0.6.1
 
 * 2022-11-04 Verbs always have an 'other' arg so effects can work with normally non-prepositional verbs.

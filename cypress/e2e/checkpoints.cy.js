@@ -9,6 +9,10 @@ describe("basic checkpoint tests", () => {
     // Change some state - pick up an object.
     cy.say("take strange device", "the strange device");
 
+    // Set a custom property - turn dial to 'tickle'
+    cy.say("x device", "It's a sleek metal object");
+    cy.say("turn dial", "You turn the dial to tickle");
+
     // Travel to a room that triggers a checkpoint.
     cy.say("east", "Going East");
     cy.choose("Next", "ceiling is blood red", { global: true });
@@ -21,6 +25,9 @@ describe("basic checkpoint tests", () => {
     cy.say("west", "Going West");
     cy.choose("Next", "nearly perfect cube", { global: true });
     cy.doesNotShow("strange device");
+
+    // Custom properties have reloaded
+    cy.say("x device", "It's set to tickle");
   });
 
   it("saves the game and starts a new game", () => {
