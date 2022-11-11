@@ -84,6 +84,7 @@ export class Item {
     this.itemsVisibleFromRoom = false;
     this.itemsVisibleFromSelf = true;
     this.doNotList = false;
+    this.properties = {};
 
     aliases.forEach((alias) => this.createAliases(alias));
 
@@ -789,6 +790,28 @@ export class Item {
     this._takeSuccessText = value;
   }
 
+  get(property) {
+    return this.properties[property];
+  }
+
+  set(property, value) {
+    if (typeof value === "function") {
+      throw Error("Attempted to set a function as a property value. All item properties must be serializable.");
+    }
+
+    this.properties[property] = value;
+    this.recordAlteredProperty("properties", this.properties);
+  }
+
+  get properties() {
+    return this._properties;
+  }
+
+  set properties(value) {
+    this.recordAlteredProperty("properties", value);
+    this._properties = value;
+  }
+
   toJSON() {
     return [...this._alteredProperties]
       .map((propertyName) => {
@@ -919,6 +942,19 @@ export class Builder {
 
   withTakeSuccessText(text) {
     this.config.takeSuccessText = text;
+    return this;
+  }
+
+  withProperty(property, value) {
+    if (typeof value === "function") {
+      throw Error("Attempted to set a function as a property value. All item properties must be serializable.");
+    }
+
+    if (!this.config.properties) {
+      this.config.properties = {};
+    }
+
+    this.config.properties[property] = value;
     return this;
   }
 

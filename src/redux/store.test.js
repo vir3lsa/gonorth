@@ -280,4 +280,16 @@ describe("deserializing snapshots", () => {
     expect(room.items.vase).toBeUndefined();
     expect(otherRoom.items.vase).toBeDefined();
   });
+
+  it("revives custom properties on items", () => {
+    vase.set("origin", "egyptian");
+    vase.set("circumference", 20);
+    const snapshot = persistSnapshotAndLoad();
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    expect(revivedVase.get("origin")).toBe("egyptian");
+    expect(revivedVase.get("circumference")).toBe(20);
+
+    // Check the revived Item still recognises the custom properties have changed.
+    expect(revivedVase._alteredProperties.has("properties")).toBe(true);
+  });
 });

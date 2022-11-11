@@ -131,6 +131,8 @@ describe("builder tests", () => {
       .withAliases("pope")
       .withArticle("thy")
       .withTakeSuccessText("yoink")
+      .withProperty("appearance", "pipelike")
+      .withProperty("length", 12)
       .build();
     expect(pipe.name).toBe("pipe");
     expect(pipe.description).toBe("This is not a pipe");
@@ -139,6 +141,8 @@ describe("builder tests", () => {
     expect(pipe.aliases).toInclude("pope");
     expect(pipe.article).toBe("thy");
     expect(pipe.takeSuccessText).toBe("yoink");
+    expect(pipe.get("appearance")).toBe("pipelike");
+    expect(pipe.get("length")).toBe(12);
   });
 
   test("items built with a builder have the correct verbs", () => {
@@ -463,6 +467,11 @@ describe("serialization", () => {
       const bat = new Item("bat", "the wooden kind");
       expectRecordedProperties(bat);
     });
+
+    test("custom properties are recorded", () => {
+      ball.set("diameter", 10);
+      expectRecordedProperties(ball, "properties");
+    });
   });
 
   test("changes aren't recorded when recording is off", () => {
@@ -553,5 +562,16 @@ describe("serialization", () => {
     await ghost.try("take");
     expect(selectItemNames().has("ghost")).toBe(false);
     expect(selectItemNames().has("ghoul")).toBe(false);
+  });
+
+  test("custom properties can be set and retrieved", () => {
+    ball.set("material", "rubber");
+    ball.set("size", "small");
+    expect(ball.get("material")).toBe("rubber");
+    expect(ball.get("size")).toBe("small");
+  });
+
+  test("setting a function as a property causes an error", () => {
+    expect(() => ball.set("sound", () => "woosh")).toThrow();
   });
 });

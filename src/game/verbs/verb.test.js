@@ -409,5 +409,14 @@ describe("chainable actions", () => {
       await egg.try("examine", microscope);
       expect(selectCurrentPage()).toInclude("It looks interesting.");
     });
+
+    it("executes effects before the verb", async () => {
+      // Check it's effect then verb, not verb then effect.
+      let x = 60;
+      addPreVerbEffect("egg", "bat", "hit", true, () => (x /= 3));
+      egg.verbs.hit.onSuccess.addAction(() => (x += 10));
+      await egg.try("hit", bat);
+      expect(x).toBe(30);
+    });
   });
 });
