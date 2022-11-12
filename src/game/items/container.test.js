@@ -276,4 +276,17 @@ describe("container", () => {
     expect(lockbox.locked).toBe(false);
     expect(selectCurrentPage()).toBe("The key turns easily in the lock.");
   });
+
+  test("dynamic open description function receives item", () => {
+    const chest = new Container.Builder("safe")
+      .withOpenDescription(({ item }) => `${item.name} open`)
+      .isOpen()
+      .build();
+    expect(chest.description).toBe("safe open");
+  });
+
+  test("dynamic closed description function receives item", () => {
+    const chest = new Container.Builder("safe").withClosedDescription(({ item }) => `${item.name} closed`).build();
+    expect(chest.description).toBe("safe closed");
+  });
 });

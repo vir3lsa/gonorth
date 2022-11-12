@@ -65,7 +65,7 @@ export class Container extends Item {
     const dynamicClosedDescription = createDynamicText(closedDescription);
     super(
       name,
-      () => (this.open ? dynamicOpenDescription() : dynamicClosedDescription()),
+      () => (this.open ? dynamicOpenDescription({ item: this }) : dynamicClosedDescription({ item: this })),
       holdable,
       size,
       [],

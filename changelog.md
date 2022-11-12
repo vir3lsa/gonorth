@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 0.7.1
+
+* 2022-12-09 Ensured the item is passed to dynamic open and closed container description functions.
+
 # 0.7.0
 
 * 2022-11-09 Added ability to store serializable properties directly on items.
