@@ -135,6 +135,7 @@ describe("container", () => {
       .withNeedsKeyText("needs key")
       .withAlreadyUnlockedText("already unlocked")
       .withUnlockSuccessText("unlocked")
+      .withProperty("material", "steel")
       .build();
     expect(bucket.name).toBe("bucket");
     expect(bucket.aliases).toEqual(["pale"]);
@@ -155,6 +156,7 @@ describe("container", () => {
     expect(bucket.needsKeyText).toBe("needs key");
     expect(bucket.alreadyUnlockedText).toBe("already unlocked");
     expect(bucket.unlockSuccessText).toBe("unlocked");
+    expect(bucket.get("material")).toBe("steel");
 
     bucket.verbs.close.remote = true;
     await bucket.verbs.close.attempt(bucket);

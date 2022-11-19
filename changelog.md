@@ -1,8 +1,12 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2022-11-13 Container.Builder now extends Item.Builder. 
+
 # 0.7.1
 
-* 2022-12-09 Ensured the item is passed to dynamic open and closed container description functions.
+* 2022-11-12 Ensured the item is passed to dynamic open and closed container description functions.
 
 # 0.7.0
 

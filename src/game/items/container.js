@@ -281,44 +281,9 @@ export class Container extends Item {
   }
 }
 
-class Builder {
+class Builder extends Item.Builder {
   constructor(name) {
-    this.config = { name };
-  }
-
-  withName(name) {
-    this.config.name = name;
-    return this;
-  }
-
-  isHoldable(holdable = true) {
-    this.config.holdable = holdable;
-    return this;
-  }
-
-  withSize(size) {
-    this.config.size = size;
-    return this;
-  }
-
-  withVerbs(...verbs) {
-    this.config.verbs = verbs;
-    return this;
-  }
-
-  withAliases(...aliases) {
-    this.config.aliases = aliases;
-    return this;
-  }
-
-  hidesItems(...items) {
-    this.config.hidesItems = items;
-    return this;
-  }
-
-  withContainerListing(containerListing) {
-    this.config.containerListing = containerListing;
-    return this;
+    super(name);
   }
 
   withCloseText(closeText) {
@@ -343,11 +308,6 @@ class Builder {
 
   withLockedText(lockedText) {
     this.config.lockedText = lockedText;
-    return this;
-  }
-
-  withCapacity(capacity) {
-    this.config.capacity = capacity;
     return this;
   }
 
