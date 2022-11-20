@@ -1,5 +1,5 @@
 import { Room } from "../game/items/room";
-import { getStore, unregisterStore } from "../redux/storeRegistry";
+import { getStore } from "../redux/storeRegistry";
 import { changeInteraction } from "../redux/gameActions";
 import { Parser } from "../game/input/parser";
 import { Door } from "../game/items/door";
@@ -32,7 +32,6 @@ const inputTest = async (input, expectedOutput, ...expectedOmissions) => {
 
 describe("debugFunctions", () => {
   beforeEach(() => {
-    unregisterStore();
     initGame("The Giant's Castle", "", { debugMode: false });
 
     hall = new Room("Hall", "grand");

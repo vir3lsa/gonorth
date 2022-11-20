@@ -8,7 +8,9 @@
     "allowJs": true, // allow a partial TypeScript and JavaScript codebase
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "lib": ["ES6", "DOM"]
+    "lib": ["ES6", "DOM"],
+    "downlevelIteration": true,
+    "esModuleInterop": true
   },
   "include": ["./src/**/*"]
 }

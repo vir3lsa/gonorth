@@ -19,7 +19,7 @@ import { handleTurnEnd } from "./utils/lifecycle";
 import { Parser } from "./game/input/parser";
 import { selectInventory, selectRoom, selectTurn } from "./utils/selectors";
 import { selectCurrentPage } from "./utils/testSelectors";
-import { clickNext, deferAction } from "./utils/testFunctions";
+import { clickNext } from "./utils/testFunctions";
 import { OptionGraph } from "./game/interactions/optionGraph";
 
 const title = "Space Auctioneer 2";
@@ -38,7 +38,6 @@ const eventTest = async (event, expectation) => {
 
 describe("Game class", () => {
   beforeEach(() => {
-    unregisterStore();
     game = initGame("title", "", { debugMode: false });
     room = new Room("stairs", "description");
     setStartingRoom(room);
@@ -210,6 +209,7 @@ describe("goNORTH", () => {
 });
 
 test("getItem can be used to retrieve items from the store", () => {
+  initGame("title", "", { debugMode: false });
   new Item.Builder("toolbox").withDescription("red and angular").build();
   expect(getItem("toolbox").description).toBe("red and angular");
 });
