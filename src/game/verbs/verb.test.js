@@ -5,14 +5,7 @@ import { Interaction } from "../interactions/interaction";
 import { CyclicText, SequentialText, RandomText, PagedText } from "../interactions/text";
 import { Option } from "../interactions/option";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
-import {
-  addEffect,
-  addPreVerbEffect,
-  addPreVerbWildcardEffect,
-  addWildcardEffect,
-  initGame,
-  moveItem
-} from "../../gonorth";
+import { addEffect, addWildcardEffect, initGame, moveItem } from "../../gonorth";
 import { clickNext, clickNextAndWait, deferAction } from "../../utils/testFunctions";
 import { selectEffects, selectInventory, selectVerbNames } from "../../utils/selectors";
 import { Item } from "../items/item";
@@ -405,7 +398,7 @@ describe("chainable actions", () => {
 
     it("executes effects for normally non-prepositional verbs", async () => {
       const microscope = new Item.Builder("microscope").build();
-      addEffect("egg", "microscope", "examine", true, "It looks interesting.");
+      addEffect("egg", "microscope", "examine", true, false, "It looks interesting.");
       await egg.try("examine", microscope);
       expect(selectCurrentPage()).toInclude("It looks interesting.");
     });
@@ -413,7 +406,7 @@ describe("chainable actions", () => {
     it("executes effects before the verb", async () => {
       // Check it's effect then verb, not verb then effect.
       let x = 60;
-      addPreVerbEffect("egg", "bat", "hit", true, () => (x /= 3));
+      addEffect("egg", "bat", "hit", true, true, () => (x /= 3));
       egg.verbs.hit.onSuccess.addAction(() => (x += 10));
       await egg.try("hit", bat);
       expect(x).toBe(30);
