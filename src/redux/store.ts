@@ -18,7 +18,7 @@ import {
 import type { Room } from "items/room";
 import type { Item } from "items/item";
 
-export const initStore = (name: string) => {
+export const initStore = (name?: string) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));
   const persistor = new SnapshotPersistor(store, {
     version: 7,

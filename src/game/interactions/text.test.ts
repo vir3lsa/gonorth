@@ -9,7 +9,8 @@ import {
   ManagedText,
   PagedText,
   RandomText,
-  SequentialText
+  SequentialText,
+  Text
 } from "./text";
 
 jest.mock("../../utils/consoleIO");
@@ -17,7 +18,7 @@ const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let cyclic, random;
+let cyclic: Text, random: Text;
 
 beforeEach(() => {
   unregisterStore();
@@ -41,7 +42,7 @@ test("Cyclic text works with just one entry", () => {
 });
 
 test("Random text gives each entry but in a random order", () => {
-  let values = [...random._texts];
+  let values = ["x", "y", "z"];
   let val1 = random.next(),
     val2 = random.next(),
     val3 = random.next();
@@ -67,8 +68,8 @@ test("Cyclic text entries may be functions", () => {
 
 test("Functions can take any number of arguments", () => {
   const text = new CyclicText(
-    (x, y, z) => "result: " + (x + y + z),
-    (x) => x
+    (x, y, z) => "result: " + ((x as string) + y + z),
+    (x) => x as string
   );
   expect(text.next(1, 2, 3)).toBe("result: 6");
   expect(text.next("chips")).toBe("chips");
@@ -78,7 +79,7 @@ test("Sequential text entries may be functions", () => {
   const text = new SequentialText(
     () => "a",
     (x) => "" + x,
-    (x, y, z) => "" + (x + y + z),
+    (x, y, z) => "" + ((x as string) + y + z),
     "c"
   );
   expect(text.next(1, 2, 3)).toBe("a");
@@ -91,7 +92,7 @@ test("Paged text entries may be functions", () => {
   const text = new PagedText(
     () => "a",
     (x) => "" + x,
-    (x, y, z) => "" + (x + y + z),
+    (x, y, z) => "" + ((x as string) + y + z),
     "c"
   );
   expect(text.next(1, 2, 3)).toBe("a");
@@ -104,7 +105,7 @@ test("Random text entries may be functions", () => {
   const text = new RandomText(
     () => "a",
     (x) => "" + x,
-    (x, y, z) => "" + (x + y + z),
+    (x, y, z) => "" + ((x as string) + y + z),
     "c"
   );
   const results = [];
@@ -118,7 +119,7 @@ test("Random text entries may be functions", () => {
   expect(results).toContain("c");
 });
 
-const cyclesTest = (text) => {
+const cyclesTest = (text: Text) => {
   expect(text.cycles).toBe(0);
   text.next();
   text.next();
@@ -133,7 +134,7 @@ test("Sequential texts count cycles", () => cyclesTest(new SequentialText("a", "
 test("Paged texts count cycles", () => cyclesTest(new PagedText("a", "b")));
 test("Random texts count cycles", () => cyclesTest(new RandomText("a", "b")));
 
-const managedTextTest = (textType) => {
+const managedTextTest = (textType: typeof Text) => {
   const text = new ManagedText.Builder()
     .withText(new textType("a", "b"))
     .times(2)
@@ -246,9 +247,9 @@ describe("ConcatText", () => {
 
   test("concat text concatenates function texts", () => {
     const text = new ConcatText(
-      (x) => x + x,
+      (x) => (x as string) + x,
       "b",
-      (y) => y + y
+      (y) => (y as string) + y
     );
     expect(text.next("z")).toBe("zz\n\nb\n\nzz");
     expect(text.next("mn")).toBe("mnmn\n\nb\n\nmnmn");
@@ -261,13 +262,13 @@ describe("ConcatText", () => {
   });
 
   test("concat text calls functions recursively", () => {
-    const text = new ConcatText("zebra", (x) => (x) => (x) => x + x + x);
+    const text = new ConcatText("zebra", () => () => (x) => (x as string) + x + x);
     expect(text.next("z")).toBe("zebra\n\nzzz");
     expect(text.next(1)).toBe("zebra\n\n3");
   });
 
   test("joined text uses a custom separator", () => {
-    const text = new JoinedText(" ", "dog", (x) => (x) => `a${x}c`, new SequentialText("z", "y"));
+    const text = new JoinedText(" ", "dog", () => (x) => `a${x}c`, new SequentialText("z", "y"));
     expect(text.next("mmm")).toBe("dog ammmc z");
     expect(text.next("mmm")).toBe("dog ammmc y");
   });
@@ -277,4 +278,14 @@ test("Texts may have nested Texts", () => {
   const text = new SequentialText(new ConcatText("a", "b"), new SequentialText("c"));
   expect(text.next()).toBe("a\n\nb");
   expect(text.next()).toBe("c");
+});
+
+test("SequentialText calls functions recursively", () => {
+  const text = new SequentialText(() => () => (x) => `a${x}b`);
+  expect(text.next("Z")).toBe("aZb");
+});
+
+test("SequentialText calls functions recursively and invokes Text functions", () => {
+  const text = new SequentialText(() => () => () => new SequentialText((x) => `a${x}b`));
+  expect(text.next("Z")).toBe("aZb");
 });

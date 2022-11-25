@@ -30,4 +30,6 @@ interface SerializedText {
 
 type TextCallback = () => void;
 
-type TextPart = string | ((...args: unknown[]) => string) | import("interactions/text").Text;
+type TextFunction = (...args: unknown[]) => string | import("interactions/text").Text | TextFunction;
+
+type TextPart = string | TextFunction | import("interactions/text").Text;

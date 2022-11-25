@@ -99,6 +99,24 @@ export class Text {
     this.recordAlteredProperty("candidates", this.candidates);
   }
 
+  /**
+   * Converts a TextPart to a string by recursively invoking functions and
+   * calling Text#next until a string is yielded.
+   * @param textPart The TextPart
+   * @param args Additional arguments to pass to functions
+   * @returns
+   */
+  textPartToString(textPart: TextPart, ...args: unknown[]): string {
+    if (typeof textPart === "function") {
+      const newText = textPart(...args);
+      return this.textPartToString(newText, ...args);
+    } else if (textPart instanceof Text) {
+      return textPart.next(...args);
+    }
+
+    return textPart;
+  }
+
   next(...args: unknown[]): string {
     const text = this.text;
     this.candidates = this.candidates.filter((c) => c !== this.index);
@@ -108,11 +126,7 @@ export class Text {
       this._resetCandidates();
     }
 
-    if (text instanceof Text) {
-      return text.next(...args);
-    }
-
-    return typeof text === "function" ? text(...args) : text;
+    return this.textPartToString(text, ...args);
   }
 
   toJSON() {
@@ -185,20 +199,9 @@ export class ConcatText extends Text {
   }
 
   next(...args: unknown[]) {
-    const textToString = (text: TextPart): string => {
-      if (typeof text === "function") {
-        const newText = text(...args);
-        return textToString(newText);
-      } else if (text instanceof Text) {
-        return text.next(...args);
-      }
-
-      return text;
-    };
-
     return this.texts
       .filter((text) => text)
-      .map(textToString)
+      .map((text) => this.textPartToString(text, ...args))
       .join(this.separator);
   }
 }
