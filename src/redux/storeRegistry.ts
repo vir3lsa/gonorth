@@ -1,6 +1,9 @@
-var registeredStore, registeredPersistor;
+import type { Store } from "redux";
+import type { SnapshotPersistor } from "./snapshotPersistor";
 
-export const registerStore = (store, persistor) => {
+var registeredStore: Store | null, registeredPersistor: SnapshotPersistor | null;
+
+export const registerStore = (store: Store, persistor: SnapshotPersistor) => {
   if (!registeredStore) {
     registeredStore = store;
     registeredPersistor = persistor;

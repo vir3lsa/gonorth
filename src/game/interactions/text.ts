@@ -1,7 +1,16 @@
 import { selectRecordChanges } from "../../utils/selectors";
 
 export class Text {
-  constructor(...texts) {
+  [propertyName: string]: unknown;
+  private _alteredProperties: AlteredProperties;
+  private _texts!: TextPart[];
+  private _index!: number;
+  private _cycles!: number;
+  private _candidates!: number[];
+  private _onChange!: TextCallback;
+  private _partial!: boolean;
+
+  constructor(...texts: TextPart[]) {
     this._alteredProperties = new Set();
     this.onChange = () => {};
 
@@ -22,7 +31,7 @@ export class Text {
     return new Text(...this.texts);
   }
 
-  set texts(texts) {
+  set texts(texts: TextPart[]) {
     this._texts = Array.isArray(texts) ? texts : [texts];
     this.recordAlteredProperty("texts", texts);
   }
@@ -90,13 +99,17 @@ export class Text {
     this.recordAlteredProperty("candidates", this.candidates);
   }
 
-  next(...args) {
+  next(...args: unknown[]): string {
     const text = this.text;
     this.candidates = this.candidates.filter((c) => c !== this.index);
 
     if (!this.candidates.length) {
       this.cycles++;
       this._resetCandidates();
+    }
+
+    if (text instanceof Text) {
+      return text.next(...args);
     }
 
     return typeof text === "function" ? text(...args) : text;
@@ -108,12 +121,12 @@ export class Text {
         acc[propertyName] = this[propertyName];
         return acc;
       },
-      { isText: true, partial: this._partial }
+      { isText: true, partial: this._partial } as JsonDict
     );
   }
 
   // Records an altered property.
-  recordAlteredProperty(propertyName, newValue) {
+  recordAlteredProperty(propertyName: string, newValue: unknown) {
     const recordChanges = selectRecordChanges();
     if (recordChanges && typeof newValue === "function") {
       throw Error(
@@ -129,7 +142,7 @@ export class Text {
 }
 
 export class CyclicText extends Text {
-  constructor(...texts) {
+  constructor(...texts: TextPart[]) {
     super(...texts);
   }
 
@@ -141,10 +154,10 @@ export class CyclicText extends Text {
     return new CyclicText(...this.texts);
   }
 
-  next(...args) {
+  next(...args: unknown[]) {
     this.index++;
 
-    if (this.index > this._texts.length - 1) {
+    if (this.index > this.texts.length - 1) {
       this.index = 0;
     }
 
@@ -156,7 +169,9 @@ export class CyclicText extends Text {
  * An immutable Text type that concatenates all its values with blank lines.
  */
 export class ConcatText extends Text {
-  constructor(...texts) {
+  separator: string;
+
+  constructor(...texts: TextPart[]) {
     super(...texts);
     this.separator = "\n\n";
   }
@@ -169,8 +184,8 @@ export class ConcatText extends Text {
     return new ConcatText(...this.texts);
   }
 
-  next(...args) {
-    const textToString = (text) => {
+  next(...args: unknown[]) {
+    const textToString = (text: TextPart): string => {
       if (typeof text === "function") {
         const newText = text(...args);
         return textToString(newText);
@@ -179,9 +194,12 @@ export class ConcatText extends Text {
       }
 
       return text;
-    }
+    };
 
-    return this.texts.filter((text) => text).map(textToString).join(this.separator);
+    return this.texts
+      .filter((text) => text)
+      .map(textToString)
+      .join(this.separator);
   }
 }
 
@@ -189,7 +207,7 @@ export class ConcatText extends Text {
  * A ConcatText with a custom separator.
  */
 export class JoinedText extends ConcatText {
-  constructor(separator, ...texts) {
+  constructor(separator: string, ...texts: TextPart[]) {
     super(...texts);
     this.separator = separator;
   }
@@ -204,7 +222,7 @@ export class JoinedText extends ConcatText {
 }
 
 export class SequentialText extends CyclicText {
-  constructor(...texts) {
+  constructor(...texts: TextPart[]) {
     super(...texts);
   }
 
@@ -218,7 +236,7 @@ export class SequentialText extends CyclicText {
 }
 
 export class PagedText extends SequentialText {
-  constructor(...texts) {
+  constructor(...texts: TextPart[]) {
     super(...texts);
     this.paged = true;
   }
@@ -233,7 +251,7 @@ export class PagedText extends SequentialText {
 }
 
 export class RandomText extends Text {
-  constructor(...texts) {
+  constructor(...texts: TextPart[]) {
     super(...texts);
   }
 
@@ -245,7 +263,7 @@ export class RandomText extends Text {
     return new RandomText(...this.texts);
   }
 
-  next(...args) {
+  next(...args: unknown[]) {
     const candidatesIndex = Math.floor(Math.random() * this.candidates.length);
     this.index = this.candidates[candidatesIndex];
 
@@ -255,35 +273,17 @@ export class RandomText extends Text {
 
 export class ManagedText {
   static get Builder() {
-    class Builder {
-      constructor() {
-        this.phases = [];
-      }
-
-      withText(text) {
-        this.phases.push({ text, times: 1 });
-        return this;
-      }
-
-      times(times) {
-        this.phases[this.phases.length - 1].times = times;
-        return this;
-      }
-
-      onChange(callback) {
-        this.onChangeCallback = callback;
-        return this;
-      }
-
-      build() {
-        return new ManagedText(this);
-      }
-    }
-
-    return Builder;
+    return ManagedTextBuilder;
   }
 
-  constructor(builder) {
+  [propertyName: string]: unknown;
+  private _alteredProperties: AlteredProperties;
+  private _phaseNum!: number;
+  private _onChange!: TextCallback;
+  private _partial!: boolean;
+  phases: ManagedTextPhase[];
+
+  constructor(builder: ManagedTextBuilder) {
     this._alteredProperties = new Set();
     this.onChange = builder.onChangeCallback || (() => {});
 
@@ -352,12 +352,12 @@ export class ManagedText {
         acc[propertyName] = this[propertyName];
         return acc;
       },
-      { isText: true, partial: this._partial }
+      { isText: true, partial: this._partial } as JsonDict
     );
   }
 
   // Records an altered property.
-  recordAlteredProperty(propertyName, newValue) {
+  recordAlteredProperty(propertyName: string, newValue: unknown) {
     const recordChanges = selectRecordChanges();
     if (recordChanges && typeof newValue === "function") {
       throw Error(
@@ -372,11 +372,41 @@ export class ManagedText {
   }
 }
 
+export class ManagedTextBuilder {
+  phases: ManagedTextPhase[];
+  onChangeCallback: TextCallback | undefined;
+
+  constructor() {
+    this.phases = [];
+  }
+
+  withText(text: Text) {
+    this.phases.push({ text, times: 1 });
+    return this;
+  }
+
+  times(times: number) {
+    this.phases[this.phases.length - 1].times = times;
+    return this;
+  }
+
+  onChange(callback: TextCallback) {
+    this.onChangeCallback = callback;
+    return this;
+  }
+
+  build() {
+    return new ManagedText(this);
+  }
+}
+
 /*
  * Text that cycles through sequentially once, before becoming random.
  */
 export class DeferredRandomText extends ManagedText {
-  constructor(...texts) {
+  texts: TextPart[];
+
+  constructor(...texts: TextPart[]) {
     super(new ManagedText.Builder().withText(new CyclicText(...texts)).withText(new RandomText(...texts)));
     this.texts = texts;
   }

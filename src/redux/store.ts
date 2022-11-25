@@ -11,29 +11,33 @@ import {
   PagedText,
   RandomText,
   ManagedText,
-  DeferredRandomText
+  DeferredRandomText,
+  Text,
+  ManagedTextBuilder
 } from "../game/interactions/text";
+import type { Room } from "items/room";
+import type { Item } from "items/item";
 
-export const initStore = (name) => {
+export const initStore = (name: string) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));
   const persistor = new SnapshotPersistor(store, {
     version: 7,
     name,
     whitelist: ["turn", "itemNames", "room", "allItems", "customState"],
     serializers: {
-      itemNames: (value) => [...value],
-      room: (room) => room?.name.toLowerCase(),
-      allItems: (items) =>
+      itemNames: (value: Set<string>) => [...value],
+      room: (room: Room) => room?.name.toLowerCase(),
+      allItems: (items: Item[]) =>
         [...items]
           .filter((item) => item._alteredProperties.size)
           .reduce((acc, item) => {
             acc[item.name] = item;
             return acc;
-          }, {})
+          }, {} as AllItemsDict)
     },
     deserializers: {
-      itemNames: (value) => new Set(value),
-      room: (roomName) => {
+      itemNames: (value: string[]) => new Set(value),
+      room: (roomName: string) => {
         if (roomName === null) {
           // Initial state is null, so this is fine.
           return null;
@@ -46,7 +50,7 @@ export const initStore = (name) => {
         }
         return room;
       },
-      allItems: (snapshotAllItems) => {
+      allItems: (snapshotAllItems: AllItemsDict) => {
         const stateAllItems = [...selectAllItems()];
         // Augment the complete list of all items with values from the snapshot.
         Object.entries(snapshotAllItems).forEach(([name, snapshotItem]) => {
@@ -78,8 +82,8 @@ export const initStore = (name) => {
                   .forEach(([textProperty, textValue]) => (textToUpdate[textProperty] = textValue));
               } else {
                 // We need to reconstruct the Text from scratch.
-                const reconstructText = (serializedText) => {
-                  let newText;
+                const reconstructText = (serializedText: SerializedText) => {
+                  let newText: Text | ManagedText;
 
                   switch (serializedText.type) {
                     case "CyclicText":
@@ -98,13 +102,16 @@ export const initStore = (name) => {
                       newText = new DeferredRandomText(...serializedText.texts);
                       break;
                     case "ManagedText":
-                      newText = serializedText.phases
-                        .reduce(
-                          (builder, phase) => builder.withText(reconstructText(phase.text)).times(phase.times),
+                      newText = serializedText
+                        .phases!.reduce(
+                          (builder, phase): ManagedTextBuilder =>
+                            builder.withText(reconstructText(phase.text) as Text).times(phase.times),
                           new ManagedText.Builder()
                         )
                         .build();
                       break;
+                    default:
+                      throw Error("Tried to deserialize a Text with no type property.");
                   }
 
                   // Now we need to set the remaining changed properties that couldn't be set via the constructor.
@@ -119,7 +126,7 @@ export const initStore = (name) => {
                 };
 
                 // Finally, set the new Text on the appropriate field of the item.
-                itemToUpdate[property] = reconstructText(value);
+                itemToUpdate[property] = reconstructText(value as SerializedText);
               }
             } else {
               itemToUpdate[property] = value;

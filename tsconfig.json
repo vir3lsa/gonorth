@@ -10,7 +10,13 @@
     "allowSyntheticDefaultImports": true,
     "lib": ["ES6", "DOM"],
     "downlevelIteration": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "strict": true,
+    "noEmitOnError": false,
+    "paths": {
+      "items/*": ["./src/game/items/*"],
+      "interactions/*": ["./src/game/interactions/*"]
+    }
   },
   "include": ["./src/**/*"]
 }

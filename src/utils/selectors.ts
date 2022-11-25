@@ -1,3 +1,4 @@
+import type { Item } from "items/item";
 import { getStore } from "../redux/storeRegistry";
 
 export const selectGame = () => getStore().getState().game;
@@ -7,7 +8,7 @@ export const selectPlayer = () => getStore().getState().player; // Deliberately 
 export const selectInventoryItems = () =>
   getStore()
     .getState()
-    .player.itemArray.filter((item) => !item.doNotList);
+    .player.itemArray.filter((item: Item) => !item.doNotList);
 export const selectRoom = () => getStore().getState().room;
 export const selectVerbNames = () => getStore().getState().verbNames;
 export const selectItemNames = () => getStore().getState().itemNames;
@@ -21,7 +22,7 @@ export const selectAllItemNames = () => getStore().getState().allItemNames;
 export const selectItems = () => getStore().getState().items;
 export const selectAllItems = () => getStore().getState().allItems;
 export const selectOptionGraphs = () => getStore().getState().optionGraphs;
-export const selectOptionGraph = (name) => getStore().getState().optionGraphs[name];
+export const selectOptionGraph = (name: string) => getStore().getState().optionGraphs[name];
 export const selectConfig = () => getStore().getState().game.config;
 export const selectActionChainPromise = () => getStore().getState().actionChainPromise;
 export const selectEvents = () => getStore().getState().events;
@@ -31,6 +32,6 @@ export const selectCyCommands = () => getStore().getState().cyCommands;
 export const selectEventTimeoutOverride = () => getStore().getState().eventTimeoutOverride;
 export const selectEventTurnsOverride = () => getStore().getState().eventTurnsOverride;
 export const selectEffects = () => getStore().getState().effects;
-export const selectItem = (name) => getStore().getState().items[name];
+export const selectItem = (name: string) => getStore().getState().items[name];
 export const selectAutoActions = () => getStore().getState().autoActions;
 export const selectRollingLog = () => getStore().getState().rollingLog;

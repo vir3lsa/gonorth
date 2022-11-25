@@ -235,7 +235,9 @@ describe("serialization", () => {
     expect(result.type).toBe("ManagedText");
     expect(result.isText).toBe(true);
   });
+});
 
+describe("ConcatText", () => {
   test("concat text concatenates its texts", () => {
     const text = new ConcatText("a", "b", "c");
     expect(text.next()).toBe("a\n\nb\n\nc");
@@ -269,4 +271,10 @@ describe("serialization", () => {
     expect(text.next("mmm")).toBe("dog ammmc z");
     expect(text.next("mmm")).toBe("dog ammmc y");
   });
+});
+
+test("Texts may have nested Texts", () => {
+  const text = new SequentialText(new ConcatText("a", "b"), new SequentialText("c"));
+  expect(text.next()).toBe("a\n\nb");
+  expect(text.next()).toBe("c");
 });
