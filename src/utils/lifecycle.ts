@@ -1,3 +1,4 @@
+import { AnyAction } from "redux";
 import { processEvent } from "./eventUtils";
 import { getPersistor, getStore } from "../redux/storeRegistry";
 import { selectConfig, selectEvents, selectGame, selectItem, selectRoom, selectTurn } from "./selectors";
@@ -12,6 +13,7 @@ import {
   addAutoInput
 } from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";
+import { Room } from "../game/items/room";
 import { Item } from "../game/items/item";
 import { RandomText, PagedText } from "../game/interactions/text";
 import { OptionGraph } from "../game/interactions/optionGraph";
@@ -33,10 +35,10 @@ export async function handleTurnEnd() {
   return getStore().dispatch(nextTurn());
 }
 
-export function goToRoom(room) {
+export function goToRoom(room: Room | Item | string) {
   let roomObj = typeof room === "string" ? [...selectItem(room)] : room;
 
-  if (Array.isArray(roomObj) && roomObj.length) {
+  if (Array.isArray(roomObj)) {
     roomObj = roomObj[0];
   }
 
@@ -46,13 +48,14 @@ export function goToRoom(room) {
     );
   }
 
-  getStore().dispatch(changeRoom(roomObj));
-  roomObj.revealVisibleItems();
-  return roomObj.actionChain;
+  const definiteRoomObj = roomObj as unknown as RoomT;
+  getStore().dispatch(changeRoom(definiteRoomObj));
+  definiteRoomObj.revealVisibleItems();
+  return definiteRoomObj.actionChain;
 }
 
-export function clearPage(newPage) {
-  getStore().dispatch(changeInteraction(new Interaction(newPage || "")));
+export function clearPage(newPage: string = "") {
+  getStore().dispatch(changeInteraction(new Interaction(newPage)) as unknown as AnyAction);
 }
 
 // Saves game state to local storage.
@@ -159,7 +162,7 @@ export function theEnd() {
   return endGame("THE END");
 }
 
-function endGame(message) {
+function endGame(message: string) {
   const resurrectionText = new RandomText(
     "Groggily, you get to your feet.",
     "Had it been a premonition or just a bad dream? You shiver and try to forget it.",
@@ -181,25 +184,25 @@ function endGame(message) {
     }
   });
 
-  selectEvents().forEach((event) => event.cancel());
+  selectEvents().forEach((event: EventT) => event.cancel());
   return gameOverGraph.commence().chain();
 }
 
 export function initAutoActions() {
   const autoTakeItem = new AutoAction.Builder()
-    .withCondition(({ verb, item }) => !verb.remote && item?.holdable && !playerHasItem(item))
-    .withInputs(({ item }) => `take ${item.name}`)
+    .withCondition(({ verb, item }: Context) => !verb.remote && item?.holdable && !playerHasItem(item))
+    .withInputs(({ item }: Context) => `take ${item.name}`)
     .build();
 
   const autoTakeOtherItem = new AutoAction.Builder()
-    .withCondition(({ verb, other }) => !verb.remote && other?.holdable && !playerHasItem(other))
-    .withInputs(({ other }) => `take ${other.name}`)
+    .withCondition(({ verb, other }: Context) => !verb.remote && other?.holdable && !playerHasItem(other))
+    .withInputs(({ other }: Context) => `take ${other!.name}`)
     .build();
 
   addAutoAction(autoTakeItem);
   addAutoAction(autoTakeOtherItem);
 }
 
-export function addAutoAction(autoAction) {
+export function addAutoAction(autoAction: AutoActionT) {
   getStore().dispatch(addAutoInput(autoAction));
 }
