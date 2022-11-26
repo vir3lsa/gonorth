@@ -1,20 +1,10 @@
-interface AllItemsDict {
-  [key: string]: import("items/item").Item;
-}
-
-type AlteredProperties = Set<string>;
-
-interface JsonDict {
-  [propertyName: string]: unknown;
-}
+/********/
+/* Text */
+/********/
 
 interface ManagedTextPhase {
-  text: import("interactions/text").Text;
+  text: import("../game/interactions/text").Text;
   times: number;
-}
-
-interface SerializedItem {
-  // TODO
 }
 
 interface SerializedManagedTextPhase {
@@ -28,8 +18,33 @@ interface SerializedText {
   phases?: SerializedManagedTextPhase[];
 }
 
-type TextCallback = () => void;
+type AnyText = import("../game/interactions/text").Text | import("../game/interactions/text").ManagedText;
+type TextFunction = (...args: unknown[]) => string | AnyText | TextFunction;
+type TextPart = string | TextFunction | AnyText;
+type UnknownText = string | string[] | AnyText | TextFunction;
 
-type TextFunction = (...args: unknown[]) => string | import("interactions/text").Text | TextFunction;
+/*************/
+/* Functions */
+/*************/
 
-type TextPart = string | TextFunction | import("interactions/text").Text;
+type Consumer = (value?: unknown) => void;
+type SimpleAction = () => void;
+
+/*************************/
+/* Persistent Properties */
+/*************************/
+
+type AlteredProperties = Set<string>;
+type PersistentVariable = string | number | boolean | Record<string, unknown>;
+
+interface JsonDict {
+  [propertyName: string]: unknown;
+}
+
+/*********/
+/* Redux */
+/*********/
+
+interface AllItemsDict {
+  [key: string]: import("../game/items/item").Item;
+}

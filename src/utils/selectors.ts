@@ -1,4 +1,4 @@
-import type { Item } from "items/item";
+import type { Item } from "../game/items/item";
 import { getStore } from "../redux/storeRegistry";
 
 export const selectGame = () => getStore().getState().game;

@@ -49,6 +49,8 @@ export class Item {
     return copy;
   }
 
+  isRoom = false;
+
   constructor(
     name = "item",
     description = "It's fairly ordinary looking.",

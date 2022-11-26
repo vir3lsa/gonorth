@@ -289,3 +289,5 @@ test("SequentialText calls functions recursively and invokes Text functions", ()
   const text = new SequentialText(() => () => () => new SequentialText((x) => `a${x}b`));
   expect(text.next("Z")).toBe("aZb");
 });
+
+// TODO Test function like above but with nested ManagedText

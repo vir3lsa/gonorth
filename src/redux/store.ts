@@ -15,8 +15,8 @@ import {
   Text,
   ManagedTextBuilder
 } from "../game/interactions/text";
-import type { Room } from "items/room";
-import type { Item } from "items/item";
+import type { Room } from "../game/items/room";
+import type { Item } from "../game/items/item";
 
 export const initStore = (name?: string) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));

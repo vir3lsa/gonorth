@@ -1,6 +1,8 @@
+import type { Item } from "../game/items/item";
+
 const vowels = ["a", "e", "i", "o", "u"];
 
-export function getBasicItemList(items, definiteArticle) {
+export function getBasicItemList(items: Item[], definiteArticle: boolean = false) {
   if (items.length < 8) {
     return commaSeparate(items, definiteArticle);
   } else {
@@ -8,7 +10,7 @@ export function getBasicItemList(items, definiteArticle) {
   }
 }
 
-function commaSeparate(items, definiteArticle) {
+function commaSeparate(items: Item[], definiteArticle: boolean = false) {
   let text = "";
 
   items.forEach((item, i) => {
@@ -25,7 +27,7 @@ function commaSeparate(items, definiteArticle) {
   return text;
 }
 
-export function bulletPointList(items, definiteArticle) {
+export function bulletPointList(items: Item[], definiteArticle: boolean = false) {
   return (
     "* " +
     items
@@ -37,15 +39,15 @@ export function bulletPointList(items, definiteArticle) {
   );
 }
 
-export function toTitleCase(text) {
+export function toTitleCase(text: string) {
   return text[0].toUpperCase() + text.slice(1);
 }
 
-export function getArticle(name) {
+export function getArticle(name: string) {
   return `a${vowels.includes(name.toLowerCase()[0]) ? "n" : ""}`;
 }
 
-export function englishList(elements) {
+export function englishList(elements: string[]) {
   return elements.reduce((list, element, index) => {
     let newList = `${list}${element}`;
 

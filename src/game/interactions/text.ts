@@ -7,7 +7,7 @@ export class Text {
   private _index!: number;
   private _cycles!: number;
   private _candidates!: number[];
-  private _onChange!: TextCallback;
+  private _onChange!: SimpleAction;
   private _partial!: boolean;
 
   constructor(...texts: TextPart[]) {
@@ -110,7 +110,7 @@ export class Text {
     if (typeof textPart === "function") {
       const newText = textPart(...args);
       return this.textPartToString(newText, ...args);
-    } else if (textPart instanceof Text) {
+    } else if (textPart instanceof Text || textPart instanceof ManagedText) {
       return textPart.next(...args);
     }
 
@@ -282,7 +282,7 @@ export class ManagedText {
   [propertyName: string]: unknown;
   private _alteredProperties: AlteredProperties;
   private _phaseNum!: number;
-  private _onChange!: TextCallback;
+  private _onChange!: SimpleAction;
   private _partial!: boolean;
   phases: ManagedTextPhase[];
 
@@ -377,7 +377,7 @@ export class ManagedText {
 
 export class ManagedTextBuilder {
   phases: ManagedTextPhase[];
-  onChangeCallback: TextCallback | undefined;
+  onChangeCallback: SimpleAction | undefined;
 
   constructor() {
     this.phases = [];
@@ -393,7 +393,7 @@ export class ManagedTextBuilder {
     return this;
   }
 
-  onChange(callback: TextCallback) {
+  onChange(callback: SimpleAction) {
     this.onChangeCallback = callback;
     return this;
   }

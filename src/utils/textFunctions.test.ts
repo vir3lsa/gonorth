@@ -1,4 +1,8 @@
-const { englishList, getBasicItemList, bulletPointList } = require("./textFunctions");
+import { englishList, getBasicItemList, bulletPointList } from "./textFunctions";
+import { newItem } from "../game/items/item";
+import { initStore } from "../redux/store";
+
+initStore("test");
 
 test("english list returns a single item", () => {
   expect(englishList(["earth"])).toEqual("earth");
@@ -21,9 +25,9 @@ test("english list returns more items with commas", () => {
 
 describe("getBasicItemList", () => {
   const items = [
-    { name: "elephant", article: "an" },
-    { name: "screw", article: "a" },
-    { name: "porcupine", article: "a" }
+    newItem({ name: "elephant", article: "an" }),
+    newItem({ name: "screw", article: "a" }),
+    newItem({ name: "porcupine", article: "a" })
   ];
 
   test("returns a list of items with correct articles", () =>

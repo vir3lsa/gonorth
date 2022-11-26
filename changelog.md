@@ -2,6 +2,8 @@
 
 ## Unreleased (1.0.0)
 
+* 2022-11-26 Converted various utility classes to TypeScript.
+* 2022-11-25 Converted Text to TypeScript.
 * 2022-11-25 First few files converted to TypeScript.
 * 2022-10-30 Removed 'object' and 'helpers' from Verbs.
 * 2022-10-30 Updated 'addEffect' and 'addWildcardEffect' functions to include 'continueVerb' parameters.

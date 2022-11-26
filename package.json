@@ -63,19 +63,5 @@
     "seedrandom": "3.0.5",
     "unified": "9.0.0",
     "uuid": "8.3.2"
-  },
-  "jest": {
-    "setupFilesAfterEnv": [
-      "jest-extended",
-      "<rootDir>/setupTests.ts"
-    ],
-    "testPathIgnorePatterns": [
-      "cypress"
-    ],
-    "preset": "ts-jest/presets/js-with-ts",
-    "testEnvironment": "node",
-    "roots": [
-      "<rootDir>/src/"
-    ]
   }
 }

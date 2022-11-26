@@ -7,12 +7,14 @@ export const clickNextAndWait = () => {
   return selectInteraction().promise;
 };
 
-export const deferAction = (action) => {
-  let res;
+export const deferAction = (action: SimpleAction) => {
+  let res: Consumer;
   const prom = new Promise((resolve) => (res = resolve));
+
   setTimeout(() => {
     action();
     res();
   });
+
   return prom;
 };
