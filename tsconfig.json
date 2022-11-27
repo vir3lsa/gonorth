@@ -12,7 +12,11 @@
     "downlevelIteration": true,
     "esModuleInterop": true,
     "strict": true,
-    "noEmitOnError": false
+    "noEmitOnError": false,
+    "paths": {
+      "@items/*": ["./src/game/items/*"],
+      "@interactions/*": ["./src/game/interactions/*"]
+    }
   },
   "include": ["./src/**/*"]
 }

@@ -5,7 +5,11 @@ const jestConfig: JestConfigWithTsJest = {
   testPathIgnorePatterns: ["cypress"],
   preset: "ts-jest/presets/js-with-ts",
   testEnvironment: "node",
-  roots: ["<rootDir>"]
+  roots: ["<rootDir>/src"],
+  moduleNameMapper: {
+    "@items/(.*)": "<rootDir>/src/game/items/$1",
+    "@interactions/(.*)": "<rootDir>/src/game/interactions/$1"
+  }
 };
 
 export default jestConfig;

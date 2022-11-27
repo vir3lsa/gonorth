@@ -61,6 +61,7 @@
     "redux-thunk": "2.3.0",
     "remark-gfm": "1.0.0",
     "seedrandom": "3.0.5",
+    "ts-node": "10.9.1",
     "unified": "9.0.0",
     "uuid": "8.3.2"
   }
