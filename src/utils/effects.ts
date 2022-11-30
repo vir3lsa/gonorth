@@ -2,7 +2,7 @@ import { ActionChain } from "./actionChain";
 
 const WILDCARD = "__effects:wildcard__";
 
-function getKey(item) {
+function getKey(item: ItemOrString): string {
   if (!item) {
     return "__undefined__";
   }
@@ -14,11 +14,20 @@ function getKey(item) {
  * Class that can be used to store the effects of interactions between pairs of items.
  */
 export class Effects {
+  effects: EffectsDict;
+
   constructor() {
     this.effects = {};
   }
 
-  add(primary, secondary, verbName, successful, continueVerb, ...effects) {
+  add(
+    primary: ItemOrString,
+    secondary: ItemOrString,
+    verbName: string,
+    successful: boolean,
+    continueVerb: boolean,
+    ...effects: Action[]
+  ) {
     const primaryKey = getKey(primary);
     const secondaryKey = getKey(secondary);
     const affectedItems = this.effects[primaryKey] || {};
@@ -34,11 +43,17 @@ export class Effects {
     };
   }
 
-  addWildcard(secondary, verbName, successful, ...effects) {
-    this.add(WILDCARD, secondary, verbName, successful, ...effects);
+  addWildcard(
+    secondary: ItemOrString,
+    verbName: string,
+    successful: boolean,
+    continueVerb: boolean,
+    ...effects: Action[]
+  ) {
+    this.add(WILDCARD, secondary, verbName, successful, continueVerb, ...effects);
   }
 
-  hasEffect(primary, secondary, verbName) {
+  hasEffect(primary: ItemOrString, secondary: ItemOrString, verbName: string) {
     const primaryKey = getKey(primary);
     const secondaryKey = getKey(secondary);
 
@@ -48,7 +63,7 @@ export class Effects {
     );
   }
 
-  isSuccessful(primary, secondary, verbName) {
+  isSuccessful(primary: ItemOrString, secondary: ItemOrString, verbName: string) {
     const primaryKey = getKey(primary);
     const secondaryKey = getKey(secondary);
 
@@ -58,7 +73,7 @@ export class Effects {
     );
   }
 
-  apply(primary, secondary, verbName) {
+  apply(primary: ItemOrString, secondary: ItemOrString, verbName: string) {
     const primaryKey = getKey(primary);
     const secondaryKey = getKey(secondary);
 
@@ -73,7 +88,7 @@ export class Effects {
     }
   }
 
-  getEffect(primary, secondary, verbName) {
+  getEffect(primary: ItemOrString, secondary: ItemOrString, verbName: string) {
     const primaryKey = getKey(primary);
     const secondaryKey = getKey(secondary);
 

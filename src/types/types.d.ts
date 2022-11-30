@@ -134,3 +134,26 @@ interface Context {
   item: ItemT;
   other?: ItemT;
 }
+
+interface EffectsDict {
+  [primaryKey: string]: {
+    [secondaryKey: string]: {
+      [verbName: string]: {
+        successful: boolean;
+        continueVerb: boolean;
+        effects: ActionChainT;
+      };
+    };
+  };
+}
+
+type ActionFunction = (context: Context) => Action | undefined;
+type Action = Action[] | ActionFunction | string | AnyText | InteractionT | ActionChainT | OptionGraphT;
+
+/********/
+/* Misc */
+/********/
+
+type ItemOrRoom = ItemT | RoomT;
+type ItemRoomOrString = ItemOrRoom | string;
+type ItemOrString = ItemT | string;

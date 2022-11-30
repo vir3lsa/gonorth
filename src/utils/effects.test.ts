@@ -5,7 +5,7 @@ import { Effects } from "./effects";
 import { selectCurrentPage } from "./testSelectors";
 import { initGame } from "../gonorth";
 
-let effects;
+let effects: EffectsT;
 
 beforeEach(() => {
   unregisterStore();
@@ -44,18 +44,18 @@ test("non-registered effects are considered unsuccessful", () => {
 });
 
 test("effects are realised", async () => {
-  await effects.apply("paint", "canvas", "apply").chain();
+  await effects.apply("paint", "canvas", "apply")!.chain();
   expect(selectCurrentPage()).toInclude("beautiful picture");
 });
 
 test("effects are realised even when considered unsuccessful", async () => {
-  await effects.apply("paint", "face", "apply").chain();
+  await effects.apply("paint", "face", "apply")!.chain();
   expect(selectCurrentPage()).toInclude("wrong kind of paint");
 });
 
 test("effects can be added using item names", async () => {
   effects.add("cat", "dog", "pit", true, false, "The cat bests the dog");
-  await effects.apply("cat", "dog", "pit").chain();
+  await effects.apply("cat", "dog", "pit")!.chain();
   expect(selectCurrentPage()).toInclude("The cat bests");
 });
 
@@ -70,11 +70,11 @@ test("we can ask whether a wildcard effect will be considered successful", () =>
 });
 
 test("wildcard effects are realised", async () => {
-  await effects.apply("noodle", "pool", "put").chain({ item: { name: "noodle" } });
+  await effects.apply("noodle", "pool", "put")!.chain({ item: { name: "noodle" } });
   expect(selectCurrentPage()).toInclude("The noodle hits the water");
 });
 
 test("wildcard effects are realised even when considered unsuccessful", async () => {
-  await effects.apply("bowl", "fire", "put").chain({ item: { name: "bowl" } });
+  await effects.apply("bowl", "fire", "put")!.chain({ item: { name: "bowl" } });
   expect(selectCurrentPage()).toInclude("The bowl doesn't seem to want to catch fire");
 });

@@ -12,7 +12,7 @@ const consoleIO = require("./consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let mockStorage, ball, playground, house;
+let mockStorage: Record<string, string>, ball: ItemT, playground: RoomT, house: RoomT;
 
 const initialiser = () => {
   ball = new Item("ball");
@@ -32,7 +32,10 @@ beforeEach(() => {
       if (mockStorage.hasOwnProperty(key)) {
         delete mockStorage[key];
       }
-    }
+    },
+    length: 0,
+    clear: () => {},
+    key: (index: number) => null
   };
   initGame("test", "", { debugMode: false }, initialiser);
   setStartingRoom(playground);
