@@ -10,9 +10,11 @@ type InteractionT = import("../game/interactions/interaction").Interaction;
 type EventT = import("../game/events/event").Event;
 type EffectsT = import("../utils/effects").Effects;
 type ActionChainT = import("../utils/actionChain").ActionChain;
+type ActionClassT = import("../utils/actionChain").ActionClass;
 type OptionGraphT = import("../game/interactions/optionGraph").OptionGraph;
 type VerbT = import("../game/verbs/verb").Verb;
 type AutoActionT = import("../game/input/autoAction").AutoAction;
+type OptionT = import("../game/interactions/option").Option;
 
 /********/
 /* Text */
@@ -135,6 +137,14 @@ interface Context {
   other?: ItemT;
 }
 
+interface ActionChainHelpers {
+  fail?: () => boolean;
+}
+
+type ChainContext = Partial<Context> & ActionChainHelpers;
+type DefiniteContext = Context & ActionChainHelpers;
+type AnyContext = Context | ActionChainHelpers;
+
 interface EffectsDict {
   [primaryKey: string]: {
     [secondaryKey: string]: {
@@ -147,8 +157,19 @@ interface EffectsDict {
   };
 }
 
-type ActionFunction = (context: Context) => Action | undefined;
-type Action = Action[] | ActionFunction | string | AnyText | InteractionT | ActionChainT | OptionGraphT;
+type ActionFunction = (context: ChainContext) => MaybeAction;
+type ActionContextFunction = (context: DefiniteContext) => MaybeAction;
+type ActionBase = ActionClassT | string | AnyText | InteractionT | ActionChainT | OptionGraphT;
+type Action = ActionBase | Action[] | ActionFunction;
+type ContextAction = ActionBase | ContextAction[] | ActionContextFunction;
+type MaybeAction = Action | undefined;
+type MaybePromise = Promise<any> | undefined;
+type MaybeOptions = OptionT[] | undefined;
+type MaybeChainContext = ChainContext | undefined;
+type ChainableFunction = (context?: ChainContext) => MaybePromise;
+type PostScript = TextT | (() => string) | string;
+type MaybePostScript = PostScript | undefined;
+type Resolve = (value?: unknown) => void;
 
 /********/
 /* Misc */

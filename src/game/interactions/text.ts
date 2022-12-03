@@ -9,6 +9,7 @@ export class Text {
   private _candidates!: number[];
   private _onChange!: SimpleAction;
   private _partial!: boolean;
+  protected _paged!: boolean;
 
   constructor(...texts: TextPart[]) {
     this._alteredProperties = new Set();
@@ -17,6 +18,7 @@ export class Text {
     this.texts = texts;
     this.index = -1;
     this.cycles = 0;
+    this._paged = false;
     this._resetCandidates();
 
     // If recording has started, this Text will need to be reconstructed entirely on deserialization.
@@ -89,6 +91,10 @@ export class Text {
 
   set partial(value) {
     this._partial = value;
+  }
+
+  get paged() {
+    return this._paged;
   }
 
   recordAll() {
@@ -241,7 +247,7 @@ export class SequentialText extends CyclicText {
 export class PagedText extends SequentialText {
   constructor(...texts: TextPart[]) {
     super(...texts);
-    this.paged = true;
+    this._paged = true;
   }
 
   get type() {

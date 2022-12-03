@@ -1,28 +1,28 @@
-import {
-  changeInteraction,
-  chainStarted,
-  chainEnded
-} from "../redux/gameActions";
+import { changeInteraction, chainStarted, chainEnded } from "../redux/gameActions";
 import { Interaction, Append } from "../game/interactions/interaction";
 import { getStore } from "../redux/storeRegistry";
-import { Text, SequentialText } from "../game/interactions/text";
+import { Text, SequentialText, ManagedText } from "../game/interactions/text";
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { selectOptions } from "./selectors";
+import { AnyAction } from "redux";
 
 /*
  * Class representing a chainable action. Additional config can be set for the action.
  */
-export class Action {
-  constructor(action, renderNextButton) {
+export class ActionClass {
+  _action!: ActionFunction;
+  renderNextButton: boolean;
+
+  constructor(action: Action, renderNextButton: boolean) {
     this.action = action;
     this.renderNextButton = renderNextButton;
   }
 
-  get action() {
+  get action(): ActionFunction {
     return this._action;
   }
 
-  set action(action) {
+  set action(action: Action) {
     let actionFunction = action;
 
     if (typeof actionFunction !== "function") {
@@ -39,11 +39,20 @@ export class Action {
  * button will usually be required to progress to the next action.
  */
 export class ActionChain {
-  constructor(...actions) {
+  _actions!: ChainableFunction[];
+  _options!: OptionT[];
+  _postScript?: PostScript;
+  renderNexts: boolean;
+  propagateOptions: boolean;
+  failed: boolean;
+  lastActionProducedText: boolean;
+  helpers: ActionChainHelpers;
+
+  constructor(...actions: Action[]) {
     this.actions = actions;
     this.renderNexts = true;
     this.propagateOptions = false;
-    this.postScript = null;
+    this.postScript = undefined;
     this.failed = false;
     this.lastActionProducedText = false;
     this.helpers = {
@@ -67,52 +76,55 @@ export class ActionChain {
     return this._postScript;
   }
 
-  addHelpers(helpers) {
+  addHelpers(helpers: ActionChainHelpers) {
     this.helpers = { ...this.helpers, ...helpers };
   }
 
-  set actions(actions) {
-    this._actions = actions.map((action, i, actions) => this.toChainableFunction(action, i, actions));
+  set actions(actions: Action[]) {
+    this._actions = actions.map((action, i, actions) => this.toChainableFunction(action, i, actions.length));
   }
 
   /* Insert an action at the beginning of the chain. */
-  insertAction(action) {
-    this._actions.unshift(this.toChainableFunction(action, 0, [action, ...this._actions]));
+  insertAction(action: Action) {
+    this._actions.unshift(this.toChainableFunction(action, 0, this._actions.length + 1));
   }
 
-  insertActions(...actions) {
+  insertActions(...actions: Action[]) {
     actions.reverse().forEach((action) => this.insertAction(action));
   }
 
   /* Add an action to the end of the chain. */
-  addAction(action) {
-    this._actions.push(this.toChainableFunction(action, this._actions.length, [...this._actions, action]));
+  addAction(action: Action) {
+    this._actions.push(this.toChainableFunction(action, this._actions.length, this._actions.length + 1));
   }
 
-  dispatchAppend(text, options, nextIfNoOptions, clearPage, lastAction) {
+  dispatchAppend(text: string, options: MaybeOptions, nextIfNoOptions = false, clearPage = false): Promise<any> {
     const interactionType = clearPage ? Interaction : Append;
     const optionsToShow = !nextIfNoOptions ? options : undefined;
 
     return getStore().dispatch(
-      changeInteraction(new interactionType(text, optionsToShow, nextIfNoOptions, this.propagateOptions))
-    );
+      changeInteraction(
+        new interactionType(text, optionsToShow, nextIfNoOptions, this.propagateOptions)
+      ) as unknown as AnyAction // TODO
+    ) as unknown as Promise<any>; // TODO
   }
 
-  toChainableFunction(action, i, actions) {
-    let actionFunction = action;
-    const lastAction = i === actions.length - 1;
+  isActionClass(action?: Action): action is ActionClassT {
+    return Boolean(action) && action instanceof ActionClass;
+  }
 
-    if (typeof actionFunction !== "function") {
-      actionFunction = () => action;
-    }
+  toChainableFunction(action: Action, i: number, numActions: number): ChainableFunction {
+    let actionFunction = typeof action === "function" ? action : () => action;
+    const lastAction = i === numActions - 1;
 
-    return (context) => {
-      let value = actionFunction({ ...this.helpers, ...context });
+    return (context?: ChainContext) => {
+      const argsContext = { ...context };
+      let value: MaybeAction = actionFunction(argsContext);
       let renderNextForThisAction = true;
 
-      if (value instanceof Action) {
-        value = action.action();
-        renderNextForThisAction = action.renderNextButton;
+      if (this.isActionClass(value)) {
+        renderNextForThisAction = value.renderNextButton;
+        value = value.action(argsContext);
       }
 
       // Render next buttons? Calculate here to ensure this.renderNexts is set
@@ -126,7 +138,7 @@ export class ActionChain {
       }
 
       // If this isn't the last action and new value is ActionChain with options
-      if (!lastAction && value && value.options) {
+      if (!lastAction && value && (value as ActionChain).options) {
         throw Error("Custom options are only supported at the end of action chains.");
       }
 
@@ -134,7 +146,13 @@ export class ActionChain {
     };
   }
 
-  handleValue(value, postScript, nextIfNoOptions, context, lastAction) {
+  handleValue(
+    value: MaybeAction,
+    postScript: string,
+    nextIfNoOptions: boolean,
+    context: MaybeChainContext,
+    lastAction: boolean
+  ): MaybePromise {
     if (
       lastAction &&
       ((typeof value === "string" && value) ||
@@ -144,7 +162,7 @@ export class ActionChain {
       this.lastActionProducedText = true;
     }
 
-    const argsContext = { ...this.helpers, ...context };
+    const argsContext = { ...context };
 
     if (value instanceof ActionChain) {
       return this.handleActionChain(value, context, nextIfNoOptions);
@@ -154,36 +172,42 @@ export class ActionChain {
       return this.handleActionChain(new ActionChain(...value), context, nextIfNoOptions);
     } else if (value instanceof SequentialText) {
       return this.expandSequentialText(value, this.options, nextIfNoOptions, postScript, argsContext);
-    } else if (value instanceof Text) {
-      return this.dispatchAppend(`${value.next()}${postScript}`, this.options, nextIfNoOptions, value.paged);
+    } else if (value instanceof Text || value instanceof ManagedText) {
+      return this.dispatchAppend(`${value.next()}${postScript}`, this.options, nextIfNoOptions, (value as TextT).paged);
     } else if (value instanceof Interaction) {
-      return getStore().dispatch(changeInteraction(value));
+      return getStore().dispatch(changeInteraction(value) as unknown as AnyAction) as unknown as MaybePromise; // TODO
     } else if (value instanceof OptionGraph) {
       return this.handleOptionGraph(value, context, nextIfNoOptions);
     } else if (typeof value === "function") {
       return this.handleValue(value(argsContext), postScript, nextIfNoOptions, context, lastAction);
     }
 
+    // TODO Handle when value is ManagedText
     // This is an arbitrary action that shouldn't create a new interaction
-    return value;
+    return value as undefined;
   }
 
-  async handleActionChain(actionChain, context, nextIfNoOptions, paged) {
-    await actionChain.chain(context);
+  async handleActionChain(
+    actionChain: ActionChain,
+    context: MaybeChainContext,
+    nextIfNoOptions: boolean,
+    paged = false
+  ) {
+    await actionChain.chain({ ...context });
     if (nextIfNoOptions && actionChain.lastActionProducedText) {
       // If we're expecting to add options (e.g. Next) and there aren't current options (also e.g. Next), add them.
-      return this.dispatchAppend(this.postScript || "", this.options, nextIfNoOptions, paged);
+      return this.dispatchAppend(this.getPostScript() || "", this.options, nextIfNoOptions, paged);
     }
   }
 
-  handleOptionGraph(optionGraph, context, nextIfNoOptions) {
+  handleOptionGraph(optionGraph: OptionGraphT, context: MaybeChainContext, nextIfNoOptions: boolean) {
     return optionGraph
       .commence()
       .chain(context)
       .then(() => optionGraph.promise)
       .then(() => {
         if (nextIfNoOptions) {
-          return this.dispatchAppend("", null, nextIfNoOptions);
+          return this.dispatchAppend("", undefined, nextIfNoOptions);
         }
       });
   }
@@ -198,18 +222,24 @@ export class ActionChain {
     }
   }
 
-  async expandSequentialText(sequentialText, options, nextIfNoOptions, postScript, argsContext) {
+  async expandSequentialText(
+    sequentialText: SequentialText,
+    options: OptionT[],
+    nextIfNoOptions: boolean,
+    postScript: PostScript,
+    context: AnyContext
+  ) {
     const numTexts = sequentialText.texts.length;
     let index = 0;
 
     while (index < numTexts) {
       const lastPage = index === numTexts - 1;
-      const text = sequentialText.next(argsContext);
+      const text = sequentialText.next(context);
 
       if (typeof text === "string") {
         await this.dispatchAppend(
           `${text}${lastPage ? postScript : ""}`,
-          lastPage ? options : null,
+          lastPage ? options : undefined,
           nextIfNoOptions || !lastPage,
           sequentialText.paged
         );
@@ -219,17 +249,18 @@ export class ActionChain {
     }
   }
 
-  async chain(context) {
-    let chainResolve;
+  async chain(context?: ChainContext) {
+    let chainResolve: Resolve;
     let result = true;
     const chainPromise = new Promise((resolve) => (chainResolve = resolve));
     getStore().dispatch(chainStarted(chainPromise));
+    const argsContext = { ...context, ...this.helpers };
 
     for (let i in this._actions) {
       const action = this._actions[i];
 
       // Run each action. If any return false, result becomes false.
-      result = (await action(context)) !== false && result;
+      result = (await action(argsContext)) !== false && result;
 
       if (this.failed) {
         // Failing an action breaks the chain
@@ -243,7 +274,7 @@ export class ActionChain {
       await this.dispatchAppend("", this.options);
     }
 
-    chainResolve();
+    chainResolve!();
     getStore().dispatch(chainEnded(chainPromise));
     return result;
   }

@@ -26,7 +26,7 @@ export class Effects {
     verbName: string,
     successful: boolean,
     continueVerb: boolean,
-    ...effects: Action[]
+    ...effects: ContextAction[]
   ) {
     const primaryKey = getKey(primary);
     const secondaryKey = getKey(secondary);
@@ -39,7 +39,7 @@ export class Effects {
     affectedPair[verbName] = {
       successful,
       continueVerb,
-      effects: new ActionChain(...effects)
+      effects: new ActionChain(...(effects as Action[]))
     };
   }
 
@@ -48,7 +48,7 @@ export class Effects {
     verbName: string,
     successful: boolean,
     continueVerb: boolean,
-    ...effects: Action[]
+    ...effects: ContextAction[]
   ) {
     this.add(WILDCARD, secondary, verbName, successful, continueVerb, ...effects);
   }

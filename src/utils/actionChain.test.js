@@ -1,4 +1,4 @@
-import { Action, ActionChain } from "./actionChain";
+import { ActionChain, ActionClass } from "./actionChain";
 import { getStore } from "../redux/storeRegistry";
 import { Option } from "../game/interactions/option";
 import { Verb } from "../game/verbs/verb";
@@ -230,7 +230,7 @@ test("A next button is added after a nested action chain whose last action produ
   nextButtonTest(new ActionChain([() => null, () => "one"], "two")));
 
 test("Individual actions can be forced not to produce Next buttons", async () => {
-  const chain = new ActionChain("one", new Action("two", false), "three");
+  const chain = new ActionChain("one", new ActionClass("two", false), "three");
   chain.chain();
   expect(selectCurrentPage()).not.toInclude("two");
   await clickNext();

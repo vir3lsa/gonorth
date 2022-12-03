@@ -1,4 +1,4 @@
-import { Action, ActionChain } from "../../utils/actionChain";
+import { ActionClass, ActionChain } from "../../utils/actionChain";
 import { Option } from "./option";
 import { goToRoom } from "../../utils/lifecycle";
 import { getStore } from "../../redux/storeRegistry";
@@ -142,7 +142,7 @@ export class OptionGraph {
                     node: node.id,
                     skipNodeActions: true,
                     // Perform the inventory action and don't render a 'Next' button.
-                    actions: new Action(() => value.inventoryAction(item), false)
+                    actions: new ActionClass(() => value.inventoryAction(item), false)
                   }
                 }),
                 {}
@@ -172,7 +172,7 @@ export class OptionGraph {
           if (!optionId && !exit) {
             // We're going to add another action - ensure the one before that doesn't create a next button.
             const lastAction = optionActions.pop();
-            const nonNextLastAction = new Action(lastAction, false);
+            const nonNextLastAction = new ActionClass(lastAction, false);
             optionActions.push(nonNextLastAction);
 
             // Return to the same node without repeating its actions.
