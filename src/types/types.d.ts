@@ -37,7 +37,7 @@ interface SerializedText {
 }
 
 type AnyText = TextT | ManagedTextT;
-type TextFunction = (...args: unknown[]) => string | AnyText | TextFunction;
+type TextFunction = (...args: any[]) => string | AnyText | TextFunction;
 type TextPart = string | TextFunction | AnyText;
 type UnknownText = string | string[] | AnyText | TextFunction;
 
@@ -68,6 +68,10 @@ interface AllItemsDict {
   [key: string]: ItemT;
 }
 
+interface Keywords {
+  [name: string]: VerbT;
+}
+
 interface StoreState {
   turn: number;
   debugMode: boolean;
@@ -80,7 +84,7 @@ interface StoreState {
   itemNames: Set<string>;
   actionChainPromise: Promise<string>;
   events: EventT[];
-  keywords: {};
+  keywords: Keywords;
   room: null;
   recordChanges: false;
   rooms: {};
@@ -127,11 +131,12 @@ interface Game {
 
 type GetState = () => StoreState;
 
-/*********/
-/* Verbs */
-/*********/
+/***************/
+/* ActionChain */
+/***************/
 
 interface Context {
+  [key: string]: unknown;
   verb: VerbT;
   item: ItemT;
   other?: ItemT;
@@ -159,17 +164,69 @@ interface EffectsDict {
 
 type ActionFunction = (context: ChainContext) => MaybeAction;
 type ActionContextFunction = (context: DefiniteContext) => MaybeAction;
-type ActionBase = ActionClassT | string | AnyText | InteractionT | ActionChainT | OptionGraphT;
+type ActionBase =
+  | ActionClassT
+  | string
+  | AnyText
+  | InteractionT
+  | ActionChainT
+  | OptionGraphT
+  | number
+  | boolean
+  | null
+  | undefined;
 type Action = ActionBase | Action[] | ActionFunction;
 type ContextAction = ActionBase | ContextAction[] | ActionContextFunction;
-type MaybeAction = Action | undefined;
+type MaybeAction = Action | undefined | void;
 type MaybePromise = Promise<any> | undefined;
-type MaybeOptions = OptionT[] | undefined;
+type MaybeOptions = OptionT | OptionT[] | undefined;
 type MaybeChainContext = ChainContext | undefined;
 type ChainableFunction = (context?: ChainContext) => MaybePromise;
 type PostScript = TextT | (() => string) | string;
 type MaybePostScript = PostScript | undefined;
 type Resolve = (value?: unknown) => void;
+
+/*********/
+/* Verbs */
+/*********/
+
+interface VerbDict {
+  [name: string]: VerbT;
+}
+
+interface VerbNameDict {
+  [name: string]: string;
+}
+
+interface VerbConfig {
+  [property: string]: unknown;
+  name: string;
+  test?: Test;
+  onSuccess?: Action | Action[];
+  onFailure?: Action | Action[];
+  aliases?: string[];
+  isKeyword?: boolean;
+  prepositional?: boolean;
+  interrogative?: string;
+  prepositionOptional?: boolean;
+}
+
+type TestFunction = (context: Context) => boolean;
+type Test = boolean | TestFunction;
+
+/**********/
+/* Parser */
+/**********/
+
+type DisambiguationCallback = (item: ItemT) => string;
+
+/*****************/
+/* Option Graphs */
+/*****************/
+
+interface Node {
+  id: string;
+}
 
 /********/
 /* Misc */

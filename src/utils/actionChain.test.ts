@@ -3,9 +3,11 @@ import { getStore } from "../redux/storeRegistry";
 import { Option } from "../game/interactions/option";
 import { Verb } from "../game/verbs/verb";
 import { selectCurrentPage, selectOptions } from "./testSelectors";
-import { changeInteraction, newGame } from "../redux/gameActions";
+import { changeInteraction } from "../redux/gameActions";
 import { initGame, Interaction, SequentialText } from "../gonorth";
 import { deferAction } from "./testFunctions";
+import { clearPage } from "./lifecycle";
+import { AnyAction } from "redux";
 
 // Prevent console logging
 jest.mock("../utils/consoleIO");
@@ -16,7 +18,7 @@ consoleIO.showOptions = jest.fn();
 initGame("test", "", { debugMode: false });
 
 const clickNext = () => {
-  let res;
+  let res: Resolve;
   const nextPromise = new Promise((resolve) => (res = resolve));
   setTimeout(() => {
     selectOptions()[0].action();
@@ -26,7 +28,7 @@ const clickNext = () => {
 };
 
 beforeEach(() => {
-  getStore().dispatch(changeInteraction(new Interaction("")));
+  clearPage();
 });
 
 test("action chain ends early if action fails", async () => {
@@ -34,7 +36,7 @@ test("action chain ends early if action fails", async () => {
   const chain = new ActionChain(
     (helper) => {
       x++;
-      helper.fail();
+      helper.fail!();
     },
     () => (x *= 3)
   );
@@ -67,14 +69,16 @@ test("Options are rendered even if chain produces no text", async () => {
 test("Options are shown if attempting verb", async () => {
   let x = 1;
   const doIt = new Verb("do it", true, () => x++);
-  const chain = new ActionChain(() => doIt.attempt());
+  const chain = new ActionChain(() => {
+    doIt.attempt();
+  });
   chain.options = new Option("one");
   await chain.chain();
   expect(selectOptions()[0].label).toBe("one");
 });
 
 test("Options are propagated if requested", async () => {
-  getStore().dispatch(changeInteraction(new Interaction("options", [new Option("one")])));
+  getStore().dispatch(changeInteraction(new Interaction("options", [new Option("one")])) as AnyAction); // TODO
   expect(selectOptions()[0].label).toBe("one");
   const chain = new ActionChain("still options");
   chain.propagateOptions = true;
@@ -209,7 +213,7 @@ test("A Next button isn't added after a nested action chain if one isn't require
 });
 
 // A function reused by the next series of tests that check a Next button is rendered in various circumstances.
-const nextButtonTest = async (chain) => {
+const nextButtonTest = async (chain: ActionChain) => {
   chain.chain();
   expect(selectCurrentPage()).not.toInclude("two");
   await deferAction(() => expect(selectOptions()[0].label).toBe("Next"));
@@ -244,7 +248,7 @@ test("Sequential texts may contain functions", async () => {
     new SequentialText(
       "one",
       () => "two",
-      () => x++,
+      () => String(x++),
       "three"
     )
   );
@@ -256,8 +260,10 @@ test("Sequential texts may contain functions", async () => {
   expect(selectCurrentPage()).not.toInclude("three");
   expect(x).toBe(0);
   await clickNext();
-  expect(selectCurrentPage()).toInclude("three");
+  expect(selectCurrentPage()).not.toInclude("three");
   expect(x).toBe(1);
+  await clickNext();
+  expect(selectCurrentPage()).toInclude("three");
 });
 
 test("Args are passed into SequentialText functions", async () => {
@@ -281,7 +287,7 @@ test("ActionChains return false if any action returns false, but continue execut
 test("ActionChains return false if they're explicitly failed and do not continue executing", async () => {
   let x = 0;
   const chain = new ActionChain(
-    ({ fail }) => fail(),
+    ({ fail }) => fail!(),
     () => x++
   );
   expect(await chain.chain()).toBe(false);

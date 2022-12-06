@@ -12,6 +12,7 @@ import { Item } from "../items/item";
 import { Room } from "../items/room";
 import { checkAutoActions } from "../input/autoActionExecutor";
 import { ActionChain } from "../../utils/actionChain";
+import { AnyAction } from "redux";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -22,29 +23,34 @@ jest.mock("../input/autoActionExecutor", () => ({
   checkAutoActions: jest.fn(async () => true)
 }));
 
+const mockedAutoActionExecutor = jest.mocked(checkAutoActions);
+
 // Get the thing we just mocked so we can check for calls on it.
 const autoActionExecutor = require("../input/autoActionExecutor");
 
-let y;
-let verb;
+let y: number;
+let verb: Verb;
 
-const storeHasVerb = (verbName) => selectVerbNames()[verbName];
+const storeHasVerb = (verbName: string) => selectVerbNames()[verbName];
 
 // Prevent console logging
 initGame("test", "", { debugMode: false });
 getStore().dispatch(changeRoom(new Room("hall")));
 
 beforeEach(() => {
-  verb = new Verb("twirl", ({ x }) => x > 2, [({ x }) => (y = x + 1), "You twirl beautifully"], "You fall over", [
-    "spin",
-    "rotate"
-  ]);
+  verb = new Verb(
+    "twirl",
+    ({ x }) => (x as number) > 2,
+    [({ x }) => (y = (x as number) + 1), "You twirl beautifully"],
+    "You fall over",
+    ["spin", "rotate"]
+  );
   verb.expectedArgs = ["x"];
   y = 0;
-  getStore().dispatch(changeInteraction(new Interaction("")));
+  getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);
 });
 
-const attempt = (x) => verb.attempt(x);
+const attempt = (x: number) => verb.attempt(x);
 
 it("prints the failure text if the test fails", async () => {
   await attempt(1);
@@ -208,7 +214,7 @@ describe("chainable actions", () => {
 
   it("Renders a Next button when the previous and next interactions do not", async () => {
     verb.onSuccess = ["blah", new Interaction("bob")];
-    getStore().dispatch(changeInteraction(new Interaction("Previous interaction")));
+    getStore().dispatch(changeInteraction(new Interaction("Previous interaction")) as AnyAction);
     setTimeout(() => {
       expect(selectInteraction().options[0].label).toBe("Next");
       clickNext();
@@ -239,7 +245,7 @@ describe("chainable actions", () => {
       await attempt(3);
       throw Error("Expected Error not thrown");
     } catch (error) {
-      expect(error.message).toEqual(expect.stringContaining("Custom options"));
+      expect((error as Error).message).toEqual(expect.stringContaining("Custom options"));
     }
   });
 
@@ -280,7 +286,7 @@ describe("chainable actions", () => {
   it("succeeds with multiple tests", async () => {
     const verb = new Verb(
       "jump",
-      [() => "yes".length > 1, () => true !== false, ({ x }) => x > 0],
+      [() => "yes".length > 1, () => true, ({ x }) => (x as number) > 0],
       "you jump",
       "you fall"
     );
@@ -290,7 +296,8 @@ describe("chainable actions", () => {
   });
 
   it("fails if just one test fails", async () => {
-    const verb = new Verb("jump", ["yes".length > 1, true !== false, (_, x) => x > 0], "you jump", "you fall");
+    const verb = new Verb("jump", ["yes".length > 1, true, ({ z }) => (z as number) > 0], "you jump", "you fall");
+    verb.expectedArgs = ["x", "y", "z"];
     await verb.attempt(null, null, 0);
     expect(selectCurrentPage()).toBe("you fall");
   });
@@ -317,7 +324,7 @@ describe("chainable actions", () => {
 
   it("doesn't continue if auto actions fail", async () => {
     // Mock the auto actions to return false for this test.
-    checkAutoActions.mockImplementationOnce(async () => false);
+    mockedAutoActionExecutor.mockImplementationOnce(async () => false);
     const verb = new Verb("throw", false, null, "won't happen");
     verb.attempt(new Item.Builder("beanbag").isHoldable().build());
     return deferAction(() => {
@@ -327,7 +334,7 @@ describe("chainable actions", () => {
   });
 
   describe("effects", () => {
-    let egg, bat;
+    let egg: Item, bat: Item;
 
     beforeEach(() => {
       unregisterStore();
@@ -351,7 +358,7 @@ describe("chainable actions", () => {
     });
 
     it("triggers effects, after actions, objects available in actions", async () => {
-      addEffect("egg", "bat", "hit", true, false, ({ item, other }) => `${other.name} smash ${item.name}`);
+      addEffect("egg", "bat", "hit", true, false, ({ item, other }: Context) => `${other!.name} smash ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat smash egg");
       expect(selectCurrentPage()).not.toInclude("hit it good");
@@ -360,21 +367,21 @@ describe("chainable actions", () => {
     });
 
     it("optionally continues executing the verb after a successful effect", async () => {
-      addEffect("egg", "bat", "hit", true, true, ({ item, other }) => `${other.name} smash ${item.name}`);
+      addEffect("egg", "bat", "hit", true, true, ({ item, other }: Context) => `${other!.name} smash ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat smash egg");
       expect(selectCurrentPage()).toInclude("hit it good");
     });
 
     it("optionally continues executing the verb after a failed effect", async () => {
-      addEffect("egg", "bat", "hit", false, true, ({ item, other }) => `${other.name} brush ${item.name}`);
+      addEffect("egg", "bat", "hit", false, true, ({ item, other }: Context) => `${other!.name} brush ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat brush egg");
       expect(selectCurrentPage()).toInclude("missed it");
     });
 
     it("triggers wildcard effects, objects available in actions", async () => {
-      addWildcardEffect("bat", "hit", true, false, ({ item, other }) => `${other.name} smash ${item.name}`);
+      addWildcardEffect("bat", "hit", true, false, ({ item, other }: Context) => `${other!.name} smash ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat smash egg");
       expect(selectCurrentPage()).not.toInclude("hit it good");
@@ -383,14 +390,14 @@ describe("chainable actions", () => {
     });
 
     it("optionally continues executing the verb after a successful wildcard effect", async () => {
-      addWildcardEffect("bat", "hit", true, true, ({ item, other }) => `${other.name} smash ${item.name}`);
+      addWildcardEffect("bat", "hit", true, true, ({ item, other }: Context) => `${other!.name} smash ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat smash egg");
       expect(selectCurrentPage()).toInclude("hit it good");
     });
 
     it("optionally continues executing the verb after a failed wildcard effect", async () => {
-      addWildcardEffect("bat", "hit", false, true, ({ item, other }) => `${other.name} brush ${item.name}`);
+      addWildcardEffect("bat", "hit", false, true, ({ item, other }: Context) => `${other!.name} brush ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat brush egg");
       expect(selectCurrentPage()).toInclude("missed it");

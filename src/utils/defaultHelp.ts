@@ -109,7 +109,7 @@ const optionNodes = [
   }
 ];
 
-let helpGraph, hintGraph;
+let helpGraph: OptionGraphT, hintGraph: OptionGraphT;
 
 export const getHelpGraph = () => {
   if (!helpGraph) {

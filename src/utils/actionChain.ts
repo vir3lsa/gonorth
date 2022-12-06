@@ -40,7 +40,7 @@ export class ActionClass {
  */
 export class ActionChain {
   _actions!: ChainableFunction[];
-  _options!: OptionT[];
+  _options!: OptionT | OptionT[];
   _postScript?: PostScript;
   renderNexts: boolean;
   propagateOptions: boolean;
@@ -109,7 +109,7 @@ export class ActionChain {
     ) as unknown as Promise<any>; // TODO
   }
 
-  isActionClass(action?: Action): action is ActionClassT {
+  isActionClass(action: MaybeAction): action is ActionClassT {
     return Boolean(action) && action instanceof ActionClass;
   }
 
@@ -224,7 +224,7 @@ export class ActionChain {
 
   async expandSequentialText(
     sequentialText: SequentialText,
-    options: OptionT[],
+    options: MaybeOptions,
     nextIfNoOptions: boolean,
     postScript: PostScript,
     context: AnyContext

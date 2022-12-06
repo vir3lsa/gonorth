@@ -1,4 +1,4 @@
-import { Dispatch } from "redux";
+import { AnyAction, Dispatch } from "redux";
 import * as type from "./gameActionTypes";
 import { output, getOptionsString } from "../utils/consoleIO";
 import { Parser } from "../game/input/parser";
@@ -12,54 +12,58 @@ export const newGame = (game: Game, debugMode: boolean) => ({
   payload: { game, debugMode }
 });
 
-export const changeInteraction = (interaction: InteractionT) => (dispatch: Dispatch, getState: GetState) => {
-  const state = getState();
-  const debugMode = selectDebugMode(state);
+export const changeInteraction =
+  (
+    interaction: InteractionT
+  ): unknown => // TODO
+  (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const debugMode = selectDebugMode(state);
 
-  if (!(interaction instanceof AppendInput)) {
-    const currentOutput = interaction.currentPage;
-    let currentOptions = interaction.options;
+    if (!(interaction instanceof AppendInput)) {
+      const currentOutput = interaction.currentPage;
+      let currentOptions = interaction.options;
 
-    if (!currentOptions && interaction instanceof Append) {
-      // Current options are copied onto new interaction
-      currentOptions = state.interaction.options;
-    }
+      if (!currentOptions && interaction instanceof Append) {
+        // Current options are copied onto new interaction
+        currentOptions = state.interaction.options;
+      }
 
-    let newLog = "";
+      let newLog = "";
 
-    if (currentOutput) {
-      newLog += currentOutput;
+      if (currentOutput) {
+        newLog += currentOutput;
 
-      if (debugMode) {
-        output(currentOutput);
+        if (debugMode) {
+          output(currentOutput);
+        }
+      }
+
+      if (currentOptions && currentOptions.length) {
+        const optionsString = getOptionsString(currentOptions);
+        newLog += newLog.length ? `\n\n${optionsString}` : optionsString;
+
+        if (debugMode) {
+          output(optionsString);
+        }
+      }
+
+      if (state.game?.config.recordLogs) {
+        dispatch({
+          type: type.ADD_LOG_ENTRY,
+          payload: newLog,
+          playerTurn: false
+        });
       }
     }
 
-    if (currentOptions && currentOptions.length) {
-      const optionsString = getOptionsString(currentOptions);
-      newLog += newLog.length ? `\n\n${optionsString}` : optionsString;
+    dispatch({
+      type: type.CHANGE_INTERACTION,
+      payload: interaction
+    });
 
-      if (debugMode) {
-        output(optionsString);
-      }
-    }
-
-    if (state.game?.config.recordLogs) {
-      dispatch({
-        type: type.ADD_LOG_ENTRY,
-        payload: newLog,
-        playerTurn: false
-      });
-    }
-  }
-
-  dispatch({
-    type: type.CHANGE_INTERACTION,
-    payload: interaction
-  });
-
-  return interaction.promise;
-};
+    return interaction.promise;
+  };
 
 export const changeImage = (image: string) => ({
   type: type.CHANGE_IMAGE,
@@ -104,7 +108,7 @@ export const nextTurn = () => ({
   type: type.NEXT_TURN
 });
 
-export const verbCreated = (names: string[]) => ({
+export const verbCreated = (names: VerbNameDict) => ({
   type: type.VERB_CREATED,
   payload: names
 });
@@ -219,7 +223,7 @@ export const cyRecord = () => ({
   type: type.CY_RECORD
 });
 
-export const overrideEventTimeout = (eventTimeoutOverride: number, eventTurnsOverride: number) => ({
+export const overrideEventTimeout = (eventTimeoutOverride: number | null, eventTurnsOverride: number | null) => ({
   type: type.OVERRIDE_EVENT_TIMEOUT,
   eventTimeoutOverride,
   eventTurnsOverride

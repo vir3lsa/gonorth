@@ -5,7 +5,7 @@ import { selectEffects, selectRoom } from "../../utils/selectors";
 import { playerHasItem } from "../../utils/sharedFunctions";
 import { checkAutoActions } from "../input/autoActionExecutor";
 
-export function newVerb(config) {
+export function newVerb(config: VerbConfig) {
   const { name, test, onSuccess, onFailure, aliases, isKeyword, prepositional, interrogative, prepositionOptional } =
     config;
 
@@ -16,7 +16,7 @@ export function newVerb(config) {
   const verb = new Verb(name, test, onSuccess, onFailure, aliases, isKeyword);
 
   if (prepositional) {
-    verb.makePrepositional(interrogative, prepositionOptional);
+    verb.makePrepositional(interrogative as string, Boolean(prepositionOptional));
   }
 
   Object.entries(config).forEach(([key, value]) => (verb[key] = value));
@@ -24,12 +24,29 @@ export function newVerb(config) {
 }
 
 export class Verb {
+  [property: string]: unknown;
+  isKeyword;
+  doNotList;
+  prepositional;
+  prepositionOptional;
+  interrogative: string | null;
+  description;
+  expectsArgs;
+  expectedArgs;
+  remote;
+  _parent?: ItemT;
+  _tests!: TestFunction[];
+  _name!: string;
+  _onSuccess!: ActionChainT;
+  _onFailure!: ActionChainT;
+  _aliases!: string[];
+
   constructor(
-    name,
-    test = true,
-    onSuccess = [],
-    onFailure = [],
-    aliases = [],
+    name: string,
+    test: Test | Test[] = true,
+    onSuccess: Action | Action[] = [],
+    onFailure: Action | Action[] = [],
+    aliases: string[] = [],
     isKeyword = false,
     description = "",
     expectedArgs = ["item", "other"]
@@ -38,7 +55,7 @@ export class Verb {
     this.isKeyword = isKeyword;
     this.doNotList = !isKeyword;
     this.aliases = aliases || [];
-    this._parent = null;
+    this._parent = undefined;
     this.prepositional = false;
     this.prepositionOptional = false;
     this.interrogative = null;
@@ -78,13 +95,13 @@ export class Verb {
   /**
    * @param {boolean | ((helper) => boolean) | undefined} test
    */
-  set test(test) {
+  set test(test: Test | Test[]) {
     this._tests = [];
     const tests = Array.isArray(test) ? test : [test];
     tests.forEach((itest) => this.addTest(itest));
   }
 
-  addTest(test) {
+  addTest(test: Test) {
     if (typeof test === "undefined") {
       this._tests.push(() => true);
     } else if (typeof test === "boolean") {
@@ -94,16 +111,16 @@ export class Verb {
     }
   }
 
-  set onSuccess(onSuccess) {
+  set onSuccess(onSuccess: Action | Action[]) {
     const onSuccessArray = Array.isArray(onSuccess) ? onSuccess : [onSuccess];
     this._onSuccess = new ActionChain(...onSuccessArray);
   }
 
-  set onFailure(onFailure) {
+  set onFailure(onFailure: Action | Action[]) {
     const onFailureArray = Array.isArray(onFailure) ? onFailure : [onFailure];
     onFailureArray.unshift(({ item, fail }) => {
       if (!this.remote && item?.holdable && !playerHasItem(item)) {
-        fail(); // You can't do this verb without holding the item, so we'll say that and go no further.
+        fail!(); // You can't do this verb without holding the item, so we'll say that and go no further.
         const article = item.properNoun ? "" : "the ";
         return `You're not holding ${article}${item.name}.`;
       }
@@ -113,43 +130,37 @@ export class Verb {
     this._onFailure = new ActionChain(...onFailureArray);
   }
 
-  get onSuccess() {
+  get onSuccess(): ActionChainT {
     return this._onSuccess;
   }
 
-  get onFailure() {
+  get onFailure(): ActionChainT {
     return this._onFailure;
   }
 
   _addAliasesToParent() {
     if (this._parent && this._aliases) {
       this._aliases.forEach((alias) => {
-        this._parent.verbs[alias] = this;
+        this._parent!.verbs[alias] = this;
       });
     }
   }
 
-  /**
-   * @param {Item} parent
-   */
-  set parent(parent) {
+  set parent(parent: ItemT) {
     this._parent = parent;
     this._addAliasesToParent();
   }
 
-  /**
-   * @param {string | string[]} aliases
-   */
-  set aliases(aliases) {
+  set aliases(aliases: string | string[]) {
     this._aliases = [];
     this.addAliases(aliases);
   }
 
-  get aliases() {
+  get aliases(): string[] {
     return this._aliases;
   }
 
-  addAliases(aliases) {
+  addAliases(aliases: string | string[]) {
     if (aliases) {
       const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
       this._aliases.push(...aliasArray);
@@ -165,7 +176,7 @@ export class Verb {
     }
   }
 
-  makePrepositional(interrogative, prepositionOptional) {
+  makePrepositional(interrogative: string, prepositionOptional: boolean) {
     this.prepositional = true;
     this.prepositionOptional = prepositionOptional;
     this.interrogative = interrogative;
@@ -174,10 +185,10 @@ export class Verb {
   /**
    * Checks auto actions that should precede the verb, tests the verb's conditions and runs the verb's success or
    * failure actions accordingly.
-   * @param  {...any} args Arguments to pass to the verb functions.
+   * @param args Arguments to pass to the verb functions.
    * @returns A Promise that resolves when the verb's actions have executed.
    */
-  async attempt(...args) {
+  async attempt(...args: unknown[]) {
     // Turn the anonymous args into key/value pairs based on the expected args. Any additional unexpected args won't be included.
     const context = this.createContext(args);
 
@@ -221,11 +232,11 @@ export class Verb {
   /*
    * Turns anonymous args into key/value pairs based on the expected args. Any additional unexpected args won't be included.
    */
-  createContext(args) {
+  createContext(args: unknown[]) {
     const context = this.expectedArgs.reduce((acc, key, index) => {
       acc[key] = args[index];
       return acc;
-    }, {});
+    }, {} as Context);
 
     return { ...context, verb: this };
   }
@@ -236,36 +247,37 @@ export class Verb {
 }
 
 class Builder {
-  constructor(name) {
+  config: VerbConfig;
+  constructor(name: string) {
     this.config = { name };
   }
 
-  withName(name) {
+  withName(name: string) {
     this.config.name = name;
     return this;
   }
 
-  withTest(test) {
+  withTest(test: Test) {
     this.config.test = test;
     return this;
   }
 
-  withDescription(description) {
+  withDescription(description: string) {
     this.config.description = description;
     return this;
   }
 
-  withAliases(...aliases) {
+  withAliases(...aliases: string[]) {
     this.config.aliases = aliases;
     return this;
   }
 
-  withOnSuccess(...onSuccess) {
+  withOnSuccess(...onSuccess: Action[]) {
     this.config.onSuccess = onSuccess;
     return this;
   }
 
-  withOnFailure(...onFailure) {
+  withOnFailure(...onFailure: Action[]) {
     this.config.onFailure = onFailure;
     return this;
   }
@@ -280,7 +292,7 @@ class Builder {
     return this;
   }
 
-  makePrepositional(interrogative, prepositionOptional) {
+  makePrepositional(interrogative: string, prepositionOptional: boolean = false) {
     this.config.prepositional = true;
     this.config.interrogative = interrogative;
     this.config.prepositionOptional = prepositionOptional;
@@ -298,8 +310,8 @@ class Builder {
 }
 
 export class GoVerb extends Verb {
-  constructor(name, aliases, isKeyword = false) {
-    const getAdjacent = (name) => selectRoom().adjacentRooms[name.toLowerCase()];
+  constructor(name: string, aliases: string[], isKeyword = false) {
+    const getAdjacent = (name: string) => selectRoom().adjacentRooms[name.toLowerCase()];
     super(
       name,
       () => {

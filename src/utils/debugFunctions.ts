@@ -8,7 +8,6 @@ import {
   selectRoom,
   selectRooms
 } from "./selectors";
-import { newItem } from "../game/items/item";
 import disambiguate from "./disambiguation";
 import { getStore } from "../redux/storeRegistry";
 import { cyRecord, itemsRevealed, overrideEventTimeout } from "../redux/gameActions";
@@ -81,7 +80,7 @@ Examples:
 - e.g. \`debug variable retrieve colourMode\`
 - e.g. \`debug variable forget invisibilityMode\``;
 
-export function handleDebugOperations(operation, ...args) {
+export function handleDebugOperations(operation: string, ...args: string[]) {
   if (!operation) {
     return helpText;
   }
@@ -120,7 +119,7 @@ export function handleDebugOperations(operation, ...args) {
   }
 }
 
-function goto(args) {
+function goto(args: string[]) {
   if (args.length === 1 && args[0] === "help") {
     return gotoHelp;
   }
@@ -135,7 +134,7 @@ function goto(args) {
   }
 }
 
-function show(args) {
+function show(args: string[]) {
   if (args.length === 1 && args[0] === "help") {
     return showHelp;
   }
@@ -173,7 +172,7 @@ function show(args) {
   }
 }
 
-function showNodes(args, argsIndex) {
+function showNodes(args: string[], argsIndex: number) {
   if (argsIndex >= args.length - 1) {
     return "Can't list nodes - no option graph ID provided.";
   }
@@ -185,10 +184,10 @@ function showNodes(args, argsIndex) {
     return `Can't list nodes - no option graph with ID ${id} found.`;
   }
 
-  return `Nodes:\n\n- ${optionGraph.nodes.map((node) => node.id).join("\n- ")}`;
+  return `Nodes:\n\n- ${optionGraph.nodes.map((node: Node) => node.id).join("\n- ")}`;
 }
 
-function spawn(args) {
+function spawn(args: string[]) {
   if (args.length === 1 && args[0] === "help") {
     return spawnHelp;
   }
@@ -197,7 +196,7 @@ function spawn(args) {
   const itemsWithName = [...(selectItems()[itemName] || new Set())];
   let item;
 
-  const spawnItem = (itemToSpawn) => {
+  const spawnItem = (itemToSpawn: ItemT) => {
     const room = selectRoom();
     room.addItem(itemToSpawn);
     getStore().dispatch(itemsRevealed([itemToSpawn.name, ...itemToSpawn.aliases]));
@@ -215,7 +214,7 @@ function spawn(args) {
   return spawnItem(item);
 }
 
-function commence(args) {
+function commence(args: string[]) {
   if (args.length === 1 && args[0] === "help") {
     return commenceHelp;
   }
@@ -248,7 +247,7 @@ function commence(args) {
   }
 }
 
-function cypress(args) {
+function cypress(args: string[]) {
   if (args.length === 1 && args[0] === "help") {
     return cypressHelp;
   } else if (args.length === 1) {
@@ -261,7 +260,7 @@ function cypress(args) {
   }
 }
 
-function events(args) {
+function events(args: string[]) {
   if (args.length === 1 && args[0] === "help") {
     return eventHelp;
   } else if (args.length >= 1) {
@@ -270,14 +269,14 @@ function events(args) {
       return "Event timeouts reset to defaults.";
     }
 
-    const timeout = new Number(args[0]);
-    const turns = args.length > 1 ? new Number(args[1]) : undefined;
+    const timeout = new Number(args[0]).valueOf();
+    const turns = args.length > 1 ? new Number(args[1]).valueOf() : null;
     getStore().dispatch(overrideEventTimeout(timeout, turns));
-    return `Event timeouts set to ${timeout} milliseconds${turns !== undefined ? " and " + turns + " turn(s)" : ""}.`;
+    return `Event timeouts set to ${timeout} milliseconds${turns !== null ? " and " + turns + " turn(s)" : ""}.`;
   }
 }
 
-function variable(args) {
+function variable(args: string[]) {
   if (args.length === 1 && args[0] === "help") {
     return variableHelp;
   } else if (args.length > 1) {
@@ -296,7 +295,7 @@ function variable(args) {
   }
 }
 
-function parseVariableValue(raw) {
+function parseVariableValue(raw: string) {
   const lowerRaw = raw.toLowerCase();
 
   if (lowerRaw === "true") {

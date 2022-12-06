@@ -160,6 +160,9 @@ export function addKeyword(keyword) {
   getStore().dispatch(addKeywords(keywordMap));
 }
 
+/**
+ * @returns {Keywords}
+ */
 export function getKeywords() {
   return selectKeywords();
 }

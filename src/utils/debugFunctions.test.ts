@@ -1,13 +1,10 @@
 import { Room } from "../game/items/room";
-import { getStore } from "../redux/storeRegistry";
-import { changeInteraction } from "../redux/gameActions";
 import { Parser } from "../game/input/parser";
 import { Door } from "../game/items/door";
 import { Item } from "../game/items/item";
 import { Verb } from "../game/verbs/verb";
 import { initGame } from "../gonorth";
-import { goToRoom } from "./lifecycle";
-import { PagedText } from "../game/interactions/text";
+import { clearPage, goToRoom } from "./lifecycle";
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { selectCurrentPage } from "./testSelectors";
 
@@ -18,7 +15,7 @@ consoleIO.showOptions = jest.fn();
 
 let hall, north, door, chair, redBall, blueBall, redBox, blueBox, chairman, cushion;
 
-const inputTest = async (input, expectedOutput, ...expectedOmissions) => {
+const inputTest = async (input: string, expectedOutput: string | string[], ...expectedOmissions: string[]) => {
   await new Parser(input).parse();
   const expected = Array.isArray(expectedOutput) ? expectedOutput : [expectedOutput];
   expected.forEach((output) => {
@@ -64,7 +61,7 @@ describe("debugFunctions", () => {
 
     goToRoom(hall);
     door.open = false;
-    getStore().dispatch(changeInteraction(new PagedText("")));
+    clearPage();
 
     if (!hall.items["cushion"]) {
       hall.addItem(cushion);

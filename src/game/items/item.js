@@ -51,6 +51,15 @@ export class Item {
 
   isRoom = false;
 
+  /**
+   * @param {string} name
+   * @param {string} description
+   * @param {boolean} holdable
+   * @param {number} size
+   * @param {VerbT | VerbT[]} verbs
+   * @param {string[]} aliases
+   * @param {ItemT[]} hidesItems
+   */
   constructor(
     name = "item",
     description = "It's fairly ordinary looking.",
@@ -87,6 +96,7 @@ export class Item {
     this.itemsVisibleFromSelf = true;
     this.doNotList = false;
     this.properties = {};
+    this.properNoun = "";
 
     aliases.forEach((alias) => this.createAliases(alias));
 
@@ -292,6 +302,9 @@ export class Item {
     verb.parent = this;
   }
 
+  /**
+   * @returns {VerbDict}
+   */
   get verbs() {
     return this._verbs;
   }

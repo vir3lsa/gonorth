@@ -5,8 +5,10 @@ import { OptionGraph } from "../game/interactions/optionGraph";
  * @param items The items that match the name the player entered
  * @param onChoose The function that should be called when the player chooses, passing in the chosen item.
  */
-export default function disambiguate(name, items, onChoose) {
-  const options = {};
+export default function disambiguate(name: string, items: ItemT[], onChoose: DisambiguationCallback) {
+  const options: {
+    [displayName: string]: string;
+  } = {};
   const nodes = [];
   let duplicateRealNames = 0;
 

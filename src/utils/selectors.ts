@@ -12,7 +12,7 @@ export const selectInventoryItems = () =>
 export const selectRoom = () => getStore().getState().room;
 export const selectVerbNames = () => getStore().getState().verbNames;
 export const selectItemNames = () => getStore().getState().itemNames;
-export const selectKeywords = () => getStore().getState().keywords;
+export const selectKeywords = (): Keywords => getStore().getState().keywords;
 export const selectLastChange = () => getStore().getState().lastChange;
 export const selectTurn = () => getStore().getState().turn;
 export const selectDebugMode = () => getStore().getState().debugMode;
