@@ -359,6 +359,9 @@ export class Item {
     return this._container;
   }
 
+  /**
+   * @return {string[]}
+   */
   get aliases() {
     return this._aliases ? [...this._aliases] : [];
   }

@@ -1,10 +1,7 @@
 import * as type from "../gameActionTypes";
-import {
-  Interaction,
-  Append,
-  AppendInput
-} from "../../game/interactions/interaction";
+import { Interaction, Append, AppendInput } from "../../game/interactions/interaction";
 import { Effects } from "../../utils/effects";
+import { Action } from "redux";
 
 const outputSnippetLength = 30;
 const ROLLING_LOG_LENGTH = 10;
@@ -12,24 +9,20 @@ const ROLLING_LOG_LENGTH = 10;
 export const initialState = {
   turn: 1,
   debugMode: false,
-  player: null,
   interaction: new Interaction("Loading..."),
-  image: null,
   lastChange: Date.now(),
   verbNames: {},
   // The names of items (including aliases) the player has encountered.
   itemNames: new Set(),
-  actionChainPromise: null,
   events: [],
-  keywords: {},
-  room: null,
+  keywords: {} as KeywordsDict,
   recordChanges: false,
   rooms: {},
   allItemNames: new Set(),
   items: {}, // Keyed by alias
   allItems: new Set(),
   optionGraphs: {},
-  customState: {},
+  customState: {} as CustomState,
   startingRoom: null,
   cyCommands: [],
   cySay: null,
@@ -39,9 +32,9 @@ export const initialState = {
   effects: new Effects(),
   autoActions: [],
   rollingLog: []
-};
+} as StoreState;
 
-export default function (state = initialState, action) {
+export default function (state = initialState, action: ReduxAction) {
   switch (action.type) {
     case type.NEW_GAME:
       return { ...state, ...action.payload };
@@ -81,7 +74,7 @@ export default function (state = initialState, action) {
     case type.ITEMS_REVEALED:
       return {
         ...state,
-        itemNames: new Set([...state.itemNames, ...action.payload.map((i) => i.toLowerCase())])
+        itemNames: new Set([...state.itemNames, ...action.payload.map((i: string) => i.toLowerCase())])
       };
     case type.CHAIN_STARTED:
       return {
@@ -107,7 +100,7 @@ export default function (state = initialState, action) {
     case type.ADD_ITEM:
       let newState = { ...state, allItemNames: new Set([...state.allItemNames, action.item.name]) };
       const newAllItems = new Set([...state.allItems, action.item]);
-      const addAlias = (items, alias) => {
+      const addAlias = (items: ItemAliasDict, alias: string) => {
         const itemsWithAlias = items[alias] || new Set();
         itemsWithAlias.add(action.item);
         return { ...items, [alias]: itemsWithAlias };
@@ -197,7 +190,7 @@ export default function (state = initialState, action) {
   }
 }
 
-function updateCyCommands(state, output, paged) {
+function updateCyCommands(state: StoreState, output: string, paged: boolean) {
   if (output) {
     const funcName = state.cySay ? "say" : state.cyChoose ? "choose" : null;
 
@@ -223,7 +216,7 @@ function updateCyCommands(state, output, paged) {
     const input = state.cySay ? state.cySay : state.cyChoose;
     const firstOutput = !state.interaction.currentPage.includes("###### `>`") || paged;
     const h2 = outputSnippet.startsWith("## ");
-    const options = {};
+    const options = {} as LogOptions;
 
     if (firstOutput) {
       options.global = true;

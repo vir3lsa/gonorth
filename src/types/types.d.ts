@@ -114,33 +114,33 @@ interface Keywords {
 interface StoreState {
   turn: number;
   debugMode: boolean;
-  player: ItemT;
+  player?: ItemT;
   interaction: InteractionT;
-  image: string;
-  lastChange: Date;
+  image?: string;
+  lastChange: number;
   verbNames: {};
   // The names of items (including aliases) the player has encountered.
   itemNames: Set<string>;
-  actionChainPromise: Promise<string>;
+  actionChainPromise?: Promise<string>;
   events: EventT[];
   keywords: Keywords;
-  room: null;
+  room?: null;
   recordChanges: false;
   rooms: {};
   allItemNames: Set<string>;
   items: {}; // Keyed by alias
   allItems: Set<ItemT>;
   optionGraphs: {};
-  customState: {};
+  customState: CustomState;
   startingRoom: null;
-  cyCommands: [];
+  cyCommands: string[];
   cySay: null;
   cyChoose: null;
   eventTimeoutOverride: null;
   eventTurnsOverride: null;
   effects: EffectsT;
-  autoActions: [];
-  rollingLog: [];
+  autoActions: AutoActionT[];
+  rollingLog: LogEntry[];
   playerInput?: string;
   game?: Game;
 }
@@ -159,6 +159,49 @@ interface SnapshotPersistorConfig {
 
 interface Dict {
   [key: string]: unknown;
+}
+
+interface KeywordsDict {
+  [name: string]: VerbT;
+}
+
+interface ItemAliasDict {
+  [alias: string]: Set<ItemT>;
+}
+
+interface CustomState {
+  [key: string]: Serializable;
+}
+
+interface LogEntry {
+  output: string[];
+}
+
+interface LogOptions {
+  global?: boolean;
+  element?: string;
+}
+
+interface ReduxAction {
+  type: string;
+  payload: any;
+  keywords: VerbT[];
+  keyword: string;
+  room: RoomT;
+  item: ItemT;
+  optionGraph: OptionGraphT;
+  snapshot: RevivedSnapshot;
+  player: ItemT;
+  force: boolean;
+  propertyName: string;
+  value: Serializable;
+  startingRoom: RoomT;
+  cySay: string;
+  cyChoose: string;
+  eventTimeoutOverride: boolean;
+  eventTurnsOverride: boolean;
+  autoAction: AutoActionT;
+  playerTurn: boolean;
 }
 
 type GetState = () => StoreState;
