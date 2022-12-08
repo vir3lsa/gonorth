@@ -282,7 +282,7 @@ export class Item {
   }
 
   /**
-   * @param {string | string[] | function | Text | undefined } description
+   * @param {string | string[] | function | AnyText | undefined } description
    */
   set description(description) {
     this.recordAlteredProperty("description", description);

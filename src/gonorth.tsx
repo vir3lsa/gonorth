@@ -1,6 +1,5 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-
 import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
 import { addEvent as eventAdded, newGame, setStartRoom } from "./redux/gameActions";
@@ -8,7 +7,6 @@ import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { clearPage, createPlayer, goToRoom, initAutoActions } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
-import { GoNorth } from "./web/GoNorth";
 import {
   selectRoom,
   selectPlayer,
@@ -18,24 +16,26 @@ import {
   selectItem
 } from "./utils/selectors";
 import { createKeywords } from "./game/verbs/keywords";
+import { GoNorth } from "./web/GoNorth";
 import seedrandom from "seedrandom";
 
-const game = {};
+let game: Game;
 
-function initGame(title, author, config, initialiser) {
+function initGame(title: string, author: string, config: Config, initialiser?: Initialiser) {
   unregisterStore();
   initStore(config?.storeName);
   createPlayer();
-  game.title = title;
-  game.author = author;
-  game.config = config;
-  game.container = null;
-  game.introActions = new ActionChain(() => goToStartingRoom());
-  game.schedules = [];
-  game.help = getHelpGraph();
-  game.hintGraph = getHintGraph();
-  game.hintNode = "default";
-  game.initialiser = initialiser;
+  game = {
+    title: title,
+    author: author,
+    config: config,
+    introActions: new ActionChain(() => goToStartingRoom()),
+    schedules: [],
+    help: getHelpGraph(),
+    hintGraph: getHintGraph(),
+    hintNode: "default",
+    initialiser: initialiser
+  };
 
   // Seed the RNG for testing purposes.
   seedrandom(config.randomSeed, { global: true });
@@ -54,7 +54,7 @@ function initGame(title, author, config, initialiser) {
   return game;
 }
 
-function attach(container) {
+function attach(container: Element) {
   if (!container) {
     throw Error("No container provided");
   }
@@ -71,10 +71,7 @@ function renderTopLevel() {
   }
 }
 
-/**
- * @param {{ pages: string[]; }} intro
- */
-function setIntro(intro) {
+function setIntro(intro: string | string[] | Intro) {
   game.introActions = new ActionChain(
     () => clearPage(),
     intro,
@@ -88,10 +85,7 @@ function goToStartingRoom() {
   return goToRoom(selectStartingRoom());
 }
 
-/**
- * @param {Room} room
- */
-function setStartingRoom(room) {
+function setStartingRoom(room: RoomT) {
   getStore().dispatch(setStartRoom(room));
 }
 
@@ -99,15 +93,15 @@ function getRoom() {
   return selectRoom();
 }
 
-function addEvent(event) {
+function addEvent(event: EventT) {
   getStore().dispatch(eventAdded(event));
 }
 
-function addSchedule(schedule) {
+function addSchedule(schedule: ScheduleT) {
   game.schedules.push(schedule);
 }
 
-function setInventoryCapacity(size) {
+function setInventoryCapacity(size: number) {
   selectPlayer().capacity = size;
   const getTotalCarrying = () => selectInventoryItems().reduce((total, item) => total + item.size, 0);
   selectPlayer().free = size - getTotalCarrying();
@@ -117,7 +111,7 @@ function getHelp() {
   return game.help;
 }
 
-function setHelp(help) {
+function setHelp(help: OptionGraphT) {
   game.help = help;
 }
 
@@ -125,15 +119,23 @@ function giveHint() {
   return game.hintGraph.commence(game.hintNode);
 }
 
-function addHintNodes(...nodes) {
+function addHintNodes(...nodes: Record<string, unknown>[]) {
+  // TODO Use OptionGraphNode
   game.hintGraph.addNodes(...nodes);
 }
 
-function setHintNodeId(nodeId) {
+function setHintNodeId(nodeId: string) {
   game.hintNode = nodeId;
 }
 
-function addEffect(primaryItem, secondaryItem, verbName, successful, continueVerb, ...effects) {
+function addEffect(
+  primaryItem: string | ItemT,
+  secondaryItem: string | ItemT,
+  verbName: string,
+  successful: boolean,
+  continueVerb: boolean,
+  ...effects: ContextAction[]
+) {
   if (typeof verbName !== "string") {
     throw Error("Tried to add an effect without specifying a verb name.");
   }
@@ -141,7 +143,13 @@ function addEffect(primaryItem, secondaryItem, verbName, successful, continueVer
   selectEffects().add(primaryItem, secondaryItem, verbName, successful, continueVerb, ...effects);
 }
 
-function addWildcardEffect(secondaryItem, verbName, successful, continueVerb, ...effects) {
+function addWildcardEffect(
+  secondaryItem: string | ItemT,
+  verbName: string,
+  successful: boolean,
+  continueVerb: boolean,
+  ...effects: ContextAction[]
+) {
   if (typeof verbName !== "string") {
     throw Error("Tried to add a wildcard effect without specifying a verb name.");
   }
@@ -151,11 +159,11 @@ function addWildcardEffect(secondaryItem, verbName, successful, continueVerb, ..
 
 /**
  * Get an item from the store with the provided name or alias.
- * @param {string} name The name or alias of the item
- * @param {*} index (Optional) The index of the item if there are multiple items with the provided alias. Defaults to 0.
+ * @param name The name or alias of the item
+ * @param index (Optional) The index of the item if there are multiple items with the provided alias. Defaults to 0.
  * @returns A item with the given alias, or undefined.
  */
-function getItem(name, index = 0) {
+function getItem(name: string, index = 0) {
   const itemSet = selectItem(name.toLowerCase());
 
   if (itemSet?.size) {
@@ -187,7 +195,7 @@ export {
   selectTurn,
   selectPlayer
 } from "./utils/selectors";
-export { ActionChain, Action } from "./utils/actionChain";
+export { ActionChain, ActionClass } from "./utils/actionChain";
 export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 export { inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";
 export { moveItem } from "./utils/itemFunctions";

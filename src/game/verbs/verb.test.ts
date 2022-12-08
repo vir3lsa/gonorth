@@ -358,7 +358,7 @@ describe("chainable actions", () => {
     });
 
     it("triggers effects, after actions, objects available in actions", async () => {
-      addEffect("egg", "bat", "hit", true, false, ({ item, other }: Context) => `${other!.name} smash ${item.name}`);
+      addEffect("egg", "bat", "hit", true, false, ({ item, other }) => `${other!.name} smash ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat smash egg");
       expect(selectCurrentPage()).not.toInclude("hit it good");
@@ -367,21 +367,21 @@ describe("chainable actions", () => {
     });
 
     it("optionally continues executing the verb after a successful effect", async () => {
-      addEffect("egg", "bat", "hit", true, true, ({ item, other }: Context) => `${other!.name} smash ${item.name}`);
+      addEffect("egg", "bat", "hit", true, true, ({ item, other }) => `${other!.name} smash ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat smash egg");
       expect(selectCurrentPage()).toInclude("hit it good");
     });
 
     it("optionally continues executing the verb after a failed effect", async () => {
-      addEffect("egg", "bat", "hit", false, true, ({ item, other }: Context) => `${other!.name} brush ${item.name}`);
+      addEffect("egg", "bat", "hit", false, true, ({ item, other }) => `${other!.name} brush ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat brush egg");
       expect(selectCurrentPage()).toInclude("missed it");
     });
 
     it("triggers wildcard effects, objects available in actions", async () => {
-      addWildcardEffect("bat", "hit", true, false, ({ item, other }: Context) => `${other!.name} smash ${item.name}`);
+      addWildcardEffect("bat", "hit", true, false, ({ item, other }) => `${other!.name} smash ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat smash egg");
       expect(selectCurrentPage()).not.toInclude("hit it good");
@@ -390,14 +390,14 @@ describe("chainable actions", () => {
     });
 
     it("optionally continues executing the verb after a successful wildcard effect", async () => {
-      addWildcardEffect("bat", "hit", true, true, ({ item, other }: Context) => `${other!.name} smash ${item.name}`);
+      addWildcardEffect("bat", "hit", true, true, ({ item, other }) => `${other!.name} smash ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat smash egg");
       expect(selectCurrentPage()).toInclude("hit it good");
     });
 
     it("optionally continues executing the verb after a failed wildcard effect", async () => {
-      addWildcardEffect("bat", "hit", false, true, ({ item, other }: Context) => `${other!.name} brush ${item.name}`);
+      addWildcardEffect("bat", "hit", false, true, ({ item, other }) => `${other!.name} brush ${item.name}`);
       await egg.try("hit", bat);
       expect(selectCurrentPage()).toInclude("bat brush egg");
       expect(selectCurrentPage()).toInclude("missed it");

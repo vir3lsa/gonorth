@@ -36,24 +36,24 @@ export const initStore = (name?: string) => {
           }, {} as AllItemsDict)
     },
     deserializers: {
-      itemNames: (value: string[]) => new Set(value),
-      room: (roomName: string) => {
+      itemNames: (value) => new Set(value as string[]),
+      room: (roomName) => {
         if (roomName === null) {
           // Initial state is null, so this is fine.
           return null;
         }
 
         const rooms = selectRooms();
-        const room = rooms[roomName];
+        const room = rooms[roomName as string];
         if (!room) {
           console.error(`Attempted to load room with name "${roomName}" but no such room exists.`);
         }
         return room;
       },
-      allItems: (snapshotAllItems: AllItemsDict) => {
+      allItems: (snapshotAllItems) => {
         const stateAllItems = [...selectAllItems()];
         // Augment the complete list of all items with values from the snapshot.
-        Object.entries(snapshotAllItems).forEach(([name, snapshotItem]) => {
+        Object.entries(snapshotAllItems as AllItemsDict).forEach(([name, snapshotItem]) => {
           // Get the full item from the store.
           const itemToUpdate = stateAllItems.find((item) => item.name === name);
           Object.entries(snapshotItem).forEach(([property, value]) => {

@@ -7,7 +7,7 @@ import { AppendInput, Append } from "../game/interactions/interaction";
 const selectDebugMode = (state: StoreState) => state.debugMode;
 const selectPlayerInput = (state: StoreState) => state.playerInput;
 
-export const newGame = (game: Game, debugMode: boolean) => ({
+export const newGame = (game: Game, debugMode: boolean = false) => ({
   type: type.NEW_GAME,
   payload: { game, debugMode }
 });
@@ -158,7 +158,7 @@ export const addOptionGraph = (optionGraph: OptionGraphT) => ({
   optionGraph
 });
 
-export const loadSnapshot = (snapshot: Snapshot) => ({
+export const loadSnapshot = (snapshot: RevivedSnapshot) => ({
   type: type.LOAD_SNAPSHOT,
   snapshot
 });

@@ -1,13 +1,50 @@
 /***********/
+/* GoNorth */
+/***********/
+
+interface Config {
+  storeName?: string;
+  debugMode?: boolean;
+  skipReactionTimes?: boolean;
+  renderFeedbackBox?: boolean;
+  recordLogs?: boolean;
+  feedbackHandler?: (feedback: string, name: string, logs: string[]) => void;
+  randomSeed?: string;
+}
+
+interface Game {
+  title: string;
+  author: string;
+  config: Config;
+  container?: Element;
+  introActions: ActionChainT;
+  schedules: ScheduleT[];
+  help: OptionGraphT;
+  hintGraph: OptionGraphT;
+  hintNode: string;
+  initialiser?: SimpleAction;
+  component?: import("react").ReactElement;
+}
+
+type Initialiser = () => void;
+type Intro = string | string[] | AnyText;
+
+/***********/
 /* Classes */
 /***********/
 
 type ItemT = import("../game/items/item").Item;
 type RoomT = import("../game/items/room").Room;
 type TextT = import("../game/interactions/text").Text;
+type SequentialTextT = import("../game/interactions/text").SequentialText;
+type CyclicTextT = import("../game/interactions/text").CyclicText;
+type PagedTextT = import("../game/interactions/text").PagedText;
+type RandomTextT = import("../game/interactions/text").RandomText;
+type ConcatTextT = import("../game/interactions/text").ConcatText;
 type ManagedTextT = import("../game/interactions/text").ManagedText;
 type InteractionT = import("../game/interactions/interaction").Interaction;
 type EventT = import("../game/events/event").Event;
+type ScheduleT = import("../game/events/schedule").Schedule;
 type EffectsT = import("../utils/effects").Effects;
 type ActionChainT = import("../utils/actionChain").ActionChain;
 type ActionClassT = import("../utils/actionChain").ActionClass;
@@ -15,6 +52,7 @@ type OptionGraphT = import("../game/interactions/optionGraph").OptionGraph;
 type VerbT = import("../game/verbs/verb").Verb;
 type AutoActionT = import("../game/input/autoAction").AutoAction;
 type OptionT = import("../game/interactions/option").Option;
+type SnaphotPersistorT = import("../redux/snapshotPersistor").SnapshotPersistor;
 
 /********/
 /* Text */
@@ -53,8 +91,9 @@ type SimpleAction = () => void;
 /*************************/
 
 type AlteredProperties = Set<string>;
-type PersistentVariable = string | number | boolean | Record<string, unknown>;
-type Snapshot = Record<string, unknown>;
+type PersistentVariable = string | number | boolean | Record<string, unknown> | PersistentVariable[];
+type Snapshot = Record<string, any>;
+type RevivedSnapshot = Record<string, any>;
 
 interface JsonDict {
   [propertyName: string]: unknown;
@@ -106,30 +145,24 @@ interface StoreState {
   game?: Game;
 }
 
-interface Config {
-  storeName: string;
-  debugMode?: boolean;
-  skipReactionTimes?: boolean;
-  renderFeedbackBox?: boolean;
-  recordLogs?: boolean;
-  feedbackHandler?: (feedback: string, name: string, logs: string[]) => void;
-  randomSeed?: string;
+interface SnapshotPersistorConfig {
+  version: number;
+  name?: string;
+  whitelist: string[];
+  serializers: {
+    [field: string]: (...args: any[]) => Serializable;
+  };
+  deserializers: {
+    [key: string]: (value: Serializable) => unknown;
+  };
 }
 
-interface Game {
-  title: string;
-  author: string;
-  config: Config;
-  container: null;
-  introActions: ActionChainT;
-  schedules: [];
-  help: OptionGraphT;
-  hintGraph: OptionGraphT;
-  hintNode: string;
-  initialiser: SimpleAction;
+interface Dict {
+  [key: string]: unknown;
 }
 
 type GetState = () => StoreState;
+type Serializable = string | string[] | Dict;
 
 /***************/
 /* ActionChain */

@@ -10,11 +10,11 @@ const consoleIO = require("../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let persistor;
-let mockStorage;
-let result;
-let vase;
-let room;
+let persistor: SnaphotPersistorT;
+let mockStorage: { [key: string]: string };
+let result: Snapshot;
+let vase: ItemT;
+let room: RoomT;
 
 const setUpStoreTests = () => {
   unregisterStore();
@@ -32,14 +32,22 @@ const setUpStoreTests = () => {
 
 beforeEach(() => {
   mockStorage = {};
-  global.localStorage = { getItem: (key) => mockStorage[key], setItem: (key, value) => (mockStorage[key] = value) };
+  global.localStorage = {
+    getItem: (key) => mockStorage[key],
+    setItem: (key, value) => (mockStorage[key] = value),
+    length: 0,
+    clear: () => {},
+    key: () => "",
+    removeItem: () => {}
+  };
   setUpStoreTests();
 });
 
 describe("basic persistor tests", () => {
   beforeEach(() => {
     persistor.persistSnapshot();
-    result = JSON.parse(localStorage.getItem(persistor.key));
+    const serialized = localStorage.getItem(persistor.key);
+    result = JSON.parse(serialized || "");
   });
 
   it("serializes the game turn", () => {
@@ -62,7 +70,7 @@ describe("basic persistor tests", () => {
 });
 
 describe("changing items", () => {
-  let otherRoom, externalText, externalManagedText;
+  let otherRoom: RoomT, externalText: RandomText, externalManagedText: ManagedTextT;
 
   beforeEach(() => {
     otherRoom = new Room("Forest");
@@ -76,7 +84,8 @@ describe("changing items", () => {
 
   const persistSnapshotGetResult = () => {
     persistor.persistSnapshot();
-    result = JSON.parse(localStorage.getItem(persistor.key));
+    const serialized = localStorage.getItem(persistor.key);
+    result = JSON.parse(serialized || "");
   };
 
   it("serializes changed items", () => {
@@ -84,7 +93,7 @@ describe("changing items", () => {
     persistSnapshotGetResult();
     expect(Object.keys(result.allItems).length).toBe(1);
     expect(Object.keys(result.allItems)[0]).toBe("vase");
-    expect(result.allItems.vase).toEqual({ description: "cracked" });
+    expect((result.allItems as Dict).vase).toEqual({ description: "cracked" });
   });
 
   it("serializes references to items by name", () => {
@@ -132,7 +141,7 @@ describe("changing items", () => {
 });
 
 describe("deserializing snapshots", () => {
-  let otherRoom, externalText, externalManagedText;
+  let otherRoom: RoomT, externalText: RandomText, externalManagedText: ManagedTextT;
 
   const setUpDeserializationTests = () => {
     otherRoom = new Room("Garden");
@@ -237,14 +246,14 @@ describe("deserializing snapshots", () => {
     expect(revivedVase.description.phases[1].text.texts).toEqual(["3", "4"]);
   });
 
-  const customStateTest = (propertyName, value) => {
+  const customStateTest = (propertyName: string, value: PersistentVariable) => {
     store(propertyName, value);
     const snapshot = persistSnapshotAndLoad();
     getStore().dispatch(loadSnapshot(snapshot));
     expect(retrieve(propertyName)).toEqual(value);
   };
 
-  const updateCustomStateTest = (propertyName, value1, value2) => {
+  const updateCustomStateTest = (propertyName: string, value1: PersistentVariable, value2: PersistentVariable) => {
     store(propertyName, value1);
     update(propertyName, value2);
     const snapshot = persistSnapshotAndLoad();
@@ -258,10 +267,10 @@ describe("deserializing snapshots", () => {
   it("deserializes custom object properties", () => customStateTest("thing", { cat: "dog", bat: 4 }));
 
   it("deserializes updated custom string properties", () => updateCustomStateTest("animal", "badger", "tortoise"));
-  it("deserializes updated custom number properties", () => customStateTest("maths", 3, 5));
-  it("deserializes updated custom array properties", () => customStateTest("list", ["a", 2, ["c"]], ["c", 3]));
+  it("deserializes updated custom number properties", () => updateCustomStateTest("maths", 3, 5));
+  it("deserializes updated custom array properties", () => updateCustomStateTest("list", ["a", 2, ["c"]], ["c", 3]));
   it("deserializes updated custom object properties", () =>
-    customStateTest("thing", { cat: "dog", bat: 4 }, { bird: "goose" }));
+    updateCustomStateTest("thing", { cat: "dog", bat: 4 }, { bird: "goose" }));
 
   it("throws an error if the same property is stored twice", () => {
     store("blood", "red");

@@ -1,9 +1,13 @@
+import { Store } from "redux";
+
 /*
  * Utility class that saves snapshots of a store's state to local storage. It will also retrieve
  * snapshots on demand and dispatch the appropriate store action to apply them.
  */
 export class SnapshotPersistor {
-  constructor(store, config = {}) {
+  store: Store;
+  config: SnapshotPersistorConfig;
+  constructor(store: Store, config: SnapshotPersistorConfig) {
     this.store = store;
     this.config = config;
   }
@@ -38,19 +42,19 @@ export class SnapshotPersistor {
       snapshot = whitelist.reduce((acc, key) => {
         acc[key] = state[key];
         return acc;
-      }, {});
+      }, {} as Snapshot);
     } else {
       snapshot = { ...state };
     }
 
-    const replacer = (key, value) => {
+    const replacer = (key: string, value: unknown) => {
       const serializer = this.config.serializers[key];
 
       if (serializer) {
         return serializer(value);
       }
 
-      return value;
+      return value as Serializable;
     };
 
     /* Run the replacer on each entry. Doing it here rather than in JSON.stringify() because I
@@ -58,7 +62,7 @@ export class SnapshotPersistor {
     const serializableSnapshot = Object.entries(snapshot).reduce((acc, [key, value]) => {
       acc[key] = replacer(key, value);
       return acc;
-    }, {});
+    }, {} as Snapshot);
 
     try {
       if (typeof localStorage !== "undefined") {
@@ -72,7 +76,7 @@ export class SnapshotPersistor {
   /**
    * Revives a deserialized value using the appropriate additional deserializer, if any.
    */
-  revive(key, value) {
+  revive(key: string, value: Serializable) {
     const deserializer = this.config.deserializers[key];
 
     if (deserializer) {
@@ -90,14 +94,14 @@ export class SnapshotPersistor {
       const snapshotString = localStorage.getItem(this.key);
 
       if (snapshotString) {
-        const snapshot = JSON.parse(snapshotString);
+        const snapshot = JSON.parse(snapshotString) as Snapshot;
 
         /* Run the reviver on each entry. Doing it here rather than in JSON.parse() because I
            don't want it to be run recursively on the output. */
         const revivedSnapshot = Object.entries(snapshot).reduce((acc, [key, value]) => {
           acc[key] = this.revive(key, value);
           return acc;
-        }, {});
+        }, {} as RevivedSnapshot);
 
         return revivedSnapshot;
       }
@@ -115,10 +119,6 @@ export class SnapshotPersistor {
   }
 
   set name(value) {
-    if (!this.config) {
-      this.config = {};
-    }
-
     this.config.name = value;
   }
 }

@@ -1,14 +1,13 @@
-import type { Item } from "../game/items/item";
 import { getStore } from "../redux/storeRegistry";
 
 export const selectGame = () => getStore().getState().game;
 export const selectInventory = () => getStore().getState().player;
 export const selectPlayer = () => getStore().getState().player; // Deliberately same as above
 // Pulls out the actual items from the inventory.
-export const selectInventoryItems = () =>
+export const selectInventoryItems = (): ItemT[] =>
   getStore()
     .getState()
-    .player.itemArray.filter((item: Item) => !item.doNotList);
+    .player.itemArray.filter((item: ItemT) => !item.doNotList);
 export const selectRoom = () => getStore().getState().room;
 export const selectVerbNames = () => getStore().getState().verbNames;
 export const selectItemNames = () => getStore().getState().itemNames;
@@ -32,6 +31,6 @@ export const selectCyCommands = () => getStore().getState().cyCommands;
 export const selectEventTimeoutOverride = () => getStore().getState().eventTimeoutOverride;
 export const selectEventTurnsOverride = () => getStore().getState().eventTurnsOverride;
 export const selectEffects = () => getStore().getState().effects;
-export const selectItem = (name: string): Item[] => getStore().getState().items[name];
+export const selectItem = (name: string): Set<ItemT> => getStore().getState().items[name];
 export const selectAutoActions = () => getStore().getState().autoActions;
 export const selectRollingLog = () => getStore().getState().rollingLog;
