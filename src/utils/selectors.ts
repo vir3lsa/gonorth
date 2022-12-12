@@ -1,7 +1,7 @@
 import { getStore } from "../redux/storeRegistry";
 
 export const selectGame = () => getStore().getState().game;
-export const selectInventory = () => getStore().getState().player;
+export const selectInventory = (): ItemT => getStore().getState().player;
 export const selectPlayer = () => getStore().getState().player; // Deliberately same as above
 // Pulls out the actual items from the inventory.
 export const selectInventoryItems = (): ItemT[] =>

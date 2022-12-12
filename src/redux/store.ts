@@ -18,6 +18,14 @@ import {
 import type { Room } from "../game/items/room";
 import type { Item } from "../game/items/item";
 
+const isSerializedItem = (arg?: Serialized): arg is SerializedItem => {
+  return Boolean(arg?.hasOwnProperty("isItem"));
+};
+
+const isSerializedText = (arg?: Serialized): arg is SerializedText => {
+  return Boolean(arg?.hasOwnProperty("isText"));
+};
+
 export const initStore = (name?: string) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));
   const persistor = new SnapshotPersistor(store, {
@@ -29,7 +37,7 @@ export const initStore = (name?: string) => {
       room: (room: Room) => room?.name.toLowerCase(),
       allItems: (items: Item[]) =>
         [...items]
-          .filter((item) => item._alteredProperties.size)
+          .filter((item) => item.alteredProperties.size)
           .reduce((acc, item) => {
             acc[item.name] = item;
             return acc;
@@ -53,11 +61,11 @@ export const initStore = (name?: string) => {
       allItems: (snapshotAllItems) => {
         const stateAllItems = [...selectAllItems()];
         // Augment the complete list of all items with values from the snapshot.
-        Object.entries(snapshotAllItems as AllItemsDict).forEach(([name, snapshotItem]) => {
+        Object.entries(snapshotAllItems as SerializedItemsDict).forEach(([name, snapshotItem]) => {
           // Get the full item from the store.
           const itemToUpdate = stateAllItems.find((item) => item.name === name);
           Object.entries(snapshotItem).forEach(([property, value]) => {
-            if (value?.isItem) {
+            if (isSerializedItem(value)) {
               // The value's a pointer to an Item, so get the full item from the store's list.
               const actualItem = stateAllItems.find((item) => item.name === value.name);
 
@@ -72,7 +80,7 @@ export const initStore = (name?: string) => {
                   `Tried to deserialize "${name}", which has a ${property} called ${value.name}, but no such item could be found.`
                 );
               }
-            } else if (value?.isText) {
+            } else if (isSerializedText(value)) {
               // The value represents a Text we either need to recreate entirely or just update.
               if (value.partial) {
                 // We simply need to update the existing Text

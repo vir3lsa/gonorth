@@ -145,18 +145,6 @@ interface StoreState {
   game?: Game;
 }
 
-interface SnapshotPersistorConfig {
-  version: number;
-  name?: string;
-  whitelist: string[];
-  serializers: {
-    [field: string]: (...args: any[]) => Serializable;
-  };
-  deserializers: {
-    [key: string]: (value: Serializable) => unknown;
-  };
-}
-
 interface Dict {
   [key: string]: unknown;
 }
@@ -205,7 +193,40 @@ interface ReduxAction {
 }
 
 type GetState = () => StoreState;
-type Serializable = string | string[] | Dict;
+
+/*********************/
+/* SnapshotPersistor */
+/*********************/
+
+interface SnapshotPersistorConfig {
+  version: number;
+  name?: string;
+  whitelist: string[];
+  serializers: {
+    [field: string]: (...args: any[]) => Serializable;
+  };
+  deserializers: {
+    [key: string]: (value: Serializable) => unknown;
+  };
+}
+
+interface SerializedItem {
+  [property: string]: Serialized;
+  name: string;
+  isItem: boolean;
+}
+
+interface SerializedText {
+  isText: boolean;
+  partial: boolean;
+}
+
+interface SerializedItemsDict {
+  [name: string]: SerializedItem;
+}
+
+type Serializable = Serializable[] | string | Dict | boolean | number;
+type Serialized = Serializable | SerializedItem | SerializedItem[] | SerializedText | SerializedText[];
 
 /***************/
 /* ActionChain */
@@ -278,8 +299,8 @@ interface VerbConfig {
   [property: string]: unknown;
   name: string;
   test?: Test;
-  onSuccess?: Action | Action[];
-  onFailure?: Action | Action[];
+  onSuccess?: ContextAction | ContextAction[];
+  onFailure?: ContextAction | ContextAction[];
   aliases?: string[];
   isKeyword?: boolean;
   prepositional?: boolean;
@@ -311,3 +332,27 @@ interface Node {
 type ItemOrRoom = ItemT | RoomT;
 type ItemRoomOrString = ItemOrRoom | string;
 type ItemOrString = ItemT | string;
+
+/********/
+/* Item */
+/********/
+
+interface ItemConfig {
+  [property: string]: unknown;
+  name: string;
+  description?: UnknownText;
+  holdable?: boolean;
+  size?: number;
+  verbs?: VerbT | VerbT[];
+  aliases?: string[];
+  hidesItems?: ItemT[];
+  properties?: ItemProperties;
+}
+
+interface ItemItemsDict {
+  [name: string]: ItemT[];
+}
+
+interface ItemProperties {
+  [key: string]: Serializable;
+}

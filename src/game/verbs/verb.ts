@@ -44,8 +44,8 @@ export class Verb {
   constructor(
     name: string,
     test: Test | Test[] = true,
-    onSuccess: Action | Action[] = [],
-    onFailure: Action | Action[] = [],
+    onSuccess: ContextAction | ContextAction[] = [],
+    onFailure: ContextAction | ContextAction[] = [],
     aliases: string[] = [],
     isKeyword = false,
     description = "",
@@ -111,12 +111,12 @@ export class Verb {
     }
   }
 
-  set onSuccess(onSuccess: Action | Action[]) {
+  set onSuccess(onSuccess: ContextAction | ContextAction[]) {
     const onSuccessArray = Array.isArray(onSuccess) ? onSuccess : [onSuccess];
-    this._onSuccess = new ActionChain(...onSuccessArray);
+    this._onSuccess = new ActionChain(...(onSuccessArray as Action[]));
   }
 
-  set onFailure(onFailure: Action | Action[]) {
+  set onFailure(onFailure: ContextAction | ContextAction[]) {
     const onFailureArray = Array.isArray(onFailure) ? onFailure : [onFailure];
     onFailureArray.unshift(({ item, fail }) => {
       if (!this.remote && item?.holdable && !playerHasItem(item)) {
@@ -127,7 +127,7 @@ export class Verb {
 
       return false; // Indicate the verb failure to the action chain.
     });
-    this._onFailure = new ActionChain(...onFailureArray);
+    this._onFailure = new ActionChain(...(onFailureArray as Action[]));
   }
 
   get onSuccess(): ActionChainT {
@@ -176,7 +176,7 @@ export class Verb {
     }
   }
 
-  makePrepositional(interrogative: string, prepositionOptional: boolean) {
+  makePrepositional(interrogative: string, prepositionOptional: boolean = false) {
     this.prepositional = true;
     this.prepositionOptional = prepositionOptional;
     this.interrogative = interrogative;
@@ -272,12 +272,12 @@ class Builder {
     return this;
   }
 
-  withOnSuccess(...onSuccess: Action[]) {
+  withOnSuccess(...onSuccess: ContextAction[]) {
     this.config.onSuccess = onSuccess;
     return this;
   }
 
-  withOnFailure(...onFailure: Action[]) {
+  withOnFailure(...onFailure: ContextAction[]) {
     this.config.onFailure = onFailure;
     return this;
   }

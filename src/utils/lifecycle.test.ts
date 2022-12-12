@@ -60,7 +60,7 @@ test("delete save resets items to initial state", () => {
   loadSave();
 
   // State should be as it was saved.
-  expect(ball.container.name).toBe("player");
+  expect(ball.container?.name).toBe("player");
   expect(selectInventory().items.ball).toBeDefined();
   expect(playground.items.ball).toBeUndefined();
 
@@ -68,7 +68,7 @@ test("delete save resets items to initial state", () => {
   deleteSave();
 
   // State should be as per starting state.
-  expect(ball.container.name).toBe("playground");
+  expect(ball.container?.name).toBe("playground");
   expect(selectInventory().items.ball).toBeUndefined();
   expect(playground.items.ball).toBeDefined();
 });

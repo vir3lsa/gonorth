@@ -133,12 +133,12 @@ export const addEvent = (event: EventT) => ({
   payload: event
 });
 
-export const addKeywords = (keywords: VerbT[]) => ({
+export const addKeywords = (keywords: KeywordsDict) => ({
   type: type.ADD_KEYWORDS,
   keywords
 });
 
-export const removeKeywords = (keyword: VerbT) => ({
+export const removeKeywords = (keyword: string) => ({
   type: type.REMOVE_KEYWORDS,
   keyword
 });

@@ -27,7 +27,7 @@ export function inSameRoomAs(item: Item) {
   let possibleItemRoom = item.container;
   let itemRoom;
 
-  while (possibleItemRoom !== null && !possibleItemRoom.isRoom) {
+  while (possibleItemRoom && !possibleItemRoom.isRoom) {
     possibleItemRoom = possibleItemRoom.container;
   }
 

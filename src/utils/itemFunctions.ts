@@ -28,11 +28,11 @@ export function moveItem(item: ItemOrString, to: ItemRoomOrString) {
   }
 
   if (itemObj?.container) {
-    itemObj!.container.removeItem(itemObj, undefined); // TODO Remove undefined arg
+    itemObj!.container.removeItem(itemObj);
   }
 
   toObj?.addItem(itemObj);
-  itemObj.containerListing = null;
+  itemObj.containerListing = undefined;
 }
 
 export function getItem(name: string) {

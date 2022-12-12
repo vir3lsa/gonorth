@@ -9,7 +9,7 @@ import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 import { moveItem } from "../../utils/itemFunctions";
 
-export function newItem(config, typeConstructor = Item) {
+export function newItem(config: ItemConfig, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
   const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems);
   Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
@@ -18,15 +18,41 @@ export function newItem(config, typeConstructor = Item) {
 }
 
 export class Item {
-  clone(typeConstructor) {
+  [property: string]: unknown;
+  private _name!: string;
+  private _description!: TextFunction;
+  private _holdable!: boolean;
+  private _size!: number;
+  private _verbs!: VerbDict;
+  private _verbList!: Verb | Verb[];
+  private _aliases!: Set<string>;
+  private _hidesItems!: ItemT[];
+  private _container?: ItemT;
+  private _itemsVisibleFromSelf!: boolean;
+  private _capacity!: number;
+  private _free!: number;
+  private _takeSuccessText?: string;
+  private _canHoldItems!: boolean;
+  private _items!: ItemItemsDict;
+  private _preposition!: string;
+  private _properties!: ItemProperties;
+  private _alteredProperties: Set<string>;
+  private _article!: string;
+  private _containerListing?: string;
+  private _visible!: boolean;
+  private _itemsVisibleFromRoom!: boolean;
+  private _doNotList!: boolean;
+  private uniqueItems: Set<ItemT>;
+
+  clone(typeConstructor = Item) {
     const copy = newItem(
       {
         name: `${this.name} copy`, // Have to add 'copy' to sidestep uniqueness check.
         description: this._description,
         holdable: this.holdable,
         size: this.size,
-        verbs: Object.values(this.verbs),
-        aliases: this._aliases,
+        verbs: this._verbList,
+        aliases: [...this._aliases],
         hidesItems: this.hidesItems.map((item) => item.clone()),
         containerListing: this.containerListing,
         canHoldItems: this.canHoldItems,
@@ -51,23 +77,14 @@ export class Item {
 
   isRoom = false;
 
-  /**
-   * @param {string} name
-   * @param {string} description
-   * @param {boolean} holdable
-   * @param {number} size
-   * @param {VerbT | VerbT[]} verbs
-   * @param {string[]} aliases
-   * @param {ItemT[]} hidesItems
-   */
   constructor(
     name = "item",
-    description = "It's fairly ordinary looking.",
+    description: UnknownText = "It's fairly ordinary looking.",
     holdable = false,
     size = 1,
-    verbs = [],
-    aliases = [],
-    hidesItems = []
+    verbs: VerbT | VerbT[] = [],
+    aliases: string[] = [],
+    hidesItems: ItemT[] = []
   ) {
     if (selectAllItemNames().has(name)) {
       throw Error(
@@ -82,10 +99,9 @@ export class Item {
     this.holdable = holdable;
     this.size = size;
     this.visible = true;
-    this.container = null;
-    this.verbs = verbs;
+    this.container = undefined;
+    this.verbList = verbs;
     this.hidesItems = hidesItems;
-    this.containerListing = null;
     this.items = {};
     this.uniqueItems = new Set();
     this.canHoldItems = false;
@@ -117,7 +133,7 @@ export class Item {
         .withAliases("join", "meld", "insert")
         .makePrepositional("with what")
         .withTest(false)
-        .withOnFailure(({ item, other }) => `You can't see a way to combine the ${item.name} and the ${other.name}.`)
+        .withOnFailure(({ item, other }) => `You can't see a way to combine the ${item.name} and the ${other!.name}.`)
         .build()
     );
 
@@ -181,7 +197,7 @@ export class Item {
             // Otherwise, work out what went wrong.
             const article = item.properNoun ? "" : "the ";
             const inventory = selectInventory();
-            if (!item.container.itemsVisibleFromSelf) {
+            if (!item.container?.itemsVisibleFromSelf) {
               return "You can't see that.";
             } else if (item.container.open === false) {
               return `You can't get at it inside the ${item.container.name}.`;
@@ -201,22 +217,22 @@ export class Item {
 
       const putVerb = new Verb(
         "put",
-        ({ item, other }) => other !== item && other.canHoldItems && (other.free === -1 || item.size <= other.free),
+        ({ item, other }) => other !== item && other!.canHoldItems && (other!.free === -1 || item.size <= other!.free),
         [
-          ({ item, other }) => moveItem(item, other),
+          ({ item, other }) => moveItem(item, other!),
           ({ item, other }) => {
             const article = item.properNoun ? "" : "the ";
-            return `You put ${article}${item.name} ${other.preposition} the ${other.name}.`;
+            return `You put ${article}${item.name} ${other!.preposition} the ${other!.name}.`;
           }
         ],
         ({ item, other }) => {
           const article = item.properNoun ? "" : "the ";
           if (other === this) {
             return `You can't put ${article}${item.name} ${other.preposition} itself. That would be nonsensical.`;
-          } else if (other.canHoldItems) {
-            return `There's no room ${other.preposition} the ${other.name}.`;
+          } else if (other!.canHoldItems) {
+            return `There's no room ${other!.preposition} the ${other!.name}.`;
           } else {
-            return `You can't put ${article}${item.name} ${other.preposition} the ${other.name}.`;
+            return `You can't put ${article}${item.name} ${other!.preposition} the ${other!.name}.`;
           }
         },
         ["place", "drop", "add"]
@@ -229,15 +245,15 @@ export class Item {
       const giveVerb = new Verb(
         "give",
         () => false,
-        ({ item, other }) => moveItem(item, other),
+        ({ item, other }) => moveItem(item, other!),
         ({ item, other }) => {
           const article = item.properNoun ? "" : "the ";
           if (other === item) {
             return `You can't give ${article}${item.name} to itself. Obviously.`;
-          } else if (other._isNpc) {
-            return `It doesn't look like ${other.name} wants ${article}${item.name}.`;
+          } else if (other!._isNpc) {
+            return `It doesn't look like ${other!.name} wants ${article}${item.name}.`;
           } else {
-            return `You know you can't give ${article}${item.name} to the ${other.name}. So just stop it.`;
+            return `You know you can't give ${article}${item.name} to the ${other!.name}. So just stop it.`;
           }
         },
         ["offer", "pass", "show"]
@@ -281,35 +297,30 @@ export class Item {
     return this._description ? this._description(this) : "";
   }
 
-  /**
-   * @param {string | string[] | function | AnyText | undefined } description
-   */
-  set description(description) {
+  set description(description: UnknownText) {
     this.recordAlteredProperty("description", description);
     this._description = createDynamicText(description);
   }
 
-  addVerbs(...verbs) {
+  addVerbs(...verbs: VerbT[]) {
     verbs.forEach((verb) => this.addVerb(verb));
   }
 
-  addVerb(verb) {
+  addVerb(verb: VerbT) {
     if (verb instanceof Verb.Builder) {
       throw Error(`Tried to add a verb to ${this.name} but received a Builder. Did you forget to call build()?`);
     }
 
+    if (!Array.isArray(this._verbList)) {
+      this._verbList = [this._verbList];
+    }
+
+    this._verbList.push(verb);
     this._verbs[verb.name.toLowerCase()] = verb;
     verb.parent = this;
   }
 
-  /**
-   * @returns {VerbDict}
-   */
-  get verbs() {
-    return this._verbs;
-  }
-
-  getVerb(name) {
+  getVerb(name: string) {
     const verb = this.verbs[name.toLowerCase()];
 
     if (!verb) {
@@ -319,31 +330,34 @@ export class Item {
     return verb;
   }
 
-  _addAliasesToContainer(aliases) {
+  _addAliasesToContainer(aliases: string[]) {
     if (this._container && aliases) {
       aliases.forEach((alias) => {
-        const existing = this._container.items[alias.toLowerCase()];
+        const existing = this._container!.items[alias.toLowerCase()];
         if (existing) {
           existing.push(this);
         } else {
-          this._container.items[alias.toLowerCase()] = [this];
+          this._container!.items[alias.toLowerCase()] = [this];
         }
       });
     }
   }
 
-  /**
-   * @param {Verb[] | Verb} verbs
-   */
+  get verbs() {
+    return this._verbs;
+  }
+
   set verbs(verbs) {
+    this._verbs = verbs;
+  }
+
+  set verbList(verbs: Verb | Verb[]) {
+    this._verbList = [];
     this._verbs = {};
     const verbArray = Array.isArray(verbs) ? verbs : [verbs];
     verbArray.forEach((verb) => this.addVerb(verb));
   }
 
-  /**
-   * @param {Item} container
-   */
   set container(container) {
     this.recordAlteredProperty("container", container);
     this._container = container;
@@ -359,17 +373,11 @@ export class Item {
     return this._container;
   }
 
-  /**
-   * @return {string[]}
-   */
-  get aliases() {
+  get aliases(): string[] {
     return this._aliases ? [...this._aliases] : [];
   }
 
-  /**
-   * @param {string | string[]} aliases
-   */
-  set aliases(aliases) {
+  set aliases(aliases: string | string[]) {
     const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
     this.recordAlteredProperty("aliases", aliasArray);
     this._aliases = new Set(aliasArray);
@@ -378,10 +386,10 @@ export class Item {
 
   /**
    * Attempt a verb.
-   * @param {string} verbName
-   * @param  {...any} args to pass to the verb
+   * @param verbName the verb to attempt
+   * @param args to pass to the verb
    */
-  async try(verbName, ...args) {
+  async try(verbName: string, ...args: unknown[]) {
     const verb = this.verbs[verbName.toLowerCase()];
 
     if (verb) {
@@ -389,15 +397,15 @@ export class Item {
     }
   }
 
-  addItems(...items) {
+  addItems(...items: ItemT[]) {
     items.forEach((item) => this.addItem(item));
   }
 
   /**
    * Adds an item to this item's roster.
-   * @param {Item} item The item to add.
+   * @param item The item to add.
    */
-  addItem(item) {
+  addItem(item: ItemT) {
     if (item instanceof Item.Builder) {
       throw Error(`Tried to add an item to ${this.name} but received a Builder. Did you forget to call build()?`);
     }
@@ -431,10 +439,10 @@ export class Item {
 
   /**
    * Remove an item from this item's collection
-   * @param {*} item The item to remove
-   * @param {*} alias (Optional) The item alias to remove
+   * @param item The item to remove
+   * @param alias (Optional) The item alias to remove
    */
-  removeItem(item, alias) {
+  removeItem(item: ItemT, alias?: string) {
     // Use the alias provided or just the item's actual name
     const name = alias ? alias : item.name.toLowerCase();
 
@@ -448,7 +456,7 @@ export class Item {
 
     if (this.uniqueItems.has(item)) {
       this.uniqueItems.delete(item);
-      item.container = null;
+      item.container = undefined;
 
       if (this.free > -1) {
         this.free += item.size;
@@ -593,7 +601,7 @@ export class Item {
    */
   get accessibleItems() {
     // Add this item, its aliases and the items it contains
-    let items = {};
+    let items: ItemItemsDict = {};
 
     if (this.itemsVisibleFromSelf) {
       // Copy our item arrays into this new object
@@ -649,8 +657,8 @@ export class Item {
     }, []);
   }
 
-  addAliases(...aliases) {
-    const newAliases = aliases.forEach((alias) => this.createAliases(alias));
+  addAliases(...aliases: string[]) {
+    const newAliases = aliases.flatMap((alias) => this.createAliases(alias));
     this._addAliasesToContainer(newAliases);
     getStore().dispatch(addItem(this)); // Use of Sets means doing this again not a problem.
   }
@@ -659,8 +667,8 @@ export class Item {
    * Turns a multi-word alias into multiple single-word aliases (and adds the original too).
    * Ignores certain common words.
    */
-  createAliases(alias) {
-    let newAliases = [];
+  createAliases(alias: string) {
+    let newAliases: string[] = [];
     const lcAlias = alias.toLowerCase();
     const aliases = lcAlias
       .split(/\s/)
@@ -684,11 +692,11 @@ export class Item {
     return newAliases;
   }
 
-  removeAliases(...aliases) {
+  removeAliases(...aliases: string[]) {
     this.aliases = this.aliases.filter((alias) => !aliases.includes(alias));
   }
 
-  _getActionChain(verbName, onFailure) {
+  _getActionChain(verbName: string, onFailure: boolean) {
     const verb = this.getVerb(verbName);
     return onFailure ? verb.onFailure : verb.onSuccess;
   }
@@ -697,7 +705,7 @@ export class Item {
    * Adds an action to the specified verb. By default, functions are added to the beginning of the chain of on-success actions and
    * anything else is added to the end.
    */
-  addAction(verbName, action, onFailure, addToEnd) {
+  addAction(verbName: string, action: ContextAction, onFailure: boolean, addToEnd: boolean) {
     const actionChain = this._getActionChain(verbName, onFailure);
 
     if (typeof addToEnd === "undefined") {
@@ -705,16 +713,16 @@ export class Item {
     }
 
     if (addToEnd) {
-      actionChain.addAction(action);
+      actionChain.addAction(action as Action);
     } else {
-      actionChain.insertAction(action);
+      actionChain.insertAction(action as Action);
     }
   }
 
   /*
    * Adds a postscript to the actions of the specified verb. By default, it's added to the on-success action chain.
    */
-  addPostscript(verbName, text, onFailure = false) {
+  addPostscript(verbName: string, text: PostScript, onFailure = false) {
     const actionChain = this._getActionChain(verbName, onFailure);
     actionChain.postScript = text;
   }
@@ -722,7 +730,7 @@ export class Item {
   /*
    * Adds a test to the specified verb.
    */
-  addTest(verbName, test) {
+  addTest(verbName: string, test: Test) {
     const verb = this.getVerb(verbName);
     verb.addTest(test);
   }
@@ -808,11 +816,11 @@ export class Item {
     this._takeSuccessText = value;
   }
 
-  get(property) {
+  get(property: string) {
     return this.properties[property];
   }
 
-  set(property, value) {
+  set(property: string, value: Serializable) {
     if (typeof value === "function") {
       throw Error("Attempted to set a function as a property value. All item properties must be serializable.");
     }
@@ -832,7 +840,7 @@ export class Item {
 
   toJSON() {
     return [...this._alteredProperties]
-      .map((propertyName) => {
+      .map((propertyName): [string, Serializable] => {
         const propertyValue = this[propertyName];
 
         if (typeof propertyValue === "function") {
@@ -848,23 +856,25 @@ export class Item {
           return [propertyName, sanitisedArray];
         }
 
-        return [propertyName, propertyValue];
+        return [propertyName, propertyValue as Serializable];
       })
       .reduce((acc, [propertyName, propertyValue]) => {
         acc[propertyName] = propertyValue;
         return acc;
-      }, {});
+      }, {} as JsonDict);
   }
 
   // Records an altered property.
-  recordAlteredProperty(propertyName, newValue) {
+  recordAlteredProperty(propertyName: string, newValue?: Serializable | TextFunction) {
     if (this._cloned || !this._constructed) {
       // We won't serialize cloned objects, or objects constructed after recording began, so won't record their changes.
       return;
     }
 
     // If the new value being set is a Text, add an onChange callback so we know about internal changes.
-    this._handleTextPropertyPersistence(propertyName, newValue);
+    if (newValue instanceof Text || newValue instanceof ManagedText) {
+      this._handleTextPropertyPersistence(propertyName, newValue);
+    }
 
     const recordChanges = selectRecordChanges();
     if (recordChanges && typeof newValue === "function") {
@@ -878,13 +888,15 @@ export class Item {
     }
   }
 
-  _handleTextPropertyPersistence(propertyName, value) {
-    if (value instanceof Text || value instanceof ManagedText) {
-      value.onChange = () => this.recordAlteredProperty(propertyName);
+  get alteredProperties() {
+    return this._alteredProperties;
+  }
 
-      if (selectRecordChanges()) {
-        value.recordAll();
-      }
+  _handleTextPropertyPersistence(propertyName: string, value: TextT | ManagedTextT) {
+    value.onChange = () => this.recordAlteredProperty(propertyName);
+
+    if (selectRecordChanges()) {
+      value.recordAll();
     }
   }
 
@@ -894,16 +906,17 @@ export class Item {
 }
 
 export class Builder {
-  constructor(name) {
+  config: ItemConfig;
+  constructor(name: string) {
     this.config = { name };
   }
 
-  withName(name) {
+  withName(name: string) {
     this.config.name = name;
     return this;
   }
 
-  withDescription(description) {
+  withDescription(description: UnknownText) {
     this.config.description = description;
     return this;
   }
@@ -913,32 +926,32 @@ export class Builder {
     return this;
   }
 
-  withSize(size) {
+  withSize(size: number) {
     this.config.size = size;
     return this;
   }
 
-  withVerbs(...verbs) {
+  withVerbs(...verbs: VerbT[]) {
     this.config.verbs = verbs;
     return this;
   }
 
-  withAliases(...aliases) {
+  withAliases(...aliases: string[]) {
     this.config.aliases = aliases;
     return this;
   }
 
-  hidesItems(...items) {
+  hidesItems(...items: ItemT[]) {
     this.config.hidesItems = items;
     return this;
   }
 
-  withContainerListing(containerListing) {
+  withContainerListing(containerListing: string) {
     this.config.containerListing = containerListing;
     return this;
   }
 
-  withCapacity(capacity) {
+  withCapacity(capacity: number) {
     this.config.capacity = capacity;
     return this;
   }
@@ -948,22 +961,22 @@ export class Builder {
     return this;
   }
 
-  withPreposition(preposition) {
+  withPreposition(preposition: string) {
     this.config.preposition = preposition;
     return this;
   }
 
-  withArticle(article) {
+  withArticle(article: string) {
     this.config.article = article;
     return this;
   }
 
-  withTakeSuccessText(text) {
+  withTakeSuccessText(text: string) {
     this.config.takeSuccessText = text;
     return this;
   }
 
-  withProperty(property, value) {
+  withProperty(property: string, value: Serializable) {
     if (typeof value === "function") {
       throw Error("Attempted to set a function as a property value. All item properties must be serializable.");
     }

@@ -126,7 +126,7 @@ export function createKeywords() {
 
   const debug = newVerb({
     name: "debug",
-    onSuccess: ({ operation, args }) => handleDebugOperations(operation, ...args),
+    onSuccess: ({ operation, args }) => handleDebugOperations(operation as string, ...(args as string[])),
     isKeyword: true,
     doNotList: true,
     expectsArgs: true,
@@ -148,7 +148,7 @@ export function createKeywords() {
   addKeyword(debug);
 }
 
-export function addKeyword(keyword) {
+export function addKeyword(keyword: VerbT) {
   const keywordMap = keyword.aliases.reduce(
     (acc, alias) => {
       acc[alias] = keyword;
@@ -167,11 +167,11 @@ export function getKeywords() {
   return selectKeywords();
 }
 
-export function getKeyword(name) {
+export function getKeyword(name: string) {
   return getKeywords()[name];
 }
 
-export function removeKeyword(keyword) {
+export function removeKeyword(keyword: string) {
   const verb = getKeyword(keyword);
   getStore().dispatch(removeKeywords(keyword));
 }

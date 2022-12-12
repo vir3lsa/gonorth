@@ -1,8 +1,7 @@
 import { unregisterStore } from "../../redux/storeRegistry";
-import { Item, newItem } from "../items/item";
+import { newItem } from "../items/item";
 import { getKeyword, createKeywords } from "./keywords";
 import { selectCurrentPage } from "../../utils/testSelectors";
-import { initStore } from "../../redux/store";
 import { selectInventory } from "../../utils/selectors";
 import { initGame } from "../../gonorth";
 

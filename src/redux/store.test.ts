@@ -24,11 +24,11 @@ const setUpStoreTests = () => {
   persistor = getPersistor();
 
   vase = new Item("vase", "green", true);
-  vase.containerListing = new RandomText("big", "small");
+  vase.description = new RandomText("big", "small"); // Ensure changes to this are recorded.
   room.addItems(vase);
 
   goToRoom(room);
-};
+};;
 
 beforeEach(() => {
   mockStorage = {};
@@ -111,13 +111,13 @@ describe("changing items", () => {
   });
 
   it("serializes partial changes to Texts", () => {
-    vase.containerListing.next();
+    (vase.description as RandomTextT).next();
     persistSnapshotGetResult();
     expect(result.allItems.vase).toBeDefined();
-    expect(result.allItems.vase.containerListing).toBeDefined();
-    expect(result.allItems.vase.containerListing.isText).toBe(true);
-    expect(result.allItems.vase.containerListing.partial).toBe(true);
-    expect(result.allItems.vase.containerListing.candidates.length).toBe(1);
+    expect(result.allItems.vase.description).toBeDefined();
+    expect(result.allItems.vase.description.isText).toBe(true);
+    expect(result.allItems.vase.description.partial).toBe(true);
+    expect(result.allItems.vase.description.candidates.length).toBe(1);
   });
 
   it("serializes external Texts in full when they've been set on an Item field during recording", () => {
@@ -217,11 +217,11 @@ describe("deserializing snapshots", () => {
   });
 
   it("udpates Text fields changed during recording", () => {
-    vase.containerListing.next();
+    (vase.description as RandomText).next();
     const snapshot = persistSnapshotAndLoad();
     const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
-    expect(revivedVase.containerListing instanceof RandomText).toBe(true);
-    expect(revivedVase.containerListing.candidates.length).toBe(1);
+    expect(revivedVase.description instanceof RandomText).toBe(true);
+    expect(revivedVase.description.candidates.length).toBe(1);
   });
 
   it("deserializes external Texts in full when they've been set on an Item field during recording", () => {
