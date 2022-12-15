@@ -7,10 +7,10 @@ import { Room } from "./room";
 import { initGame, setInventoryCapacity, goToRoom } from "../../gonorth";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { Container } from "./container";
-import { Verb } from "../../../src/game/verbs/verb";
+import { Verb } from "../verbs/verb";
 import { clickNextAndWait } from "../../utils/testFunctions";
 
-let game, room;
+let game, room: RoomT;
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -23,7 +23,7 @@ beforeEach(() => {
   // Pretend we're in the browser
   game = initGame("Jolly Capers", "", { debugMode: false });
   room = new Room("red");
-  getStore().dispatch(newGame(game, true, false));
+  getStore().dispatch(newGame(game, true));
   goToRoom(room);
 });
 
@@ -37,6 +37,8 @@ describe("basic item tests", () => {
       } else if (looks === 2) {
         return "It's 1 o'clock";
       }
+
+      return "It's late";
     });
 
     expect(clock.description).toBe("It's 12 o'clock");
@@ -55,7 +57,7 @@ describe("basic item tests", () => {
     const clickNextPromise = new Promise((resolve) =>
       setTimeout(async () => {
         await clickNextAndWait();
-        resolve();
+        resolve(null);
       })
     );
     expect(selectOptions()).toBeNull();
@@ -155,16 +157,18 @@ describe("builder tests", () => {
   });
 
   test("a helpful error message is provided when adding an item if build() is not called", () => {
+    // @ts-ignore Deliberately testing wrong argument e.g. for when library is used as JavaScript.
     expect(() => room.addItem(new Item.Builder().withName("unfinished"))).toThrow("forget to call build()?");
   });
 
   test("a helpful error message is provided when adding a verb if build() is not called", () => {
+    // @ts-ignore Deliberately testing wrong argument e.g. for when library is used as JavaScript.
     expect(() => room.addVerb(new Verb.Builder().withName("unfinished"))).toThrow("forget to call build()?");
   });
 });
 
 describe("putting items", () => {
-  let ball, table, flowers;
+  let ball: ItemT, table: ItemT, flowers: ItemT;
 
   beforeEach(() => {
     ball = new Item("ball", "red", true, 1);
@@ -302,11 +306,11 @@ describe("aliases", () => {
 });
 
 describe("containers", () => {
-  let ball, chest;
+  let ball: ItemT, chest: ContainerT;
 
   beforeEach(() => {
     ball = new Item("ball", "red", true, 1);
-    chest = new Container("chest", null, "a large chest", "the lid is open", false);
+    chest = new Container("chest", null, "a large chest", "the lid is open");
     chest.addItem(ball);
     room.addItems(chest);
   });
@@ -323,16 +327,16 @@ describe("containers", () => {
 });
 
 describe("serialization", () => {
-  let ball, chest, box;
+  let ball: ItemT, chest: ContainerT, box: ContainerT;
 
-  const expectRecordedProperties = (item, ...properties) => {
-    expect(item._alteredProperties).toEqual(new Set([...properties]));
+  const expectRecordedProperties = (item: ItemT, ...properties: string[]) => {
+    expect(item.alteredProperties).toEqual(new Set([...properties]));
   };
 
   beforeEach(() => {
     ball = new Item("ball", "red", true, 1);
-    chest = new Container("chest", null, "a large chest", "the lid is open", false);
-    box = new Container("box", null, "a cardboard box", "tatty and brown", false);
+    chest = new Container("chest", null, "a large chest", "the lid is open");
+    box = new Container("box", null, "a cardboard box", "tatty and brown");
   });
 
   describe("recording changes", () => {
@@ -391,7 +395,7 @@ describe("serialization", () => {
 
     test("container removals are recorded and don't cause errors", () => {
       room.addItem(ball);
-      ball.container = null;
+      ball.container = undefined;
       expectRecordedProperties(ball, "container");
     });
 
@@ -487,7 +491,7 @@ describe("serialization", () => {
 
   test("creating an item with the constructor doesn't record changes", () => {
     const car = new Item("car", "fast", false, 50, [new Verb("drive")], ["motor"], [new Item("seat")]);
-    expect(car._alteredProperties).toEqual(new Set());
+    expect(car.alteredProperties).toEqual(new Set());
     expectRecordedProperties(car);
   });
 
@@ -572,6 +576,7 @@ describe("serialization", () => {
   });
 
   test("setting a function as a property causes an error", () => {
+    // @ts-ignore Deliberately testing wrong argument e.g. for when library is used as JavaScript.
     expect(() => ball.set("sound", () => "woosh")).toThrow();
   });
 });

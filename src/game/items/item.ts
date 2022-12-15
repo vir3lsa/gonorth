@@ -42,7 +42,7 @@ export class Item {
   private _visible!: boolean;
   private _itemsVisibleFromRoom!: boolean;
   private _doNotList!: boolean;
-  private uniqueItems: Set<ItemT>;
+  protected uniqueItems: Set<ItemT>;
 
   clone(typeConstructor = Item) {
     const copy = newItem(
@@ -471,13 +471,13 @@ export class Item {
     }
   }
 
-  set hidesItems(hidesItems) {
+  set hidesItems(hidesItems: Item | Item[]) {
     const hidesItemsArray = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
     this.recordAlteredProperty("hidesItems", hidesItemsArray);
     this._hidesItems = hidesItemsArray;
   }
 
-  get hidesItems() {
+  get hidesItems(): Item[] {
     return this._hidesItems;
   }
 
@@ -553,7 +553,7 @@ export class Item {
     );
   }
 
-  getFullDescription() {
+  getFullDescription(): UnknownText | ActionChainT {
     let description = this.description;
 
     if (this.itemsVisibleFromSelf) {
@@ -907,7 +907,7 @@ export class Item {
 
 export class Builder {
   config: ItemConfig;
-  constructor(name: string) {
+  constructor(name: string = "") {
     this.config = { name };
   }
 

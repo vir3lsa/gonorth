@@ -16,6 +16,8 @@ export const directionAliases = {
   west: ["w", "left"],
   up: ["u", "upward", "upwards"],
   down: ["d", "downward", "downwards"]
+} as {
+  [name: string]: string[] | undefined;
 };
 
 export function createKeywords() {
@@ -44,12 +46,12 @@ export function createKeywords() {
     "Inspect the items you're carrying."
   );
 
-  const north = new GoVerb("North", directionAliases["north"], true);
-  const south = new GoVerb("South", directionAliases["south"], true);
-  const east = new GoVerb("East", directionAliases["east"], true);
-  const west = new GoVerb("West", directionAliases["west"], true);
-  const up = new GoVerb("Up", directionAliases["up"], true);
-  const down = new GoVerb("Down", directionAliases["down"], true);
+  const north = new GoVerb("North", directionAliases["north"] as string[], true);
+  const south = new GoVerb("South", directionAliases["south"] as string[], true);
+  const east = new GoVerb("East", directionAliases["east"] as string[], true);
+  const west = new GoVerb("West", directionAliases["west"] as string[], true);
+  const up = new GoVerb("Up", directionAliases["up"] as string[], true);
+  const down = new GoVerb("Down", directionAliases["down"] as string[], true);
 
   const waitText = new RandomText(
     "You pause for a moment, taking stock of the situation.",

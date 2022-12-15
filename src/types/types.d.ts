@@ -53,6 +53,8 @@ type VerbT = import("../game/verbs/verb").Verb;
 type AutoActionT = import("../game/input/autoAction").AutoAction;
 type OptionT = import("../game/interactions/option").Option;
 type SnaphotPersistorT = import("../redux/snapshotPersistor").SnapshotPersistor;
+type ContainerT = import("../game/items/container").Container;
+type DoorT = import("../game/items/door").Door;
 
 /********/
 /* Text */
@@ -356,3 +358,22 @@ interface ItemItemsDict {
 interface ItemProperties {
   [key: string]: Serializable;
 }
+
+/********/
+/* Room */
+/********/
+
+interface DirectionObject {
+  room?: RoomT | SimpleAction;
+  test?: DoorT | Test;
+  onSuccess?: ContextAction | ContextAction[];
+  failureText?: string;
+  directionName?: DirectionName;
+}
+
+interface AdjacentRooms {
+  [name: string]: DirectionObject;
+}
+
+type DirectionName = string | "north" | "south" | "east" | "west" | "up" | "down";
+type Navigable = boolean | DoorT | (() => boolean);

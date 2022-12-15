@@ -12,7 +12,11 @@ import { debug } from "../../utils/consoleIO";
 import { checkpoint } from "../../utils/lifecycle";
 
 export class Room extends Item {
-  constructor(name, description, checkpoint) {
+  private _adjacentRooms!: AdjacentRooms;
+  private _image?: string;
+  private _checkpoint!: boolean;
+
+  constructor(name: string, description: UnknownText = "placeholder", checkpoint = true) {
     super(name, preferPaged(description), false, -1);
     this.adjacentRooms = {};
     this.canHoldItems = true;
@@ -30,8 +34,14 @@ export class Room extends Item {
     return this._image;
   }
 
-  addAdjacentRoom(room, directionName, navigable, onSuccess, failureText) {
-    let test = navigable;
+  addAdjacentRoom(
+    room?: RoomT,
+    directionName?: DirectionName,
+    navigable?: Navigable,
+    onSuccess?: ContextAction | ContextAction[],
+    failureText?: string
+  ) {
+    let test: Test | Door | undefined = navigable;
     let failText = failureText;
 
     if (typeof navigable === "undefined") {
@@ -44,28 +54,35 @@ export class Room extends Item {
     }
 
     const onSuccessArray = !onSuccess || Array.isArray(onSuccess) ? onSuccess : [onSuccess];
-    const direction = directionName.toLowerCase();
-    const aliases = [direction, ...(directionAliases[direction] || [])];
+    const aliases = [directionName, ...(directionAliases[directionName || ""] || [])];
     const directionObject = {
       room,
       test,
       onSuccess: onSuccessArray,
       failureText: failText,
-      direction
+      directionName
     };
 
     // Map each of the direction aliases to the direction object
-    aliases.forEach((alias) => {
-      this.adjacentRooms[alias] = directionObject;
-    });
+    aliases
+      .filter((alias) => alias)
+      .forEach((alias) => {
+        this.adjacentRooms[alias as string] = directionObject;
+      });
 
     // Add the keyword if we don't already have it
-    if (!getKeyword(directionName)) {
+    if (directionName && !getKeyword(directionName)) {
       addKeyword(new GoVerb(directionName, [], true));
     }
   }
 
-  setNorth(room, navigable, onSuccess, failureText, addInverse = true) {
+  setNorth(
+    room?: RoomT,
+    navigable?: Navigable,
+    onSuccess?: ContextAction | ContextAction[],
+    failureText?: string,
+    addInverse = true
+  ) {
     this.addAdjacentRoom(room, "north", navigable, onSuccess, failureText);
 
     if (addInverse && room && room instanceof Room) {
@@ -74,7 +91,13 @@ export class Room extends Item {
     }
   }
 
-  setSouth(room, navigable, onSuccess, failureText, addInverse = true) {
+  setSouth(
+    room?: RoomT,
+    navigable?: Navigable,
+    onSuccess?: ContextAction | ContextAction[],
+    failureText?: string,
+    addInverse = true
+  ) {
     this.addAdjacentRoom(room, "south", navigable, onSuccess, failureText);
 
     if (addInverse && room && room instanceof Room) {
@@ -83,7 +106,13 @@ export class Room extends Item {
     }
   }
 
-  setEast(room, navigable, onSuccess, failureText, addInverse = true) {
+  setEast(
+    room?: RoomT,
+    navigable?: Navigable,
+    onSuccess?: ContextAction | ContextAction[],
+    failureText?: string,
+    addInverse = true
+  ) {
     this.addAdjacentRoom(room, "east", navigable, onSuccess, failureText);
 
     if (addInverse && room && room instanceof Room) {
@@ -92,7 +121,13 @@ export class Room extends Item {
     }
   }
 
-  setWest(room, navigable, onSuccess, failureText, addInverse = true) {
+  setWest(
+    room?: RoomT,
+    navigable?: Navigable,
+    onSuccess?: ContextAction | ContextAction[],
+    failureText?: string,
+    addInverse = true
+  ) {
     this.addAdjacentRoom(room, "west", navigable, onSuccess, failureText);
 
     if (addInverse && room && room instanceof Room) {
@@ -101,7 +136,13 @@ export class Room extends Item {
     }
   }
 
-  setUp(room, navigable, onSuccess, failureText, addInverse = true) {
+  setUp(
+    room?: RoomT,
+    navigable?: Navigable,
+    onSuccess?: ContextAction | ContextAction[],
+    failureText?: string,
+    addInverse = true
+  ) {
     this.addAdjacentRoom(room, "up", navigable, onSuccess, failureText);
 
     if (addInverse && room && room instanceof Room) {
@@ -110,7 +151,13 @@ export class Room extends Item {
     }
   }
 
-  setDown(room, navigable, onSuccess, failureText, addInverse = true) {
+  setDown(
+    room?: RoomT,
+    navigable?: Navigable,
+    onSuccess?: ContextAction | ContextAction[],
+    failureText?: string,
+    addInverse = true
+  ) {
     this.addAdjacentRoom(room, "down", navigable, onSuccess, failureText);
 
     if (addInverse && room && room instanceof Room) {
@@ -119,7 +166,7 @@ export class Room extends Item {
     }
   }
 
-  go(directionName) {
+  go(directionName: DirectionName) {
     const direction = directionName.toLowerCase();
     const adjacent = this.adjacentRooms[direction].room;
 
@@ -140,7 +187,11 @@ export class Room extends Item {
           return checkpoint();
         }
       },
-      () => getStore().dispatch(changeImage(this._image)),
+      () => {
+        if (this.image) {
+          getStore().dispatch(changeImage(this.image));
+        }
+      },
       this.description
     );
 
@@ -167,7 +218,7 @@ export class Room extends Item {
   get itemListings() {
     debug(`Listing items in ${this.name}.`);
     let description = "";
-    const plainList = []; // Items with no room listing
+    const plainList: ItemT[] = []; // Items with no room listing
 
     this.uniqueItems.forEach((item) => {
       if (item.containerListing) {
@@ -186,7 +237,7 @@ export class Room extends Item {
       .filter((container) => container.itemsVisibleFromRoom)
       .forEach((container) => {
         debug(`Listing ${container.name}'s items as they are visible.`);
-        const describedItems = [];
+        const describedItems: ItemT[] = [];
         Object.values(container.items).forEach((itemsWithName) =>
           itemsWithName.filter((item) => item.containerListing).forEach((item) => describedItems.push(item))
         );
@@ -234,7 +285,7 @@ export class Room extends Item {
     return this._checkpoint;
   }
 
-  set checkpoint(value) {
+  set checkpoint(value: boolean) {
     this.recordAlteredProperty("checkpoint", value);
     this._checkpoint = value;
   }

@@ -6,9 +6,10 @@ import { Item } from "./item";
 import { initGame } from "../../gonorth";
 import { Parser } from "../input/parser";
 import { selectInteraction, selectCurrentPage } from "../../utils/testSelectors";
-import { clickNext } from "../../utils/testFunctions";
+import { clickNext, deferAction } from "../../utils/testFunctions";
 import { selectRoom } from "../../utils/selectors";
 import { Door } from "./door";
+import { AnyAction } from "redux";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -20,7 +21,7 @@ const clickNextAndWait = async () => {
   return selectInteraction().promise;
 };
 
-let hall, north, south, east, west;
+let hall: RoomT, north: RoomT, south: RoomT, east: RoomT, west: RoomT;
 
 const initRooms = () => {
   hall = new Room("Hall", "");
@@ -34,7 +35,7 @@ beforeEach(() => {
   unregisterStore();
   initGame("test", "", { debugMode: false });
   initRooms();
-  getStore().dispatch(changeInteraction(new Interaction("")));
+  getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);
 });
 
 describe("Room", () => {
@@ -80,42 +81,42 @@ describe("Room", () => {
   describe("adjacent rooms", () => {
     it("sets North", () => {
       hall.setNorth(north);
-      expect(hall.adjacentRooms.north.room.name).toBe("Garden");
+      expect(hall.adjacentRooms.north.room?.name).toBe("Garden");
     });
 
     it("sets South", () => {
       hall.setSouth(south);
-      expect(hall.adjacentRooms.south.room.name).toBe("Kitchen");
+      expect(hall.adjacentRooms.south.room?.name).toBe("Kitchen");
     });
 
     it("sets East", () => {
       hall.setEast(east);
-      expect(hall.adjacentRooms.east.room.name).toBe("Scullery");
+      expect(hall.adjacentRooms.east.room?.name).toBe("Scullery");
     });
 
     it("sets West", () => {
       hall.setWest(west);
-      expect(hall.adjacentRooms.west.room.name).toBe("Pantry");
+      expect(hall.adjacentRooms.west.room?.name).toBe("Pantry");
     });
 
     it("sets North inverse", () => {
       hall.setNorth(north);
-      expect(north.adjacentRooms.south.room.name).toBe("Hall");
+      expect(north.adjacentRooms.south.room?.name).toBe("Hall");
     });
 
     it("sets South inverse", () => {
       hall.setSouth(south);
-      expect(south.adjacentRooms.north.room.name).toBe("Hall");
+      expect(south.adjacentRooms.north.room?.name).toBe("Hall");
     });
 
     it("sets East inverse", () => {
       hall.setEast(east);
-      expect(east.adjacentRooms.west.room.name).toBe("Hall");
+      expect(east.adjacentRooms.west.room?.name).toBe("Hall");
     });
 
     it("sets West inverse", () => {
       hall.setWest(west);
-      expect(west.adjacentRooms.east.room.name).toBe("Hall");
+      expect(west.adjacentRooms.east.room?.name).toBe("Hall");
     });
   });
 
@@ -127,7 +128,7 @@ describe("Room", () => {
       game = initGame("The Giant's Castle", "", { debugMode: false });
       initRooms();
       getStore().dispatch(changeRoom(hall));
-      getStore().dispatch(changeInteraction(new Interaction("")));
+      getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);
     });
 
     it("doesn't change room if not navigable as boolean", () => {
@@ -155,22 +156,21 @@ describe("Room", () => {
     });
 
     it("gives custom messages when a direction doesn't exist", async () => {
-      hall.setSouth(null, false, null, "You can't walk through walls");
+      hall.setSouth(undefined, false, null, "You can't walk through walls");
       await new Parser("south").parse();
       expect(selectCurrentPage()).toBe("You can't walk through walls");
     });
 
     it("refers to the door when it's closed", async () => {
-      hall.setSouth(null, new Door("gate", "iron", false));
+      hall.setSouth(undefined, new Door("gate", "iron", false));
       await new Parser("south").parse();
       expect(selectCurrentPage()).toBe("The gate is closed.");
     });
 
     it("prints a message when successfully going in a direction", async () => {
       hall.setWest(new Room("Chapel"));
-      setTimeout(() => clickNext());
-      await new Parser("west").parse();
-      expect(selectCurrentPage().includes("Going West.")).toBeTruthy();
+      new Parser("west").parse();
+      return deferAction(() => expect(selectCurrentPage().includes("Going West.")).toBeTruthy());
     });
 
     it("prints new room text", async () => {
@@ -188,12 +188,12 @@ describe("Room", () => {
 
     it("records changes to adjacentRooms", () => {
       hall.adjacentRooms = {};
-      expect(hall._alteredProperties).toEqual(new Set(["adjacentRooms"]));
+      expect(hall.alteredProperties).toEqual(new Set(["adjacentRooms"]));
     });
 
     it("records changes to checkpoint", () => {
       hall.checkpoint = true;
-      expect(hall._alteredProperties).toEqual(new Set(["checkpoint"]));
+      expect(hall.alteredProperties).toEqual(new Set(["checkpoint"]));
     });
   });
 
