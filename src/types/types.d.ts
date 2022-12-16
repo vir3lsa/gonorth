@@ -55,6 +55,7 @@ type OptionT = import("../game/interactions/option").Option;
 type SnaphotPersistorT = import("../redux/snapshotPersistor").SnapshotPersistor;
 type ContainerT = import("../game/items/container").Container;
 type DoorT = import("../game/items/door").Door;
+type KeyT = import("../game/items/door").Key;
 
 /********/
 /* Text */
@@ -365,7 +366,7 @@ interface ItemProperties {
 
 interface DirectionObject {
   room?: RoomT | SimpleAction;
-  test?: DoorT | Test;
+  test?: () => boolean;
   onSuccess?: ContextAction | ContextAction[];
   failureText?: string;
   directionName?: DirectionName;
@@ -377,3 +378,39 @@ interface AdjacentRooms {
 
 type DirectionName = string | "north" | "south" | "east" | "west" | "up" | "down";
 type Navigable = boolean | DoorT | (() => boolean);
+
+/********/
+/* Door */
+/********/
+
+interface DoorConfig {
+  name: string;
+  description: UnknownText;
+  open: boolean;
+  locked: boolean;
+  openSuccessText: string;
+  unlockSuccessText: string;
+  aliases: string[];
+  key: KeyT;
+}
+
+/*************/
+/* Container */
+/*************/
+
+interface ContainerConfig {
+  name: string;
+  aliases: string[];
+  closedDescription: UnknownText;
+  openDescription: UnknownText;
+  capacity: number;
+  preposition: string;
+  locked: boolean;
+  open: boolean;
+  holdable: boolean;
+  size: number;
+  closeable: boolean;
+  verbs: VerbT[];
+  lockable: boolean;
+  key: string | KeyT;
+}

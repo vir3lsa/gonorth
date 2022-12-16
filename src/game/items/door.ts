@@ -1,7 +1,7 @@
 import { Item } from "./item";
 import { Verb } from "../verbs/verb";
 
-export function newDoor(config) {
+export function newDoor(config: DoorConfig) {
   const { name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key, ...remainingConfig } =
     config;
   const door = new Door(name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key);
@@ -11,7 +11,20 @@ export function newDoor(config) {
 }
 
 export class Door extends Item {
-  constructor(name, description, open = true, locked = false, openSuccessText, unlockSuccessText, aliases, key) {
+  private _open!: boolean;
+  private _locked!: boolean;
+  private _key?: KeyT;
+
+  constructor(
+    name: string,
+    description: UnknownText,
+    open = true,
+    locked = false,
+    openSuccessText?: string,
+    unlockSuccessText?: string,
+    aliases?: string[],
+    key?: KeyT
+  ) {
     super(name, description, false, -1, [], aliases);
     this.open = open;
     this.locked = locked;
@@ -30,7 +43,7 @@ export class Door extends Item {
 
     this.addVerb(
       new Verb.Builder("close")
-        .withTest(({ item: door }) => door.open)
+        .withTest(({ item: door }) => (door as Door).open)
         .withOnSuccess([({ item: door }) => (door.open = false), `You close the ${name}.`])
         .withOnFailure(`The ${name} is already closed.`)
         .build()
@@ -38,7 +51,10 @@ export class Door extends Item {
 
     this.addVerb(
       new Verb.Builder("unlock")
-        .withTest(({ item: door, other: key }) => door.locked && (door.key ? door.key.name === key?.name : true))
+        .withTest(({ item, other: key }) => {
+          const door = item as DoorT;
+          return door.locked && (door.key ? door.key.name === key?.name : true);
+        })
         .withOnSuccess([
           ({ item: door }) => {
             // Ensure we don't return false to avoid breaking the action chain.
@@ -48,7 +64,9 @@ export class Door extends Item {
             unlockSuccessText ||
             (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)
         ])
-        .withOnFailure(({ item: door, other: key }) => {
+        .withOnFailure(({ item, other: key }) => {
+          const door = item as DoorT;
+
           if (door.key && key && door.key.name !== key.name) {
             return `The ${key.name} doesn't fit.`;
           } else if (door.key && !key) {
@@ -112,7 +130,7 @@ export class Door extends Item {
  * of this class.
  */
 export class Key extends Item {
-  clone() {
+  clone(): KeyT {
     return super.clone(Key);
   }
 }

@@ -16,12 +16,30 @@ export const FAILED = "FAILED";
 export const CANCELLED = "CANCELLED";
 
 export class Event {
-  constructor(name, action = [], condition = true, timeout, timeoutType, onComplete = () => {}, recurring = false) {
+  /**
+   *
+   * @param {*} name
+   * @param {*} action
+   * @param {Test} condition
+   * @param {*} timeout
+   * @param {*} timeoutType
+   * @param {*} onComplete
+   * @param {*} recurring
+   */
+  constructor(
+    name,
+    action = [],
+    condition = true,
+    timeout = 0,
+    timeoutType = TIMEOUT_TURNS,
+    onComplete = () => {},
+    recurring = false
+  ) {
     this.name = name;
     this.action = action;
     this.condition = condition;
-    this.timeout = timeout || 0;
-    this.timeoutType = timeoutType || TIMEOUT_TURNS;
+    this.timeout = timeout;
+    this.timeoutType = timeoutType;
     this.executionCount = 0;
     this.timeoutId = null;
     this.state = DORMANT;

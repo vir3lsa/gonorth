@@ -310,7 +310,7 @@ describe("containers", () => {
 
   beforeEach(() => {
     ball = new Item("ball", "red", true, 1);
-    chest = new Container("chest", null, "a large chest", "the lid is open");
+    chest = new Container("chest", [], "a large chest", "the lid is open");
     chest.addItem(ball);
     room.addItems(chest);
   });
@@ -335,8 +335,8 @@ describe("serialization", () => {
 
   beforeEach(() => {
     ball = new Item("ball", "red", true, 1);
-    chest = new Container("chest", null, "a large chest", "the lid is open");
-    box = new Container("box", null, "a cardboard box", "tatty and brown");
+    chest = new Container("chest", [], "a large chest", "the lid is open");
+    box = new Container("box", [], "a cardboard box", "tatty and brown");
   });
 
   describe("recording changes", () => {

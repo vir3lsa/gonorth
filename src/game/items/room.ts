@@ -61,7 +61,7 @@ export class Room extends Item {
       onSuccess: onSuccessArray,
       failureText: failText,
       directionName
-    };
+    } as DirectionObject;
 
     // Map each of the direction aliases to the direction object
     aliases

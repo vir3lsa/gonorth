@@ -13,24 +13,22 @@ const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let game;
-
 beforeEach(() => {
   unregisterStore();
 
   // Pretend we're in the browser
-  game = initGame("Jolly Capers", "", { debugMode: false });
+  initGame("Jolly Capers", "", { debugMode: false });
 });
 
 describe("serialization", () => {
-  let box;
+  let box: ContainerT;
 
-  const expectRecordedProperties = (item, ...properties) => {
-    expect(item._alteredProperties).toEqual(new Set([...properties]));
+  const expectRecordedProperties = (item: ItemT, ...properties: string[]) => {
+    expect(item.alteredProperties).toEqual(new Set([...properties]));
   };
 
   beforeEach(() => {
-    box = new Container("box", null, "a cardboard box", "tatty and brown", false);
+    box = new Container("box", [], "a cardboard box", "tatty and brown");
     getStore().dispatch(recordChanges());
   });
 
@@ -100,7 +98,7 @@ describe("serialization", () => {
 });
 
 describe("container", () => {
-  let chest;
+  let chest: ContainerT;
   let toy;
 
   beforeEach(() => {

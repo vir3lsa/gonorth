@@ -7,7 +7,9 @@ import { processEvent } from "../../utils/eventUtils";
 import { selectRoom } from "../../utils/selectors";
 
 export class Npc extends Item {
-  constructor(name, description) {
+  encounters: Event[];
+
+  constructor(name: string, description: UnknownText) {
     super(name, description || `${name} is unremarkable.`, false);
     this._isNpc = true; // Avoids circular dependency in item.js
     this.encounters = [];
@@ -15,14 +17,21 @@ export class Npc extends Item {
     this.preposition = "to";
   }
 
-  async go(direction) {
+  roomIsRoom(room: any): room is Room {
+    return Boolean(room.isRoom);
+  }
+
+  async go(direction: DirectionName) {
     if (this.container instanceof Room) {
       const adjacent = this.container.adjacentRooms[direction];
 
       // TODO Attempt to open the door if there is one, then retry the test.
-      if (adjacent && adjacent.test()) {
+      if (adjacent?.test?.()) {
         this.container.removeItem(this);
-        adjacent.room.addItem(this);
+
+        if (this.roomIsRoom(adjacent.room)) {
+          adjacent.room?.addItem(this);
+        }
 
         // Check encounters
         for (let i in this.encounters) {
@@ -37,11 +46,11 @@ export class Npc extends Item {
     return false;
   }
 
-  addEncounter(...actions) {
+  addEncounter(...actions: Action[]) {
     this.addEncounterWithCondition(() => this.container === selectRoom(), ...actions);
   }
 
-  addEncounterWithCondition(condition, ...actions) {
+  addEncounterWithCondition(condition: Test, ...actions: Action[]) {
     const encounter = new Event(`${this.name} encounter`, actions, condition);
     encounter.recurring = true;
     this.encounters.push(encounter);

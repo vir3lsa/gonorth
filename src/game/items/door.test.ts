@@ -6,8 +6,9 @@ import { Interaction } from "../interactions/interaction";
 import { initGame } from "../../gonorth";
 import { Item } from "./item";
 import { selectCurrentPage } from "../../utils/testSelectors";
+import { AnyAction } from "redux";
 
-let game, room, door;
+let game: Game, room: RoomT, door: DoorT;
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -17,10 +18,9 @@ consoleIO.showOptions = jest.fn();
 beforeEach(() => {
   unregisterStore();
   game = initGame("The Giant's Castle", "", { debugMode: false });
-  getStore().dispatch(changeInteraction(new Interaction("")));
+  getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);
   room = new Room("Hall", "");
   door = new Door("heavy oak door", "", false, true);
-  game.room = room;
 });
 
 test("doors can be unlocked", async () => {
@@ -110,16 +110,16 @@ describe("serialization", () => {
 
   test("changes to open are recorded", () => {
     door.open = true;
-    expect(door._alteredProperties).toEqual(new Set(["open"]));
+    expect(door.alteredProperties).toEqual(new Set(["open"]));
   });
 
   test("changes to locked are recorded", () => {
     door.locked = true;
-    expect(door._alteredProperties).toEqual(new Set(["locked"]));
+    expect(door.alteredProperties).toEqual(new Set(["locked"]));
   });
 
   test("changes to key are recorded", () => {
     door.key = new Key("slender key");
-    expect(door._alteredProperties).toEqual(new Set(["key"]));
+    expect(door.alteredProperties).toEqual(new Set(["key"]));
   });
 });
