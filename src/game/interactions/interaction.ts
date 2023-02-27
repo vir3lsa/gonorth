@@ -5,14 +5,22 @@ import { Option } from "./option";
  * free text or a series of options.
  */
 export class Interaction {
-  constructor(text, options, renderNextButton, renderOptions = false) {
+  _text!: string;
+  _currentPage!: string;
+  _options?: OptionT[];
+  renderNextButton: boolean;
+  renderOptions: boolean;
+  nextButtonRendered!: boolean;
+  promise: Promise<void>;
+  resolve!: (value: void | PromiseLike<void>) => void;
+
+  constructor(text: string, options?: OptionT[], renderNextButton = false, renderOptions = false) {
     this.text = text;
     this.renderNextButton = renderNextButton;
     this.options = options;
     this.renderOptions = renderOptions;
-    this.currentPage =
-      typeof this._text === "string" ? this._text : this._text.next();
-    this.promise = new Promise(res => (this.resolve = res));
+    this.currentPage = this._text;
+    this.promise = new Promise((res) => (this.resolve = res));
 
     if (!renderNextButton) {
       // This interaction resolves immediately
@@ -20,9 +28,9 @@ export class Interaction {
     }
   }
 
-  set text(text = "") {
-    if (typeof text === "string") {
-      this._text = text;
+  set text(text: string) {
+    if (typeof text === "string" || typeof text === "undefined") {
+      this._text = text || "";
     } else {
       throw Error("Only strings may be used in Interactions");
     }
@@ -43,7 +51,7 @@ export class Interaction {
       this._options = [new Option("Next", () => this.resolve())];
       this.nextButtonRendered = true;
     } else {
-      this._options = null;
+      this._options = undefined;
     }
   }
 
@@ -62,7 +70,7 @@ export class Append extends Interaction {}
  * Appends the most recent user input to the output.
  */
 export class AppendInput extends Append {
-  constructor(input, ...args) {
-    super(`###### \`>\` ${input}`, ...args);
+  constructor(input: string, options?: OptionT[], renderNextButton?: boolean, renderOptions = false) {
+    super(`###### \`>\` ${input}`, options, renderNextButton, renderOptions);
   }
 }

@@ -324,8 +324,33 @@ type DisambiguationCallback = (item: ItemT) => string;
 /* Option Graphs */
 /*****************/
 
-interface Node {
+type Condition = () => boolean;
+type InventoryAction = (item: ItemT) => string;
+type SomeGraphOption = string | GraphOption | Action;
+
+interface GraphOption {
+  condition?: Condition;
+  node?: string;
+  skipNodeActions?: boolean;
+  exit?: boolean;
+  room?: RoomT;
+  actions?: Action;
+  inventoryAction?: InventoryAction;
+}
+
+interface GraphOptions {
+  [label: string]: SomeGraphOption;
+}
+
+type UnknownOptions = GraphOptions | (() => GraphOptions);
+
+interface GraphNode {
   id: string;
+  options?: UnknownOptions;
+  visited?: boolean;
+  actions: Action;
+  allowRepeats?: boolean;
+  noEndTurn?: boolean;
 }
 
 /********/
@@ -335,6 +360,7 @@ interface Node {
 type ItemOrRoom = ItemT | RoomT;
 type ItemRoomOrString = ItemOrRoom | string;
 type ItemOrString = ItemT | string;
+type OptionAction = () => Promise<unknown>;
 
 /********/
 /* Item */

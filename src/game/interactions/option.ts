@@ -4,26 +4,34 @@ import { AppendInput } from "./interaction";
 import { ActionChain } from "../../utils/actionChain";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { selectActionChainPromise } from "../../utils/selectors";
+import { AnyAction } from "redux";
 
 export class Option {
-  constructor(label, action, endTurn = true) {
+  private _action!: OptionAction;
+  label: string;
+  endTurn: boolean;
+
+  constructor(label: string, action?: Action, endTurn = true) {
     this.label = label;
-    this.action = action;
     this.endTurn = endTurn;
+
+    if (action) {
+      this.setAction(action);
+    }
   }
 
   get action() {
     return this._action;
   }
 
-  set action(action) {
+  setAction(action: Action) {
     const actionArray = Array.isArray(action) ? action : [action];
     const actionChain = new ActionChain(...actionArray);
 
     this._action = async () => {
       // Record player decision
-      getStore().dispatch(changeInteraction(new AppendInput(this.label)));
-      getStore().dispatch(cyChoose(this.label));
+      getStore().dispatch(changeInteraction(new AppendInput(this.label)) as AnyAction);
+      getStore().dispatch(cyChoose(this.label) as AnyAction);
 
       // First perform the player actions
       await actionChain.chain({ option: this.label });

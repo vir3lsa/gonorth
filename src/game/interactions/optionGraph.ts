@@ -9,7 +9,16 @@ export const next = "OptionGraph_next";
 export const previous = "OptionGraph_previous";
 
 export class OptionGraph {
-  constructor(id, ...nodes) {
+  id;
+  nodes;
+  startNode;
+  flattened: { [id: string]: GraphNode };
+  currentNode?: GraphNode;
+  promise;
+  resolve!: Resolve;
+  _allowRepeats!: boolean;
+
+  constructor(id: string, ...nodes: GraphNode[]) {
     if (typeof id !== "string") {
       throw Error("OptionGraphs must be given unique ID strings.");
     }
@@ -19,7 +28,7 @@ export class OptionGraph {
     this.startNode = nodes[0];
     this.flattened = {};
     this.allowRepeats = true;
-    this.currentNode = null;
+    this.currentNode = undefined;
     this.promise = new Promise((resolve) => (this.resolve = resolve));
 
     this.reindex();
@@ -42,19 +51,20 @@ export class OptionGraph {
     });
   }
 
-  processOptions(node, index, nodes) {
-    if (node && node.options) {
-      Object.entries(node.options).forEach(([label, value]) => {
+  processOptions(node: GraphNode, index: number, nodes: GraphNode[]) {
+    if (node && node.options && typeof node.options !== "function") {
+      const options = node.options as GraphOptions;
+      Object.entries(options).forEach(([label, value]) => {
         if (value === next) {
-          node.options[label] = nodes[index + 1].id;
+          options[label] = nodes[index + 1].id;
         } else if (value === previous) {
-          node.options[label] = nodes[index - 1].id;
+          options[label] = nodes[index - 1].id;
         }
       });
     }
   }
 
-  recordNodeIds(node) {
+  recordNodeIds(node: GraphNode) {
     if (node && node.id) {
       if (this.flattened[node.id]) {
         // We've already got this one. Return to avoid infinite recursion
@@ -65,7 +75,7 @@ export class OptionGraph {
     }
   }
 
-  addNodes(...nodes) {
+  addNodes(...nodes: GraphNode[]) {
     this.nodes.push(...nodes);
     nodes.forEach((node, index) => {
       this.processOptions(node, index, nodes);
@@ -73,11 +83,11 @@ export class OptionGraph {
     });
   }
 
-  getNode(id) {
+  getNode(id: string) {
     return this.flattened[id];
   }
 
-  setStartNode(node) {
+  setStartNode(node: GraphNode | string) {
     if (typeof node === "string") {
       this.startNode = this.getNode(node);
 
@@ -89,49 +99,54 @@ export class OptionGraph {
     }
   }
 
-  commence(id) {
-    return this.activateNode(this.getNode(id) || this.startNode);
+  commence(id?: string) {
+    return this.activateNode((id && this.getNode(id)) || this.startNode);
   }
 
-  activateNode(node, performNodeActions = true) {
+  activateNode(node: GraphNode, performNodeActions = true) {
     this.currentNode = node;
     node.visited = true;
 
     let { actions, options } = node;
-    let optionObjects;
+    let optionObjects: Option[] = [];
+    let graphOptions;
 
     actions = performNodeActions ? (Array.isArray(actions) ? actions : [actions]) : [""];
 
     if (typeof options === "function") {
       // If options is a function, evaluate it to get the options object.
-      options = options();
+      graphOptions = options();
+    } else {
+      graphOptions = options;
     }
 
-    if (options) {
-      optionObjects = Object.entries(options)
+    if (graphOptions) {
+      optionObjects = Object.entries(graphOptions)
         .map(([choice, value]) => {
-          if (value && value.condition && !value.condition()) {
+          const graphOption = value as GraphOption;
+          if (graphOption && graphOption.condition && !graphOption.condition()) {
             // Condition not met for this option to appear.
             return undefined;
           }
 
-          let optionId = typeof value === "string" ? value : value ? value.node : null;
-          let optionNode = optionId && this.flattened[optionId];
-          let optionActions = [];
-          const skipNodeActions = value?.skipNodeActions;
-          const exit = !value || value.exit || value.room;
+          let optionId: string | undefined =
+            typeof value === "string" ? value : graphOption ? graphOption.node : undefined;
+          let optionNode = (optionId && this.flattened[optionId]) as GraphNode | undefined;
+          let optionActions: Action[] = [];
+          const skipNodeActions = graphOption?.skipNodeActions;
+          const exit = !value || graphOption.exit || graphOption.room;
 
           if (optionId && !optionNode) {
             throw Error(`Can't find node with id ${optionId}`);
           }
 
-          if (value?.actions) {
+          if (graphOption?.actions) {
             // The option is an object rather than a simple node reference.
             // Get any actions associated with the option.
-            optionActions = Array.isArray(value.actions) ? [...value.actions] : [value.actions];
-          } else if (value?.inventoryAction) {
+            optionActions = Array.isArray(graphOption.actions) ? [...graphOption.actions] : [graphOption.actions];
+          } else if (graphOption?.inventoryAction) {
             // We'll create a pseudo-node where we show the player's inventory items.
-            const inventoryNodeId = `${node.id}-${choice}-inventory`;
+            const inventoryNodeId: string = `${node.id}-${choice}-inventory`;
             // Get a list of items in the inventory, filtering out any without names.
             const items = selectInventoryItems();
             if (items.length) {
@@ -142,7 +157,7 @@ export class OptionGraph {
                     node: node.id,
                     skipNodeActions: true,
                     // Perform the inventory action and don't render a 'Next' button.
-                    actions: new ActionClass(() => value.inventoryAction(item), false)
+                    actions: new ActionClass(() => graphOption.inventoryAction?.(item), false)
                   }
                 }),
                 {}
@@ -150,7 +165,8 @@ export class OptionGraph {
               const inventoryNode = {
                 id: inventoryNodeId,
                 actions: "Use which item?",
-                options: inventoryOptions
+                options: inventoryOptions,
+                visited: false
               };
               this.recordNodeIds(inventoryNode);
 
@@ -166,7 +182,7 @@ export class OptionGraph {
           } else if (Array.isArray(value)) {
             optionActions = [...value];
           } else if (typeof value !== "string") {
-            optionActions = [value];
+            optionActions = [value as Action];
           }
 
           if (!optionId && !exit) {
@@ -177,25 +193,25 @@ export class OptionGraph {
 
             // Return to the same node without repeating its actions.
             optionActions.push(() => this.activateNode(node, false));
-          } else if (value?.room) {
-            optionActions.push(() => goToRoom(value.room));
+          } else if (graphOption?.room) {
+            optionActions.push(() => goToRoom(graphOption.room as RoomT));
           } else if (optionId) {
-            optionActions.push(() => this.activateNode(optionNode, !skipNodeActions));
+            optionActions.push(() => this.activateNode(optionNode as GraphNode, !skipNodeActions));
           }
 
           if (
             !optionId ||
-            !optionNode.visited ||
+            !optionNode?.visited ||
             optionNode.allowRepeats ||
             (this.allowRepeats && optionNode.allowRepeats === undefined)
           ) {
-            return new Option(choice, optionActions, !optionId || !optionNode.noEndTurn);
+            return new Option(choice, optionActions, !optionId || !optionNode?.noEndTurn);
           }
 
           // No option
           return undefined;
         })
-        .filter((option) => option);
+        .filter((option) => option) as Option[];
     }
 
     const chain = new ActionChain(...actions);
@@ -212,7 +228,7 @@ export class OptionGraph {
   /*
    * Deletes a node from the flattened nodes object. Used when we've added a temporary node and would like to remove it.
    */
-  deleteFlattenedNode(nodeId) {
+  deleteFlattenedNode(nodeId: string) {
     delete this.flattened[nodeId];
   }
 
@@ -226,12 +242,15 @@ export class OptionGraph {
 }
 
 class OptionGraphBuilder {
-  constructor(id) {
+  id;
+  nodes: GraphNode[] = [];
+
+  constructor(id: string) {
     this.id = id;
   }
 
-  withNodes(...nodes) {
-    const nodeObjs = nodes.map((node) => (node instanceof OptionGraphBuilder ? node.build() : node));
+  withNodes(...nodes: (NodeBuilder | GraphNode)[]) {
+    const nodeObjs = nodes.map((node) => (node instanceof NodeBuilder ? node.build() : node));
     this.nodes = nodeObjs;
     return this;
   }
@@ -242,21 +261,26 @@ class OptionGraphBuilder {
 }
 
 class NodeBuilder {
-  constructor(id) {
+  id;
+  actions: Action[] = [];
+  options?: GraphOptions;
+  isNoEndTurn?: boolean;
+
+  constructor(id: string) {
     this.id = id;
   }
 
-  withActions(...actions) {
+  withActions(...actions: Action[]) {
     this.actions = actions;
     return this;
   }
 
-  withOptions(options) {
+  withOptions(options: GraphOptions) {
     this.options = options;
     return this;
   }
 
-  withOption(label, value) {
+  withOption(label: string, value: SomeGraphOption) {
     if (!this.options) {
       this.options = {};
     }
@@ -275,7 +299,9 @@ class NodeBuilder {
       id: this.id,
       actions: this.actions,
       options: this.options,
-      noEndTurn: this.isNoEndTurn
-    };
+      noEndTurn: this.isNoEndTurn,
+      visited: false,
+      allowRepeats: true
+    } as GraphNode;
   }
 }

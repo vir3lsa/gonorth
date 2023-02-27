@@ -204,20 +204,22 @@ export const setStartRoom = (startingRoom: RoomT) => ({
   startingRoom
 });
 
-export const cyChoose = (choice: string) => (dispatch: Dispatch, getState: GetState) => {
-  if (getState().game?.config.recordLogs) {
-    dispatch({
-      type: type.ADD_LOG_ENTRY,
-      payload: `[${choice}]`,
-      playerTurn: true
-    });
-  }
+export const cyChoose =
+  (choice: string): unknown =>
+  (dispatch: Dispatch, getState: GetState) => {
+    if (getState().game?.config.recordLogs) {
+      dispatch({
+        type: type.ADD_LOG_ENTRY,
+        payload: `[${choice}]`,
+        playerTurn: true
+      });
+    }
 
-  dispatch({
-    type: type.CY_CHOOSE,
-    cyChoose: choice
-  });
-};
+    dispatch({
+      type: type.CY_CHOOSE,
+      cyChoose: choice
+    });
+  };
 
 export const cyRecord = () => ({
   type: type.CY_RECORD

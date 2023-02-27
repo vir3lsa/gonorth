@@ -1,10 +1,13 @@
 import { Interaction } from "./interaction";
-import { getStore } from "../../redux/storeRegistry";
-import { newGame } from "../../redux/gameActions";
-import { initStore } from "../../redux/store";
+import { unregisterStore } from "../../redux/storeRegistry";
+import { initGame } from "../../gonorth";
 
-initStore();
-getStore().dispatch(newGame({}, true));
+beforeEach(() => {
+  unregisterStore();
+
+  // Pretend we're in the browser
+  initGame("Jolly Capers", "", { debugMode: false });
+});
 
 describe("Interaction", () => {
   it("Keeps a single string as a string", () => {

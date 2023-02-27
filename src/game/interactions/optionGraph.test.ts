@@ -12,7 +12,7 @@ const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let game, optionGraph, x, doIt;
+let game: Game, optionGraph: OptionGraphT, x: number, doIt: VerbT;
 
 const graphNodes = [
   {
@@ -23,7 +23,12 @@ const graphNodes = [
   { id: "beta", actions: "lamb", options: { three: "gamma", four: "delta" } },
   { id: "epsilon", actions: "falcon" },
   { id: "three", noEndTurn: true, actions: "bye" },
-  { id: "four", actions: () => doIt.attempt() },
+  {
+    id: "four",
+    actions: () => {
+      doIt.attempt();
+    }
+  },
   {
     id: "gamma",
     actions: [() => x++, "sheep"]
@@ -43,7 +48,8 @@ const speechNodes = [
   {
     id: "question",
     actions: "question",
-    options: { question: "question", compliment: "compliment", bye: "bye" }
+    options: { question: "question", compliment: "compliment", bye: "bye" },
+    allowRepeats: false
   },
   {
     id: "compliment",
@@ -129,17 +135,17 @@ const skipActionsNodes = [
   }
 ];
 
-const inventoryNodes = [
+const inventoryNodes: GraphNode[] = [
   {
     id: "start",
     actions: ["inventory test"],
     options: {
-      "use item": { inventoryAction: (item) => `Using ${item.name}.` }
+      "use item": { inventoryAction: (item: ItemT) => `Using ${item.name}.` }
     }
   }
 ];
 
-let room, roomOptionNodes;
+let room: RoomT, roomOptionNodes: GraphNode[];
 
 const setupRoomOptionNodes = () => {
   room = new Room("room", "turret");
@@ -152,7 +158,7 @@ const setupRoomOptionNodes = () => {
   ];
 };
 
-const createGraph = (nodes) => {
+const createGraph = (nodes: GraphNode[]) => {
   const graph = new OptionGraph("test", ...nodes);
   return graph.commence().chain();
 };
@@ -322,7 +328,7 @@ test("options can be null", async () => {
 });
 
 test("options can be dynamic", async () => {
-  x = "10";
+  x = 10;
   await createGraph(dynamicOptionsNodes);
   expect(selectOptions()[0].label).toBe("10");
 });
@@ -390,7 +396,7 @@ test("inventory options perform the expected action with the item in question", 
 
 test("the previous node is returned to after an inventory action, without actions being performed", async () => {
   let x = 0;
-  inventoryNodes[0].actions.unshift(() => x++);
+  (inventoryNodes[0].actions as Action[]).unshift(() => x++);
   await setUpInventoryNodesTest();
   await selectOptions()[1].action();
   expect(x).toBe(1); // Action has been performed once, not twice.
