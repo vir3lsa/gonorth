@@ -119,8 +119,7 @@ function giveHint() {
   return game.hintGraph.commence(game.hintNode);
 }
 
-function addHintNodes(...nodes: Record<string, unknown>[]) {
-  // TODO Use OptionGraphNode
+function addHintNodes(...nodes: GraphNode[]) {
   game.hintGraph.addNodes(...nodes);
 }
 

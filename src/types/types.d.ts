@@ -274,7 +274,8 @@ type ActionBase =
   | number
   | boolean
   | null
-  | undefined;
+  | undefined
+  | Promise<any>;
 type Action = ActionBase | Action[] | ActionFunction;
 type ContextAction = ActionBase | ContextAction[] | ActionContextFunction;
 type MaybeAction = Action | undefined | void;
@@ -348,7 +349,7 @@ interface GraphNode {
   id: string;
   options?: UnknownOptions;
   visited?: boolean;
-  actions: Action;
+  actions?: Action;
   allowRepeats?: boolean;
   noEndTurn?: boolean;
 }

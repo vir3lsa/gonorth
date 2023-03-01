@@ -39,7 +39,7 @@ const graphNodes = [
   }
 ];
 
-const speechNodes = [
+const speechNodes: GraphNode[] = [
   {
     id: "hello",
     actions: "hello",
@@ -48,8 +48,7 @@ const speechNodes = [
   {
     id: "question",
     actions: "question",
-    options: { question: "question", compliment: "compliment", bye: "bye" },
-    allowRepeats: false
+    options: { question: "question", compliment: "compliment", bye: "bye" }
   },
   {
     id: "compliment",
@@ -185,7 +184,7 @@ test("optionGraph displays options", async () => {
 
 test("optionGraph exits if a node has no options", async () => {
   await selectOptions()[1].action();
-  expect(selectOptions()).toBeNull();
+  expect(selectOptions()).toBeUndefined();
 });
 
 test("optionGraph displays text two levels deep", async () => {
@@ -242,7 +241,7 @@ test("start node can be set by id", () => {
 
 test("optionGraph exits if a node attempts a verb but has no options", async () => {
   await selectOptions()[3].action();
-  expect(selectOptions()).toBeNull();
+  expect(selectOptions()).toBeUndefined();
 });
 
 test("optionGraph repeats nodes by default", async () => {
@@ -354,14 +353,14 @@ test("optional options do not appear when condition is false", async () => {
 test("options can explicitly exit the graph", async () => {
   await createGraph(exitOptionNodes);
   await selectOptions()[0].action();
-  expect(selectOptions()).toBeNull();
+  expect(selectOptions()).toBeUndefined();
 });
 
 test("options can specify a room to go to", async () => {
   setupRoomOptionNodes();
   await createGraph(roomOptionNodes);
   await selectOptions()[0].action();
-  expect(selectOptions()).toBeNull();
+  expect(selectOptions()).toBeUndefined();
   expect(selectCurrentPage()).toInclude("turret");
   expect(selectRoom()).toBe(room);
 });

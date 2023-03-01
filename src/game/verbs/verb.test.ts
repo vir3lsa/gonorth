@@ -236,7 +236,7 @@ describe("chainable actions", () => {
     verb.onSuccess = new SequentialText("one", "two");
     setTimeout(() => clickNextAndWait());
     await attempt(3);
-    expect(selectInteraction().options).toBeNull();
+    expect(selectInteraction().options).toBeUndefined();
   });
 
   it("Throws error if custom options in middle of chain", async () => {

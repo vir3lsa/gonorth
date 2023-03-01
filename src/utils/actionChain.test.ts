@@ -238,7 +238,7 @@ test("Individual actions can be forced not to produce Next buttons", async () =>
   chain.chain();
   expect(selectCurrentPage()).not.toInclude("two");
   await clickNext();
-  expect(selectOptions()).toBeNull();
+  expect(selectOptions()).toBeUndefined();
   await deferAction(() => expect(selectCurrentPage()).toInclude("two\n\nthree"));
 });
 

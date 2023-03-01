@@ -14,7 +14,7 @@ export class Interaction {
   promise: Promise<void>;
   resolve!: (value: void | PromiseLike<void>) => void;
 
-  constructor(text: string, options?: OptionT[], renderNextButton = false, renderOptions = false) {
+  constructor(text: string, options?: MaybeOptions, renderNextButton = false, renderOptions = false) {
     this.text = text;
     this.renderNextButton = renderNextButton;
     this.options = options;
@@ -44,7 +44,7 @@ export class Interaction {
     this._currentPage = currentPage;
   }
 
-  set options(options) {
+  set options(options: MaybeOptions) {
     if (options) {
       this._options = Array.isArray(options) ? options : [options];
     } else if (this.renderNextButton) {
@@ -55,7 +55,7 @@ export class Interaction {
     }
   }
 
-  get options() {
+  get options(): Option[] | undefined {
     return this._options;
   }
 }

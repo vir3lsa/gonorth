@@ -184,7 +184,7 @@ function showNodes(args: string[], argsIndex: number) {
     return `Can't list nodes - no option graph with ID ${id} found.`;
   }
 
-  return `Nodes:\n\n- ${optionGraph.nodes.map((node: Node) => node.id).join("\n- ")}`;
+  return `Nodes:\n\n- ${optionGraph.nodes.map((node: GraphNode) => node.id).join("\n- ")}`;
 }
 
 function spawn(args: string[]) {

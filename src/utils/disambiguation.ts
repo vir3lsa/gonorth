@@ -9,7 +9,7 @@ export default function disambiguate(name: string, items: ItemT[], onChoose: Dis
   const options: {
     [displayName: string]: string;
   } = {};
-  const nodes = [];
+  const nodes: GraphNode[] = [];
   let duplicateRealNames = 0;
 
   items.forEach((item, i) => {

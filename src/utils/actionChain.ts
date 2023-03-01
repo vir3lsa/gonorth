@@ -40,7 +40,7 @@ export class ActionClass {
  */
 export class ActionChain {
   _actions!: ChainableFunction[];
-  _options!: OptionT | OptionT[];
+  _options?: OptionT | OptionT[];
   _postScript?: PostScript;
   renderNexts: boolean;
   propagateOptions: boolean;

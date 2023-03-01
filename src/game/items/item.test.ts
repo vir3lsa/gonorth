@@ -48,7 +48,7 @@ describe("basic item tests", () => {
   it("Doesn't render a Next button for cyclic descriptions", () => {
     const table = new Item("table", ["It's made of wood.", "It has four legs."]);
     table.try("x");
-    expect(selectOptions()).toBeNull();
+    expect(selectOptions()).toBeUndefined();
   });
 
   it("renders each page of sequential text then stops", async () => {
@@ -60,7 +60,7 @@ describe("basic item tests", () => {
         resolve(null);
       })
     );
-    expect(selectOptions()).toBeNull();
+    expect(selectOptions()).toBeUndefined();
     return clickNextPromise;
   });
 

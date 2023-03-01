@@ -108,7 +108,7 @@ export class OptionGraph {
     node.visited = true;
 
     let { actions, options } = node;
-    let optionObjects: Option[] = [];
+    let optionObjects: Option[] | undefined = undefined;
     let graphOptions;
 
     actions = performNodeActions ? (Array.isArray(actions) ? actions : [actions]) : [""];
