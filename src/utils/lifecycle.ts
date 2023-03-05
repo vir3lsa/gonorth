@@ -195,7 +195,9 @@ export function initAutoActions() {
     .build();
 
   const autoTakeOtherItem = new AutoAction.Builder()
-    .withCondition(({ verb, other }: Context) => !verb.remote && other?.holdable && !playerHasItem(other))
+    .withCondition(
+      ({ verb, other }: Context) => other !== undefined && !verb.remote && other.holdable && !playerHasItem(other)
+    )
     .withInputs(({ other }: Context) => `take ${other!.name}`)
     .build();
 

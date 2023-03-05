@@ -441,3 +441,9 @@ interface ContainerConfig {
   lockable: boolean;
   key: string | KeyT;
 }
+
+/**************/
+/* AutoAction */
+/**************/
+
+type Input = (context: Context) => string;

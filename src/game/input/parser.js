@@ -8,14 +8,14 @@ import disambiguate from "../../utils/disambiguation";
 export class Parser {
   constructor(input) {
     this.input = input;
-    this.registeredItem = null;
-    this.registeredVerb = null;
-    this.actualVerb = null;
+    this.registeredItem = undefined;
+    this.registeredVerb = undefined;
+    this.actualVerb = undefined;
     this.verbSupported = false;
-    this.roomItem = null;
-    this.indirectItem = null;
-    this.duplicateAliasItems = null;
-    this.duplicateAlias = null;
+    this.roomItem = undefined;
+    this.indirectItem = undefined;
+    this.duplicateAliasItems = undefined;
+    this.duplicateAlias = undefined;
     this.duplicateItemIsPrimary = true;
     this.tooManyDuplicates = false;
   }

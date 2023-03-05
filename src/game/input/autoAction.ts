@@ -1,12 +1,15 @@
 import { Parser } from "./parser";
 
 export class AutoAction {
-  constructor(builder) {
+  condition;
+  inputs;
+
+  constructor(builder: Builder) {
     this.condition = builder.condition || (() => true);
     this.inputs = builder.inputs;
   }
 
-  check(context) {
+  check(context: Context) {
     if (this.condition(context)) {
       return this.execute(context);
     }
@@ -14,7 +17,11 @@ export class AutoAction {
     return Promise.resolve(true);
   }
 
-  async execute(context) {
+  async execute(context: Context) {
+    if (!this.inputs) {
+      throw Error("AutoAction did not have any Inputs.");
+    }
+
     for (const input of this.inputs) {
       const success = await new Parser(input(context)).parse();
 
@@ -32,7 +39,10 @@ export class AutoAction {
 }
 
 class Builder {
-  withCondition(condition) {
+  condition?: TestFunction;
+  inputs?: Input[];
+
+  withCondition(condition?: Test) {
     if (typeof condition === "undefined") {
       this.condition = () => true;
     } else if (typeof condition === "boolean") {
@@ -44,7 +54,7 @@ class Builder {
     return this;
   }
 
-  withInputs(...inputs) {
+  withInputs(...inputs: (string | Input)[]) {
     this.inputs = inputs.map((input) => {
       if (typeof input === "function") {
         return input;
