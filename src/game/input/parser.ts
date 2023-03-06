@@ -4,9 +4,22 @@ import { Append } from "../interactions/interaction";
 import { selectVerbNames, selectRoom, selectItemNames, selectInventory, selectKeywords } from "../../utils/selectors";
 import { toTitleCase, getArticle } from "../../utils/textFunctions";
 import disambiguate from "../../utils/disambiguation";
+import { AnyAction } from "redux";
 
 export class Parser {
-  constructor(input) {
+  input;
+  registeredItem?: string;
+  registeredVerb?: string;
+  actualVerb?: VerbT;
+  verbSupported;
+  roomItem?: ItemT;
+  indirectItem?: ItemT;
+  duplicateAliasItems?: ItemT[];
+  duplicateAlias?: string;
+  duplicateItemIsPrimary;
+  tooManyDuplicates;
+
+  constructor(input: string) {
     this.input = input;
     this.registeredItem = undefined;
     this.registeredVerb = undefined;
@@ -65,7 +78,7 @@ export class Parser {
         if (itemDetails && itemDetails.length) {
           const { alias, itemsWithName } = itemDetails[0];
 
-          const validItemsWithName = itemsWithName.filter((item) => item?.visible && item.verbs[possibleVerb]);
+          const validItemsWithName = itemsWithName.filter((item: ItemT) => item?.visible && item.verbs[possibleVerb]);
 
           if (!validItemsWithName.length) {
             this.roomItem = itemsWithName[0] || this.roomItem; // Record a room item for feedback purposes.
@@ -123,7 +136,7 @@ export class Parser {
     return this.giveFeedback();
   }
 
-  recordDuplicates(itemsWithName, name, isPrimary) {
+  recordDuplicates(itemsWithName: ItemT[], name: string, isPrimary: boolean) {
     if (!this.duplicateAlias) {
       this.duplicateAliasItems = itemsWithName;
       this.duplicateAlias = name;
@@ -133,10 +146,10 @@ export class Parser {
     }
   }
 
-  findRoomItems(tokens, verbEndIndex) {
+  findRoomItems(tokens: string[], verbEndIndex: number) {
     const room = selectRoom();
-    const itemDetails = [];
-    const usedIndices = []; // Keep track of token indices we've found items at
+    const itemDetails: ItemDetails[] = [];
+    const usedIndices: number[] = []; // Keep track of token indices we've found items at
 
     for (let numItemWords = tokens.length - verbEndIndex; numItemWords > 0; numItemWords--) {
       for (let itemIndex = verbEndIndex; itemIndex <= tokens.length - numItemWords; itemIndex++) {
@@ -182,7 +195,14 @@ export class Parser {
     return itemDetails;
   }
 
-  recordItems(alias, itemsWithName, itemDetails, itemIndex, numItemWords, usedIndices) {
+  recordItems(
+    alias: string,
+    itemsWithName: ItemT[],
+    itemDetails: ItemDetails[],
+    itemIndex: number,
+    numItemWords: number,
+    usedIndices: number[]
+  ) {
     // Record indices of this item so we don't try to find other items there
     for (let i = itemIndex; i < itemIndex + numItemWords; i++) {
       usedIndices.push(i);
@@ -211,7 +231,7 @@ export class Parser {
           return this.handleDuplicateAliases();
         } else if (this.verbSupported) {
           // Prepositional verb missing a second item
-          message = `${toTitleCase(this.registeredVerb)} the ${this.registeredItem} ${this.actualVerb.interrogative}?`;
+          message = `${toTitleCase(this.registeredVerb)} the ${this.registeredItem} ${this.actualVerb!.interrogative}?`;
         } else if (this.actualVerb && this.actualVerb.prepositional) {
           // Prepositional verb with missing (or unsupported) first item
           message = `You can't ${this.registeredVerb} that ${this.roomItem.preposition} the ${this.registeredItem}.`;
@@ -240,7 +260,7 @@ export class Parser {
     }
 
     // Display the message.
-    await getStore().dispatch(changeInteraction(new Append(message)));
+    await getStore().dispatch(changeInteraction(new Append(message)) as AnyAction);
 
     // Indicate the action failure.
     return false;
@@ -255,15 +275,15 @@ export class Parser {
       this.findActualVerbIn(selectRoom().accessibleItems) || this.findActualVerbIn(selectInventory().items);
   }
 
-  findActualVerbIn(itemMap) {
+  findActualVerbIn(itemMap: ItemItemsDict) {
     const itemArrays = Object.values(itemMap);
 
     // Use normal for loop so we can return from inside it
     for (let items of itemArrays) {
-      const itemWithVerb = items.find((item) => item.verbs[this.registeredVerb]);
+      const itemWithVerb = items.find((item) => item.verbs[this.registeredVerb!]);
 
       if (itemWithVerb) {
-        return itemWithVerb.verbs[this.registeredVerb];
+        return itemWithVerb.verbs[this.registeredVerb!];
       }
     }
   }
@@ -271,17 +291,17 @@ export class Parser {
   handleDuplicateAliases() {
     if (this.tooManyDuplicates) {
       // We're not even going to try to handle this situation. Too complicated.
-      return getStore().dispatch(changeInteraction(new Append("You need to be more specific.")));
+      return getStore().dispatch(changeInteraction(new Append("You need to be more specific.")) as AnyAction);
     }
 
-    const onChoose = (item) => {
+    const onChoose = (item: ItemT) => {
       if (this.duplicateItemIsPrimary) {
-        return item.try(this.actualVerb.name, this.indirectItem);
+        return item.try(this.actualVerb!.name, this.indirectItem);
       } else {
-        return this.roomItem.try(this.actualVerb.name, item);
+        return this.roomItem!.try(this.actualVerb!.name, item);
       }
     };
 
-    return disambiguate(this.duplicateAlias, this.duplicateAliasItems, onChoose);
+    return disambiguate(this.duplicateAlias!, this.duplicateAliasItems!, onChoose);
   }
 }

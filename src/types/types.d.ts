@@ -263,7 +263,7 @@ interface EffectsDict {
 }
 
 type ActionFunction = (context: ChainContext) => MaybeAction;
-type ActionContextFunction = (context: DefiniteContext) => MaybeAction;
+type ActionContextFunction = (context: DefiniteContext) => MaybeContextAction;
 type ActionBase =
   | ActionClassT
   | string
@@ -278,6 +278,7 @@ type ActionBase =
   | Promise<any>;
 type Action = ActionBase | Action[] | ActionFunction;
 type ContextAction = ActionBase | ContextAction[] | ActionContextFunction;
+type MaybeContextAction = ContextAction | undefined | void;
 type MaybeAction = Action | undefined | void;
 type MaybePromise = Promise<any> | undefined;
 type MaybeOptions = OptionT | OptionT[] | undefined;
@@ -319,7 +320,13 @@ type Test = boolean | TestFunction;
 /* Parser */
 /**********/
 
-type DisambiguationCallback = (item: ItemT) => string;
+type DisambiguationCallback = (item: ItemT) => string | Promise<unknown>;
+
+interface ItemDetails {
+  alias: string;
+  itemsWithName: ItemT[];
+  itemIndex: number;
+}
 
 /*****************/
 /* Option Graphs */

@@ -6,37 +6,51 @@ import { Door } from "../items/door";
 import { Item } from "../items/item";
 import { Verb } from "../verbs/verb";
 import { addEffect, addWildcardEffect, initGame, setInventoryCapacity } from "../../gonorth";
-import { goToRoom } from "../../utils/lifecycle";
+import { clearPage, goToRoom } from "../../utils/lifecycle";
 import { PagedText } from "../interactions/text";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { selectRoom } from "../../utils/selectors";
 import { Container } from "../items/container";
+import { AnyAction } from "redux";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let hall, north, south, east, west, door, chair, redBall, blueBall, redBox, blueBox, chairman, cushion, pillar;
+let hall: Room,
+  north,
+  south,
+  east,
+  west,
+  door: Door,
+  chair,
+  redBall,
+  blueBall,
+  redBox,
+  blueBox,
+  chairman: Item,
+  cushion,
+  pillar;
 
-const directionTest = async (input, expectedRoom) => {
+const directionTest = async (input: string, expectedRoom: string) => {
   const actionPromise = new Parser(input).parse();
   setTimeout(() => selectInteraction().options[0].action());
   await actionPromise;
   expect(selectRoom().name).toBe(expectedRoom);
 };
 
-const openDoorTest = async (input) => {
+const openDoorTest = async (input: string) => {
   await new Parser(input).parse();
   expect(door.open).toBe(true);
 };
 
-const inputTest = async (input, ...expectedOutput) => {
+const inputTest = async (input: string, ...expectedOutput: string[]) => {
   await new Parser(input).parse();
   expectedOutput.forEach((output) => expect(selectCurrentPage()).toInclude(output));
 };
 
-const regexTest = async (input, ...expectedRegex) => {
+const regexTest = async (input: string, ...expectedRegex: RegExp[]) => {
   await new Parser(input).parse();
   expectedRegex.forEach((regex) => expect(selectCurrentPage()).toMatch(regex));
 };
@@ -77,8 +91,7 @@ describe("parser", () => {
       door.aliases = ["hatch", "trap door", "door"];
       door.getVerb("open").addAliases("give a shove to");
       pillar.addVerb(
-        new Verb.Builder()
-          .withName("take")
+        new Verb.Builder("take")
           .withTest(false)
           .withOnFailure("It's too big")
           .withAliases("grab, snatch")
@@ -88,15 +101,12 @@ describe("parser", () => {
 
       // Add an effect
       redBall.addVerb(
-        new Verb.Builder()
-          .withName("throw")
+        new Verb.Builder("throw")
           .makePrepositional("at what")
-          .withOnSuccess(({ item, other }) => `The ${item.name} hits the ${other.name}.`)
+          .withOnSuccess(({ item, other }) => `The ${item.name} hits the ${other!.name}.`)
           .build()
       );
-      redBall.addVerb(
-        new Verb.Builder().withName("hide").makePrepositional("from whom").withOnSuccess("It's hidden.").build()
-      );
+      redBall.addVerb(new Verb.Builder("hide").makePrepositional("from whom").withOnSuccess("It's hidden.").build());
       addEffect(redBall, chairman, "throw", true, false, "The chair man catches the ball.");
       addWildcardEffect(chairman, "hide", true, false, ({ item }) => `The chair man can't find the ${item.name}.`);
       addEffect(redBall, blueBall, "throw", true, true, "You take careful aim.");
@@ -110,7 +120,7 @@ describe("parser", () => {
 
       goToRoom(hall);
       door.open = false;
-      getStore().dispatch(changeInteraction(new PagedText("")));
+      clearPage();
 
       if (!hall.items["cushion"]) {
         hall.addItem(cushion);
@@ -191,7 +201,7 @@ describe("parser", () => {
     it("applies wildcard effects", () => inputTest("hide red ball from the blue ball", "You hide it", "It's hidden"));
 
     describe("auto disambiguation", () => {
-      let apple1, apple2;
+      let apple1: Item, apple2;
       beforeEach(() => {
         apple1 = new Item("nice apple", "nice and crunchy", true);
         apple2 = new Item("rotten apple", "squishy and gross", true);
@@ -235,7 +245,7 @@ describe("parser", () => {
     });
 
     describe("return values", () => {
-      const parse = (input) => new Parser(input).parse();
+      const parse = (input: string) => new Parser(input).parse();
 
       it("returns true following a successful action", async () => expect(await parse("open hatch")).toBe(true));
       it("returns false when input is unparsable", async () => expect(await parse("open shop")).toBe(false));

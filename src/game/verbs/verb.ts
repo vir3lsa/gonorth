@@ -252,11 +252,6 @@ class Builder {
     this.config = { name };
   }
 
-  withName(name: string) {
-    this.config.name = name;
-    return this;
-  }
-
   withTest(test: Test) {
     this.config.test = test;
     return this;
@@ -316,12 +311,12 @@ export class GoVerb extends Verb {
       name,
       () => {
         const adjacentRoom = getAdjacent(name);
-        return adjacentRoom && adjacentRoom.test();
+        return adjacentRoom?.test?.() || false;
       },
       [
         () => {
           const adjacentRoom = getAdjacent(name);
-          return (adjacentRoom && adjacentRoom.onSuccess) || `Going ${name}.`;
+          return adjacentRoom?.onSuccess || `Going ${name}.`;
         },
         () => selectRoom().go(name)
       ],

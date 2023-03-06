@@ -70,39 +70,41 @@ export const changeImage = (image: string) => ({
   payload: image
 });
 
-export const receivePlayerInput = (input: string) => (dispatch: Dispatch, getState: GetState) => {
-  dispatch({
-    type: type.RECEIVE_INPUT,
-    payload: input
-  });
-
-  dispatch({
-    type: type.CY_SAY,
-    cySay: input
-  });
-
-  const state = getState();
-
-  if (state.game?.config.recordLogs) {
+export const receivePlayerInput =
+  (input: string): unknown =>
+  (dispatch: Dispatch, getState: GetState) => {
     dispatch({
-      type: type.ADD_LOG_ENTRY,
-      payload: input,
-      playerTurn: true
+      type: type.RECEIVE_INPUT,
+      payload: input
     });
-  }
 
-  const debugMode = selectDebugMode(state);
-  const currentInput = selectPlayerInput(state);
+    dispatch({
+      type: type.CY_SAY,
+      cySay: input
+    });
 
-  if (currentInput && currentInput.length) {
-    if (debugMode) {
-      output(`Received input: ${currentInput}`);
+    const state = getState();
+
+    if (state.game?.config.recordLogs) {
+      dispatch({
+        type: type.ADD_LOG_ENTRY,
+        payload: input,
+        playerTurn: true
+      });
     }
 
-    // Respond to input and return Promise that resolves when actions are complete
-    return new Parser(currentInput).parse();
-  }
-};
+    const debugMode = selectDebugMode(state);
+    const currentInput = selectPlayerInput(state);
+
+    if (currentInput && currentInput.length) {
+      if (debugMode) {
+        output(`Received input: ${currentInput}`);
+      }
+
+      // Respond to input and return Promise that resolves when actions are complete
+      return new Parser(currentInput).parse();
+    }
+  };
 
 export const nextTurn = () => ({
   type: type.NEXT_TURN

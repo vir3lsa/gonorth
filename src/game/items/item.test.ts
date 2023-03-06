@@ -163,7 +163,7 @@ describe("builder tests", () => {
 
   test("a helpful error message is provided when adding a verb if build() is not called", () => {
     // @ts-ignore Deliberately testing wrong argument e.g. for when library is used as JavaScript.
-    expect(() => room.addVerb(new Verb.Builder().withName("unfinished"))).toThrow("forget to call build()?");
+    expect(() => room.addVerb(new Verb.Builder("unfinished"))).toThrow("forget to call build()?");
   });
 });
 
