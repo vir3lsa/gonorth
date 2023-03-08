@@ -16,23 +16,25 @@ export const FAILED = "FAILED";
 export const CANCELLED = "CANCELLED";
 
 export class Event {
-  /**
-   *
-   * @param {*} name
-   * @param {*} action
-   * @param {Test} condition
-   * @param {*} timeout
-   * @param {*} timeoutType
-   * @param {*} onComplete
-   * @param {*} recurring
-   */
+  name;
+  _action!: ActionChain;
+  _condition!: Condition;
+  timeout;
+  timeoutType: TimeoutType;
+  executionCount;
+  timeoutId?: NodeJS.Timeout;
+  state;
+  _onComplete!: OptionAction;
+  recurring;
+  countdown?: number;
+
   constructor(
-    name,
-    action = [],
-    condition = true,
+    name: string,
+    action: Action = [],
+    condition: boolean | Condition = true,
     timeout = 0,
-    timeoutType = TIMEOUT_TURNS,
-    onComplete = () => {},
+    timeoutType: TimeoutType = TIMEOUT_TURNS,
+    onComplete: OptionAction = () => Promise.resolve(),
     recurring = false
   ) {
     this.name = name;
@@ -41,23 +43,22 @@ export class Event {
     this.timeout = timeout;
     this.timeoutType = timeoutType;
     this.executionCount = 0;
-    this.timeoutId = null;
+    this.timeoutId = undefined;
     this.state = DORMANT;
     this.onComplete = onComplete;
     this.recurring = recurring;
   }
 
-  set action(action) {
+  set action(action: Action) {
     const actionArray = Array.isArray(action) ? action : [action];
     this._action = new ActionChain(...actionArray);
-    this._action.renderOptions = true;
   }
 
-  get action() {
+  get action(): ActionChain {
     return this._action;
   }
 
-  get condition() {
+  get condition(): Condition {
     return this._condition;
   }
 
@@ -73,7 +74,7 @@ export class Event {
     return this._onComplete;
   }
 
-  set condition(condition) {
+  set condition(condition: boolean | undefined | Condition) {
     if (typeof condition === "undefined") {
       this._condition = () => true;
     } else if (typeof condition === "boolean") {
@@ -168,11 +169,19 @@ export class Event {
 }
 
 class EventBuilder {
-  constructor(name) {
+  name;
+  actions?: Action[];
+  condition: boolean | Condition = true;
+  timeout?: number;
+  timeoutType?: TimeoutType;
+  onComplete?: OptionAction;
+  recurring: boolean = false;
+
+  constructor(name: string) {
     this.name = name;
   }
 
-  withAction(action) {
+  withAction(action: Action) {
     if (!this.actions) {
       this.actions = [];
     }
@@ -181,7 +190,7 @@ class EventBuilder {
     return this;
   }
 
-  withActions(...actions) {
+  withActions(...actions: Action[]) {
     if (!this.actions) {
       this.actions = [];
     }
@@ -190,22 +199,22 @@ class EventBuilder {
     return this;
   }
 
-  withCondition(condition) {
+  withCondition(condition: boolean | Condition) {
     this.condition = condition;
     return this;
   }
 
-  withTimeout(timeout) {
+  withTimeout(timeout: number) {
     this.timeout = timeout;
     return this;
   }
 
-  withTimeoutType(timeoutType) {
+  withTimeoutType(timeoutType: TimeoutType) {
     this.timeoutType = timeoutType;
     return this;
   }
 
-  withOnComplete(onComplete) {
+  withOnComplete(onComplete: OptionAction) {
     this.onComplete = onComplete;
     return this;
   }

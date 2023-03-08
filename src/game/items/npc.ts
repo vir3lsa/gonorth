@@ -50,7 +50,7 @@ export class Npc extends Item {
     this.addEncounterWithCondition(() => this.container === selectRoom(), ...actions);
   }
 
-  addEncounterWithCondition(condition: Test, ...actions: Action[]) {
+  addEncounterWithCondition(condition: Condition, ...actions: Action[]) {
     const encounter = new Event(`${this.name} encounter`, actions, condition);
     encounter.recurring = true;
     this.encounters.push(encounter);

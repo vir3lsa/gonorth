@@ -9,13 +9,14 @@ import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
 import { clickNextAndWait, deferAction } from "../../utils/testFunctions";
+import { AnyAction } from "redux";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let x;
+let x: number;
 
 beforeEach(() => {
   unregisterStore();
@@ -60,7 +61,7 @@ test("builders may add multiple tests at once", async () => {
 });
 
 test("options return after an event adds text", async () => {
-  await getStore().dispatch(changeInteraction(new Interaction("some text", [new Option("one")])));
+  await getStore().dispatch(changeInteraction(new Interaction("some text", [new Option("one")])) as AnyAction);
   expect(selectOptions()[0].label).toBe("one");
   addEvent(new Event("test", "hello", true, 0, TIMEOUT_TURNS));
   await handleTurnEnd();
@@ -69,7 +70,7 @@ test("options return after an event adds text", async () => {
 });
 
 test("options return after an event adds a next button", async () => {
-  await getStore().dispatch(changeInteraction(new Interaction("hello", [new Option("one")])));
+  await getStore().dispatch(changeInteraction(new Interaction("hello", [new Option("one")])) as AnyAction);
   expect(selectOptions()[0].label).toBe("one");
   addEvent(new Event("test", new SequentialText("alpha", "beta"), true, 0, TIMEOUT_TURNS));
   const turnEndPromise = handleTurnEnd();
