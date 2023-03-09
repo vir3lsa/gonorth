@@ -11,14 +11,20 @@ import { selectCurrentPage } from "../../utils/testSelectors";
 
 jest.mock("../../utils/consoleIO");
 
-let nw;
-let sw;
-let se;
-let ne;
+let nw: Room;
+let sw: Room;
+let se: Room;
+let ne: Room;
 let game;
-let gran;
+let gran: Npc;
 
-function createRoute(subject, condition, continueOnFail, text = "", ...directions) {
+function createRoute(
+  subject: Npc,
+  condition: Test,
+  continueOnFail: boolean,
+  text: UnknownText = "",
+  ...directions: string[]
+) {
   const routeBuilder = new Route.Builder()
     .withSubject(subject)
     .withCondition(condition)
@@ -50,16 +56,16 @@ beforeEach(() => {
   se.setNorth(ne);
   ne.setWest(nw);
 
-  gran = new Npc("gran");
+  gran = new Npc("gran", "wiley");
   nw.addItem(gran);
 });
 
 test("routes can be built", () => {
-  createRoute(null, true, false, null, "north");
+  createRoute(new Npc("badger", "stripey"), true, false, undefined, "north");
 });
 
 test("NPCs can follow routes", async () => {
-  createRoute(gran, true, false, null, "s", "e", "n", "w");
+  createRoute(gran, true, false, undefined, "s", "e", "n", "w");
   expect(gran.container).toBe(nw);
   await handleTurnEnd();
   expect(gran.container).toBe(sw);
@@ -83,7 +89,7 @@ test("Movement can produce text", async () => {
 });
 
 test("Encounter triggers when NPC happens upon player", async () => {
-  createRoute(gran, true, false, null, "s", "e");
+  createRoute(gran, true, false, undefined, "s", "e");
   getStore().dispatch(changeRoom(sw));
   gran.addEncounter("Hello!");
   await handleTurnEnd();

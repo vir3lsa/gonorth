@@ -18,7 +18,7 @@ interface Game {
   config: Config;
   container?: Element;
   introActions: ActionChainT;
-  schedules: ScheduleT[];
+  schedules: (ScheduleT | RouteT)[];
   help: OptionGraphT;
   hintGraph: OptionGraphT;
   hintNode: string;
@@ -45,6 +45,7 @@ type ManagedTextT = import("../game/interactions/text").ManagedText;
 type InteractionT = import("../game/interactions/interaction").Interaction;
 type EventT = import("../game/events/event").Event;
 type ScheduleT = import("../game/events/schedule").Schedule;
+type RouteT = import("../game/events/route").Route;
 type EffectsT = import("../utils/effects").Effects;
 type ActionChainT = import("../utils/actionChain").ActionChain;
 type ActionClassT = import("../utils/actionChain").ActionClass;
@@ -56,6 +57,7 @@ type SnaphotPersistorT = import("../redux/snapshotPersistor").SnapshotPersistor;
 type ContainerT = import("../game/items/container").Container;
 type DoorT = import("../game/items/door").Door;
 type KeyT = import("../game/items/door").Key;
+type NpcT = import("../game/items/npc").Npc;
 
 /********/
 /* Text */

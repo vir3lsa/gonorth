@@ -97,7 +97,7 @@ function addEvent(event: EventT) {
   getStore().dispatch(eventAdded(event));
 }
 
-function addSchedule(schedule: ScheduleT) {
+function addSchedule(schedule: ScheduleT | RouteT) {
   game.schedules.push(schedule);
 }
 
