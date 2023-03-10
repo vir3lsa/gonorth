@@ -6,7 +6,7 @@ class Builder {
   steps: Step[];
   currentStep?: Step;
   subject?: NpcT;
-  condition?: Test;
+  condition?: boolean | Condition;
   continueOnFail = false;
   findPlayerText?: UnknownText;
   direction?: string;
@@ -21,7 +21,7 @@ class Builder {
     return this;
   }
 
-  withCondition(condition: Test) {
+  withCondition(condition: boolean | Condition) {
     this.condition = condition;
     return this;
   }

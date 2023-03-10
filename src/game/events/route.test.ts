@@ -20,7 +20,7 @@ let gran: Npc;
 
 function createRoute(
   subject: Npc,
-  condition: Test,
+  condition: boolean | Condition,
   continueOnFail: boolean,
   text: UnknownText = "",
   ...directions: string[]

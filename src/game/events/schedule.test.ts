@@ -1,4 +1,4 @@
-import { Schedule } from "./schedule";
+import { Schedule, ScheduleBuilder } from "./schedule";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { addSchedule, initGame } from "../../gonorth";
@@ -9,7 +9,7 @@ const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let x;
+let x: number;
 
 beforeEach(() => {
   unregisterStore();
@@ -17,17 +17,15 @@ beforeEach(() => {
   x = 1;
 });
 
-function createBuilder(condition, continueOnFail) {
-  return new Schedule.Builder()
-    .withCondition(condition)
-    .withContinueOnFail(continueOnFail);
+function createBuilder(condition: boolean | Condition, continueOnFail: boolean) {
+  return new Schedule.Builder().withCondition(condition).withContinueOnFail(continueOnFail);
 }
 
-function addEvent(builder, delay, delayType, ...actions) {
+function addEvent(builder: ScheduleBuilder, delay: number, delayType: TimeoutType, ...actions: Action[]) {
   builder.addEvent(...actions).withDelay(delay, delayType);
 }
 
-function buildAndExecute(builder) {
+function buildAndExecute(builder: ScheduleBuilder) {
   const schedule = builder.build();
   addSchedule(schedule);
   return handleTurnEnd();
