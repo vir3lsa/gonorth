@@ -3,11 +3,11 @@ import React, { useState } from "react";
 import { selectConfig, selectRollingLog } from "../utils/selectors";
 
 const Feedback = () => {
-  const [anchorEl, setAnchorEl] = useState(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
   const [feedback, setFeedback] = useState("");
   const [name, setName] = useState("");
-  const [submittedFeedback, setSubmittedFeedback] = useState();
-  const [submittedName, setSubmittedName] = useState();
+  const [submittedFeedback, setSubmittedFeedback] = useState<string>();
+  const [submittedName, setSubmittedName] = useState<string>();
 
   const open = Boolean(anchorEl);
   const id = open ? "feedback-popover" : undefined;
@@ -35,7 +35,7 @@ const Feedback = () => {
         id={id}
         open={open}
         anchorEl={anchorEl}
-        onClose={() => setAnchorEl(null)}
+        onClose={() => setAnchorEl(undefined)}
         anchorOrigin={{
           vertical: "top",
           horizontal: "right"

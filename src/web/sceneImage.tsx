@@ -1,7 +1,11 @@
 import React from "react";
 import { connect } from "react-redux";
 
-const SceneImageInner = (props) => {
+interface Props {
+  image?: string;
+}
+
+const SceneImageInner = (props: Props) => {
   return (
     <div
       style={{
@@ -18,7 +22,7 @@ const SceneImageInner = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: StoreState) => {
   return {
     image: state.image
   };

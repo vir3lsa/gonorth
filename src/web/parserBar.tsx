@@ -1,23 +1,24 @@
-import React, { useEffect, useRef } from "react";
+import React, { ChangeEvent, KeyboardEvent, useEffect, useRef } from "react";
 import TextField from "@mui/material/TextField";
 import { receiveInput } from "../game/input/inputReceiver";
 import { reactionTimePassed } from "../utils/sharedFunctions";
 
 let historyIndex = 0;
-let history = [];
+let history: string[] = [];
 const maxHistory = 500;
 
 history[0] = "";
 
-const captureInput = (event) => {
+const captureInput = (event: KeyboardEvent<HTMLInputElement>) => {
   if (event.key === "Enter" && reactionTimePassed()) {
-    const value = event.target.value;
+    const target = event.target as HTMLInputElement;
+    const value = target.value;
 
     if (value && value.length) {
       receiveInput(value);
 
       // Reset input
-      event.target.value = "";
+      target.value = "";
 
       // Record history
       if (!history.length || value !== history[1]) {
@@ -36,7 +37,7 @@ const captureInput = (event) => {
   }
 };
 
-const handleChange = event => {
+const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
   const value = event.target.value;
 
   if (historyIndex > 0 && value !== history[historyIndex]) {
@@ -50,7 +51,7 @@ const handleChange = event => {
   }
 };
 
-const handleArrows = event => {
+const handleArrows = (event: KeyboardEvent<HTMLInputElement>) => {
   if (event.key === "ArrowUp" && historyIndex < history.length - 1) {
     historyIndex++;
   } else if (event.key === "ArrowDown" && historyIndex > 0) {
@@ -59,18 +60,18 @@ const handleArrows = event => {
     return;
   }
 
-  const textField = event.target;
+  const textField = event.currentTarget;
   textField.value = history[historyIndex];
   textField.selectionStart = textField.value.length;
   textField.selectionEnd = textField.value.length;
   event.preventDefault();
 };
 
-export const ParserBar = props => {
-  const inputRef = useRef();
+export const ParserBar = () => {
+  const inputRef = useRef<HTMLInputElement>();
 
   // Focus the text field
-  useEffect(() => inputRef.current.focus());
+  useEffect(() => inputRef.current?.focus());
 
   return (
     <TextField

@@ -5,11 +5,12 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { UserEvent } from "@testing-library/user-event/dist/types/setup/setup";
 import "@testing-library/jest-dom";
 import Feedback from "./Feedback";
 
 describe("Feedback component", () => {
-  let user;
+  let user: UserEvent;
 
   beforeEach(() => {
     user = userEvent.setup();

@@ -21,9 +21,14 @@ const debouncedScroll = debounce(
   10
 );
 
-const IODevice = (props) => {
+interface Props {
+  interaction: InteractionT;
+  image?: string;
+}
+
+const IODevice = (props: Props) => {
   const { interaction } = props;
-  const renderFeedbackBox = useSelector((state) => state.game.config.renderFeedbackBox);
+  const renderFeedbackBox = useSelector((state: StoreState) => state.game?.config.renderFeedbackBox);
   useEffect(debouncedScroll, [interaction.currentPage]);
 
   return (
@@ -38,7 +43,11 @@ const IODevice = (props) => {
     >
       {props.image && <SceneImage />}
       <Box id="scrollPane" sx={{ flex: 2, overflow: "auto" }}>
-        <ReactMarkdown children={interaction.currentPage} remarkPlugins={[remarkGfm]} className="gonorth" />
+        <ReactMarkdown
+          children={interaction.currentPage}
+          remarkPlugins={[remarkGfm] as ReactMarkdown.PluggableList}
+          className="gonorth"
+        />
         <Element name="scrollTarget" />
       </Box>
       <Box sx={{ display: "flex", gap: 1, alignItems: "end", marginTop: 1 }}>
@@ -58,7 +67,7 @@ const IODevice = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
+const mapStateToProps = (state: StoreState) => {
   return {
     interaction: state.interaction,
     image: state.image

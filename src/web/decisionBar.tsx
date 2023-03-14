@@ -3,14 +3,18 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import { reactionTimePassed } from "../utils/sharedFunctions";
 
-function selectOption(option) {
+function selectOption(option: OptionT) {
   if (reactionTimePassed()) {
     option.action();
   }
 }
 
-export const DecisionBar = props => {
-  const buttonRef = useRef();
+interface Props {
+  options: OptionT[];
+}
+
+export const DecisionBar = (props: Props) => {
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   // Focus the first option
   useEffect(() => {
