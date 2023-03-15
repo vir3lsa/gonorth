@@ -8,8 +8,9 @@ interface Config {
   skipReactionTimes?: boolean;
   renderFeedbackBox?: boolean;
   recordLogs?: boolean;
-  feedbackHandler?: (feedback: string, name: string, logs: string[]) => void;
+  feedbackHandler?: (feedback: string, name: string, logs: LogEntry[]) => void;
   randomSeed?: string;
+  skipPersistence?: boolean;
 }
 
 interface Game {
@@ -116,6 +117,14 @@ interface Keywords {
   [name: string]: VerbT;
 }
 
+interface RoomDict {
+  [name: string]: RoomT;
+}
+
+interface OptionGraphDict {
+  [name: string]: OptionGraphT;
+}
+
 interface StoreState {
   turn: number;
   debugMode: boolean;
@@ -123,26 +132,26 @@ interface StoreState {
   interaction: InteractionT;
   image?: string;
   lastChange: number;
-  verbNames: {};
+  verbNames: VerbNameDict;
   // The names of items (including aliases) the player has encountered.
   itemNames: Set<string>;
   actionChainPromise?: Promise<string>;
   events: EventT[];
   keywords: Keywords;
-  room?: null;
+  room?: RoomT;
   recordChanges: false;
-  rooms: {};
+  rooms: RoomDict;
   allItemNames: Set<string>;
-  items: {}; // Keyed by alias
+  items: ItemAliasDict; // Keyed by alias
   allItems: Set<ItemT>;
-  optionGraphs: {};
+  optionGraphs: OptionGraphDict;
   customState: CustomState;
-  startingRoom: null;
+  startingRoom?: RoomT;
   cyCommands: string[];
-  cySay: null;
-  cyChoose: null;
-  eventTimeoutOverride: null;
-  eventTurnsOverride: null;
+  cySay?: string;
+  cyChoose?: string;
+  eventTimeoutOverride?: number;
+  eventTurnsOverride?: number;
   effects: EffectsT;
   autoActions: AutoActionT[];
   rollingLog: LogEntry[];
@@ -167,6 +176,7 @@ interface CustomState {
 }
 
 interface LogEntry {
+  input: string;
   output: string[];
 }
 
@@ -370,6 +380,7 @@ interface GraphNode {
 type ItemOrRoom = ItemT | RoomT;
 type ItemRoomOrString = ItemOrRoom | string;
 type ItemOrString = ItemT | string;
+type MaybeItemOrString = ItemOrString | undefined;
 type OptionAction = () => Promise<unknown>;
 
 /********/

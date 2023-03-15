@@ -2,7 +2,7 @@ import { ActionChain } from "./actionChain";
 
 const WILDCARD = "__effects:wildcard__";
 
-function getKey(item: ItemOrString): string {
+function getKey(item: MaybeItemOrString): string {
   if (!item) {
     return "__undefined__";
   }
@@ -88,7 +88,7 @@ export class Effects {
     }
   }
 
-  getEffect(primary: ItemOrString, secondary: ItemOrString, verbName: string) {
+  getEffect(primary: MaybeItemOrString, secondary: MaybeItemOrString, verbName: string) {
     const primaryKey = getKey(primary);
     const secondaryKey = getKey(secondary);
 

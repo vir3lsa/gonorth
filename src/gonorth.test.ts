@@ -27,9 +27,9 @@ const title = "Space Auctioneer 2";
 jest.mock("./utils/consoleIO");
 const consoleIO = require("./utils/consoleIO");
 
-let game, x, y, room;
+let game, x: number, y: number, room: Room;
 
-const eventTest = async (event, expectation) => {
+const eventTest = async (event: Event, expectation: () => boolean) => {
   addEvent(event);
   await handleTurnEnd();
   expect(expectation()).toBeTruthy();
@@ -130,7 +130,7 @@ describe("Game class", () => {
     it("triggers timed events after the timeout has passed", () => {
       addEvent(new Event("", () => x++, true, 10, TIMEOUT_MILLIS));
       handleTurnEnd();
-      return new Promise((resolve) =>
+      return new Promise<void>((resolve) =>
         setTimeout(() => {
           expect(x).toBe(1);
           resolve();
@@ -181,7 +181,7 @@ describe("Game class", () => {
 
     it("calls onComplete when the event completes", async () => {
       const event = new Event("", () => x++);
-      event.onComplete = () => x++;
+      event.onComplete = async () => x++;
       addEvent(event);
       await handleTurnEnd();
       expect(x).toBe(2);
@@ -211,7 +211,7 @@ describe("goNORTH", () => {
 test("getItem can be used to retrieve items from the store", () => {
   initGame("title", "", { debugMode: false });
   new Item.Builder("toolbox").withDescription("red and angular").build();
-  expect(getItem("toolbox").description).toBe("red and angular");
+  expect(getItem("toolbox")?.description).toBe("red and angular");
 });
 
 test("selectOptionGraph can be used to retrieve option graphs from the store", () => {

@@ -64,10 +64,19 @@ export const initStore = (name?: string) => {
         Object.entries(snapshotAllItems as SerializedItemsDict).forEach(([name, snapshotItem]) => {
           // Get the full item from the store.
           const itemToUpdate = stateAllItems.find((item) => item.name === name);
+
+          if (!itemToUpdate) {
+            throw Error("Saved game corrupted or outdated - please start a new game.");
+          }
+
           Object.entries(snapshotItem).forEach(([property, value]) => {
             if (isSerializedItem(value)) {
               // The value's a pointer to an Item, so get the full item from the store's list.
               const actualItem = stateAllItems.find((item) => item.name === value.name);
+
+              if (!actualItem) {
+                throw Error("Saved game corrupted or outdated - please start a new game.");
+              }
 
               if (property === "container") {
                 moveItem(itemToUpdate, actualItem);
@@ -84,7 +93,7 @@ export const initStore = (name?: string) => {
               // The value represents a Text we either need to recreate entirely or just update.
               if (value.partial) {
                 // We simply need to update the existing Text
-                const textToUpdate = itemToUpdate[property];
+                const textToUpdate = itemToUpdate[property] as Text;
                 Object.entries(value)
                   .filter(([textProperty]) => textProperty !== "isText")
                   .forEach(([textProperty, textValue]) => (textToUpdate[textProperty] = textValue));

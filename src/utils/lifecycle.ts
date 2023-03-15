@@ -86,7 +86,7 @@ export function deleteSave() {
 export function resetStateToPrePlay() {
   getStore().dispatch(cleanState());
   createPlayer();
-  selectGame().initialiser();
+  selectGame().initialiser?.();
   initAutoActions();
   getStore().dispatch(recordChanges());
 }
