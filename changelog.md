@@ -1,15 +1,13 @@
 # goNORTH Changelog
 
-## Unreleased (1.0.0)
+## 1.0.0-rc1
 
+* 2023-03-15 Finished converting source code to TypeScript.
 * 2022-11-26 Converted various utility classes to TypeScript.
 * 2022-11-25 Converted Text to TypeScript.
 * 2022-11-25 First few files converted to TypeScript.
 * 2022-10-30 Removed 'object' and 'helpers' from Verbs.
 * 2022-10-30 Updated 'addEffect' and 'addWildcardEffect' functions to include 'continueVerb' parameters.
-
-## Unreleased
-
 * 2022-11-13 Container.Builder now extends Item.Builder. 
 
 # 0.7.1
