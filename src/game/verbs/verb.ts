@@ -248,8 +248,13 @@ export class Verb {
 
 class Builder {
   config: VerbConfig;
-  constructor(name: string) {
+  constructor(name: string = "") {
     this.config = { name };
+  }
+
+  withName(name: string) {
+    this.config.name = name;
+    return this;
   }
 
   withTest(test: Test) {

@@ -60,7 +60,7 @@ const handleArrows = (event: KeyboardEvent<HTMLInputElement>) => {
     return;
   }
 
-  const textField = event.currentTarget;
+  const textField = event.target as HTMLInputElement;
   textField.value = history[historyIndex];
   textField.selectionStart = textField.value.length;
   textField.selectionEnd = textField.value.length;
