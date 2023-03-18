@@ -1,5 +1,11 @@
 # goNORTH Changelog
 
+## 1.0.0-rc2
+
+* 2023-03-18 Added Cypress Cloud integration.
+* 2023-03-18 Reinstate "withName" method in VerbBuilder.
+* 2023-03-18 Fixed issue with ParserBar not responding to arrow keys.
+
 ## 1.0.0-rc1
 
 * 2023-03-15 Finished converting source code to TypeScript.
