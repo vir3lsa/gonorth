@@ -8,7 +8,9 @@ import {
   setIntro,
   setInventoryCapacity,
   setStartingRoom,
-  Verb
+  Verb,
+  Event,
+  TIMEOUT_MILLIS
 } from "../../../lib/gonorth";
 import "./index.css";
 
@@ -49,7 +51,7 @@ function setUp() {
     .withSize(2)
     .withDescription(
       (item) =>
-        `It's a sleek metal object that fits neatly in your hand. There's a dial on one side. It's set to ${item.get(
+        `It's a sleek metal object that fits neatly in your hand. There's a dial on one side and a trigger underneath. It's set to ${item.get(
           "setting"
         )}.`
     )
@@ -74,6 +76,19 @@ function setUp() {
         return `You turn the dial to ${setting}.`;
       })
       .build()
+  );
+
+  const fireEvent = new Event.Builder("fire")
+    .withAction(
+      "There's a loud *bang* and a thin line of blinding white light briefly emits from the nozzle of the device."
+    )
+    .withTimeout(10000)
+    .withTimeoutType(TIMEOUT_MILLIS)
+    .isRecurring()
+    .build();
+
+  strangeDevice.addVerb(
+    new Verb.Builder("fire").withOnSuccess(() => fireEvent.commence(), "You pull the trigger. Nothing happens.").build()
   );
 
   const apple = new Item.Builder("apple").isHoldable().withSize(1).withDescription("A juicy red apple.").build();

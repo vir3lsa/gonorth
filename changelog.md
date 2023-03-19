@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## 1.0.0-rc3
+
+* 2023-03-19 Fixed event timeout overrides.
+
 ## 1.0.0-rc2
 
 * 2023-03-18 Added Cypress Cloud integration.

@@ -61,7 +61,9 @@ const expectedRollingFeedback = {
     },
     {
       input: "x device",
-      output: ["It's a sleek metal object that fits neatly in your hand. There's a dial on one side. It's set to stun."]
+      output: [
+        "It's a sleek metal object that fits neatly in your hand. There's a dial on one side and a trigger underneath. It's set to stun."
+      ]
     },
     {
       input: "take device",
