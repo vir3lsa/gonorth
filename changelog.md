@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## 1.0.0
+
+* Version 1.0.0 released.
+
 ## 1.0.0-rc5
 
 * 2023-03-20 Fixed unit tests.
