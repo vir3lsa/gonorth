@@ -112,7 +112,7 @@ export class Event {
       }
     } else {
       // No timeout therefore trigger immediately
-      this.trigger();
+      return this.trigger();
     }
   }
 

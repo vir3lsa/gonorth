@@ -1,8 +1,13 @@
 # goNORTH Changelog
 
+## 1.0.0-rc5
+
+* 2023-03-20 Fixed unit tests.
+
 ## 1.0.0-rc4
 
 * 2023-03-20 Fixed event timeout overrides more.
+* 2023-03-20 Resolved vulnerability.
 
 ## 1.0.0-rc3
 
