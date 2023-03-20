@@ -12,6 +12,8 @@ A React interactive fiction engine both for simple choice-based games and more c
 * Items
 * Revealing items
 * Verbs
+* Auto Actions
+* Effects
 * The Parser (an overview)
 * Text
 * Doors
@@ -22,7 +24,6 @@ A React interactive fiction engine both for simple choice-based games and more c
 * NPCs
 * Routes
 * Option Graphs
-* Auto Actions
 * Help
 * Hints
 * Action Chains (advanced)
