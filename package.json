@@ -1,6 +1,6 @@
 {
   "name": "@vir3lsa/gonorth",
-  "version": "1.0.0-rc3",
+  "version": "1.0.0-rc4",
   "description": "A JavaScript interactive fiction engine",
   "main": "./lib/gonorth.js",
   "publishConfig": {
@@ -45,7 +45,7 @@
     "style-loader": "3.3.1",
     "ts-jest": "29.0.3",
     "typescript": "4.9.3",
-    "webpack": "5.73.0",
+    "webpack": "5.76.2",
     "webpack-cli": "4.10.0",
     "webpack-dev-server": "4.9.2"
   },

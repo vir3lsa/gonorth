@@ -265,14 +265,14 @@ function events(args: string[]) {
     return eventHelp;
   } else if (args.length >= 1) {
     if (args[0] === "reset") {
-      getStore().dispatch(overrideEventTimeout(null, null));
+      getStore().dispatch(overrideEventTimeout(undefined, undefined));
       return "Event timeouts reset to defaults.";
     }
 
     const timeout = new Number(args[0]).valueOf();
-    const turns = args.length > 1 ? new Number(args[1]).valueOf() : null;
+    const turns = args.length > 1 ? new Number(args[1]).valueOf() : undefined;
     getStore().dispatch(overrideEventTimeout(timeout, turns));
-    return `Event timeouts set to ${timeout} milliseconds${turns !== null ? " and " + turns + " turn(s)" : ""}.`;
+    return `Event timeouts set to ${timeout} milliseconds${turns !== undefined ? " and " + turns + " turn(s)" : ""}.`;
   }
 }
 

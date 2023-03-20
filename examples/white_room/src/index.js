@@ -10,7 +10,9 @@ import {
   setStartingRoom,
   Verb,
   Event,
-  TIMEOUT_MILLIS
+  TIMEOUT_MILLIS,
+  TIMEOUT_TURNS,
+  addEvent
 } from "../../../lib/gonorth";
 import "./index.css";
 
@@ -78,14 +80,25 @@ function setUp() {
       .build()
   );
 
+  const laserHoleEvent = new Event.Builder("laserHole")
+    .withAction("Belatedly, a hole appears in the wall where the white beam hit it.")
+    .withTimeout(5)
+    .withTimeoutType(TIMEOUT_TURNS)
+    .withCondition(false)
+    .isRecurring()
+    .build();
+
   const fireEvent = new Event.Builder("fire")
-    .withAction(
-      "There's a loud *bang* and a thin line of blinding white light briefly emits from the nozzle of the device."
-    )
+    .withAction(() => {
+      laserHoleEvent.commence();
+      return "There's a loud *bang* and a thin line of blinding white light briefly emits from the nozzle of the device.";
+    })
     .withTimeout(10000)
     .withTimeoutType(TIMEOUT_MILLIS)
     .isRecurring()
     .build();
+
+  addEvent(laserHoleEvent);
 
   strangeDevice.addVerb(
     new Verb.Builder("fire").withOnSuccess(() => fireEvent.commence(), "You pull the trigger. Nothing happens.").build()

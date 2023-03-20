@@ -112,15 +112,15 @@ export class Event {
       }
     } else {
       // No timeout therefore trigger immediately
-      return this.trigger();
+      this.trigger();
     }
   }
 
   tick() {
-    if (this.countdown) {
+    if (typeof this.countdown !== "undefined") {
       this.countdown--;
 
-      if (this.countdown === 0) {
+      if (this.countdown <= 0) {
         return this.trigger();
       }
     }

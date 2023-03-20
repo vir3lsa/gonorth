@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## 1.0.0-rc4
+
+* 2023-03-20 Fixed event timeout overrides more.
+
 ## 1.0.0-rc3
 
 * 2023-03-19 Fixed event timeout overrides.
