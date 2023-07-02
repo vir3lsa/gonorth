@@ -37,9 +37,7 @@ describe("getBasicItemList", () => {
 
   test("returns a bulleted list of items with correct articles", () => {
     const result = bulletPointList(items);
-    expect(result).toInclude("an elephant");
-    expect(result).toInclude("a screw");
-    expect(result).toInclude("a porcupine");
+    expect(result).toBe("\n* an elephant\n* a screw\n* a porcupine");
   });
 
   test("returns a bulleted list of items with definite articles", () => {

@@ -27,7 +27,7 @@ function commaSeparate(items, definiteArticle) {
 
 export function bulletPointList(items, definiteArticle) {
   return (
-    "* " +
+    "\n* " +
     items
       .map((item) => {
         const prefix = definiteArticle ? "the " : item.article ? `${item.article} ` : "";

@@ -2,6 +2,10 @@
 
 # Unreleased
 
+* 2023-07-02 Fixed bug where first bullet point item didn't render correctly.
+
+## 1.0.0
+
 * 2022-11-13 Container.Builder now extends Item.Builder. 
 
 # 0.7.1
