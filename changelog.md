@@ -1,11 +1,40 @@
 # goNORTH Changelog
 
-# Unreleased
+## Unreleased
 
 * 2023-07-02 Fixed bug where first bullet point item didn't render correctly.
 
 ## 1.0.0
 
+* 2023-03-20 Version 1.0.0 released.
+
+## 1.0.0-rc5
+
+* 2023-03-20 Fixed unit tests.
+
+## 1.0.0-rc4
+
+* 2023-03-20 Fixed event timeout overrides more.
+* 2023-03-20 Resolved vulnerability.
+
+## 1.0.0-rc3
+
+* 2023-03-19 Fixed event timeout overrides.
+
+## 1.0.0-rc2
+
+* 2023-03-18 Added Cypress Cloud integration.
+* 2023-03-18 Reinstate "withName" method in VerbBuilder.
+* 2023-03-18 Fixed issue with ParserBar not responding to arrow keys.
+
+## 1.0.0-rc1
+
+* 2023-03-15 Finished converting source code to TypeScript.
+* 2022-11-26 Converted various utility classes to TypeScript.
+* 2022-11-25 Converted Text to TypeScript.
+* 2022-11-25 First few files converted to TypeScript.
+* 2022-10-30 Removed 'object' and 'helpers' from Verbs.
+* 2022-10-30 Updated 'addEffect' and 'addWildcardEffect' functions to include 'continueVerb' parameters.
 * 2022-11-13 Container.Builder now extends Item.Builder. 
 
 # 0.7.1
