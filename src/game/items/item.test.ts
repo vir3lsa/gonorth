@@ -23,7 +23,7 @@ beforeEach(() => {
   // Pretend we're in the browser
   game = initGame("Jolly Capers", "", { debugMode: false });
   room = new Room("red");
-  getStore().dispatch(newGame(game, true));
+  getStore().dispatch(newGame(game, false));
   goToRoom(room);
 });
 

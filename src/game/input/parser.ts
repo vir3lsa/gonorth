@@ -1,134 +1,141 @@
 import { getStore } from "../../redux/storeRegistry";
 import { changeInteraction } from "../../redux/gameActions";
 import { Append } from "../interactions/interaction";
-import { selectVerbNames, selectRoom, selectItemNames, selectInventory, selectKeywords } from "../../utils/selectors";
+import {
+  selectVerbNames,
+  selectRoom,
+  selectItemNames,
+  selectInventory,
+  selectKeywords,
+  selectStartingRoom,
+  selectDebugMode
+} from "../../utils/selectors";
 import { toTitleCase, getArticle } from "../../utils/textFunctions";
 import disambiguate from "../../utils/disambiguation";
 import { AnyAction } from "redux";
 
-export class Parser {
-  input;
+interface DecisionTree {
+  input: string;
+  room: RoomT;
+  tokens: string[];
+  verbConstructions: {
+    verbs: {
+      [verbConstruction: string]: VerbConstruction;
+    };
+    notVerbs: {
+      [verbConstruction: string]: VerbConstruction;
+    };
+  };
+  registeredVerbs: string[];
   registeredItem?: string;
   registeredVerb?: string;
   actualVerb?: VerbT;
-  verbSupported;
+  verbSupported: boolean;
   roomItem?: ItemT;
   indirectItem?: ItemT;
   duplicateAliasItems?: ItemT[];
   duplicateAlias?: string;
-  duplicateItemIsPrimary;
-  tooManyDuplicates;
+  duplicateItemIsPrimary: boolean;
+  tooManyDuplicates: boolean;
+}
+
+interface VerbConstruction {
+  numWords: number;
+  verbIndex: number;
+  possibleVerb: string;
+  canonicalVerb?: string;
+  endIndex?: number;
+  keyword?: VerbT;
+  roomVerb?: VerbT;
+  itemDetails: ItemDetails[];
+  roomItem?: ItemT;
+  actualVerb?: VerbT;
+  indirectItem?: ItemT;
+  validCombination: boolean;
+  itemConstructions: {
+    [itemConstruction: string]: ItemConstruction;
+  };
+}
+
+interface ItemConstruction {
+  numWords: number;
+  itemIndex: number;
+  endIndex: number;
+  possibleItem: string;
+  itemExists?: boolean;
+  itemsWithName: ItemT[];
+}
+
+export class Parser {
+  decisionTree: DecisionTree;
 
   constructor(input: string) {
-    this.input = input;
-    this.registeredItem = undefined;
-    this.registeredVerb = undefined;
-    this.actualVerb = undefined;
-    this.verbSupported = false;
-    this.roomItem = undefined;
-    this.indirectItem = undefined;
-    this.duplicateAliasItems = undefined;
-    this.duplicateAlias = undefined;
-    this.duplicateItemIsPrimary = true;
-    this.tooManyDuplicates = false;
+    this.decisionTree = {
+      input,
+      room: selectStartingRoom(),
+      tokens: [],
+      verbConstructions: {
+        verbs: {},
+        notVerbs: {}
+      },
+      registeredVerbs: [],
+      registeredItem: undefined,
+      registeredVerb: undefined,
+      actualVerb: undefined,
+      verbSupported: false,
+      roomItem: undefined,
+      indirectItem: undefined,
+      duplicateAliasItems: undefined,
+      duplicateAlias: undefined,
+      duplicateItemIsPrimary: true,
+      tooManyDuplicates: false
+    };
+  }
+
+  get dt() {
+    return this.decisionTree;
+  }
+
+  get input() {
+    return this.decisionTree.input;
+  }
+
+  get tokens() {
+    return this.decisionTree.tokens;
+  }
+
+  get room() {
+    return this.decisionTree.room;
   }
 
   parse() {
-    const tokens = this.input.trim().toLowerCase().split(/\s+/);
+    try {
+      return this.parseTokens();
+    } finally {
+      if (selectDebugMode()) {
+        console.log("Parser decision tree", this.decisionTree);
+      }
+    }
+  }
 
-    if (tokens[0] === "debug") {
+  parseTokens() {
+    this.decisionTree.tokens = this.input.trim().toLowerCase().split(/\s+/);
+
+    if (this.tokens[0] === "debug") {
       // Need case-sensitive args for the debug command.
       const args = this.input.trim().split(/\s+/).slice(1);
       return selectKeywords().debug.attempt(args[0], args.slice(1));
     }
 
-    const room = selectRoom();
+    this.decisionTree.room = selectRoom();
 
-    for (let numWords = tokens.length; numWords > 0; numWords--) {
-      for (let verbIndex = 0; verbIndex <= tokens.length - numWords; verbIndex++) {
-        const possibleVerbWords = tokens.slice(verbIndex, verbIndex + numWords);
-        const possibleVerb = possibleVerbWords.join(" ");
+    for (let numWords = this.tokens.length; numWords > 0; numWords--) {
+      for (let verbIndex = 0; verbIndex <= this.tokens.length - numWords; verbIndex++) {
+        const attemptResult = this.constructVerb(numWords, verbIndex);
 
-        // Is the verb registered globally?
-        const canonicalVerb = selectVerbNames()[possibleVerb];
-        this.registeredVerb = canonicalVerb || this.registeredVerb;
-        const verbEndIndex = verbIndex + numWords;
-
-        // Is the verb a keyword?
-        const keyword = selectKeywords()[possibleVerb];
-
-        // If the player hasn't included an item (or a matching keywords expects extra args), try keywords and the current room
-        if (verbEndIndex === tokens.length || keyword?.expectsArgs) {
-          if (keyword) {
-            // Invoke keyword action, passing extra args for benefit of those that expect them.
-            return keyword.attempt(...tokens.slice(verbEndIndex));
-          }
-
-          // Is the verb in the current room?
-          const roomVerb = room.verbs[possibleVerb];
-
-          if (roomVerb) {
-            // The room has the verb, so do it
-            return roomVerb.attempt(room);
-          }
-        }
-
-        const itemDetails = this.findRoomItems(tokens, verbEndIndex);
-
-        if (itemDetails && itemDetails.length) {
-          const { alias, itemsWithName } = itemDetails[0];
-
-          const validItemsWithName = itemsWithName.filter((item: ItemT) => item?.visible && item.verbs[possibleVerb]);
-
-          if (!validItemsWithName.length) {
-            this.roomItem = itemsWithName[0] || this.roomItem; // Record a room item for feedback purposes.
-          }
-
-          for (let itemIndex in validItemsWithName) {
-            const item = validItemsWithName[itemIndex];
-            this.roomItem = item || this.roomItem; // Record a valid room item.
-
-            this.actualVerb = item.verbs[possibleVerb];
-            this.verbSupported = true;
-            let indirectItemsWithName, indirectItem, indirectAlias;
-            let validCombination = true;
-
-            // Do we have a valid indirect item?
-            indirectAlias = itemDetails[1]?.alias;
-            indirectItemsWithName = itemDetails[1]?.itemsWithName;
-
-            if (indirectItemsWithName) {
-              indirectItem = indirectItemsWithName[0];
-
-              if (indirectItem && indirectItem.visible) {
-                this.indirectItem = indirectItem;
-              }
-            }
-
-            if (this.actualVerb.prepositional && !this.actualVerb.prepositionOptional && !this.indirectItem) {
-              validCombination = false;
-            }
-
-            if (validCombination) {
-              if (validItemsWithName.length > 1) {
-                // Primary item name is a duplicate
-                this.recordDuplicates(validItemsWithName, alias, true);
-              }
-
-              if (indirectItemsWithName?.length > 1) {
-                // Secondary item name is a duplicate
-                this.recordDuplicates(indirectItemsWithName, indirectAlias, false);
-              }
-
-              if (validItemsWithName.length > 1 || indirectItemsWithName?.length > 1) {
-                // If we have any duplicates we need to disambiguate.
-                return this.giveFeedback();
-              }
-
-              // If there's no effect registered (or no indirect item), try the verb as usual.
-              return item.try(possibleVerb, this.indirectItem);
-            }
-          }
+        if (attemptResult) {
+          // If there's any kind of result, return it.
+          return attemptResult;
         }
       }
     }
@@ -136,17 +143,122 @@ export class Parser {
     return this.giveFeedback();
   }
 
-  recordDuplicates(itemsWithName: ItemT[], name: string, isPrimary: boolean) {
-    if (!this.duplicateAlias) {
-      this.duplicateAliasItems = itemsWithName;
-      this.duplicateAlias = name;
-      this.duplicateItemIsPrimary = isPrimary;
+  constructVerb(numWords: number, verbIndex: number) {
+    const vc: VerbConstruction = {
+      numWords,
+      verbIndex,
+      possibleVerb: "",
+      itemDetails: [],
+      itemConstructions: {},
+      validCombination: false
+    };
+    const possibleVerbWords = this.tokens.slice(verbIndex, verbIndex + numWords);
+    vc.possibleVerb = possibleVerbWords.join(" ");
+
+    // Is the verb registered globally?
+    vc.canonicalVerb = selectVerbNames()[vc.possibleVerb];
+    this.dt.registeredVerb = vc.canonicalVerb || this.dt.registeredVerb;
+    vc.endIndex = verbIndex + numWords;
+
+    if (vc.canonicalVerb) {
+      this.decisionTree.verbConstructions.verbs[vc.possibleVerb] = vc;
+      this.decisionTree.registeredVerbs.push(vc.canonicalVerb);
     } else {
-      this.tooManyDuplicates = true;
+      this.decisionTree.verbConstructions.notVerbs[vc.possibleVerb] = vc;
+    }
+
+    // Is the verb a keyword?
+    vc.keyword = selectKeywords()[vc.possibleVerb];
+
+    // If the player hasn't included an item (or a matching keywords expects extra args), try keywords and the current room
+    if (vc.endIndex === this.tokens.length || vc.keyword?.expectsArgs) {
+      if (vc.keyword) {
+        // Invoke keyword action, passing extra args for benefit of those that expect them.
+        return vc.keyword.attempt(...this.tokens.slice(vc.endIndex));
+      }
+
+      // Is the verb in the current room?
+      vc.roomVerb = this.room.verbs[vc.possibleVerb];
+
+      if (vc.roomVerb) {
+        // The room has the verb, so do it
+        return vc.roomVerb.attempt(this.room);
+      }
+    }
+
+    vc.itemDetails = this.findRoomItems(vc, this.tokens, vc.endIndex);
+
+    if (vc.itemDetails.length) {
+      const { alias, itemsWithName } = vc.itemDetails[0];
+
+      const validItemsWithName = itemsWithName.filter((item: ItemT) => item?.visible && item.verbs[vc.possibleVerb!]);
+
+      if (!validItemsWithName.length) {
+        this.dt.roomItem = itemsWithName[0] || this.dt.roomItem; // Record a room item for feedback purposes.
+      }
+
+      for (let itemIndex in validItemsWithName) {
+        const item = validItemsWithName[itemIndex];
+        vc.roomItem = item;
+        this.dt.roomItem = item || this.dt.roomItem; // Record a valid room item.
+
+        vc.actualVerb = item.verbs[vc.possibleVerb];
+        this.dt.actualVerb = item.verbs[vc.possibleVerb];
+        this.dt.verbSupported = true;
+        let indirectItemsWithName, indirectItem, indirectAlias;
+        vc.validCombination = true;
+
+        // Do we have a valid indirect item?
+        indirectAlias = vc.itemDetails[1]?.alias;
+        indirectItemsWithName = vc.itemDetails[1]?.itemsWithName;
+
+        if (indirectItemsWithName) {
+          indirectItem = indirectItemsWithName[0];
+
+          if (indirectItem && indirectItem.visible) {
+            vc.indirectItem = indirectItem;
+            this.dt.indirectItem = indirectItem;
+          }
+        }
+
+        if (this.dt.actualVerb.prepositional && !this.dt.actualVerb.prepositionOptional && !this.dt.indirectItem) {
+          vc.validCombination = false;
+        }
+
+        if (vc.validCombination) {
+          if (validItemsWithName.length > 1) {
+            // Primary item name is a duplicate
+            this.recordDuplicates(validItemsWithName, alias, true);
+          }
+
+          if (indirectItemsWithName?.length > 1) {
+            // Secondary item name is a duplicate
+            this.recordDuplicates(indirectItemsWithName, indirectAlias, false);
+          }
+
+          if (validItemsWithName.length > 1 || indirectItemsWithName?.length > 1) {
+            // If we have any duplicates we need to disambiguate.
+            return this.giveFeedback();
+          }
+
+          // If there's no effect registered (or no indirect item), try the verb as usual.
+          return item.try(vc.possibleVerb, this.dt.indirectItem);
+        }
+      }
     }
   }
 
-  findRoomItems(tokens: string[], verbEndIndex: number) {
+  recordDuplicates(itemsWithName: ItemT[], name: string, isPrimary: boolean) {
+    if (!this.dt.duplicateAlias) {
+      this.dt.duplicateAliasItems = itemsWithName;
+      this.dt.duplicateAlias = name;
+      this.dt.duplicateItemIsPrimary = isPrimary;
+    } else {
+      this.dt.tooManyDuplicates = true;
+    }
+  }
+
+  findRoomItems(verbConstruction: VerbConstruction, tokens: string[], verbEndIndex: number) {
     const room = selectRoom();
     const itemDetails: ItemDetails[] = [];
     const usedIndices: number[] = []; // Keep track of token indices we've found items at
@@ -162,27 +274,36 @@ export class Parser {
         const possibleItemWords = tokens.slice(itemIndex, endIndex);
         const possibleItem = possibleItemWords.join(" ");
 
+        const ic: ItemConstruction = {
+          numWords: numItemWords,
+          itemIndex,
+          endIndex,
+          possibleItem,
+          itemsWithName: []
+        };
+        verbConstruction.itemConstructions[possibleItem] = ic;
+
         if (!itemDetails.length) {
           // Is the item registered globally?
-          const itemExists = selectItemNames().has(possibleItem);
+          ic.itemExists = selectItemNames().has(possibleItem);
 
-          if (itemExists && (!this.registeredItem || possibleItem.length > this.registeredItem.length)) {
-            this.registeredItem = possibleItem;
+          if (ic.itemExists && (!this.dt.registeredItem || possibleItem.length > this.dt.registeredItem.length)) {
+            this.dt.registeredItem = possibleItem;
           }
         }
 
         // Is the item in the room and visible? Does it support the verb?
-        let itemsWithName = room.accessibleItems[possibleItem]?.filter((item) => item.visible) || [];
+        ic.itemsWithName = room.accessibleItems[possibleItem]?.filter((item) => item.visible) || [];
 
         // Try items in the player's inventory as well
         const inventoryItems = selectInventory().accessibleItems[possibleItem]?.filter((item) => item.visible);
 
         if (inventoryItems) {
-          itemsWithName = [...itemsWithName, ...inventoryItems];
+          ic.itemsWithName = [...ic.itemsWithName, ...inventoryItems];
         }
 
-        if (itemsWithName?.length) {
-          this.recordItems(possibleItem, itemsWithName, itemDetails, itemIndex, numItemWords, usedIndices);
+        if (ic.itemsWithName?.length) {
+          this.recordItems(ic, possibleItem, itemDetails, usedIndices);
         }
 
         // Once we have two items, stop looking. Should we keep looking, in case of false positives?
@@ -195,64 +316,59 @@ export class Parser {
     return itemDetails;
   }
 
-  recordItems(
-    alias: string,
-    itemsWithName: ItemT[],
-    itemDetails: ItemDetails[],
-    itemIndex: number,
-    numItemWords: number,
-    usedIndices: number[]
-  ) {
+  recordItems(ic: ItemConstruction, alias: string, itemDetails: ItemDetails[], usedIndices: number[]) {
     // Record indices of this item so we don't try to find other items there
-    for (let i = itemIndex; i < itemIndex + numItemWords; i++) {
+    for (let i = ic.itemIndex; i < ic.itemIndex + ic.numWords; i++) {
       usedIndices.push(i);
     }
 
     if (itemDetails.length) {
-      if (itemIndex < itemDetails[0].itemIndex) {
-        return itemDetails.unshift({ alias, itemsWithName, itemIndex });
+      if (ic.itemIndex < itemDetails[0].itemIndex) {
+        return itemDetails.unshift({ alias, itemsWithName: ic.itemsWithName, itemIndex: ic.itemIndex });
       }
     }
 
-    return itemDetails.push({ alias, itemsWithName, itemIndex });
+    return itemDetails.push({ alias, itemsWithName: ic.itemsWithName, itemIndex: ic.itemIndex });
   }
 
   async giveFeedback() {
     let message;
 
-    if (this.registeredVerb) {
-      if (this.roomItem) {
-        if (!this.actualVerb) {
+    if (this.dt.registeredVerb) {
+      if (this.dt.roomItem) {
+        if (!this.dt.actualVerb) {
           this.findActualVerb();
         }
 
-        if (this.duplicateAliasItems) {
+        if (this.dt.duplicateAliasItems) {
           // Player must be more specific
           return this.handleDuplicateAliases();
-        } else if (this.verbSupported) {
+        } else if (this.dt.verbSupported) {
           // Prepositional verb missing a second item
-          message = `${toTitleCase(this.registeredVerb)} the ${this.registeredItem} ${this.actualVerb!.interrogative}?`;
-        } else if (this.actualVerb && this.actualVerb.prepositional) {
+          message = `${toTitleCase(this.dt.registeredVerb)} the ${this.dt.registeredItem} ${
+            this.dt.actualVerb!.interrogative
+          }?`;
+        } else if (this.dt.actualVerb && this.dt.actualVerb.prepositional) {
           // Prepositional verb with missing (or unsupported) first item
-          message = `You can't ${this.registeredVerb} that ${this.roomItem.preposition} the ${this.registeredItem}.`;
+          message = `You can't ${this.dt.registeredVerb} that ${this.dt.roomItem.preposition} the ${this.dt.registeredItem}.`;
         } else {
           // The item's in the room but doesn't support the verb
-          message = `You can't see how to ${this.registeredVerb} the ${this.registeredItem}.`;
+          message = `You can't see how to ${this.dt.registeredVerb} the ${this.dt.registeredItem}.`;
         }
-      } else if (this.registeredItem) {
+      } else if (this.dt.registeredItem) {
         // The item exists elsewhere
-        message = `You don't see ${getArticle(this.registeredItem)} ${this.registeredItem} here.`;
+        message = `You don't see ${getArticle(this.dt.registeredItem)} ${this.dt.registeredItem} here.`;
       } else {
         // The item doesn't (yet) exist anywhere
-        message = `You don't seem able to ${this.registeredVerb} that.`;
+        message = `You don't seem able to ${this.dt.registeredVerb} that.`;
       }
     } else {
-      if (this.roomItem) {
+      if (this.dt.roomItem) {
         // The item's in the room but the verb doesn't exist
-        message = `You can't easily do that to the ${this.registeredItem}.`;
-      } else if (this.registeredItem) {
+        message = `You can't easily do that to the ${this.dt.registeredItem}.`;
+      } else if (this.dt.registeredItem) {
         // The item's elsewhere
-        message = `You don't see ${getArticle(this.registeredItem)} ${this.registeredItem} here.`;
+        message = `You don't see ${getArticle(this.dt.registeredItem)} ${this.dt.registeredItem} here.`;
       } else {
         // Neither the verb nor the item exists
         message = `You shake your head in confusion.`;
@@ -271,7 +387,7 @@ export class Parser {
    * Instead, find a matching verb on items in the room or in the player's inventory.
    */
   findActualVerb() {
-    this.actualVerb =
+    this.dt.actualVerb =
       this.findActualVerbIn(selectRoom().accessibleItems) || this.findActualVerbIn(selectInventory().items);
   }
 
@@ -280,28 +396,28 @@ export class Parser {
 
     // Use normal for loop so we can return from inside it
     for (let items of itemArrays) {
-      const itemWithVerb = items.find((item) => item.verbs[this.registeredVerb!]);
+      const itemWithVerb = items.find((item) => item.verbs[this.dt.registeredVerb!]);
 
       if (itemWithVerb) {
-        return itemWithVerb.verbs[this.registeredVerb!];
+        return itemWithVerb.verbs[this.dt.registeredVerb!];
       }
     }
   }
 
   handleDuplicateAliases() {
-    if (this.tooManyDuplicates) {
+    if (this.dt.tooManyDuplicates) {
       // We're not even going to try to handle this situation. Too complicated.
       return getStore().dispatch(changeInteraction(new Append("You need to be more specific.")) as AnyAction);
     }
 
     const onChoose = (item: ItemT) => {
-      if (this.duplicateItemIsPrimary) {
-        return item.try(this.actualVerb!.name, this.indirectItem);
+      if (this.dt.duplicateItemIsPrimary) {
+        return item.try(this.dt.actualVerb!.name, this.dt.indirectItem);
       } else {
-        return this.roomItem!.try(this.actualVerb!.name, item);
+        return this.dt.roomItem!.try(this.dt.actualVerb!.name, item);
       }
     };
 
-    return disambiguate(this.duplicateAlias!, this.duplicateAliasItems!, onChoose);
+    return disambiguate(this.dt.duplicateAlias!, this.dt.duplicateAliasItems!, onChoose);
   }
 }

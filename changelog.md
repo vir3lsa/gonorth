@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## 1.1.0
+
+* 2023-11-22 Added parser decision tree output when in debug mode.
 * 2023-07-02 Fixed bug where first bullet point item didn't render correctly.
 
 ## 1.0.0
