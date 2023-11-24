@@ -104,7 +104,7 @@ export function resetToCheckpoint() {
 
 export function play() {
   const game = selectGame();
-  let titlePage = `\n##### GoNorth v${packageJson.version}`;
+  let titlePage = `##### GoNorth v${packageJson.version}`;
 
   if (game.version) {
     titlePage += `&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;${game.title} v${game.version}`;

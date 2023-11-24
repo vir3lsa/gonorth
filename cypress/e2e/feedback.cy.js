@@ -5,7 +5,9 @@ const expectedFeedbackObj = {
   name: "Rich",
   logs: [
     {
-      output: ["# The White Room\n### By Rich Locke\n\nChoose: play"]
+      output: [
+        "##### GoNorth v1.2.0&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;The White Room v0.0.1\n# The White Room\n### By Rich Locke\n\nChoose: play"
+      ]
     },
     {
       input: "[play]",
