@@ -7,6 +7,7 @@ import { initGame } from "../gonorth";
 import { clearPage, goToRoom } from "./lifecycle";
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { selectCurrentPage } from "./testSelectors";
+import packageJson from "../../package.json";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("./consoleIO");
@@ -29,7 +30,7 @@ const inputTest = async (input: string, expectedOutput: string | string[], ...ex
 
 describe("debugFunctions", () => {
   beforeEach(() => {
-    initGame("The Giant's Castle", "", { debugMode: false });
+    initGame("The Giant's Castle", "", { debugMode: false }, "1.2.3");
 
     hall = new Room("Hall", "grand");
     north = new Room("Garden", "");
@@ -115,9 +116,11 @@ describe("debugFunctions", () => {
     await inputTest("debug variable update playerName Ted", "Variable updated.");
     return inputTest("debug variable retrieve playerName", "playerName: Ted");
   });
-  it("forget persistent variables", async () => {
+  it("forgets persistent variables", async () => {
     await inputTest("debug variable store playerName Rich", "Variable stored.");
     await inputTest("debug variable forget playerName", "Variable forgotten.");
     return inputTest("debug variable retrieve playerName", "playerName: undefined");
   });
+  it("shows version information", () =>
+    inputTest("debug version", `GoNorth v${packageJson.version}\n\nThe Giant's Castle v1.2.3`));
 });

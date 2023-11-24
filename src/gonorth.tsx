@@ -21,7 +21,7 @@ import seedrandom from "seedrandom";
 
 let game: Game;
 
-function initGame(title: string, author: string, config: Config, initialiser?: Initialiser) {
+function initGame(title: string, author: string, config: Config, version?: string, initialiser?: Initialiser) {
   unregisterStore();
   initStore(config?.storeName);
   createPlayer();
@@ -34,7 +34,8 @@ function initGame(title: string, author: string, config: Config, initialiser?: I
     help: getHelpGraph(),
     hintGraph: getHintGraph(),
     hintNode: "default",
-    initialiser: initialiser
+    initialiser,
+    version
   };
 
   // Seed the RNG for testing purposes.

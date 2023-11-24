@@ -13,7 +13,7 @@ import {
   TIMEOUT_MILLIS,
   TIMEOUT_TURNS,
   addEvent
-} from "../../../lib/gonorth";
+} from "../../../lib/src/gonorth";
 import "./index.css";
 
 initGame(
@@ -28,6 +28,7 @@ initGame(
     feedbackHandler: (feedback, name, logs) => console.log({ feedback, name, logs }),
     randomSeed: "white-room."
   },
+  "0.0.1",
   setUp
 );
 

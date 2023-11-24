@@ -2,6 +2,7 @@ import { goToRoom } from "./lifecycle";
 import {
   selectAllItemNames,
   selectCyCommands,
+  selectGame,
   selectItemNames,
   selectItems,
   selectOptionGraphs,
@@ -12,6 +13,7 @@ import disambiguate from "./disambiguation";
 import { getStore } from "../redux/storeRegistry";
 import { cyRecord, itemsRevealed, overrideEventTimeout } from "../redux/gameActions";
 import { forget, retrieve, store, update } from "../gonorth";
+import packageJson from "../../package.json";
 
 const helpText = `Usage: \`debug operation [args]\`
 - e.g. \`debug show rooms\`
@@ -25,7 +27,8 @@ Operations:
 - \`commence\` / \`graph\` / \`join\` / \`start \` - join an option graph at the specified node, or the default node
 - \`cypress\` / \`integration\` / \`test\`         - produce Cypress commands from the actions you perform
 - \`event\` / \`timeout\`                          - override event timeouts
-- \`variable\` / \`var\`                           - store, update, retrieve and forget persistent variables`;
+- \`variable\` / \`var\`                           - store, update, retrieve and forget persistent variables
+- \`version\`                                      - display version information`;
 
 const gotoHelp = `Usage: \`debug goto [room]\`
 - e.g. \`debug goto kitchen\`
@@ -114,6 +117,8 @@ export function handleDebugOperations(operation: string, ...args: string[]) {
     case "var":
     case "variable":
       return variable(args);
+    case "version":
+      return version();
     default:
       return `Unrecognised debug operation: ${operation}`;
   }
@@ -305,4 +310,15 @@ function parseVariableValue(raw: string) {
   }
 
   return raw;
+}
+
+function version() {
+  const { title, version } = selectGame();
+  let output = `GoNorth v${packageJson.version}`;
+
+  if (version) {
+    output += `\n\n${title} v${version}`;
+  }
+
+  return output;
 }

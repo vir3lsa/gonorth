@@ -25,6 +25,7 @@ interface Game {
   hintNode: string;
   initialiser?: SimpleAction;
   component?: import("react").ReactElement;
+  version?: string;
 }
 
 type Initialiser = () => void;

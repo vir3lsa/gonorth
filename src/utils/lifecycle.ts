@@ -19,6 +19,7 @@ import { RandomText, PagedText } from "../game/interactions/text";
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { AutoAction } from "../game/input/autoAction";
 import { playerHasItem } from "./sharedFunctions";
+import packageJson from "../../package.json";
 
 export async function handleTurnEnd() {
   const events = selectEvents();
@@ -103,7 +104,13 @@ export function resetToCheckpoint() {
 
 export function play() {
   const game = selectGame();
-  let titlePage = `# ${game.title || "Untitled"}`;
+  let titlePage = `\n##### GoNorth v${packageJson.version}`;
+
+  if (game.version) {
+    titlePage += `&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;${game.title} v${game.version}`;
+  }
+
+  titlePage += `\n# ${game.title || "Untitled"}`;
 
   if (game.author) {
     titlePage += `\n### By ${game.author}`;

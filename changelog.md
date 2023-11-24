@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.2.0
+
+* 2023-11-24 Added version information to title page and as a debug function.
+
 ## 1.1.0
 
 * 2023-11-22 Added parser decision tree output when in debug mode.

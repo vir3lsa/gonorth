@@ -37,7 +37,7 @@ beforeEach(() => {
     clear: () => {},
     key: (index: number) => null
   };
-  initGame("test", "", { debugMode: false }, initialiser);
+  initGame("test", "", { debugMode: false }, "1.0.0", initialiser);
   setStartingRoom(playground);
 });
 
@@ -53,7 +53,7 @@ test("delete save resets items to initial state", () => {
 
   // Destroy and recreate the store as if we're starting a new session.
   unregisterStore();
-  initGame("test", "", { debugMode: false }, initialiser);
+  initGame("test", "", { debugMode: false }, "1.0.0", initialiser);
   getStore().dispatch(recordChanges());
 
   // Load the previous save.
