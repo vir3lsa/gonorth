@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+# 1.2.1
+
+* 2023-11-25 Stopped holdable doNotList items being listed in room descriptions.
+
 ## 1.2.0
 
 * 2023-11-24 Added version information to title page and as a debug function.

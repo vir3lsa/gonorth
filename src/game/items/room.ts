@@ -224,7 +224,7 @@ export class Room extends Item {
       if (item.containerListing) {
         debug(`Using ${item.name}'s room listing.`);
         description += `${item.containerListing} `;
-      } else if (item.holdable) {
+      } else if (item.holdable && !item.doNotList) {
         debug(`Will simply list ${item.name} as it is holdable.`);
         plainList.push(item); // We'll list this item separately
       } else {

@@ -54,6 +54,15 @@ describe("Room", () => {
       expect(hall.itemListings).toInclude("a candlestick and a bread maker");
     });
 
+    it("does not list items with doNotList", () => {
+      const item1 = new Item("candlestick", "", true);
+      const item2 = new Item("bread maker", "", false);
+      item1.doNotList = true;
+      item2.doNotList = true;
+      hall.addItems(item1, item2);
+      expect(hall.itemListings).not.toInclude("a candlestick and a bread maker");
+    });
+
     it("lists items contained by other items", () => {
       const item1 = new Item("candlestick", "", true);
       const item2 = new Item("apple", "", true);
