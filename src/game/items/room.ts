@@ -228,7 +228,7 @@ export class Room extends Item {
         debug(`Will simply list ${item.name} as it is holdable.`);
         plainList.push(item); // We'll list this item separately
       } else {
-        debug(`${item.name} is not holdable and doesn't have a room listing so won't be listed.`);
+        debug(`${item.name} is not holdable and doesn't have a room listing (or is doNotList) so won't be listed.`);
       }
     });
 

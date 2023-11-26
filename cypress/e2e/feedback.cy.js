@@ -1,4 +1,5 @@
 /// <reference types="cypress" />
+import packageJson from "../../package.json";
 
 const expectedFeedbackObj = {
   feedback: "I clicked stuff",
@@ -6,7 +7,7 @@ const expectedFeedbackObj = {
   logs: [
     {
       output: [
-        "##### GoNorth v1.2.0&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;The White Room v0.0.1\n# The White Room\n### By Rich Locke\n\nChoose: play"
+        `##### GoNorth v${packageJson.version}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;The White Room v0.0.1\n# The White Room\n### By Rich Locke\n\nChoose: play`
       ]
     },
     {
