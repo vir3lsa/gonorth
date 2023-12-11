@@ -46,12 +46,12 @@ export function createKeywords() {
     "Inspect the items you're carrying."
   );
 
-  const north = new GoVerb("North", directionAliases["north"] as string[], true);
-  const south = new GoVerb("South", directionAliases["south"] as string[], true);
-  const east = new GoVerb("East", directionAliases["east"] as string[], true);
-  const west = new GoVerb("West", directionAliases["west"] as string[], true);
-  const up = new GoVerb("Up", directionAliases["up"] as string[], true);
-  const down = new GoVerb("Down", directionAliases["down"] as string[], true);
+  const north = new GoVerb("north", directionAliases["north"] as string[], true);
+  const south = new GoVerb("south", directionAliases["south"] as string[], true);
+  const east = new GoVerb("east", directionAliases["east"] as string[], true);
+  const west = new GoVerb("west", directionAliases["west"] as string[], true);
+  const up = new GoVerb("up", directionAliases["up"] as string[], true);
+  const down = new GoVerb("down", directionAliases["down"] as string[], true);
 
   const waitText = new RandomText(
     "You pause for a moment, taking stock of the situation.",

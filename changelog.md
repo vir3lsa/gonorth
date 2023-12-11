@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* 2023-12-10 Lowercased direction keywords.
+
 # 1.2.1
 
 * 2023-11-25 Stopped holdable doNotList items being listed in room descriptions.

@@ -127,10 +127,10 @@ describe("parser", () => {
       }
     });
 
-    it("goes North", () => directionTest("North", "Garden"));
-    it("goes South", () => directionTest("South", "Kitchen"));
-    it("goes East", () => directionTest("East", "Scullery"));
-    it("goes West", () => directionTest("West", "Pantry"));
+    it("goes north", () => directionTest("north", "Garden"));
+    it("goes south", () => directionTest("south", "Kitchen"));
+    it("goes east", () => directionTest("east", "Scullery"));
+    it("goes west", () => directionTest("west", "Pantry"));
     it("ignores case", () => directionTest("NORTH", "Garden"));
     it("responds to alias", () => directionTest("forward", "Garden"));
     it("responds to another alias", () => directionTest("left", "Pantry"));

@@ -39,7 +39,7 @@ const expectedFeedbackObj = {
     {
       input: "[Next]",
       output: [
-        "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nA corridor to the East leads to another room.\n\nYou also see a strange device, an apple, and an orange."
+        "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nA corridor to the east leads to another room.\n\nYou also see a strange device, an apple, and an orange."
       ]
     }
   ]
@@ -59,7 +59,7 @@ const expectedRollingFeedback = {
     {
       input: "[Next]",
       output: [
-        "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nA corridor to the East leads to another room.\n\nYou also see a strange device, an apple, and an orange."
+        "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nA corridor to the east leads to another room.\n\nYou also see a strange device, an apple, and an orange."
       ]
     },
     {
@@ -82,22 +82,22 @@ const expectedRollingFeedback = {
     },
     {
       input: "e",
-      output: ["Going East.\n\nChoose: Next"]
+      output: ["Going east.\n\nChoose: Next"]
     },
     {
       input: "[Next]",
       output: [
-        "This room is much like the white room, all featureless glowing surfaces and no windows, but the light being emitted from the unnaturally smooth floor, walls and ceiling is blood red.\n\nThe white room lies to the West."
+        "This room is much like the white room, all featureless glowing surfaces and no windows, but the light being emitted from the unnaturally smooth floor, walls and ceiling is blood red.\n\nThe white room lies to the west."
       ]
     },
     {
       input: "w",
-      output: ["Going West.\n\nChoose: Next"]
+      output: ["Going west.\n\nChoose: Next"]
     },
     {
       input: "[Next]",
       output: [
-        "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nA corridor to the East leads to another room.\n\nYou also see an orange."
+        "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nA corridor to the east leads to another room.\n\nYou also see an orange."
       ]
     }
   ]
@@ -149,9 +149,9 @@ describe("feedback component", () => {
     cy.say("take device", "You grab the strange device");
     cy.say("take apple", "You pick up the apple");
     cy.say("i", "You're carrying a strange");
-    cy.say("e", "Going East");
+    cy.say("e", "Going east");
     cy.choose("Next", "This room is much like the", { global: true });
-    cy.say("w", "Going West");
+    cy.say("w", "Going west");
     cy.choose("Next", "The room you find yourself in", { global: true });
 
     // Submit feedback.

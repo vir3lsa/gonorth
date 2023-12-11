@@ -88,42 +88,42 @@ describe("Room", () => {
   });
 
   describe("adjacent rooms", () => {
-    it("sets North", () => {
+    it("sets north", () => {
       hall.setNorth(north);
       expect(hall.adjacentRooms.north.room?.name).toBe("Garden");
     });
 
-    it("sets South", () => {
+    it("sets south", () => {
       hall.setSouth(south);
       expect(hall.adjacentRooms.south.room?.name).toBe("Kitchen");
     });
 
-    it("sets East", () => {
+    it("sets east", () => {
       hall.setEast(east);
       expect(hall.adjacentRooms.east.room?.name).toBe("Scullery");
     });
 
-    it("sets West", () => {
+    it("sets west", () => {
       hall.setWest(west);
       expect(hall.adjacentRooms.west.room?.name).toBe("Pantry");
     });
 
-    it("sets North inverse", () => {
+    it("sets north inverse", () => {
       hall.setNorth(north);
       expect(north.adjacentRooms.south.room?.name).toBe("Hall");
     });
 
-    it("sets South inverse", () => {
+    it("sets south inverse", () => {
       hall.setSouth(south);
       expect(south.adjacentRooms.north.room?.name).toBe("Hall");
     });
 
-    it("sets East inverse", () => {
+    it("sets east inverse", () => {
       hall.setEast(east);
       expect(east.adjacentRooms.west.room?.name).toBe("Hall");
     });
 
-    it("sets West inverse", () => {
+    it("sets west inverse", () => {
       hall.setWest(west);
       expect(west.adjacentRooms.east.room?.name).toBe("Hall");
     });
@@ -179,7 +179,7 @@ describe("Room", () => {
     it("prints a message when successfully going in a direction", async () => {
       hall.setWest(new Room("Chapel"));
       new Parser("west").parse();
-      return deferAction(() => expect(selectCurrentPage().includes("Going West.")).toBeTruthy());
+      return deferAction(() => expect(selectCurrentPage().includes("Going west.")).toBeTruthy());
     });
 
     it("prints new room text", async () => {

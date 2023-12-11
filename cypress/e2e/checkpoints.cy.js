@@ -14,7 +14,7 @@ describe("basic checkpoint tests", () => {
     cy.say("turn dial", "You turn the dial to tickle");
 
     // Travel to a room that triggers a checkpoint.
-    cy.say("east", "Going East");
+    cy.say("east", "Going east");
     cy.choose("Next", "ceiling is blood red", { global: true });
 
     // Reload the game - should return to the bedroom.
@@ -22,7 +22,7 @@ describe("basic checkpoint tests", () => {
 
     // Check the state
     cy.say("i", "a strange device");
-    cy.say("west", "Going West");
+    cy.say("west", "Going west");
     cy.choose("Next", "nearly perfect cube", { global: true });
     cy.doesNotShow("strange device");
 
@@ -33,7 +33,7 @@ describe("basic checkpoint tests", () => {
   it("saves the game and starts a new game", () => {
     // Change some state and trigger a checkpoint.
     cy.say("take strange device", "the strange device");
-    cy.say("east", "Going East");
+    cy.say("east", "Going east");
     cy.choose("Next", "ceiling is blood red", { global: true });
 
     // Start a new game and check the state.
