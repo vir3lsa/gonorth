@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+# 1.3.0
+
+* 2023-12-17 Ability to define how the narrator should refer to the player.
+* 2023-12-17 Made feedback messages more helpful.
 * 2023-12-10 Lowercased direction keywords.
 
 # 1.2.1

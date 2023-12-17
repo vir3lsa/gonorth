@@ -8,6 +8,7 @@ interface Config {
   skipReactionTimes?: boolean;
   renderFeedbackBox?: boolean;
   recordLogs?: boolean;
+  referToPlayerAs?: string;
   feedbackHandler?: (feedback: string, name: string, logs: LogEntry[]) => void;
   randomSeed?: string;
   skipPersistence?: boolean;

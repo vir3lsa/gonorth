@@ -26,7 +26,8 @@ initGame(
     renderFeedbackBox: true,
     recordLogs: true,
     feedbackHandler: (feedback, name, logs) => console.log({ feedback, name, logs }),
-    randomSeed: "white-room."
+    randomSeed: "white-room.",
+    referToPlayerAs: "Toby"
   },
   "0.0.1",
   setUp

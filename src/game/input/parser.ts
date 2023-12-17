@@ -8,7 +8,8 @@ import {
   selectInventory,
   selectKeywords,
   selectStartingRoom,
-  selectDebugMode
+  selectDebugMode,
+  selectGame
 } from "../../utils/selectors";
 import { toTitleCase, getArticle } from "../../utils/textFunctions";
 import disambiguate from "../../utils/disambiguation";
@@ -350,28 +351,34 @@ export class Parser {
           }?`;
         } else if (this.dt.actualVerb && this.dt.actualVerb.prepositional) {
           // Prepositional verb with missing (or unsupported) first item
-          message = `You can't ${this.dt.registeredVerb} that ${this.dt.roomItem.preposition} the ${this.dt.registeredItem}.`;
+          message = `You can't ${this.dt.registeredVerb} that ${this.dt.roomItem.preposition} the ${
+            this.dt.registeredItem
+          }${this.addPlayerName()}. Did you mean something else?`;
         } else {
           // The item's in the room but doesn't support the verb
-          message = `You can't see how to ${this.dt.registeredVerb} the ${this.dt.registeredItem}.`;
+          message = `You can't ${this.dt.registeredVerb} the ${
+            this.dt.registeredItem
+          }${this.addPlayerName()}. It wouldn't achieve much.`;
         }
       } else if (this.dt.registeredItem) {
         // The item exists elsewhere
-        message = `You don't see ${getArticle(this.dt.registeredItem)} ${this.dt.registeredItem} here.`;
+        message = `The ${this.dt.registeredItem} isn't here, so you can't ${this.dt.registeredVerb} it. I'm sure you've seen it somewhere though.`;
       } else {
         // The item doesn't (yet) exist anywhere
-        message = `You don't seem able to ${this.dt.registeredVerb} that.`;
+        message = `You can't ${this.dt.registeredVerb} that${this.addPlayerName()}. Did you mean something else?`;
       }
     } else {
       if (this.dt.roomItem) {
         // The item's in the room but the verb doesn't exist
-        message = `You can't easily do that to the ${this.dt.registeredItem}.`;
+        message = `You can't do that to the ${this.dt.registeredItem}${this.addPlayerName()}.`;
       } else if (this.dt.registeredItem) {
-        // The item's elsewhere
-        message = `You don't see ${getArticle(this.dt.registeredItem)} ${this.dt.registeredItem} here.`;
+        // The item's elsewhere and the verb doesn't exist
+        message = `The ${
+          this.dt.registeredItem
+        } isn't here${this.addPlayerName()}, and you can't do that to it anyway.`;
       } else {
         // Neither the verb nor the item exists
-        message = `You shake your head in confusion.`;
+        message = `That's not something you can do${this.addPlayerName()}.`;
       }
     }
 
@@ -380,6 +387,11 @@ export class Parser {
 
     // Indicate the action failure.
     return false;
+  }
+
+  addPlayerName() {
+    const { referToPlayerAs } = selectGame().config;
+    return referToPlayerAs ? ", " + referToPlayerAs : "";
   }
 
   /*
@@ -407,7 +419,9 @@ export class Parser {
   handleDuplicateAliases() {
     if (this.dt.tooManyDuplicates) {
       // We're not even going to try to handle this situation. Too complicated.
-      return getStore().dispatch(changeInteraction(new Append("You need to be more specific.")) as AnyAction);
+      return getStore().dispatch(
+        changeInteraction(new Append(`You need to be more specific${this.addPlayerName()}.`)) as AnyAction
+      );
     }
 
     const onChoose = (item: ItemT) => {

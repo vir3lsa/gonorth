@@ -1,17 +1,14 @@
 import { Room } from "../items/room";
-import { getStore, unregisterStore } from "../../redux/storeRegistry";
-import { changeInteraction } from "../../redux/gameActions";
+import { unregisterStore } from "../../redux/storeRegistry";
 import { Parser } from "./parser";
 import { Door } from "../items/door";
 import { Item } from "../items/item";
 import { Verb } from "../verbs/verb";
 import { addEffect, addWildcardEffect, initGame, setInventoryCapacity } from "../../gonorth";
 import { clearPage, goToRoom } from "../../utils/lifecycle";
-import { PagedText } from "../interactions/text";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { selectRoom } from "../../utils/selectors";
 import { Container } from "../items/container";
-import { AnyAction } from "redux";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -140,17 +137,18 @@ describe("parser", () => {
     it("responds when there are words between verb and item", () => openDoorTest("now open the heavy trap door"));
     it("responds to multi-word verbs", () => openDoorTest("now give a shove to the trapdoor"));
     it("gives a suitable message if the player types nonsense", () =>
-      inputTest("feed bread to the ducks", "confusion"));
-    it("gives message if verb is recognised but not item", () =>
-      inputTest("open fridge", "don't seem able to open that"));
-    it("gives message if item doesn't support verb", () =>
-      inputTest("sit in door", "can't see how to sit in the door"));
-    it("gives message if item found but no verb", () =>
-      inputTest("set fire to chair", "can't easily do that to the chair"));
+      inputTest("feed bread to the ducks", "That's not something you can do."));
+    it("gives message if verb is recognised but not item", () => inputTest("open fridge", "can't open that"));
+    it("gives message if item doesn't support verb", () => inputTest("sit in door", "can't sit in the door"));
+    it("gives message if item found but no verb", () => inputTest("set fire to chair", "can't do that to the chair"));
     it("gives message if global verb and local item found", () =>
-      inputTest("jump on chair", "can't see how to jump on the chair"));
+      inputTest("jump on chair", "can't jump on the chair"));
     it("gives message if global verb and no local item found", () =>
-      inputTest("jump on skateboard", "don't seem able to jump on that"));
+      inputTest("jump on skateboard", "can't jump on that"));
+    it("gives message if registered verb and object elsewhere", async () => {
+      await inputTest("debug goto pantry", "");
+      await inputTest("take red ball", "The red ball isn't here");
+    });
     it("tries more specific items first", () => inputTest("x chair man", "impressive"));
     it("handles prepositional verbs", () => inputTest("put the cushion in the chair", "cushion in the chair"));
     it("gives feedback when the first item isn't recognised", () =>
@@ -222,7 +220,7 @@ describe("parser", () => {
       chairman.hidesItems = new Item.Builder("elephant")
         .withVerbs(new Verb.Builder("stroke").makePrepositional("with what").build())
         .build();
-      await inputTest("stroke elephant", "don't seem able to stroke that");
+      await inputTest("stroke elephant", "can't stroke that");
       await inputTest("x chair man", "impressive");
       await inputTest("stroke elephant", "Stroke the elephant with what?");
     });

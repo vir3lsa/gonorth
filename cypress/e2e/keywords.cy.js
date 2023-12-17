@@ -40,7 +40,7 @@ describe("keywords", () => {
     cy.choose("next");
     cy.shows("Commands are usually of the form");
     cy.choose("next");
-    cy.shows("Both verbs and objects");
+    cy.shows("Both verbs and nouns");
     cy.choose("previous");
     cy.showsLast("Commands are usually of the form");
     cy.choose("cancel help");

@@ -29,7 +29,7 @@ const optionNodes = [
   },
   {
     id: "help2",
-    actions: `Commands are usually of the form "\`verb\` \`object\`" e.g. "pick up ball" or "open door". The parser is fairly forgiving of extra words around the verb and object so you could write those commands as "now you should pick up that little ball from the floor" or "I want you to open that really obvious door in front of you" and they'll work exactly as before.`,
+    actions: `Commands are usually of the form "\`verb\` \`noun\`" e.g. "pick up ball" or "open door". The game is fairly forgiving of extra words around the verb and noun (or item name) so you could write those commands as "now you should pick up that little ball from the floor" or "I want you to open that really obvious door in front of you" and they'll work exactly as before.`,
     options: {
       next: "help3",
       previous: "help",
@@ -38,7 +38,7 @@ const optionNodes = [
   },
   {
     id: "help3",
-    actions: `Both verbs and objects can be made up of multiple words. We've already seen "pick up" as an example of a multi-word verb; object examples include "steel paring knife" or "red fire engine".`,
+    actions: `Both verbs and nouns can be made up of multiple words. We've already seen "pick up" as an example of a multi-word verb; noun examples include "steel paring knife" or "red fire engine".`,
     options: {
       next: "help4",
       previous: "help2",
@@ -65,7 +65,7 @@ const optionNodes = [
   },
   {
     id: "verbsAndAliases2",
-    actions: `Some verbs will require that you specify more than one object. For example, if you say "put the ball on the table", you're giving two objects to the verb \`put\`, i.e. \`ball\` and \`table\`. You could be asked to disambiguate either of these objects if more than one matches what you typed.`,
+    actions: `Some verbs will require that you specify more than one noun to interact with. For example, if you say "put the ball on the table", you're giving two nouns to the verb \`put\`, i.e. \`ball\` and \`table\`. You could be asked to disambiguate either of these nouns if more than one matches what you typed.`,
     options: {
       next: "verbsAndAliases3",
       previous: "verbsAndAliases",
@@ -74,7 +74,7 @@ const optionNodes = [
   },
   {
     id: "verbsAndAliases3",
-    actions: `Both verbs and objects can have various aliases, meaning they can be referred to in a number of different ways. For example, the verb "examine", which is your primary means of investigating the game's world, can also be invoked with "look at", "inspect" or even, since it's such a common command "x". Many objects with long names will also be understood using shorter or abbreviated versions e.g. "paring knife" could be referred to as either "paring" or "knife" (though you may be asked to clarify if there are multiple knives).`,
+    actions: `Both verbs and nouns can have various synonyms that the game understands, meaning they can be referred to in a number of different ways. For example, the verb "examine", which is your primary means of investigating the game's world, can also be invoked with "look at", "inspect" or even, since it's such a common command "x". Many items with long names will also be understood using shorter or abbreviated versions e.g. "paring knife" could be referred to as either "paring" or "knife" (though you may be asked to clarify if there are multiple knives).`,
     options: {
       next: "keywords",
       previous: "verbsAndAliases2",
