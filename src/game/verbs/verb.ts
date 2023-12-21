@@ -6,14 +6,14 @@ import { playerHasItem } from "../../utils/sharedFunctions";
 import { checkAutoActions } from "../input/autoActionExecutor";
 
 export function newVerb(config: VerbConfig) {
-  const { name, test, onSuccess, onFailure, aliases, isKeyword, prepositional, interrogative, prepositionOptional } =
+  const { name, tests, onSuccess, onFailure, aliases, isKeyword, prepositional, interrogative, prepositionOptional } =
     config;
 
   if (!name) {
     throw Error("You must at least set the verb name.");
   }
 
-  const verb = new Verb(name, test, onSuccess, onFailure, aliases, isKeyword);
+  const verb = new Verb(name, tests, onSuccess, onFailure, aliases, isKeyword);
 
   if (prepositional) {
     verb.makePrepositional(interrogative as string, Boolean(prepositionOptional));
@@ -249,7 +249,7 @@ export class Verb {
 class Builder {
   config: VerbConfig;
   constructor(name: string = "") {
-    this.config = { name };
+    this.config = { name, tests: [] };
   }
 
   withName(name: string) {
@@ -257,8 +257,8 @@ class Builder {
     return this;
   }
 
-  withTest(test: Test) {
-    this.config.test = test;
+  withTest(...tests: Test[]) {
+    this.config.tests = [...this.config.tests!, ...tests];
     return this;
   }
 

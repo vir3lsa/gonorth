@@ -317,7 +317,7 @@ interface VerbNameDict {
 interface VerbConfig {
   [property: string]: unknown;
   name: string;
-  test?: Test;
+  tests?: Test[];
   onSuccess?: ContextAction | ContextAction[];
   onFailure?: ContextAction | ContextAction[];
   aliases?: string[];

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* 2023-12-21 Changed VerbBuilder withTest method to accept varargs, and be additive on multiple calls.
+
 # 1.3.0
 
 * 2023-12-17 Ability to define how the narrator should refer to the player.

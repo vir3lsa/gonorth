@@ -87,6 +87,29 @@ it("adds new aliases to the global registry", () => {
   expect(storeHasVerb("twizzle")).toBeTruthy();
 });
 
+it("may have multiple tests", async () => {
+  let x = 1,
+    y = 2,
+    z = 3;
+  const thwart = new Verb.Builder("thwart")
+    .withTest(
+      () => x > 0,
+      () => y < 3
+    )
+    .withTest(() => z > 2)
+    .withOnSuccess("yes")
+    .withOnFailure("no")
+    .build();
+
+  await thwart.attempt();
+  expect(selectCurrentPage()).toBe("yes");
+
+  y = 5;
+  getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);
+  await thwart.attempt();
+  expect(selectCurrentPage()).toBe("no");
+});
+
 describe("chainable actions", () => {
   it("supports cyclic text", async () => {
     verb.onSuccess = new CyclicText("a", "b", "c");
