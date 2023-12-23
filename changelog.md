@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* 2023-12-23 Fixed bug where player's free inventory space shrank after reloading the game.
 * 2023-12-23 Parser registers possible verb from tokens rather than canonical verb name to negate misidentification.
 * 2023-12-21 Changed VerbBuilder withTest method to accept varargs, and be additive on multiple calls.
 

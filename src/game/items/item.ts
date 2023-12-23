@@ -543,7 +543,6 @@ export class Item {
   }
 
   set free(value) {
-    this.recordAlteredProperty("free", value);
     this._free = value;
   }
 

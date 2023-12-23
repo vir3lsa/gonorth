@@ -136,7 +136,13 @@ function setUp() {
     )
     .build();
 
-  whiteRoom.addItems(strangeDevice, redButton, greenButton, table, apple, orange);
+  const largeObject = new Item.Builder("large object")
+    .withDescription("It's featureless.")
+    .withSize(9)
+    .isHoldable()
+    .build();
+
+  whiteRoom.addItems(strangeDevice, redButton, greenButton, table, apple, orange, largeObject);
   setInventoryCapacity(10);
   setStartingRoom(whiteRoom);
 }
