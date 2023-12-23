@@ -429,12 +429,12 @@ describe("serialization", () => {
 
     test("changes to capacity are recorded and cause other changes", () => {
       ball.capacity = 5;
-      expectRecordedProperties(ball, "capacity", "free", "canHoldItems");
+      expectRecordedProperties(ball, "capacity", "canHoldItems");
     });
 
-    test("changes to free are recorded", () => {
+    test("changes to free are NOT recorded", () => {
       ball.free = 3;
-      expectRecordedProperties(ball, "free");
+      expectRecordedProperties(ball);
     });
 
     test("changes to preposition are recorded", () => {

@@ -6,13 +6,13 @@
 * 2023-12-23 Parser registers possible verb from tokens rather than canonical verb name to negate misidentification.
 * 2023-12-21 Changed VerbBuilder withTest method to accept varargs, and be additive on multiple calls.
 
-# 1.3.0
+## 1.3.0
 
 * 2023-12-17 Ability to define how the narrator should refer to the player.
 * 2023-12-17 Made feedback messages more helpful.
 * 2023-12-10 Lowercased direction keywords.
 
-# 1.2.1
+## 1.2.1
 
 * 2023-11-25 Stopped holdable doNotList items being listed in room descriptions.
 
@@ -58,11 +58,11 @@
 * 2022-10-30 Updated 'addEffect' and 'addWildcardEffect' functions to include 'continueVerb' parameters.
 * 2022-11-13 Container.Builder now extends Item.Builder. 
 
-# 0.7.1
+## 0.7.1
 
 * 2022-11-12 Ensured the item is passed to dynamic open and closed container description functions.
 
-# 0.7.0
+## 0.7.0
 
 * 2022-11-09 Added ability to store serializable properties directly on items.
 
