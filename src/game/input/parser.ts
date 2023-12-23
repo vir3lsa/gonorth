@@ -158,12 +158,17 @@ export class Parser {
 
     // Is the verb registered globally?
     vc.canonicalVerb = selectVerbNames()[vc.possibleVerb];
-    this.dt.registeredVerb = vc.canonicalVerb || this.dt.registeredVerb;
+
+    // If there's a verb with this alias, register it.
+    if (vc.canonicalVerb) {
+      this.dt.registeredVerb = vc.possibleVerb;
+    }
+
     vc.endIndex = verbIndex + numWords;
 
     if (vc.canonicalVerb) {
       this.decisionTree.verbConstructions.verbs[vc.possibleVerb] = vc;
-      this.decisionTree.registeredVerbs.push(vc.canonicalVerb);
+      this.decisionTree.registeredVerbs.push(vc.possibleVerb);
     } else {
       this.decisionTree.verbConstructions.notVerbs[vc.possibleVerb] = vc;
     }

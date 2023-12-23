@@ -104,6 +104,10 @@ describe("parser", () => {
           .build()
       );
       redBall.addVerb(new Verb.Builder("hide").makePrepositional("from whom").withOnSuccess("It's hidden.").build());
+      // Verb with alias "put" to verify that canonical verb names are no longer used in feedback.
+      blueBall.addVerb(
+        new Verb.Builder("club").withAliases("put").withOnSuccess("You hit the ball into the hole.").build()
+      );
       addEffect(redBall, chairman, "throw", true, false, "The chair man catches the ball.");
       addWildcardEffect(chairman, "hide", true, false, ({ item }) => `The chair man can't find the ${item.name}.`);
       addEffect(redBall, blueBall, "throw", true, true, "You take careful aim.");
