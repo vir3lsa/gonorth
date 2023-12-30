@@ -298,7 +298,7 @@ describe("chainable actions", () => {
     expect(verb.name).toBe("climb");
     expect(verb.aliases).toEqual(["boulder"]);
     expect(verb.description).toBe("up rocks");
-    expect(Array.isArray(verb.test)).toBe(true);
+    expect(verb.test instanceof ActionChain).toBe(true);
     expect(verb.onSuccess instanceof ActionChain).toBe(true);
     expect(verb.onFailure instanceof ActionChain).toBe(true);
     expect(verb.isKeyword).toBe(true);

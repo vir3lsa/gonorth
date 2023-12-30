@@ -317,7 +317,7 @@ interface VerbNameDict {
 interface VerbConfig {
   [property: string]: unknown;
   name: string;
-  tests?: Test[];
+  tests?: (Test | SmartTest)[];
   onSuccess?: ContextAction | ContextAction[];
   onFailure?: ContextAction | ContextAction[];
   aliases?: string[];
@@ -329,6 +329,12 @@ interface VerbConfig {
 
 type TestFunction = (context: Context) => boolean;
 type Test = boolean | TestFunction;
+
+// A verb test that includes its own failure response.
+interface SmartTest {
+  test: TestFunction;
+  onFailure: Action;
+}
 
 /**********/
 /* Parser */

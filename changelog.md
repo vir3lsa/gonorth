@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* 2023-12-30 Backwards-compatibly added SmartTest functionality to verbs.
+
 ## 1.4.0
 
 * 2023-12-23 Fixed bug where player's free inventory space shrank after reloading the game.

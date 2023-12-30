@@ -23,6 +23,8 @@ export function newVerb(config: VerbConfig) {
   return verb;
 }
 
+const identity = () => undefined;
+
 export class Verb {
   [property: string]: unknown;
   isKeyword;
@@ -35,7 +37,7 @@ export class Verb {
   expectedArgs;
   remote;
   _parent?: ItemT;
-  _tests!: TestFunction[];
+  _tests!: ActionChainT;
   _name!: string;
   _onSuccess!: ActionChainT;
   _onFailure!: ActionChainT;
@@ -43,7 +45,7 @@ export class Verb {
 
   constructor(
     name: string,
-    test: Test | Test[] = true,
+    test: Test | SmartTest | (Test | SmartTest)[] = true,
     onSuccess: ContextAction | ContextAction[] = [],
     onFailure: ContextAction | ContextAction[] = [],
     aliases: string[] = [],
@@ -88,27 +90,52 @@ export class Verb {
     this._name = name.trim().toLowerCase();
   }
 
-  get test() {
+  get test(): ActionChainT {
     return this._tests;
   }
 
-  /**
-   * @param {boolean | ((helper) => boolean) | undefined} test
-   */
-  set test(test: Test | Test[]) {
-    this._tests = [];
+  set test(test: Test | SmartTest | (Test | SmartTest)[] | ActionChainT) {
+    if (test instanceof ActionChain) {
+      // If the test is already an ActionChain, set it and return. Required to keep TypeScript happy.
+      this._tests = test as ActionChainT;
+      return;
+    }
+
     const tests = Array.isArray(test) ? test : [test];
-    tests.forEach((itest) => this.addTest(itest));
+    this._tests = new ActionChain(
+      ...(tests.map((itest) =>
+        this.createChainableTest((itest as SmartTest).test || itest, (itest as SmartTest).onFailure)
+      ) as Action[])
+    );
   }
 
-  addTest(test: Test) {
+  addTest(test: Test, onFailure: Action = identity) {
+    const chainableTest = this.createChainableTest(test, onFailure);
+    this._tests.addAction(chainableTest);
+  }
+
+  normaliseTest(test: Test) {
     if (typeof test === "undefined") {
-      this._tests.push(() => true);
+      return () => true;
     } else if (typeof test === "boolean") {
-      this._tests.push(() => test);
-    } else {
-      this._tests.push(test);
+      return () => test;
     }
+
+    return test;
+  }
+
+  createChainableTest(test: Test, onFailure: Action = identity) {
+    const normalisedTest = this.normaliseTest(test);
+    const chainableTest: Action = (context) => {
+      const result = normalisedTest(context as Context);
+
+      if (!result) {
+        context.fail!();
+        return new ActionChain(onFailure);
+      }
+    };
+
+    return chainableTest;
   }
 
   set onSuccess(onSuccess: ContextAction | ContextAction[]) {
@@ -218,9 +245,7 @@ export class Verb {
     }
 
     // All tests, or an effect, must be successful for verb to proceed.
-    const success = effect
-      ? effect.successful
-      : this._tests.reduce((successAcc, test) => successAcc && test(context), true);
+    const success = effect ? effect.successful : await this._tests.chain(context);
 
     if (success) {
       return this.onSuccess.chain(context);
@@ -257,7 +282,7 @@ class Builder {
     return this;
   }
 
-  withTest(...tests: Test[]) {
+  withTest(...tests: (Test | SmartTest)[]) {
     this.config.tests = [...this.config.tests!, ...tests];
     return this;
   }
