@@ -250,6 +250,9 @@ export class ActionChain {
   }
 
   async chain(context?: ChainContext) {
+    // Ensure the ActionChain is ready to run.
+    this.reset();
+
     let chainResolve: Resolve;
     let result = true;
     const chainPromise = new Promise((resolve) => (chainResolve = resolve));
@@ -276,6 +279,12 @@ export class ActionChain {
 
     chainResolve!();
     getStore().dispatch(chainEnded(chainPromise));
+
     return result;
+  }
+
+  reset() {
+    this.failed = false;
+    this.lastActionProducedText = false;
   }
 }

@@ -6,14 +6,25 @@ import { playerHasItem } from "../../utils/sharedFunctions";
 import { checkAutoActions } from "../input/autoActionExecutor";
 
 export function newVerb(config: VerbConfig) {
-  const { name, tests, onSuccess, onFailure, aliases, isKeyword, prepositional, interrogative, prepositionOptional } =
-    config;
+  const {
+    name,
+    tests,
+    onSuccess,
+    onFailure,
+    aliases,
+    isKeyword,
+    prepositional,
+    interrogative,
+    prepositionOptional,
+    description,
+    expectedArgs
+  } = config;
 
   if (!name) {
     throw Error("You must at least set the verb name.");
   }
 
-  const verb = new Verb(name, tests, onSuccess, onFailure, aliases, isKeyword);
+  const verb = new Verb(name, tests, onSuccess, onFailure, aliases, isKeyword, description, expectedArgs);
 
   if (prepositional) {
     verb.makePrepositional(interrogative as string, Boolean(prepositionOptional));
@@ -24,6 +35,16 @@ export function newVerb(config: VerbConfig) {
 }
 
 const identity = () => undefined;
+
+const normaliseTest = (test: Test) => {
+  if (typeof test === "undefined") {
+    return () => true;
+  } else if (typeof test === "boolean") {
+    return () => test;
+  }
+
+  return test;
+};
 
 export class Verb {
   [property: string]: unknown;
@@ -107,6 +128,7 @@ export class Verb {
         this.createChainableTest((itest as SmartTest).test || itest, (itest as SmartTest).onFailure)
       ) as Action[])
     );
+    this._tests.renderNexts = false;
   }
 
   addTest(test: Test, onFailure: Action = identity) {
@@ -114,24 +136,16 @@ export class Verb {
     this._tests.addAction(chainableTest);
   }
 
-  normaliseTest(test: Test) {
-    if (typeof test === "undefined") {
-      return () => true;
-    } else if (typeof test === "boolean") {
-      return () => test;
-    }
-
-    return test;
-  }
-
   createChainableTest(test: Test, onFailure: Action = identity) {
-    const normalisedTest = this.normaliseTest(test);
+    const normalisedTest = normaliseTest(test);
+    const onFailureChain = new ActionChain(onFailure);
+
     const chainableTest: Action = (context) => {
       const result = normalisedTest(context as Context);
 
       if (!result) {
         context.fail!();
-        return new ActionChain(onFailure);
+        return onFailureChain;
       }
     };
 
@@ -287,6 +301,12 @@ class Builder {
     return this;
   }
 
+  withSmartTest(test: Test, onFailure: Action) {
+    const smartTest: SmartTest = { test: normaliseTest(test), onFailure };
+    this.config.tests = [...this.config.tests!, smartTest];
+    return this;
+  }
+
   withDescription(description: string) {
     this.config.description = description;
     return this;
@@ -304,6 +324,11 @@ class Builder {
 
   withOnFailure(...onFailure: ContextAction[]) {
     this.config.onFailure = onFailure;
+    return this;
+  }
+
+  withExpectedArgs(...args: string[]) {
+    this.config.expectedArgs = args;
     return this;
   }
 

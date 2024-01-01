@@ -325,6 +325,8 @@ interface VerbConfig {
   prepositional?: boolean;
   interrogative?: string;
   prepositionOptional?: boolean;
+  description?: string;
+  expectedArgs?: string[];
 }
 
 type TestFunction = (context: Context) => boolean;

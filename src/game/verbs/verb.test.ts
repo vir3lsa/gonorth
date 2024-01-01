@@ -2,7 +2,7 @@ import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Verb, newVerb } from "./verb";
 import { changeInteraction, changeRoom } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
-import { CyclicText, SequentialText, RandomText, PagedText } from "../interactions/text";
+import { CyclicText, SequentialText, RandomText, PagedText, ConcatText } from "../interactions/text";
 import { Option } from "../interactions/option";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { addEffect, addWildcardEffect, initGame, moveItem } from "../../gonorth";
@@ -13,11 +13,6 @@ import { Room } from "../items/room";
 import { checkAutoActions } from "../input/autoActionExecutor";
 import { ActionChain } from "../../utils/actionChain";
 import { AnyAction } from "redux";
-
-jest.mock("../../utils/consoleIO");
-const consoleIO = require("../../utils/consoleIO");
-consoleIO.output = jest.fn();
-consoleIO.showOptions = jest.fn();
 
 jest.mock("../input/autoActionExecutor", () => ({
   checkAutoActions: jest.fn(async () => true)
@@ -355,91 +350,178 @@ describe("chainable actions", () => {
       expect(selectCurrentPage()).not.toInclude("won't happen");
     });
   });
+});
 
-  describe("effects", () => {
-    let egg: Item, bat: Item;
+describe("smart tests", () => {
+  let x: number, alpha: VerbT;
 
-    beforeEach(() => {
-      unregisterStore();
-      initGame("test", "", { debugMode: false });
-      selectEffects().effects = {};
+  beforeEach(() => {
+    x = 0;
+    alpha = new Verb.Builder("alpha")
+      .withTest({ test: () => x < 10, onFailure: "fail" })
+      .withOnSuccess("succeed")
+      .build();
+  });
 
-      egg = new Item.Builder("egg")
-        .isHoldable()
-        .withVerbs(
-          new Verb.Builder("hit")
-            .makePrepositional("with what")
-            .withOnSuccess("hit it good")
-            .withOnFailure("missed it")
-            .build()
-        )
-        .build();
+  it("does not run onFailure if the verb succeeds", async () => {
+    await alpha.attempt();
+    expect(selectCurrentPage()).toBe("succeed");
+  });
 
-      bat = new Item.Builder("bat").isHoldable().build();
-      moveItem(egg, selectInventory());
-      moveItem(bat, selectInventory());
-    });
+  it("runs onFailure if the verb does not succeed", async () => {
+    x = 20;
+    await alpha.attempt();
+    expect(selectCurrentPage()).toBe("fail");
+  });
 
-    it("triggers effects, after actions, objects available in actions", async () => {
-      addEffect("egg", "bat", "hit", true, false, ({ item, other }) => `${other!.name} smash ${item.name}`);
-      await egg.try("hit", bat);
-      expect(selectCurrentPage()).toInclude("bat smash egg");
-      expect(selectCurrentPage()).not.toInclude("hit it good");
-      expect(selectCurrentPage()).not.toInclude("missed it");
-      expect(autoActionExecutor.checkAutoActions).toHaveBeenCalled();
-    });
+  it("may be added one at a time", async () => {
+    const beta = new Verb.Builder("beta")
+      .withSmartTest(() => x < 1, "fail1")
+      .withSmartTest(() => x < -1, "fail2")
+      .withOnSuccess("success")
+      .build();
+    await beta.attempt();
+    expect(selectCurrentPage()).toBe("fail2");
+  });
 
-    it("optionally continues executing the verb after a successful effect", async () => {
-      addEffect("egg", "bat", "hit", true, true, ({ item, other }) => `${other!.name} smash ${item.name}`);
-      await egg.try("hit", bat);
-      expect(selectCurrentPage()).toInclude("bat smash egg");
-      expect(selectCurrentPage()).toInclude("hit it good");
-    });
+  it("does not run additional tests after one fails", async () => {
+    const gamma = new Verb.Builder("gamma")
+      .withSmartTest(() => x > 1, "fail1")
+      .withSmartTest(() => (x = 100) < 1, "fail2")
+      .withOnSuccess("success")
+      .build();
+    await gamma.attempt();
+    expect(selectCurrentPage()).toBe("fail1");
+    expect(x).toBe(0); // Hasn't been set to 100.
+  });
 
-    it("optionally continues executing the verb after a failed effect", async () => {
-      addEffect("egg", "bat", "hit", false, true, ({ item, other }) => `${other!.name} brush ${item.name}`);
-      await egg.try("hit", bat);
-      expect(selectCurrentPage()).toInclude("bat brush egg");
-      expect(selectCurrentPage()).toInclude("missed it");
-    });
+  it("allows additional smart tests to be added later", async () => {
+    alpha.addTest(() => x < -1, "fail2");
+    await alpha.attempt();
+    expect(selectCurrentPage()).toBe("fail2");
+  });
 
-    it("triggers wildcard effects, objects available in actions", async () => {
-      addWildcardEffect("bat", "hit", true, false, ({ item, other }) => `${other!.name} smash ${item.name}`);
-      await egg.try("hit", bat);
-      expect(selectCurrentPage()).toInclude("bat smash egg");
-      expect(selectCurrentPage()).not.toInclude("hit it good");
-      expect(selectCurrentPage()).not.toInclude("missed it");
-      expect(autoActionExecutor.checkAutoActions).toHaveBeenCalled();
-    });
+  it("can receive context in the test function", async () => {
+    const delta = new Verb.Builder("delta")
+      .withSmartTest(({ y }) => x < (y as number), "fail")
+      .withOnSuccess("success")
+      .withExpectedArgs("y")
+      .build();
+    await delta.attempt(0);
+    expect(selectCurrentPage()).toBe("fail");
+    await delta.attempt(5);
+    expect(selectCurrentPage()).toInclude("success");
+  });
 
-    it("optionally continues executing the verb after a successful wildcard effect", async () => {
-      addWildcardEffect("bat", "hit", true, true, ({ item, other }) => `${other!.name} smash ${item.name}`);
-      await egg.try("hit", bat);
-      expect(selectCurrentPage()).toInclude("bat smash egg");
-      expect(selectCurrentPage()).toInclude("hit it good");
-    });
+  it("can receive context in the failure function", async () => {
+    const epsilon = new Verb.Builder("epsilon")
+      .withSmartTest(
+        () => x > 1,
+        ({ y }) => `fail-${y}`
+      )
+      .withOnSuccess("success")
+      .withExpectedArgs("y")
+      .build();
+    await epsilon.attempt(10);
+    expect(selectCurrentPage()).toBe("fail-10");
+  });
 
-    it("optionally continues executing the verb after a failed wildcard effect", async () => {
-      addWildcardEffect("bat", "hit", false, true, ({ item, other }) => `${other!.name} brush ${item.name}`);
-      await egg.try("hit", bat);
-      expect(selectCurrentPage()).toInclude("bat brush egg");
-      expect(selectCurrentPage()).toInclude("missed it");
-    });
+  it("can use any chainable values for the failure function", async () => {
+    const onFail = new ActionChain(({ y }) => `fail-${y}`, "apple", new ConcatText("b", "c"));
+    onFail.renderNexts = false;
+    const zeta = new Verb.Builder("zeta")
+      .withSmartTest(() => x > 1, onFail)
+      .withOnSuccess("success")
+      .withExpectedArgs("y")
+      .build();
+    await zeta.attempt(10);
+    expect(selectCurrentPage()).toBe("fail-10\n\napple\n\nb\n\nc");
+  });
+});
 
-    it("executes effects for normally non-prepositional verbs", async () => {
-      const microscope = new Item.Builder("microscope").build();
-      addEffect("egg", "microscope", "examine", true, false, "It looks interesting.");
-      await egg.try("examine", microscope);
-      expect(selectCurrentPage()).toInclude("It looks interesting.");
-    });
+describe("effects", () => {
+  let egg: Item, bat: Item;
 
-    it("executes effects before the verb", async () => {
-      // Check it's effect then verb, not verb then effect.
-      let x = 60;
-      addEffect("egg", "bat", "hit", true, true, () => (x /= 3));
-      egg.verbs.hit.onSuccess.addAction(() => (x += 10));
-      await egg.try("hit", bat);
-      expect(x).toBe(30);
-    });
+  beforeEach(() => {
+    unregisterStore();
+    initGame("test", "", { debugMode: false });
+    selectEffects().effects = {};
+
+    egg = new Item.Builder("egg")
+      .isHoldable()
+      .withVerbs(
+        new Verb.Builder("hit")
+          .makePrepositional("with what")
+          .withOnSuccess("hit it good")
+          .withOnFailure("missed it")
+          .build()
+      )
+      .build();
+
+    bat = new Item.Builder("bat").isHoldable().build();
+    moveItem(egg, selectInventory());
+    moveItem(bat, selectInventory());
+  });
+
+  it("triggers effects, after actions, objects available in actions", async () => {
+    addEffect("egg", "bat", "hit", true, false, ({ item, other }) => `${other!.name} smash ${item.name}`);
+    await egg.try("hit", bat);
+    expect(selectCurrentPage()).toInclude("bat smash egg");
+    expect(selectCurrentPage()).not.toInclude("hit it good");
+    expect(selectCurrentPage()).not.toInclude("missed it");
+    expect(autoActionExecutor.checkAutoActions).toHaveBeenCalled();
+  });
+
+  it("optionally continues executing the verb after a successful effect", async () => {
+    addEffect("egg", "bat", "hit", true, true, ({ item, other }) => `${other!.name} smash ${item.name}`);
+    await egg.try("hit", bat);
+    expect(selectCurrentPage()).toInclude("bat smash egg");
+    expect(selectCurrentPage()).toInclude("hit it good");
+  });
+
+  it("optionally continues executing the verb after a failed effect", async () => {
+    addEffect("egg", "bat", "hit", false, true, ({ item, other }) => `${other!.name} brush ${item.name}`);
+    await egg.try("hit", bat);
+    expect(selectCurrentPage()).toInclude("bat brush egg");
+    expect(selectCurrentPage()).toInclude("missed it");
+  });
+
+  it("triggers wildcard effects, objects available in actions", async () => {
+    addWildcardEffect("bat", "hit", true, false, ({ item, other }) => `${other!.name} smash ${item.name}`);
+    await egg.try("hit", bat);
+    expect(selectCurrentPage()).toInclude("bat smash egg");
+    expect(selectCurrentPage()).not.toInclude("hit it good");
+    expect(selectCurrentPage()).not.toInclude("missed it");
+    expect(autoActionExecutor.checkAutoActions).toHaveBeenCalled();
+  });
+
+  it("optionally continues executing the verb after a successful wildcard effect", async () => {
+    addWildcardEffect("bat", "hit", true, true, ({ item, other }) => `${other!.name} smash ${item.name}`);
+    await egg.try("hit", bat);
+    expect(selectCurrentPage()).toInclude("bat smash egg");
+    expect(selectCurrentPage()).toInclude("hit it good");
+  });
+
+  it("optionally continues executing the verb after a failed wildcard effect", async () => {
+    addWildcardEffect("bat", "hit", false, true, ({ item, other }) => `${other!.name} brush ${item.name}`);
+    await egg.try("hit", bat);
+    expect(selectCurrentPage()).toInclude("bat brush egg");
+    expect(selectCurrentPage()).toInclude("missed it");
+  });
+
+  it("executes effects for normally non-prepositional verbs", async () => {
+    const microscope = new Item.Builder("microscope").build();
+    addEffect("egg", "microscope", "examine", true, false, "It looks interesting.");
+    await egg.try("examine", microscope);
+    expect(selectCurrentPage()).toInclude("It looks interesting.");
+  });
+
+  it("executes effects before the verb", async () => {
+    // Check it's effect then verb, not verb then effect.
+    let x = 60;
+    addEffect("egg", "bat", "hit", true, true, () => (x /= 3));
+    egg.verbs.hit.onSuccess.addAction(() => (x += 10));
+    await egg.try("hit", bat);
+    expect(x).toBe(30);
   });
 });

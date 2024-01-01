@@ -165,17 +165,42 @@ export class Item {
       this.addVerb(
         new Verb.Builder("take")
           .withAliases("pick up", "steal", "grab", "hold")
-          .withTest(({ item }) => {
-            const inventory = selectInventory();
-            let containerTest = true;
-
-            if (item.container) {
-              containerTest =
-                item.container.itemsVisibleFromSelf && item.container.open !== false && item.container !== inventory;
-            }
-
-            return containerTest && (inventory.capacity === -1 || item.size <= inventory.free);
-          })
+          .withSmartTest(
+            ({ item }) => item.container !== selectInventory(),
+            ({ item }) => `You're already carrying ${item!.properNoun ? "" : "the "}${item!.name}!`
+          )
+          .withSmartTest(
+            ({ item }) => Boolean(!item.container || item.container.itemsVisibleFromSelf),
+            "You can't see that."
+          )
+          .withSmartTest(
+            ({ item }) => Boolean(!item.container || item.container.open !== false),
+            ({ item }) => `You can't get at it inside the ${item!.container!.name}.`
+          )
+          .withSmartTest(
+            ({ item }) => {
+              const inventory = selectInventory();
+              const capacity = inventory.capacity;
+              return capacity === -1 || (capacity > -1 && item.size <= capacity * 2);
+            },
+            ({ item }) => `The ${item!.name} is far too large to pick up.`
+          )
+          .withSmartTest(
+            ({ item }) => {
+              const inventory = selectInventory();
+              const capacity = inventory.capacity;
+              return capacity === -1 || (capacity > -1 && item.size <= capacity);
+            },
+            ({ item }) => `The ${item!.name} is too big to pick up.`
+          )
+          .withSmartTest(
+            ({ item }) => {
+              const inventory = selectInventory();
+              const capacity = inventory.capacity;
+              return capacity === -1 || (capacity > -1 && item.size <= inventory.free);
+            },
+            ({ item }) => `You don't have enough room for ${item!.properNoun ? "" : "the "}${item!.name}.`
+          )
           .withOnSuccess(({ item }) => {
             const container = item.container;
             moveItem(item, selectInventory());
@@ -192,24 +217,6 @@ export class Item {
 
             // Else, take from generic container.
             return takeFromRoomText.next(item);
-          })
-          .withOnFailure(({ item }) => {
-            // Otherwise, work out what went wrong.
-            const article = item.properNoun ? "" : "the ";
-            const inventory = selectInventory();
-            if (!item.container?.itemsVisibleFromSelf) {
-              return "You can't see that.";
-            } else if (item.container.open === false) {
-              return `You can't get at it inside the ${item.container.name}.`;
-            } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.capacity * 2) {
-              return `The ${item.name} is far too large to pick up.`;
-            } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.capacity) {
-              return `The ${item.name} is too big to pick up.`;
-            } else if (item.container !== inventory && inventory.capacity > -1 && item.size > inventory.free) {
-              return `You don't have enough room for ${article}${item.name}.`;
-            } else if (item.container === inventory) {
-              return `You're already carrying ${article}${item.name}!`;
-            }
           })
           .isRemote()
           .build()
