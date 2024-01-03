@@ -32,29 +32,31 @@ export class Door extends Item {
 
     this.addVerb(
       new Verb.Builder("open")
-        .withTest(({ item: door }) => !door.locked && !door.open)
-        .withOnSuccess([
-          ({ item: door }) => (door.open = true),
-          openSuccessText || `The ${name} opens relatively easily.`
-        ])
-        .withOnFailure(({ item: door }) => (door.open ? `The ${name} is already open.` : `The ${name} is locked.`))
+        .withSmartTest(() => !this.locked, `The ${name} is locked.`)
+        .withSmartTest(() => !this.open, `The ${name} is already open.`)
+        .withOnSuccess(() => {
+          this.open = true;
+        }, openSuccessText || `The ${name} opens relatively easily.`)
         .build()
     );
 
     this.addVerb(
       new Verb.Builder("close")
-        .withTest(({ item: door }) => (door as Door).open)
-        .withOnSuccess([({ item: door }) => (door.open = false), `You close the ${name}.`])
-        .withOnFailure(`The ${name} is already closed.`)
+        .withSmartTest(() => this.open, `The ${name} is already closed.`)
+        .withOnSuccess(() => {
+          this.open = false;
+        }, `You close the ${name}.`)
         .build()
     );
 
     this.addVerb(
       new Verb.Builder("unlock")
-        .withTest(({ item, other: key }) => {
-          const door = item as DoorT;
-          return door.locked && (door.key ? door.key.name === key?.name : true);
-        })
+        .withSmartTest(() => this.locked, `The ${name} is already unlocked.`)
+        .withSmartTest(({ other: key }) => !Boolean(this.key) || Boolean(key), `The ${name} appears to need a key.`)
+        .withSmartTest(
+          ({ other: key }) => (this.key ? this.key.name === key!.name : true),
+          ({ other: key }) => `The ${key!.name} doesn't fit.`
+        )
         .withOnSuccess([
           ({ item: door }) => {
             // Ensure we don't return false to avoid breaking the action chain.
@@ -64,17 +66,6 @@ export class Door extends Item {
             unlockSuccessText ||
             (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)
         ])
-        .withOnFailure(({ item, other: key }) => {
-          const door = item as DoorT;
-
-          if (door.key && key && door.key.name !== key.name) {
-            return `The ${key.name} doesn't fit.`;
-          } else if (door.key && !key) {
-            return `The ${name} appears to need a key.`;
-          } else {
-            return `The ${name} is already unlocked.`;
-          }
-        })
         .build()
     );
 

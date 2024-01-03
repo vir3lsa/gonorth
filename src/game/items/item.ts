@@ -119,7 +119,6 @@ export class Item {
     this.addVerb(
       new Verb.Builder("examine")
         .withAliases("ex", "x", "look", "inspect")
-        .withTest(true)
         .withOnSuccess(
           ({ item }) => item.revealItems(),
           ({ item }) => item.getFullDescription()
@@ -132,8 +131,10 @@ export class Item {
       new Verb.Builder("combine")
         .withAliases("join", "meld", "insert")
         .makePrepositional("with what")
-        .withTest(false)
-        .withOnFailure(({ item, other }) => `You can't see a way to combine the ${item.name} and the ${other!.name}.`)
+        .withSmartTest(
+          false,
+          ({ item, other }) => `You can't see a way to combine the ${item!.name} and the ${other!.name}.`
+        )
         .build()
     );
 
@@ -222,33 +223,36 @@ export class Item {
           .build()
       );
 
-      const putVerb = new Verb(
-        "put",
-        ({ item, other }) => other !== item && other!.canHoldItems && (other!.free === -1 || item.size <= other!.free),
-        [
+      const putVerb = new Verb.Builder("put")
+        .withAliases("place", "drop", "add")
+        .makePrepositional("where")
+        .withSmartTest(
+          ({ other }) => other !== this,
+          ({ other }) =>
+            `You can't put ${this.properNoun ? "" : "the "}${this.name} ${
+              other!.preposition
+            } itself. That would be nonsensical.`
+        )
+        .withSmartTest(
+          ({ other }) => other!.canHoldItems,
+          ({ other }) =>
+            `You can't put ${this.properNoun ? "" : "the "}${this.name} ${other!.preposition} the ${other!.name}.`
+        )
+        .withSmartTest(
+          ({ other }) => other!.free === -1 || this.size <= other!.free,
+          ({ other }) => `There's no room ${other!.preposition} the ${other!.name}.`
+        )
+        .withOnSuccess(
           ({ item, other }) => moveItem(item, other!),
           ({ item, other }) => {
             const article = item.properNoun ? "" : "the ";
             return `You put ${article}${item.name} ${other!.preposition} the ${other!.name}.`;
           }
-        ],
-        ({ item, other }) => {
-          const article = item.properNoun ? "" : "the ";
-          if (other === this) {
-            return `You can't put ${article}${item.name} ${other.preposition} itself. That would be nonsensical.`;
-          } else if (other!.canHoldItems) {
-            return `There's no room ${other!.preposition} the ${other!.name}.`;
-          } else {
-            return `You can't put ${article}${item.name} ${other!.preposition} the ${other!.name}.`;
-          }
-        },
-        ["place", "drop", "add"]
-      );
-
-      putVerb.makePrepositional("where");
+        )
+        .build();
       this.addVerb(putVerb);
 
-      // Give always fails - override for special cases
+      // Give always fails - override with effects for special cases
       const giveVerb = new Verb(
         "give",
         () => false,

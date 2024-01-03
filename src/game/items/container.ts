@@ -105,48 +105,47 @@ export class Container extends Item {
     this.alreadyUnlockedText = `The ${name} is already unlocked.`;
 
     if (this.closeable) {
-      this.openVerb = new Verb(
-        "open",
-        ({ item }) => !item.open && !item.locked,
-        [
-          ({ item }) => {
-            item.open = true;
+      this.openVerb = new Verb.Builder("open")
+        .withSmartTest(
+          () => !this.open,
+          () => this.alreadyOpenText
+        )
+        .withSmartTest(
+          () => !this.locked,
+          () => this.lockedText
+        )
+        .withOnSuccess(
+          () => {
+            this.open = true;
           },
-          ({ item }) => {
-            item.itemsVisibleFromSelf = true;
+          () => {
+            this.itemsVisibleFromSelf = true;
           },
-          ({ item }) => item.openText
-        ],
-        ({ item }) => {
-          const container = item as ContainerT;
-          if (container.locked) return container.lockedText;
-          return container.alreadyOpenText;
-        }
-      );
+          () => this.openText
+        )
+        .build();
 
-      this.closeVerb = new Verb(
-        "close",
-        ({ item }) => {
-          const container = item as ContainerT;
-          return container.open && !container.locked;
-        },
-        [
-          ({ item }) => {
+      this.closeVerb = new Verb.Builder("close")
+        .withSmartTest(
+          () => this.open,
+          () => this.alreadyClosedText
+        )
+        .withSmartTest(
+          () => !this.locked,
+          () => this.lockedText
+        )
+        .withOnSuccess(
+          () => {
             // Ensure we don't return false to avoid breaking the action chain.
-            item.open = false;
+            this.open = false;
           },
-          ({ item }) => {
-            item.itemsVisibleFromSelf = false;
+          () => {
+            this.itemsVisibleFromSelf = false;
           },
-          ({ item }) => item.closeText
-        ],
-        ({ item }) => {
-          const container = item as Container;
-          if (container.locked) return container.lockedText;
-          return container.alreadyClosedText;
-        },
-        ["shut"]
-      );
+          () => this.closeText
+        )
+        .withAliases("shut")
+        .build();
 
       this.addVerbs(this.openVerb, this.closeVerb);
     }
@@ -154,10 +153,18 @@ export class Container extends Item {
     if (this.lockable) {
       this.addVerb(
         new Verb.Builder("unlock")
-          .withTest(({ item, other: key }) => {
-            const container = item as Container;
-            return container.locked && (container.key ? container!.key === key?.name : true);
-          })
+          .withSmartTest(
+            () => this.locked,
+            () => this.alreadyUnlockedText
+          )
+          .withSmartTest(
+            ({ other: key }) => !this.key || Boolean(key),
+            () => this.needsKeyText
+          )
+          .withSmartTest(
+            ({ other: key }) => !this.key || key!.name === this.key || key!.name === (this.key as KeyT).name,
+            () => this.wrongKeyText
+          )
           .withOnSuccess(
             ({ item: container }) => {
               // Ensure we don't return false to avoid breaking the action chain.
@@ -169,15 +176,6 @@ export class Container extends Item {
                 ? "The key turns easily in the lock."
                 : `The ${name} unlocks with a soft *click*.`)
           )
-          .withOnFailure(({ item: container, other: key }) => {
-            if (container.key && key && container.key !== key.name) {
-              return this.wrongKeyText;
-            } else if (container.key && !key) {
-              return this.needsKeyText;
-            } else {
-              return this.alreadyUnlockedText;
-            }
-          })
           .makePrepositional("with what", true)
           .build()
       );
