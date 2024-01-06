@@ -364,10 +364,16 @@ export class GoVerb extends Verb {
     const getAdjacent = (name: string) => selectRoom().adjacentRooms[name.toLowerCase()];
     super(
       name,
-      () => {
-        const adjacentRoom = getAdjacent(name);
-        return adjacentRoom?.test?.() || false;
-      },
+      [
+        {
+          test: () => Boolean(getAdjacent(name)?.test),
+          onFailure: "You can't go that way."
+        },
+        {
+          test: () => getAdjacent(name)!.test!(),
+          onFailure: () => getAdjacent(name)!.failureText
+        }
+      ],
       [
         () => {
           const adjacentRoom = getAdjacent(name);
@@ -375,10 +381,7 @@ export class GoVerb extends Verb {
         },
         () => selectRoom().go(name)
       ],
-      () => {
-        const adjacentRoom = getAdjacent(name);
-        return (adjacentRoom && adjacentRoom.failureText) || "You can't go that way.";
-      },
+      [],
       aliases,
       isKeyword,
       `Travel ${name}.`

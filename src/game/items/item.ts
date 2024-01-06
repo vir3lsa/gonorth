@@ -255,18 +255,22 @@ export class Item {
       // Give always fails - override with effects for special cases
       const giveVerb = new Verb(
         "give",
-        () => false,
-        ({ item, other }) => moveItem(item, other!),
-        ({ item, other }) => {
-          const article = item.properNoun ? "" : "the ";
-          if (other === item) {
-            return `You can't give ${article}${item.name} to itself. Obviously.`;
-          } else if (other!._isNpc) {
-            return `It doesn't look like ${other!.name} wants ${article}${item.name}.`;
-          } else {
-            return `You know you can't give ${article}${item.name} to the ${other!.name}. So just stop it.`;
+        [
+          {
+            test: ({ other }) => other !== this,
+            onFailure: () => `You can't give ${this.article}${this.name} to itself. Obviously.`
+          },
+          {
+            test: ({ other }) => Boolean(other!._isNpc),
+            onFailure: ({ other }) =>
+              `You know you can't give ${this.article}${this.name} to the ${other!.name}. So just stop it.`
+          },
+          {
+            test: () => false,
+            onFailure: ({ other }) => `It doesn't look like ${other!.name} wants ${this.article}${this.name}.`
           }
-        },
+        ],
+        ({ item, other }) => moveItem(item, other!),
         ["offer", "pass", "show"]
       );
 
