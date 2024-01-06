@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 1.5.0
+
 * 2024-01-06 Updated existing verbs to use smart tests.
 * 2023-12-30 Backwards-compatibly added SmartTest functionality to verbs.
 
