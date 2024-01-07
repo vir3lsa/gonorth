@@ -30,7 +30,6 @@ describe("keywords", () => {
     cy.say("keywords");
     cy.shows("keywords");
     cy.shows("inventory");
-    cy.shows("north");
     cy.shows("help");
   });
 

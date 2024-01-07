@@ -6,10 +6,20 @@ import { itemsRevealed, changeImage, addRoom } from "../../redux/gameActions";
 import { preferPaged } from "../../utils/dynamicDescription";
 import { ActionChain } from "../../utils/actionChain";
 import { goToRoom } from "../../gonorth";
-import { getKeyword, addKeyword, directionAliases } from "../verbs/keywords";
 import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
 import { debug } from "../../utils/consoleIO";
 import { checkpoint } from "../../utils/lifecycle";
+
+const directionAliases = {
+  north: ["n", "forward", "straight on"],
+  south: ["s", "back", "backward", "backwards", "reverse"],
+  east: ["e", "right"],
+  west: ["w", "left"],
+  up: ["u", "upward", "upwards"],
+  down: ["d", "downward", "downwards"]
+} as {
+  [name: string]: string[] | undefined;
+};
 
 export class Room extends Item {
   private _adjacentRooms!: AdjacentRooms;
@@ -24,6 +34,13 @@ export class Room extends Item {
     this.checkpoint = checkpoint;
     this.isRoom = true;
     getStore().dispatch(addRoom(this));
+
+    this.addVerbs(new GoVerb("north", directionAliases["north"] as string[], this));
+    this.addVerbs(new GoVerb("south", directionAliases["south"] as string[], this));
+    this.addVerbs(new GoVerb("east", directionAliases["east"] as string[], this));
+    this.addVerbs(new GoVerb("west", directionAliases["west"] as string[], this));
+    this.addVerbs(new GoVerb("up", directionAliases["up"] as string[], this));
+    this.addVerbs(new GoVerb("down", directionAliases["down"] as string[], this));
   }
 
   set image(image) {
@@ -71,8 +88,8 @@ export class Room extends Item {
       });
 
     // Add the keyword if we don't already have it
-    if (directionName && !getKeyword(directionName)) {
-      addKeyword(new GoVerb(directionName, [], true));
+    if (directionName && !this.verbs[directionName]) {
+      this.addVerb(new GoVerb(directionName, [], this));
     }
   }
 

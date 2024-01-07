@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.6.0
+
+* 2024-01-07 Placed directional verbs on rooms, rather than being keywords, so they can be modified per room.
+
 ## 1.5.0
 
 * 2024-01-06 Updated existing verbs to use smart tests.

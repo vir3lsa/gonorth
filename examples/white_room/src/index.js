@@ -12,7 +12,8 @@ import {
   Event,
   TIMEOUT_MILLIS,
   TIMEOUT_TURNS,
-  addEvent
+  addEvent,
+  selectInventory
 } from "../../../lib/src/gonorth";
 import "./index.css";
 
@@ -36,7 +37,7 @@ initGame(
 function setUp() {
   const whiteRoom = new Room(
     "White Room",
-    "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nA corridor to the east leads to another room.",
+    "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nCorridors to the east and west lead to other rooms.",
     true
   );
 
@@ -46,7 +47,18 @@ function setUp() {
     true
   );
 
+  const greenRoom = new Room("Green Room", "The room's a beautiful forest green. The white room's to the east.", true);
+
   whiteRoom.setEast(redRoom);
+  whiteRoom.setWest(greenRoom);
+
+  // Add a condition for going to the green room.
+  whiteRoom
+    .getVerb("west")
+    .addTest(
+      () => Boolean(selectInventory().itemArray.find((item) => item.name === "strange device")),
+      "You have to be holding the strange device, for some reason."
+    );
 
   const dial = new Item.Builder("dial").build();
 

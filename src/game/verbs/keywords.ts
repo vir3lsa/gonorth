@@ -1,4 +1,4 @@
-import { Verb, GoVerb, newVerb } from "./verb";
+import { Verb, newVerb } from "./verb";
 import { selectInventory, selectKeywords } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
 import { OptionGraph } from "../interactions/optionGraph";
@@ -8,17 +8,6 @@ import { getStore } from "../../redux/storeRegistry";
 import { addKeywords, removeKeywords } from "../../redux/gameActions";
 import { handleDebugOperations } from "../../utils/debugFunctions";
 import { clearPage } from "../../utils/lifecycle";
-
-export const directionAliases = {
-  north: ["n", "forward", "straight on"],
-  south: ["s", "back", "backward", "backwards", "reverse"],
-  east: ["e", "right"],
-  west: ["w", "left"],
-  up: ["u", "upward", "upwards"],
-  down: ["d", "downward", "downwards"]
-} as {
-  [name: string]: string[] | undefined;
-};
 
 export function createKeywords() {
   const emptyInventoryText = new RandomText(
@@ -45,13 +34,6 @@ export function createKeywords() {
     true,
     "Inspect the items you're carrying."
   );
-
-  const north = new GoVerb("north", directionAliases["north"] as string[], true);
-  const south = new GoVerb("south", directionAliases["south"] as string[], true);
-  const east = new GoVerb("east", directionAliases["east"] as string[], true);
-  const west = new GoVerb("west", directionAliases["west"] as string[], true);
-  const up = new GoVerb("up", directionAliases["up"] as string[], true);
-  const down = new GoVerb("down", directionAliases["down"] as string[], true);
 
   const waitText = new RandomText(
     "You pause for a moment, taking stock of the situation.",
@@ -136,12 +118,6 @@ export function createKeywords() {
   });
 
   addKeyword(inventoryVerb);
-  addKeyword(north);
-  addKeyword(south);
-  addKeyword(east);
-  addKeyword(west);
-  addKeyword(up);
-  addKeyword(down);
   addKeyword(wait);
   addKeyword(help);
   addKeyword(keywordsVerb);

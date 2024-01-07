@@ -360,8 +360,8 @@ class Builder {
 }
 
 export class GoVerb extends Verb {
-  constructor(name: string, aliases: string[], isKeyword = false) {
-    const getAdjacent = (name: string) => selectRoom().adjacentRooms[name.toLowerCase()];
+  constructor(name: string, aliases: string[], currentRoom: RoomT) {
+    const getAdjacent = (name: string) => currentRoom.adjacentRooms[name.toLowerCase()];
     super(
       name,
       [
@@ -383,7 +383,7 @@ export class GoVerb extends Verb {
       ],
       [],
       aliases,
-      isKeyword,
+      false,
       `Travel ${name}.`
     );
   }
