@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.7.0
+
+* 2024-01-12 Ability to insert a new verb test at the start of the chain.
+
 ## 1.6.0
 
 * 2024-01-07 Placed directional verbs on rooms, rather than being keywords, so they can be modified per room.

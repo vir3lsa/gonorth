@@ -131,9 +131,24 @@ export class Verb {
     this._tests.renderNexts = false;
   }
 
+  /**
+   * Add a test to the end of this verb's test chain.
+   * @param test the test to add.
+   * @param onFailure the onFailure action to execute when the test fails.
+   */
   addTest(test: Test, onFailure: Action = identity) {
     const chainableTest = this.createChainableTest(test, onFailure);
     this._tests.addAction(chainableTest);
+  }
+
+  /**
+   * Insert a test at the beginning of this verb's test chain.
+   * @param test the test to add.
+   * @param onFailure the onFailure action to execute when the test fails.
+   */
+  insertTest(test: Test, onFailure: Action = identity) {
+    const chainableTest = this.createChainableTest(test, onFailure);
+    this._tests.insertAction(chainableTest);
   }
 
   createChainableTest(test: Test, onFailure: Action = identity) {

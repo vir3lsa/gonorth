@@ -401,6 +401,13 @@ describe("smart tests", () => {
     expect(selectCurrentPage()).toBe("fail2");
   });
 
+  it("allows additional smart tests to be inserted at the start of the chain", async () => {
+    x = 20;
+    alpha.insertTest(() => x < -1, "fail2");
+    await alpha.attempt();
+    expect(selectCurrentPage()).toBe("fail2");
+  });
+
   it("can receive context in the test function", async () => {
     const delta = new Verb.Builder("delta")
       .withSmartTest(({ y }) => x < (y as number), "fail")
