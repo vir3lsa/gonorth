@@ -172,7 +172,8 @@ describe("parser", () => {
     it("allows rooms to be referred to by name", () => inputTest("x hall", "grand"));
     it("allows rooms to be referred to generically", () => inputTest("x room", "grand"));
     it("allows items to be put on the floor", () =>
-      inputTest("put cushion on the floor", "You put the cushion in the Hall"));
+      inputTest("put cushion on the floor", "You put the cushion on the floor"));
+    it("allows items to be dropped", () => inputTest("drop cushion", "You put the cushion on the floor"));
     it("asks for clarification of duplicate aliases", () => inputTest("x ball", "Which ball do you mean?"));
     it("chooses the correct item", () => inputTest("x red ball", "It's a rouge ball"));
     it("chooses the correct other item", () => inputTest("x blue ball", "It's an azure ball"));

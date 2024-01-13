@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* 2024-01-13 Changed wording for placing items on the floor, added a drop verb.
+
 ## 1.7.0
 
 * 2024-01-12 Ability to insert a new verb test at the start of the chain.

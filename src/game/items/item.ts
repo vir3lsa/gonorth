@@ -1,7 +1,13 @@
 import { ManagedText, RandomText, Text } from "../interactions/text";
 import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
-import { selectAllItemNames, selectInventory, selectItemNames, selectRecordChanges } from "../../utils/selectors";
+import {
+  selectAllItemNames,
+  selectInventory,
+  selectItemNames,
+  selectRecordChanges,
+  selectRoom
+} from "../../utils/selectors";
 import { getBasicItemList, toTitleCase, getArticle } from "../../utils/textFunctions";
 import { getStore } from "../../redux/storeRegistry";
 import { addItem, itemsRevealed } from "../../redux/gameActions";
@@ -224,7 +230,7 @@ export class Item {
       );
 
       const putVerb = new Verb.Builder("put")
-        .withAliases("place", "drop", "add")
+        .withAliases("place", "add")
         .makePrepositional("where")
         .withSmartTest(
           ({ other }) => other !== this,
@@ -246,11 +252,29 @@ export class Item {
           ({ item, other }) => moveItem(item, other!),
           ({ item, other }) => {
             const article = item.properNoun ? "" : "the ";
+
+            if (other!.isRoom) {
+              return `You put ${article}${item.name} on the floor.`;
+            }
+
             return `You put ${article}${item.name} ${other!.preposition} the ${other!.name}.`;
           }
         )
         .build();
       this.addVerb(putVerb);
+
+      this.addVerb(
+        new Verb.Builder("drop")
+          .withAliases("discard", "leave", "put down")
+          .withOnSuccess(
+            ({ item }) => moveItem(item, selectRoom()),
+            ({ item }) => {
+              const article = item.properNoun ? "" : "the ";
+              return `You put ${article}${item.name} on the floor.`;
+            }
+          )
+          .build()
+      );
 
       // Give always fails - override with effects for special cases
       const giveVerb = new Verb(
