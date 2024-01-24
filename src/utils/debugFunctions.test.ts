@@ -8,6 +8,8 @@ import { clearPage, goToRoom } from "./lifecycle";
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { selectCurrentPage } from "./testSelectors";
 import packageJson from "../../package.json";
+import { getItem } from "./itemFunctions";
+import { clickOption, clickOptionAndWait } from "./testFunctions";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("./consoleIO");
@@ -106,7 +108,7 @@ describe("debugFunctions", () => {
     return inputTest("i", "You're carrying a red ball");
   });
   it("doesn't allow new items to be spawned", () =>
-    inputTest("debug spawn monkey paw", 'No item with the name "monkey paw" found to clone.'));
+    inputTest("debug spawn monkey paw", 'No item with the name "monkey paw" could be found.'));
   it("sets and retrieves persistent variables", async () => {
     await inputTest("debug variable store playerName Rich", "Variable stored.");
     return inputTest("debug variable retrieve playerName", "playerName: Rich");
@@ -123,4 +125,33 @@ describe("debugFunctions", () => {
   });
   it("shows version information", () =>
     inputTest("debug version", `GoNorth v${packageJson.version}\n\nThe Giant's Castle v1.2.3`));
+  it("moves an item", async () => {
+    await inputTest("debug move cushion player", "Item moved.");
+    expect(getItem("cushion")?.container?.name).toBe("player");
+  });
+  it("disambiguates the item to move", async () => {
+    await inputTest("debug move ball player", "Which ball do you mean?");
+    clickOption("red ball");
+    expect(getItem("red ball")?.container?.name).toBe("player");
+  });
+  it("disambiguates the move destination", async () => {
+    await inputTest("debug move cushion box", "Which box do you mean?");
+    clickOption("blue box");
+    expect(getItem("cushion")?.container?.name).toBe("blue box");
+  });
+  it("disambiguates both item and destination", async () => {
+    await inputTest("debug move ball box", "Which ball do you mean?");
+    clickOption("blue ball");
+    expect(selectCurrentPage()).toInclude("Which box do you mean?");
+    clickOption("red box");
+    expect(getItem("blue ball")?.container?.name).toBe("red box");
+  });
+  it("States if the item to move can't be found", () =>
+    inputTest("debug move banana player", 'No item with the name "banana" could be found.'));
+  it("States if the move destination can't be found", () =>
+    inputTest("debug move cushion auditorium", 'No destination with the name "auditorium" could be found.'));
+  it("moves an item to a non-container", async () => {
+    await inputTest("debug move cushion trapdoor", "Item moved.");
+    expect(getItem("cushion")?.container?.name).toBe("trapdoor");
+  });
 });

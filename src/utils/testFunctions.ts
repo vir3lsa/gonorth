@@ -18,3 +18,13 @@ export const deferAction = (action: SimpleAction, delayMillis?: number) => {
 
   return prom;
 };
+
+export const clickOption = (optionText: string) =>
+  selectInteraction()
+    .options.find((option: OptionT) => option.label === optionText)
+    .action();
+
+export const clickOptionAndWait = (optionText: string) => {
+  clickOption(optionText);
+  return selectInteraction().promise;
+};

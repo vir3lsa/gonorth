@@ -10,6 +10,7 @@ import {
   selectRooms
 } from "./selectors";
 import disambiguate from "./disambiguation";
+import { moveItem } from "./itemFunctions";
 import { getStore } from "../redux/storeRegistry";
 import { cyRecord, itemsRevealed, overrideEventTimeout } from "../redux/gameActions";
 import { forget, retrieve, store, update } from "../gonorth";
@@ -24,6 +25,7 @@ Operations:
 - \`goto\` / \`go\`                                - go to a room
 - \`show\` / \`list\`                              - list something
 - \`spawn\` / \`create\` / \`make\` / \`clone\`    - create an item
+- \`move\`                                         - move an item somwhere
 - \`commence\` / \`graph\` / \`join\` / \`start \` - join an option graph at the specified node, or the default node
 - \`cypress\` / \`integration\` / \`test\`         - produce Cypress commands from the actions you perform
 - \`event\` / \`timeout\`                          - override event timeouts
@@ -48,6 +50,11 @@ Options:
 const spawnHelp = `Usage: \`debug spawn [item]\`
 - e.g. \`debug spawn ball\`
 - e.g. \`debug spawn potion\``;
+
+const moveHelp = `Usage: \`debug move [item] [location]\`
+(Use single-word names only)
+- e.g. \`debug move ball player\`
+- e.g. \`debug move chair theatre\``;
 
 const commenceHelp = `Usage: \`debug commence [graph] [node]\`
 - e.g. \`debug commence conversation\`
@@ -102,6 +109,8 @@ export function handleDebugOperations(operation: string, ...args: string[]) {
     case "spawn":
     case "clone":
       return spawn(args);
+    case "move":
+      return move(args);
     case "commence":
     case "graph":
     case "join":
@@ -209,7 +218,7 @@ function spawn(args: string[]) {
   };
 
   if (!itemsWithName.length) {
-    return `No item with the name "${itemName}" found to clone.`;
+    return `No item with the name "${itemName}" could be found.`;
   } else if (itemsWithName.length === 1) {
     item = itemsWithName[0].clone();
   } else {
@@ -217,6 +226,44 @@ function spawn(args: string[]) {
   }
 
   return spawnItem(item);
+}
+
+function move(args: string[]) {
+  if ((args.length === 1 && args[0] === "help") || args.length !== 2) {
+    return moveHelp;
+  }
+
+  const itemName = args[0].toLowerCase();
+  const itemsWithName = [...(selectItems()[itemName] || new Set())];
+
+  const destinationName = args[1].toLowerCase();
+  const destinationsWithName = [...(selectItems()[destinationName] || new Set())];
+
+  if (!itemsWithName.length) {
+    return `No item with the name "${itemName}" could be found.`;
+  } else if (!destinationsWithName.length) {
+    return `No destination with the name "${destinationName}" could be found.`;
+  } else if (itemsWithName.length > 1) {
+    return disambiguate(itemName, itemsWithName, (chosenItem) => {
+      if (destinationsWithName.length > 1) {
+        return disambiguate(destinationName, destinationsWithName, (chosenDestination) => {
+          moveItem(chosenItem, chosenDestination);
+          return "Item moved.";
+        });
+      }
+
+      moveItem(chosenItem, destinationName);
+      return "Item moved.";
+    });
+  } else if (destinationsWithName.length > 1) {
+    return disambiguate(destinationName, destinationsWithName, (chosenDestination) => {
+      moveItem(itemName, chosenDestination);
+      return "Item moved.";
+    });
+  } else {
+    moveItem(itemsWithName[0], destinationsWithName[0]);
+    return "Item moved.";
+  }
 }
 
 function commence(args: string[]) {

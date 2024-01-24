@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## 1.8.0
+
+* 2024-01-24 Debug "move" function.
 * 2024-01-13 Changed wording for placing items on the floor, added a drop verb.
 
 ## 1.7.0
