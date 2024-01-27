@@ -163,6 +163,14 @@ export class Event {
     }
   }
 
+  reset() {
+    this.state = DORMANT;
+
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+    }
+  }
+
   static get Builder() {
     return EventBuilder;
   }

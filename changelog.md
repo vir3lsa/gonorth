@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* 2024-01-27 Ability to reset Events and Schedules.
+
 ## 1.8.0
 
 * 2024-01-24 Debug "move" function.

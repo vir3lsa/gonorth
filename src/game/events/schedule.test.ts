@@ -96,3 +96,34 @@ test("schedules can recur", async () => {
   await handleTurnEnd();
   expect(x).toBe(10);
 });
+
+test("schedules don't reset by default", async () => {
+  const builder = createBuilder(false, false);
+  addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
+  const schedule = builder.build();
+  await schedule.commence();
+  expect(x).toBe(2);
+  await schedule.commence();
+  expect(x).toBe(2); // Still 2
+});
+
+test("schedules may be manually reset", async () => {
+  const builder = createBuilder(false, false);
+  addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
+  const schedule = builder.build();
+  await schedule.commence();
+  expect(x).toBe(2);
+  schedule.reset();
+  await schedule.commence();
+  expect(x).toBe(3);
+});
+
+test("schedules may reset if necessary", async () => {
+  const builder = createBuilder(false, false);
+  addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
+  const schedule = builder.build();
+  await schedule.commence();
+  expect(x).toBe(2);
+  await schedule.commence(true);
+  expect(x).toBe(3);
+});

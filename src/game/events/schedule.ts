@@ -70,6 +70,10 @@ class EventBuilder {
   }
 }
 
+const STATE_READY = "READY";
+const STATE_RUNNING = "RUNNING";
+const STATE_COMPLETED = "COMPLETED";
+
 export class Schedule {
   static get Builder() {
     return ScheduleBuilder;
@@ -79,6 +83,7 @@ export class Schedule {
   stage: number;
   events: Event[];
   cancelled = false;
+  state = STATE_READY;
 
   constructor(builder: ScheduleBuilder) {
     this.continueOnFail = builder.continueOnFail || false;
@@ -96,10 +101,9 @@ export class Schedule {
         condition = builder.condition || true;
       } else if (index === 0 && builder.isRecurring) {
         // Reset the schedule when it completes
-        eventBuilder.actions.unshift(() => {
-          this.events[0].state = DORMANT;
-          this.stage = 0;
-        });
+        eventBuilder.actions.unshift(() => this.reset());
+      } else if (index === 0) {
+        this.state = STATE_COMPLETED;
       }
 
       const event = new Event(
@@ -135,14 +139,27 @@ export class Schedule {
   /*
    * Trigger the first event in the chain if the sequence hasn't already begun.
    */
-  commence() {
-    if (this.stage === 0) {
-      this.currentEvent.commence();
+  async commence(force = false) {
+    if (this.state !== STATE_READY && force) {
+      this.reset();
+    }
+
+    if (this.state === STATE_READY) {
+      this.state = STATE_RUNNING;
+      return this.currentEvent.commence();
     }
   }
 
   cancel() {
     this.cancelled = true;
     this.currentEvent.cancel();
+    this.state = STATE_COMPLETED;
+  }
+
+  reset() {
+    this.cancelled = false;
+    this.stage = 0;
+    this.events.forEach((event) => event.reset());
+    this.state = STATE_READY;
   }
 }

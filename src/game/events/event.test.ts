@@ -1,5 +1,4 @@
-import { Event } from "./event";
-import { TIMEOUT_TURNS } from "./event";
+import { Event, TIMEOUT_TURNS } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { addEvent, initGame } from "../../gonorth";
 import { changeInteraction } from "../../redux/gameActions";
@@ -44,7 +43,7 @@ test("events may be built with a builder and multiple actions may be added", asy
   expect(x).toBe(3);
 });
 
-test("builders may add multiple tests at once", async () => {
+test("builders may add multiple actions at once", async () => {
   addEvent(
     new Event.Builder("test")
       .withActions(
@@ -78,5 +77,54 @@ test("options return after an event adds a next button", async () => {
   await turnEndPromise;
   expect(selectCurrentPage()).toInclude("alpha");
   expect(selectCurrentPage()).toInclude("beta");
-  deferAction(() => expect(selectOptions()[0].label).toBe("one"));
+  return deferAction(() => expect(selectOptions()[0].label).toBe("one"));
+});
+
+test("events may be reset", async () => {
+  const event = new Event.Builder("test")
+    .withAction(() => x++)
+    .withTimeout(1)
+    .withTimeoutType(TIMEOUT_TURNS)
+    .build();
+  addEvent(event);
+  await handleTurnEnd();
+  expect(x).toBe(1);
+  event.reset();
+  await handleTurnEnd();
+  expect(x).toBe(1);
+  await handleTurnEnd();
+  expect(x).toBe(2);
+});
+
+test("events may be cancelled", async () => {
+  const event = new Event.Builder("test")
+    .withAction(() => x++)
+    .withTimeout(1)
+    .withTimeoutType(TIMEOUT_TURNS)
+    .build();
+  addEvent(event);
+  await handleTurnEnd();
+  expect(x).toBe(1);
+  event.cancel();
+  await handleTurnEnd();
+  expect(x).toBe(1);
+  await handleTurnEnd();
+  expect(x).toBe(1);
+});
+
+test("events may be reset after being cancelled", async () => {
+  const event = new Event.Builder("test")
+    .withAction(() => x++)
+    .withTimeout(1)
+    .withTimeoutType(TIMEOUT_TURNS)
+    .build();
+  addEvent(event);
+  await handleTurnEnd();
+  expect(x).toBe(1);
+  event.cancel();
+  event.reset();
+  await handleTurnEnd();
+  expect(x).toBe(1);
+  await handleTurnEnd();
+  expect(x).toBe(2);
 });
