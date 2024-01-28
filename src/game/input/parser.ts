@@ -176,7 +176,7 @@ export class Parser {
     // Is the verb a keyword?
     vc.keyword = selectKeywords()[vc.possibleVerb];
 
-    // If the player hasn't included an item (or a matching keywords expects extra args), try keywords and the current room
+    // If the player hasn't included an item (or a matching keyword expects extra args), try keywords and the current room
     if (vc.endIndex === this.tokens.length || vc.keyword?.expectsArgs) {
       if (vc.keyword) {
         // Invoke keyword action, passing extra args for benefit of those that expect them.

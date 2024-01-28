@@ -293,3 +293,16 @@ test("ActionChains return false if they're explicitly failed and do not continue
   expect(await chain.chain()).toBe(false);
   expect(x).toBe(0);
 });
+
+test("ActionChains can be aborted", async () => {
+  let x = 0;
+  const chain = new ActionChain(
+    ({ abort }) => {
+      abort!();
+      return true;
+    },
+    () => x++
+  );
+  expect(await chain.chain()).toBe(true);
+  expect(x).toBe(0);
+});

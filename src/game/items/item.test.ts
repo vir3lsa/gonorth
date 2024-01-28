@@ -257,6 +257,17 @@ describe("putting items", () => {
     expect(selectInventoryItems()).toInclude(ball);
     expect(selectInventoryItems()).not.toInclude(bag);
   });
+
+  test("items can be dropped on the floor", async () => {
+    await ball.try("drop");
+    expect(selectCurrentPage()).toContain("You put the ball on the floor");
+  });
+
+  test("items can be put using drop", async () => {
+    await ball.try("drop", table);
+    expect(selectCurrentPage()).toContain("You put the ball on the table");
+    expect(table.itemArray).toInclude(ball);
+  });
 });
 
 describe("aliases", () => {

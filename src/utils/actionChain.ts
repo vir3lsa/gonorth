@@ -45,6 +45,7 @@ export class ActionChain {
   renderNexts: boolean;
   propagateOptions: boolean;
   failed: boolean;
+  aborted: boolean;
   lastActionProducedText: boolean;
   helpers: ActionChainHelpers;
 
@@ -54,9 +55,11 @@ export class ActionChain {
     this.propagateOptions = false;
     this.postScript = undefined;
     this.failed = false;
+    this.aborted = false;
     this.lastActionProducedText = false;
     this.helpers = {
-      fail: () => (this.failed = true)
+      fail: () => (this.failed = true),
+      abort: () => (this.aborted = true)
     };
   }
 
@@ -265,8 +268,12 @@ export class ActionChain {
       // Run each action. If any return false, result becomes false.
       result = (await action(argsContext)) !== false && result;
 
+      if (this.aborted) {
+        break; // Break out of the chain early.
+      }
+
       if (this.failed) {
-        // Failing an action breaks the chain
+        // Failing an action breaks the chain.
         result = false;
         break;
       }
@@ -285,6 +292,7 @@ export class ActionChain {
 
   reset() {
     this.failed = false;
+    this.aborted = false;
     this.lastActionProducedText = false;
   }
 }

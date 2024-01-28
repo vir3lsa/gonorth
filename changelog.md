@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## 1.9.0
+
+* 2024-01-28 Ability to abort action chains, drop verb is now optionally prepositional.
 * 2024-01-27 Ability to reset Events and Schedules.
 
 ## 1.8.0

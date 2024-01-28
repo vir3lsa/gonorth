@@ -258,6 +258,7 @@ interface Context {
 
 interface ActionChainHelpers {
   fail?: () => boolean;
+  abort?: () => boolean;
 }
 
 type ChainContext = Partial<Context> & ActionChainHelpers;

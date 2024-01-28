@@ -266,7 +266,14 @@ export class Item {
       this.addVerb(
         new Verb.Builder("drop")
           .withAliases("discard", "leave", "put down")
+          .makePrepositional("where", true)
           .withOnSuccess(
+            ({ item, other, abort }) => {
+              if (other) {
+                abort!(); // Defer to put verb instead.
+                return putVerb.attempt(item, other);
+              }
+            },
             ({ item }) => moveItem(item, selectRoom()),
             ({ item }) => {
               const article = item.properNoun ? "" : "the ";
