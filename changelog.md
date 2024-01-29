@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## 1.9.1
+
+* 2024-01-29 Fixed Promise deadlock when action chains triggered events.
+
 ## 1.9.0
 
 * 2024-01-28 Ability to abort action chains, drop verb is now optionally prepositional.

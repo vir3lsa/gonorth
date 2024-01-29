@@ -265,7 +265,7 @@ export class Item {
 
       this.addVerb(
         new Verb.Builder("drop")
-          .withAliases("discard", "leave", "put down")
+          .withAliases("discard", "put down")
           .makePrepositional("where", true)
           .withOnSuccess(
             ({ item, other, abort }) => {

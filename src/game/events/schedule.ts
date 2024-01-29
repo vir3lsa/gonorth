@@ -146,7 +146,8 @@ export class Schedule {
 
     if (this.state === STATE_READY) {
       this.state = STATE_RUNNING;
-      return this.currentEvent.commence();
+      // Don't return result as events should be independent of outer chains.
+      this.currentEvent.commence();
     }
   }
 

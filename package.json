@@ -1,6 +1,6 @@
 {
   "name": "@vir3lsa/gonorth",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "description": "A JavaScript interactive fiction engine",
   "main": "./lib/src/gonorth.js",
   "publishConfig": {
