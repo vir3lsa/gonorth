@@ -7,6 +7,7 @@ import { selectInventoryItems } from "../../utils/selectors";
 
 export const next = "OptionGraph_next";
 export const previous = "OptionGraph_previous";
+export const okay = "OpyionGraph_okay";
 
 export class OptionGraph {
   id;
@@ -59,6 +60,8 @@ export class OptionGraph {
           options[label] = nodes[index + 1].id;
         } else if (value === previous) {
           options[label] = nodes[index - 1].id;
+        } else if (value === okay) {
+          options[label] = null;
         }
       });
     }
@@ -101,6 +104,10 @@ export class OptionGraph {
 
   commence(id?: string) {
     return this.activateNode((id && this.getNode(id)) || this.startNode);
+  }
+
+  resume() {
+    return this.activateNode(this.currentNode || this.startNode);
   }
 
   activateNode(node: GraphNode, performNodeActions = true) {

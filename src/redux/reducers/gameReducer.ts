@@ -1,7 +1,6 @@
 import * as type from "../gameActionTypes";
 import { Interaction, Append, AppendInput } from "../../game/interactions/interaction";
 import { Effects } from "../../utils/effects";
-import { Action } from "redux";
 
 const outputSnippetLength = 30;
 const ROLLING_LOG_LENGTH = 10;
@@ -21,7 +20,7 @@ export const initialState = {
   allItemNames: new Set(),
   items: {}, // Keyed by alias
   allItems: new Set(),
-  optionGraphs: {},
+  optionGraphs: {} as OptionGraphDict,
   customState: {} as CustomState,
   startingRoom: undefined,
   cyCommands: [],

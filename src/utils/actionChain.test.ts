@@ -6,8 +6,8 @@ import { selectCurrentPage, selectOptions } from "./testSelectors";
 import { changeInteraction } from "../redux/gameActions";
 import { initGame, Interaction, SequentialText } from "../gonorth";
 import { deferAction } from "./testFunctions";
-import { clearPage } from "./lifecycle";
 import { AnyAction } from "redux";
+import { clearPage } from "./sharedFunctions";
 
 // Prevent console logging
 jest.mock("../utils/consoleIO");

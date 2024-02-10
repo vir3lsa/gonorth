@@ -58,4 +58,20 @@ describe("basic checkpoint tests", () => {
     cy.say("take large object", "the large object");
     cy.say("i", "a large object");
   });
+
+  it("Resumes from the last hint seen", () => {
+    // Move to the second hint.
+    cy.say("hint", "Have you seen the device");
+    cy.choose("next", "Have you tried pressing the");
+    cy.choose("okay");
+    cy.say("x", "The room you find yourself in", { global: true });
+
+    // Reload the game and check we resume at the same hint.
+    cy.reloadGame();
+    cy.say("hint", "Have you tried pressing the");
+
+    // Start a new game and check the hints start at the beginning.
+    cy.newGame();
+    cy.say("hint", "Have you seen the device");
+  });
 });

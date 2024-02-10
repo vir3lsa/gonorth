@@ -11,7 +11,7 @@ import {
   selectDebugMode,
   selectGame
 } from "../../utils/selectors";
-import { toTitleCase, getArticle } from "../../utils/textFunctions";
+import { toTitleCase } from "../../utils/textFunctions";
 import disambiguate from "../../utils/disambiguation";
 import { AnyAction } from "redux";
 

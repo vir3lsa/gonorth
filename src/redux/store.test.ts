@@ -1,4 +1,4 @@
-import { goToRoom, initGame, Item, retrieve, Room, store, update } from "../gonorth";
+import { goToRoom, initGame, Item, OptionGraph, retrieve, Room, store, update } from "../gonorth";
 import { handleTurnEnd } from "../utils/lifecycle";
 import { moveItem } from "../utils/itemFunctions";
 import { changeRoom, loadSnapshot, recordChanges } from "./gameActions";
@@ -15,6 +15,7 @@ let mockStorage: { [key: string]: string };
 let result: Snapshot;
 let vase: ItemT;
 let room: RoomT;
+let optionGraph: OptionGraphT;
 
 const setUpStoreTests = () => {
   unregisterStore();
@@ -22,13 +23,14 @@ const setUpStoreTests = () => {
   room = new Room("Hydroponics");
   getStore().dispatch(changeRoom(room));
   persistor = getPersistor();
+  optionGraph = new OptionGraph("test99", { id: "node1" });
 
   vase = new Item("vase", "green", true);
   vase.description = new RandomText("big", "small"); // Ensure changes to this are recorded.
   room.addItems(vase);
 
   goToRoom(room);
-};;
+};
 
 beforeEach(() => {
   mockStorage = {};
@@ -66,6 +68,10 @@ describe("basic persistor tests", () => {
 
   it("serializes all changed items - nothing initially", () => {
     expect(Object.keys(result.allItems).length).toBe(0);
+  });
+
+  it("serializes option graphs", () => {
+    expect(result.optionGraphs.test99).toEqual<SerializableOptionGraph>({});
   });
 });
 
@@ -300,5 +306,12 @@ describe("deserializing snapshots", () => {
 
     // Check the revived Item still recognises the custom properties have changed.
     expect(revivedVase._alteredProperties.has("properties")).toBe(true);
+  });
+
+  it("revives option graphs to their previous state", () => {
+    optionGraph.currentNode = optionGraph.getNode("node1");
+    const snapshot = persistSnapshotAndLoad();
+    expect(snapshot.optionGraphs.test99).toBeInstanceOf<typeof OptionGraph>(OptionGraph);
+    expect(snapshot.optionGraphs.test99.currentNode.id).toBe("node1");
   });
 });

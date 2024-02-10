@@ -1,5 +1,9 @@
+import { AnyAction } from "redux";
 import { selectConfig, selectInventory, selectLastChange, selectPlayer, selectRoom } from "./selectors";
 import type { Item } from "../game/items/item";
+import { getStore } from "../redux/storeRegistry";
+import { changeInteraction } from "../redux/gameActions";
+import { Interaction } from "../game/interactions/interaction";
 
 const REACTION_MILLIS = 350;
 
@@ -52,4 +56,8 @@ export function playerCanCarry(item: Item) {
 export function playerHasItem(item: Item) {
   const inventory = selectInventory();
   return inventory.items.hasOwnProperty(item.name.toLowerCase());
+}
+
+export function clearPage(newPage: string = "") {
+  getStore().dispatch(changeInteraction(new Interaction(newPage)) as unknown as AnyAction);
 }

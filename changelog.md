@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* 2024-02-10 Hints resume from where they left off, OptionGraphs may resume.
+
 ## 1.9.1
 
 * 2024-01-29 Fixed Promise deadlock when action chains triggered events.

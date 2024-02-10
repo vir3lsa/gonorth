@@ -4,12 +4,13 @@ import { Door } from "../game/items/door";
 import { Item } from "../game/items/item";
 import { Verb } from "../game/verbs/verb";
 import { initGame } from "../gonorth";
-import { clearPage, goToRoom } from "./lifecycle";
+import { goToRoom } from "./lifecycle";
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { selectCurrentPage } from "./testSelectors";
 import packageJson from "../../package.json";
 import { getItem } from "./itemFunctions";
 import { clickOption, clickOptionAndWait } from "./testFunctions";
+import { clearPage } from "./sharedFunctions";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("./consoleIO");

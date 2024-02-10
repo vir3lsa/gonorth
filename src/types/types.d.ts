@@ -23,7 +23,6 @@ interface Game {
   schedules: (ScheduleT | RouteT)[];
   help: OptionGraphT;
   hintGraph: OptionGraphT;
-  hintNode: string;
   initialiser?: SimpleAction;
   component?: import("react").ReactElement;
   version?: string;
@@ -125,6 +124,14 @@ interface RoomDict {
 
 interface OptionGraphDict {
   [name: string]: OptionGraphT;
+}
+
+interface SerializableOptionGraph {
+  currentNode?: string;
+}
+
+interface SerializableOptionGraphDict {
+  [name: string]: SerializableOptionGraph;
 }
 
 interface StoreState {

@@ -1,24 +1,22 @@
-import { AnyAction } from "redux";
 import { processEvent } from "./eventUtils";
 import { getPersistor, getStore } from "../redux/storeRegistry";
 import { selectConfig, selectEvents, selectGame, selectItem, selectRoom, selectTurn } from "./selectors";
 import {
   nextTurn,
-  changeInteraction,
   changeRoom,
   loadSnapshot,
   cleanState,
   setPlayer,
   recordChanges,
-  addAutoInput
+  addAutoInput,
+  addOptionGraph
 } from "../redux/gameActions";
-import { Interaction } from "../game/interactions/interaction";
 import { Room } from "../game/items/room";
 import { Item } from "../game/items/item";
 import { RandomText, PagedText } from "../game/interactions/text";
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { AutoAction } from "../game/input/autoAction";
-import { playerHasItem } from "./sharedFunctions";
+import { clearPage, playerHasItem } from "./sharedFunctions";
 import packageJson from "../../package.json";
 
 export async function handleTurnEnd() {
@@ -55,10 +53,6 @@ export function goToRoom(room: Room | Item | string) {
   return definiteRoomObj.actionChain;
 }
 
-export function clearPage(newPage: string = "") {
-  getStore().dispatch(changeInteraction(new Interaction(newPage)) as unknown as AnyAction);
-}
-
 // Saves game state to local storage.
 export function checkpoint() {
   if (!selectConfig().skipPersistence) {
@@ -87,6 +81,8 @@ export function deleteSave() {
 export function resetStateToPrePlay() {
   getStore().dispatch(cleanState());
   createPlayer();
+  getStore().dispatch(addOptionGraph(selectGame().help));
+  getStore().dispatch(addOptionGraph(selectGame().hintGraph));
   selectGame().initialiser?.();
   initAutoActions();
   getStore().dispatch(recordChanges());

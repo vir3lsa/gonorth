@@ -5,10 +5,11 @@ import { Door } from "../items/door";
 import { Item } from "../items/item";
 import { Verb } from "../verbs/verb";
 import { addEffect, addWildcardEffect, initGame, setInventoryCapacity } from "../../gonorth";
-import { clearPage, goToRoom } from "../../utils/lifecycle";
+import { goToRoom } from "../../utils/lifecycle";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { selectRoom } from "../../utils/selectors";
 import { Container } from "../items/container";
+import { clearPage } from "../../utils/sharedFunctions";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");

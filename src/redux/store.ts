@@ -3,7 +3,7 @@ import gameReducer from "./reducers";
 import { registerStore } from "./storeRegistry";
 import thunk from "redux-thunk";
 import { SnapshotPersistor } from "./snapshotPersistor";
-import { selectAllItems, selectRooms } from "../utils/selectors";
+import { selectAllItems, selectOptionGraphs, selectRooms } from "../utils/selectors";
 import { moveItem } from "../utils/itemFunctions";
 import {
   CyclicText,
@@ -29,9 +29,9 @@ const isSerializedText = (arg?: Serialized): arg is SerializedText => {
 export const initStore = (name?: string) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));
   const persistor = new SnapshotPersistor(store, {
-    version: 7,
+    version: 8,
     name,
-    whitelist: ["turn", "itemNames", "room", "allItems", "customState"],
+    whitelist: ["turn", "itemNames", "room", "allItems", "customState", "optionGraphs"],
     serializers: {
       itemNames: (value: Set<string>) => [...value],
       room: (room: Room) => room?.name.toLowerCase(),
@@ -41,7 +41,12 @@ export const initStore = (name?: string) => {
           .reduce((acc, item) => {
             acc[item.name] = item;
             return acc;
-          }, {} as AllItemsDict)
+          }, {} as AllItemsDict),
+      optionGraphs: (optionGraphs: OptionGraphDict) =>
+        Object.entries(optionGraphs).reduce((acc, [id, optionGraph]) => {
+          acc[id] = { currentNode: optionGraph.currentNode?.id };
+          return acc;
+        }, {} as SerializableOptionGraphDict)
     },
     deserializers: {
       itemNames: (value) => new Set(value as string[]),
@@ -152,6 +157,17 @@ export const initStore = (name?: string) => {
         });
 
         return stateAllItems;
+      },
+      optionGraphs: (snapshotOptionGraphs) => {
+        const stateOptionGraphs = { ...selectOptionGraphs() };
+        Object.entries(snapshotOptionGraphs).forEach(([id, snapshotOptionGraph]) => {
+          if (snapshotOptionGraph.currentNode) {
+            const optionGraph = stateOptionGraphs[id];
+            optionGraph.currentNode = optionGraph.getNode(snapshotOptionGraph.currentNode);
+          }
+        });
+
+        return stateOptionGraphs;
       }
     }
   });

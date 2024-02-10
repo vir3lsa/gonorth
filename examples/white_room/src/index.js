@@ -13,7 +13,12 @@ import {
   TIMEOUT_MILLIS,
   TIMEOUT_TURNS,
   addEvent,
-  selectInventory
+  selectInventory,
+  addHintNodes,
+  next,
+  previous,
+  okay,
+  setHintNodeId
 } from "../../../lib/src/gonorth";
 import "./index.css";
 
@@ -157,12 +162,42 @@ function setUp() {
   whiteRoom.addItems(strangeDevice, redButton, greenButton, table, apple, orange, largeObject);
   setInventoryCapacity(10);
   setStartingRoom(whiteRoom);
-}
 
-setIntro([
-  "You awaken slowly, as if from the deepest sleep, and gradually become aware that something is very wrong.",
-  "You realise you have no idea where you are and no memory of how you got here."
-]);
+  setIntro([
+    "You awaken slowly, as if from the deepest sleep, and gradually become aware that something is very wrong.",
+    "You realise you have no idea where you are and no memory of how you got here."
+  ]);
+
+  addHintNodes(
+    {
+      id: "hint1",
+      actions: "Have you seen the device?",
+      options: {
+        okay,
+        next
+      }
+    },
+    {
+      id: "hint2",
+      actions: "Have you tried pressing the button?",
+      options: {
+        okay,
+        next,
+        previous
+      }
+    },
+    {
+      id: "hint3",
+      actions: "Have you walked down the corridor?",
+      options: {
+        okay,
+        previous
+      }
+    }
+  );
+
+  setHintNodeId("hint1");
+}
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");

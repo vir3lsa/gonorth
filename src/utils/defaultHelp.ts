@@ -1,6 +1,6 @@
-import { OptionGraph } from "../game/interactions/optionGraph";
+import { OptionGraph, next, previous, okay } from "../game/interactions/optionGraph";
 import { getKeywords } from "../game/verbs/keywords";
-import { clearPage } from "./lifecycle";
+import { clearPage } from "./sharedFunctions";
 import { selectGame, selectRoom } from "./selectors";
 
 export const getKeywordsTable = () => {
@@ -109,38 +109,25 @@ const optionNodes = [
   }
 ];
 
-let helpGraph: OptionGraphT, hintGraph: OptionGraphT;
+export const getHelpGraph = () => new OptionGraph("defaultHelp", ...optionNodes);
 
-export const getHelpGraph = () => {
-  if (!helpGraph) {
-    helpGraph = new OptionGraph("defaultHelp", ...optionNodes);
-  }
-
-  return helpGraph;
-};
-
-export const getHintGraph = () => {
-  if (!hintGraph) {
-    hintGraph = new OptionGraph(
-      "hints",
-      {
-        id: "default",
-        actions: "I'm afraid you're on your own on this one. I can't help you.",
-        options: {
-          okay: null,
-          more: "default2"
-        }
-      },
-      {
-        id: "default2",
-        actions: "No, I'm afraid I really don't know anything. You'll just have to use the old noggin.",
-        options: {
-          okay: null,
-          previous: "default"
-        }
+export const getHintGraph = () =>
+  new OptionGraph(
+    "hints",
+    {
+      id: "default",
+      actions: "I'm afraid you're on your own on this one. I can't help you.",
+      options: {
+        okay,
+        next
       }
-    );
-  }
-
-  return hintGraph;
-};
+    },
+    {
+      id: "default2",
+      actions: "No, I'm afraid I really don't know anything. You'll just have to use the old noggin.",
+      options: {
+        okay,
+        previous
+      }
+    }
+  );

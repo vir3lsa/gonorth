@@ -5,7 +5,7 @@ import { getStore, unregisterStore } from "./redux/storeRegistry";
 import { addEvent as eventAdded, newGame, setStartRoom } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
-import { clearPage, createPlayer, goToRoom, initAutoActions } from "./utils/lifecycle";
+import { createPlayer, goToRoom, initAutoActions } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import {
   selectRoom,
@@ -15,9 +15,14 @@ import {
   selectInventoryItems,
   selectItem
 } from "./utils/selectors";
+import { forget, retrieve, store } from "./utils/persistentVariableFunctions";
 import { createKeywords } from "./game/verbs/keywords";
 import { GoNorth } from "./web/GoNorth";
 import seedrandom from "seedrandom";
+import { clearPage } from "./utils/sharedFunctions";
+
+const RESUME_HINTS = "RESUME_HINTS";
+const HINT_NODE = "HINT_NODE";
 
 let game: Game;
 
@@ -33,7 +38,6 @@ function initGame(title: string, author: string, config: Config, version?: strin
     schedules: [],
     help: getHelpGraph(),
     hintGraph: getHintGraph(),
-    hintNode: "default",
     initialiser,
     version
   };
@@ -117,7 +121,13 @@ function setHelp(help: OptionGraphT) {
 }
 
 function giveHint() {
-  return game.hintGraph.commence(game.hintNode);
+  if (retrieve(RESUME_HINTS)) {
+    return game.hintGraph.resume();
+  } else {
+    const startNode = retrieve(HINT_NODE);
+    store(RESUME_HINTS, true);
+    return game.hintGraph.commence(startNode);
+  }
 }
 
 function addHintNodes(...nodes: GraphNode[]) {
@@ -125,7 +135,8 @@ function addHintNodes(...nodes: GraphNode[]) {
 }
 
 function setHintNodeId(nodeId: string) {
-  game.hintNode = nodeId;
+  forget(RESUME_HINTS);
+  store(HINT_NODE, nodeId, true);
 }
 
 function addEffect(
@@ -185,7 +196,7 @@ export { Schedule } from "./game/events/schedule";
 export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
 export { goToRoom, gameOver, theEnd, play, addAutoAction } from "./utils/lifecycle";
-export { OptionGraph, next, previous } from "./game/interactions/optionGraph";
+export { OptionGraph, next, previous, okay } from "./game/interactions/optionGraph";
 export {
   selectEffects,
   selectInventory,

@@ -5,8 +5,8 @@ import { recordChanges } from "../../redux/gameActions";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Container } from "./container";
 import { selectCurrentPage } from "../../utils/testSelectors";
-import { clearPage } from "../../utils/lifecycle";
 import { Key } from "./door";
+import { clearPage } from "../../utils/sharedFunctions";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");

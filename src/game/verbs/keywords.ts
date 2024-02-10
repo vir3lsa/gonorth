@@ -7,7 +7,7 @@ import { getKeywordsTable } from "../../utils/defaultHelp";
 import { getStore } from "../../redux/storeRegistry";
 import { addKeywords, removeKeywords } from "../../redux/gameActions";
 import { handleDebugOperations } from "../../utils/debugFunctions";
-import { clearPage } from "../../utils/lifecycle";
+import { clearPage } from "../../utils/sharedFunctions";
 
 export function createKeywords() {
   const emptyInventoryText = new RandomText(
