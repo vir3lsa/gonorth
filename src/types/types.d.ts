@@ -429,6 +429,12 @@ interface ItemProperties {
 /* Room */
 /********/
 
+interface RoomConfig {
+  checkpoint?: boolean;
+  verbs?: VerbT[];
+  image?: string;
+}
+
 interface DirectionObject {
   room?: RoomT | SimpleAction;
   test?: () => boolean;

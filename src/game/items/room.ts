@@ -1,7 +1,7 @@
 import { getStore } from "../../redux/storeRegistry";
 import { Door } from "./door";
 import { GoVerb } from "../verbs/verb";
-import { Item } from "./item";
+import { Item, Builder as ItemBuilder } from "./item";
 import { itemsRevealed, changeImage, addRoom } from "../../redux/gameActions";
 import { preferPaged } from "../../utils/dynamicDescription";
 import { ActionChain } from "../../utils/actionChain";
@@ -19,6 +19,19 @@ const directionAliases = {
   down: ["d", "downward", "downwards"]
 } as {
   [name: string]: string[] | undefined;
+};
+
+const newRoom = (config: RoomConfig & ItemConfig) => {
+  const { name, description, checkpoint, verbs, ...remainingConfig } = config;
+  const room = new Room(name, description, checkpoint);
+
+  if (verbs) {
+    room.addVerbs(...verbs);
+  }
+
+  Object.entries(remainingConfig).forEach(([key, value]) => (room[key] = value));
+
+  return room;
 };
 
 export class Room extends Item {
@@ -305,5 +318,31 @@ export class Room extends Item {
   set checkpoint(value: boolean) {
     this.recordAlteredProperty("checkpoint", value);
     this._checkpoint = value;
+  }
+
+  static get Builder() {
+    return Builder;
+  }
+}
+
+class Builder extends ItemBuilder {
+  config!: RoomConfig & ItemConfig;
+
+  constructor(name?: string) {
+    super(name);
+  }
+
+  isCheckpoint(checkpoint: boolean) {
+    this.config.checkpoint = checkpoint;
+    return this;
+  }
+
+  withImage(image: string) {
+    this.config.image = image;
+    return this;
+  }
+
+  build() {
+    return newRoom(this.config);
   }
 }

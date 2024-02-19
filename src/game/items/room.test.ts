@@ -28,7 +28,7 @@ const initRooms = () => {
   north = new Room("Garden", "");
   south = new Room("Kitchen", "");
   east = new Room("Scullery", "");
-  west = new Room("Pantry", "the pantry");
+  west = new Room.Builder("Pantry").withDescription("the pantry").build();
 };
 
 beforeEach(() => {
