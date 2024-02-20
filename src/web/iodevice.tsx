@@ -41,7 +41,7 @@ const IODevice = (props: Props) => {
         maxWidth: "100vh"
       }}
     >
-      {props.image && <SceneImage />}
+      <SceneImage />
       <Box id="scrollPane" sx={{ flex: 2, overflow: "auto" }}>
         <ReactMarkdown
           children={interaction.currentPage}
