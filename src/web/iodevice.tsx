@@ -6,7 +6,7 @@ import { Element, scroller } from "react-scroll";
 import { debounce } from "debounce";
 import { DecisionBar } from "./decisionBar";
 import { ParserBar } from "./parserBar";
-import { SceneImage } from "./sceneImage";
+import { Scene } from "./scene";
 import { Box } from "@mui/system";
 import Feedback from "./Feedback";
 
@@ -41,7 +41,7 @@ const IODevice = (props: Props) => {
         maxWidth: "100vh"
       }}
     >
-      <SceneImage />
+      <Scene />
       <Box id="scrollPane" sx={{ flex: 2, overflow: "auto" }}>
         <ReactMarkdown
           children={interaction.currentPage}

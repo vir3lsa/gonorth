@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
-import { addEvent as eventAdded, newGame, setStartRoom } from "./redux/gameActions";
+import { addEvent as eventAdded, gameStarted, newGame, setStartRoom } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { createPlayer, goToRoom, initAutoActions } from "./utils/lifecycle";
@@ -82,6 +82,9 @@ function setIntro(intro: string | string[] | Intro) {
     intro,
     () => clearPage(),
     () => getHelp(),
+    () => {
+      getStore().dispatch(gameStarted());
+    },
     () => goToStartingRoom()
   );
 }

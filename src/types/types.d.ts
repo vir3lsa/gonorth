@@ -166,6 +166,7 @@ interface StoreState {
   rollingLog: LogEntry[];
   playerInput?: string;
   game?: Game;
+  gameStarted: boolean;
 }
 
 interface Dict {
@@ -214,6 +215,7 @@ interface ReduxAction {
   eventTurnsOverride: boolean;
   autoAction: AutoActionT;
   playerTurn: boolean;
+  gameStarted: boolean;
 }
 
 type GetState = () => StoreState;

@@ -110,6 +110,17 @@ export class SnapshotPersistor {
     return {};
   }
 
+  /**
+   * @returns True if there is a snapshot persisted in local storage.
+   */
+  hasSnapshot() {
+    if (typeof localStorage !== "undefined") {
+      return Boolean(localStorage.getItem(this.key));
+    }
+
+    return false;
+  }
+
   purgeSnapshot() {
     localStorage.removeItem(this.key);
   }

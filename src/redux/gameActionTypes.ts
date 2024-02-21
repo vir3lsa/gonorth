@@ -28,3 +28,4 @@ export const CY_RECORD = "CY_RECORD";
 export const OVERRIDE_EVENT_TIMEOUT = "OVERRIDE_EVENT_TIMEOUT";
 export const ADD_AUTO_ACTION = "ADD_AUTO_ACTION";
 export const ADD_LOG_ENTRY = "ADD_LOG_ENTRY";
+export const GAME_STARTED = "GAME_STARTED";

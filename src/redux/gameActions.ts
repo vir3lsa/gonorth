@@ -237,3 +237,8 @@ export const addAutoInput = (autoAction: AutoActionT) => ({
   type: type.ADD_AUTO_ACTION,
   autoAction
 });
+
+export const gameStarted = (gameStarted: boolean = true) => ({
+  type: type.GAME_STARTED,
+  gameStarted
+});

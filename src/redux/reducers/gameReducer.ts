@@ -30,7 +30,8 @@ export const initialState = {
   eventTurnsOverride: undefined,
   effects: new Effects(),
   autoActions: [],
-  rollingLog: []
+  rollingLog: [],
+  gameStarted: false
 } as StoreState;
 
 export default function (state = initialState, action: ReduxAction) {
@@ -184,6 +185,8 @@ export default function (state = initialState, action: ReduxAction) {
         // Need to replace the last log with our modified one.
         return { ...state, rollingLog: [...state.rollingLog.slice(0, -1), logObject] };
       }
+    case type.GAME_STARTED:
+      return { ...state, gameStarted: action.gameStarted };
     default:
       return state;
   }

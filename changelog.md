@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* 2024-02-21 Added scene toggle button, made game save immediately.
 * 2024-02-20 Added location bar.
 * 2024-02-19 Added Room Builder.
 * 2024-02-10 Hints resume from where they left off, OptionGraphs may resume.

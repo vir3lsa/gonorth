@@ -1,6 +1,6 @@
 import { processEvent } from "./eventUtils";
 import { getPersistor, getStore } from "../redux/storeRegistry";
-import { selectConfig, selectEvents, selectGame, selectItem, selectRoom, selectTurn } from "./selectors";
+import { selectConfig, selectEvents, selectGame, selectItem, selectRoom } from "./selectors";
 import {
   nextTurn,
   changeRoom,
@@ -9,7 +9,8 @@ import {
   setPlayer,
   recordChanges,
   addAutoInput,
-  addOptionGraph
+  addOptionGraph,
+  gameStarted
 } from "../redux/gameActions";
 import { Room } from "../game/items/room";
 import { Item } from "../game/items/item";
@@ -112,6 +113,8 @@ export function play() {
     titlePage += `\n### By ${game.author}`;
   }
 
+  const saveExists = !selectConfig().skipPersistence && getPersistor().hasSnapshot();
+
   const titleScreenGraph = new OptionGraph(
     "titleScreen",
     {
@@ -119,17 +122,20 @@ export function play() {
       actions: new PagedText(titlePage),
       options: {
         play: {
-          condition: () => selectTurn() === 1,
+          condition: () => !saveExists,
           actions: () => game.introActions.chain(),
           exit: true
         },
         continue: {
-          condition: () => selectTurn() > 1,
-          actions: () => goToRoom(selectRoom()).chain(),
+          condition: () => saveExists,
+          actions: () => {
+            getStore().dispatch(gameStarted());
+            goToRoom(selectRoom()).chain();
+          },
           exit: true
         },
         "New Game": {
-          condition: () => selectTurn() > 1,
+          condition: () => saveExists,
           node: "newGameWarning"
         }
       }
@@ -177,7 +183,13 @@ function endGame(message: string) {
     actions: new PagedText(`# ${message}`),
     options: {
       "Reload checkpoint": {
-        actions: [() => clearPage(), resurrectionText, resetToCheckpoint, () => goToRoom(selectRoom())],
+        actions: [
+          () => clearPage(),
+          resurrectionText,
+          resetToCheckpoint,
+          () => getStore().dispatch(gameStarted()),
+          () => goToRoom(selectRoom())
+        ],
         exit: true
       },
       "Return to main menu": {
@@ -187,6 +199,7 @@ function endGame(message: string) {
     }
   });
 
+  getStore().dispatch(gameStarted(false));
   selectEvents().forEach((event: EventT) => event.cancel());
   return gameOverGraph.commence().chain();
 }
