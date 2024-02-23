@@ -218,9 +218,7 @@ export class Room extends Item {
         }
       },
       () => {
-        if (this.image) {
-          getStore().dispatch(changeImage(this.image));
-        }
+        getStore().dispatch(changeImage(this.image));
       },
       this.description
     );
@@ -332,7 +330,7 @@ class Builder extends ItemBuilder {
     super(name);
   }
 
-  isCheckpoint(checkpoint: boolean) {
+  isCheckpoint(checkpoint: boolean = true) {
     this.config.checkpoint = checkpoint;
     return this;
   }

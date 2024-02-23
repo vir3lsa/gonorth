@@ -65,7 +65,7 @@ export const changeInteraction =
     return interaction.promise;
   };
 
-export const changeImage = (image: string) => ({
+export const changeImage = (image?: string) => ({
   type: type.CHANGE_IMAGE,
   payload: image
 });

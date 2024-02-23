@@ -15,6 +15,7 @@ const SceneInner = (props: Props) => {
     <>
       {props.gameStarted && (
         <Box
+          data-testid="sceneBar"
           sx={{
             marginBottom: "8px",
             fontSize: "1em",
@@ -28,16 +29,20 @@ const SceneInner = (props: Props) => {
           }}
         >
           <Box sx={{ flex: 1 }}>{props.location}</Box>
-          <Box
-            sx={{ textDecoration: "underline", cursor: "pointer" }}
-            onClick={() => setImageDisplayed(!imageDisplayed)}
-          >
-            <div role="button">{imageDisplayed ? "Hide Scene" : "Show Scene"}</div>
-          </Box>
+          {props.image && (
+            <Box
+              sx={{ textDecoration: "underline", cursor: "pointer" }}
+              onClick={() => setImageDisplayed(!imageDisplayed)}
+              data-testid="image-toggle"
+            >
+              <div role="button">{imageDisplayed ? "Hide Scene" : "Show Scene"}</div>
+            </Box>
+          )}
         </Box>
       )}
-      {imageDisplayed && (
+      {props.image && imageDisplayed && (
         <div
+          data-testid="scene-image"
           style={{
             backgroundImage: `url(${props.image})`,
             backgroundRepeat: "no-repeat",

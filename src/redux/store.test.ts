@@ -45,6 +45,10 @@ beforeEach(() => {
   setUpStoreTests();
 });
 
+it("reveals no snapshot exists", () => {
+  expect(persistor.hasSnapshot()).toBe(false);
+});
+
 describe("basic persistor tests", () => {
   beforeEach(() => {
     persistor.persistSnapshot();
@@ -72,6 +76,10 @@ describe("basic persistor tests", () => {
 
   it("serializes option graphs", () => {
     expect(result.optionGraphs.test99).toEqual<SerializableOptionGraph>({});
+  });
+
+  it("reveals whether a snapshot exists", () => {
+    expect(persistor.hasSnapshot()).toBe(true);
   });
 });
 

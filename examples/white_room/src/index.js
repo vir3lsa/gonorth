@@ -21,6 +21,7 @@ import {
   setHintNodeId
 } from "../../../lib/src/gonorth";
 import "./index.css";
+import whiteRoomImage from "./whiteRoom.gif";
 
 initGame(
   "The White Room",
@@ -40,11 +41,13 @@ initGame(
 );
 
 function setUp() {
-  const whiteRoom = new Room(
-    "White Room",
-    "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nCorridors to the east and west lead to other rooms.",
-    true
-  );
+  const whiteRoom = new Room.Builder("White Room")
+    .withDescription(
+      "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nCorridors to the east and west lead to other rooms."
+    )
+    .withImage(whiteRoomImage)
+    .isCheckpoint()
+    .build();
 
   const redRoom = new Room(
     "Red Room",
