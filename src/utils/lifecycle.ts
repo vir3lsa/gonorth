@@ -1,6 +1,6 @@
 import { processEvent } from "./eventUtils";
 import { getPersistor, getStore } from "../redux/storeRegistry";
-import { selectConfig, selectEvents, selectGame, selectItem, selectRoom } from "./selectors";
+import { selectConfig, selectEvents, selectGame, selectItem, selectKeywords, selectRoom } from "./selectors";
 import {
   nextTurn,
   changeRoom,
@@ -115,48 +115,51 @@ export function play() {
 
   const saveExists = !selectConfig().skipPersistence && getPersistor().hasSnapshot();
 
-  const titleScreenGraph = new OptionGraph(
-    "titleScreen",
-    {
-      id: "root",
-      actions: new PagedText(titlePage),
-      options: {
-        play: {
-          condition: () => !saveExists,
-          actions: () => game.introActions.chain(),
-          exit: true
-        },
-        continue: {
-          condition: () => saveExists,
-          actions: () => {
-            getStore().dispatch(gameStarted());
-            goToRoom(selectRoom()).chain();
+  const titleScreenGraph = new OptionGraph.Builder("titleScreen")
+    .withImage(game.config.startScreenImage)
+    .isResumable(false)
+    .withNodes(
+      {
+        id: "root",
+        actions: new PagedText(titlePage),
+        options: {
+          play: {
+            condition: () => !saveExists,
+            actions: () => game.introActions.chain(),
+            exit: true
           },
-          exit: true
-        },
-        "New Game": {
-          condition: () => saveExists,
-          node: "newGameWarning"
+          continue: {
+            condition: () => saveExists,
+            actions: () => {
+              getStore().dispatch(gameStarted());
+              goToRoom(selectRoom()).chain();
+            },
+            exit: true
+          },
+          "New Game": {
+            condition: () => saveExists,
+            node: "newGameWarning"
+          }
+        }
+      },
+      {
+        id: "newGameWarning",
+        actions: new PagedText(
+          "This will delete the current save game file and start a new game.\n\nDo you want to continue?"
+        ),
+        options: {
+          yes: {
+            actions: () => {
+              deleteSave();
+              game.introActions.chain();
+            },
+            exit: true
+          },
+          cancel: "root"
         }
       }
-    },
-    {
-      id: "newGameWarning",
-      actions: new PagedText(
-        "This will delete the current save game file and start a new game.\n\nDo you want to continue?"
-      ),
-      options: {
-        yes: {
-          actions: () => {
-            deleteSave();
-            game.introActions.chain();
-          },
-          exit: true
-        },
-        cancel: "root"
-      }
-    }
-  );
+    )
+    .build();
 
   getStore().dispatch(recordChanges());
   loadSave(); // This must be after we start recording changes.

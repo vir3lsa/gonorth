@@ -2,7 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
-import { addEvent as eventAdded, gameStarted, newGame, setStartRoom } from "./redux/gameActions";
+import { changeImage, addEvent as eventAdded, gameStarted, newGame, setStartRoom } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { createPlayer, goToRoom, initAutoActions } from "./utils/lifecycle";
@@ -79,6 +79,9 @@ function renderTopLevel() {
 function setIntro(intro: string | string[] | Intro) {
   game.introActions = new ActionChain(
     () => clearPage(),
+    () => {
+      getStore().dispatch(changeImage(undefined));
+    },
     intro,
     () => clearPage(),
     () => getHelp(),

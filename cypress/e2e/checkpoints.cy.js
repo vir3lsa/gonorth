@@ -74,4 +74,6 @@ describe("basic checkpoint tests", () => {
     cy.newGame();
     cy.say("hint", "Have you seen the device");
   });
+
+  // TODO Add game-over test.
 });

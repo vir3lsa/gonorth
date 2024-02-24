@@ -15,7 +15,7 @@ const SceneInner = (props: Props) => {
     <>
       {props.gameStarted && (
         <Box
-          data-testid="sceneBar"
+          data-testid="scene-bar"
           sx={{
             marginBottom: "8px",
             fontSize: "1em",

@@ -12,6 +12,7 @@ interface Config {
   feedbackHandler?: (feedback: string, name: string, logs: LogEntry[]) => void;
   randomSeed?: string;
   skipPersistence?: boolean;
+  startScreenImage?: string;
 }
 
 interface Game {

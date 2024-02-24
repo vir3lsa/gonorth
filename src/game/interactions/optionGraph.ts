@@ -2,8 +2,8 @@ import { ActionClass, ActionChain } from "../../utils/actionChain";
 import { Option } from "./option";
 import { goToRoom } from "../../utils/lifecycle";
 import { getStore } from "../../redux/storeRegistry";
-import { addOptionGraph } from "../../redux/gameActions";
-import { selectInventoryItems } from "../../utils/selectors";
+import { addOptionGraph, changeImage } from "../../redux/gameActions";
+import { selectInventoryItems, selectRoom } from "../../utils/selectors";
 
 export const next = "OptionGraph_next";
 export const previous = "OptionGraph_previous";
@@ -18,6 +18,8 @@ export class OptionGraph {
   promise;
   resolve!: Resolve;
   _allowRepeats!: boolean;
+  _image?: string;
+  _resumable!: boolean;
 
   constructor(id: string, ...nodes: GraphNode[]) {
     if (typeof id !== "string") {
@@ -30,6 +32,7 @@ export class OptionGraph {
     this.flattened = {};
     this.allowRepeats = true;
     this.currentNode = undefined;
+    this.resumable = true;
     this.promise = new Promise((resolve) => (this.resolve = resolve));
 
     this.reindex();
@@ -42,6 +45,22 @@ export class OptionGraph {
 
   set allowRepeats(allowRepeats) {
     this._allowRepeats = allowRepeats;
+  }
+
+  get image() {
+    return this._image;
+  }
+
+  set image(value) {
+    this._image = value;
+  }
+
+  get resumable() {
+    return this._resumable;
+  }
+
+  set resumable(value) {
+    this._resumable = value;
   }
 
   reindex() {
@@ -103,15 +122,33 @@ export class OptionGraph {
   }
 
   commence(id?: string) {
-    return this.activateNode((id && this.getNode(id)) || this.startNode);
+    if (this.image) {
+      getStore().dispatch(changeImage(this.image));
+    }
+    return this._start((id && this.getNode(id)) || this.startNode);
   }
 
   resume() {
-    return this.activateNode(this.currentNode || this.startNode);
+    if (this.resumable) {
+      return this._start(this.currentNode || this.startNode);
+    }
+
+    throw Error(`Attempted to resume non-resumable OptionGraph ${this.id}.`);
+  }
+
+  _start(node: GraphNode) {
+    if (this.image) {
+      getStore().dispatch(changeImage(this.image));
+    }
+
+    return this.activateNode(node);
   }
 
   activateNode(node: GraphNode, performNodeActions = true) {
-    this.currentNode = node;
+    if (this.resumable) {
+      this.currentNode = node;
+    }
+
     node.visited = true;
 
     let { actions, options } = node;
@@ -204,6 +241,8 @@ export class OptionGraph {
             optionActions.push(() => goToRoom(graphOption.room as RoomT));
           } else if (optionId) {
             optionActions.push(() => this.activateNode(optionNode as GraphNode, !skipNodeActions));
+          } else if (exit) {
+            optionActions.unshift(() => this._resetImage());
           }
 
           if (
@@ -225,11 +264,22 @@ export class OptionGraph {
     chain.options = optionObjects;
 
     if (!optionObjects) {
+      this._resetImage();
       chain.propagateOptions = false; // Allow the graph to exit
       this.resolve();
     }
 
     return chain;
+  }
+
+  // Return to the room image, if there is one.
+  _resetImage() {
+    const room = selectRoom();
+
+    if (room) {
+      // Return to room image if we're in a room.
+      getStore().dispatch(changeImage(room.image));
+    }
   }
 
   /*
@@ -250,10 +300,22 @@ export class OptionGraph {
 
 class OptionGraphBuilder {
   id;
+  image?: string;
+  resumable = true;
   nodes: GraphNode[] = [];
 
   constructor(id: string) {
     this.id = id;
+  }
+
+  withImage(image?: string) {
+    this.image = image;
+    return this;
+  }
+
+  isResumable(resumable = true) {
+    this.resumable = resumable;
+    return this;
   }
 
   withNodes(...nodes: (NodeBuilder | GraphNode)[]) {
@@ -263,7 +325,11 @@ class OptionGraphBuilder {
   }
 
   build() {
-    return new OptionGraph(this.id, ...this.nodes);
+    const optionGraph = new OptionGraph(this.id, ...this.nodes);
+    optionGraph.image = this.image;
+    optionGraph.resumable = this.resumable;
+
+    return optionGraph;
   }
 }
 

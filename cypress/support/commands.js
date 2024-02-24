@@ -109,3 +109,14 @@ Cypress.Commands.add("newGame", () => {
   cy.choose("cancel help", "Good luck");
   cy.choose("next", "a nearly perfect cube", { global: true });
 });
+
+Cypress.Commands.add("getSceneBar", () => cy.get('[data-testid="scene-bar"]'));
+Cypress.Commands.add("getSceneImage", () => cy.get('[data-testid="scene-image"]'));
+Cypress.Commands.add("getImageToggle", () => cy.get('[data-testid="image-toggle"]'));
+
+const imageUrlRegex = /url\((.+?)\)/;
+Cypress.Commands.add("getImageUrl", () => {
+  return cy.getSceneImage().then((sceneImage) => {
+    return String(sceneImage.attr("style")).match(imageUrlRegex)[1];
+  });
+});

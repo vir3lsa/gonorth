@@ -18,10 +18,13 @@ import {
   next,
   previous,
   okay,
-  setHintNodeId
+  setHintNodeId,
+  OptionGraph,
+  gameOver
 } from "../../../lib/src/gonorth";
 import "./index.css";
 import whiteRoomImage from "./whiteRoom.gif";
+import whiteRoomTitle from "./whiteRoomTitle.gif";
 
 initGame(
   "The White Room",
@@ -34,9 +37,10 @@ initGame(
     recordLogs: true,
     feedbackHandler: (feedback, name, logs) => console.log({ feedback, name, logs }),
     randomSeed: "white-room.",
-    referToPlayerAs: "Toby"
+    referToPlayerAs: "Toby",
+    startScreenImage: whiteRoomTitle
   },
-  "0.0.1",
+  "0.0.2",
   setUp
 );
 
@@ -126,6 +130,12 @@ function setUp() {
     new Verb.Builder("fire").withOnSuccess(() => fireEvent.commence(), "You pull the trigger. Nothing happens.").build()
   );
 
+  strangeDevice.addVerb(
+    new Verb.Builder("smash")
+      .withOnSuccess("You smash the device on the floor. It explodes. You die.", gameOver)
+      .build()
+  );
+
   const apple = new Item.Builder("apple").isHoldable().withSize(1).withDescription("A juicy red apple.").build();
 
   const orange = new Item.Builder("orange").isHoldable().withSize(1).withDescription("A round, waxy orange.").build();
@@ -161,6 +171,22 @@ function setUp() {
     .withSize(9)
     .isHoldable()
     .build();
+
+  const shoutGraph = new OptionGraph.Builder("shout")
+    .withNodes(
+      new OptionGraph.NodeBuilder("shout1").withActions("The lights go out.").withOptions({
+        "Stop shouting": {
+          actions: "To your relief, the lights turn back on.",
+          exit: true
+        },
+        "Shout louder": false,
+        Squeal: "shout2"
+      }),
+      new OptionGraph.NodeBuilder("shout2").withActions("Here come the lights.")
+    )
+    .withImage(whiteRoomTitle)
+    .build();
+  whiteRoom.addVerb(new Verb.Builder("shout").withOnSuccess(() => shoutGraph.commence()).build());
 
   whiteRoom.addItems(strangeDevice, redButton, greenButton, table, apple, orange, largeObject);
   setInventoryCapacity(10);

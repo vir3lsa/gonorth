@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* 2024-02-24 OptionGraphs may be made non-resumable.
+* 2024-02-23 OptionGraphs and the start screen may have images.
 * 2024-02-21 Added scene toggle button, made game save immediately.
 * 2024-02-20 Added location bar.
 * 2024-02-19 Added Room Builder.
