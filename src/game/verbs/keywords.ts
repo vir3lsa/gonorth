@@ -35,7 +35,8 @@ export function createKeywords() {
     "Inspect the items you're carrying."
   );
 
-  const wait = new Verb("wait", true, createWaitGraph().commence(), [], [], true, "Allow time to pass.");
+  const waitGraph = createWaitGraph();
+  const wait = new Verb("wait", true, () => waitGraph.commence(), [], [], true, "Allow time to pass.");
 
   const help = new Verb(
     "help",

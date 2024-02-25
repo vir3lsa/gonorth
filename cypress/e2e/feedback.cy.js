@@ -7,7 +7,7 @@ const expectedFeedbackObj = {
   logs: [
     {
       output: [
-        `##### GoNorth v${packageJson.version}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;The White Room v0.0.1\n# The White Room\n### By Rich Locke\n\nChoose: play`
+        `##### GoNorth v${packageJson.version}&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;The White Room v0.0.2\n# The White Room\n### By Rich Locke\n\nChoose: play`
       ]
     },
     {

@@ -92,7 +92,7 @@ describe("debugFunctions", () => {
   });
   it("disambiguates when spawning items", () => inputTest("debug spawn ball", "Which ball do you mean?"));
   it("shows a list of option graphs", () =>
-    inputTest("debug show option graphs", ["Option Graphs:", "wait", "numbers"]));
+    inputTest("debug show option graphs", ["Option Graphs:", "defaultHelp", "hints", "wait", "numbers"]));
   it("shows option graph nodes", () => inputTest("debug show graph numbers", ["Nodes:", "1", "2", "3"]));
   it("commences an option graph at the default node", () => inputTest("debug commence numbers", "one", "two", "three"));
   it("commences an option graph at the specified node", () =>

@@ -1,11 +1,12 @@
-import { getStore, unregisterStore } from "../../redux/storeRegistry";
+import { unregisterStore } from "../../redux/storeRegistry";
 import { initGame } from "../../gonorth";
 import { OptionGraph } from "./optionGraph";
-import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
+import { selectCurrentPage, selectImage, selectOptions } from "../../utils/testSelectors";
 import { selectRoom, selectTurn, selectInventory } from "../../utils/selectors";
 import { Verb } from "../verbs/verb";
 import { Room } from "../items/room";
 import { Item } from "../items/item";
+import { clearPage } from "../../utils/sharedFunctions";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -48,7 +49,7 @@ const speechNodes: GraphNode[] = [
   {
     id: "question",
     actions: "question",
-    options: { question: "question", compliment: "compliment", bye: "bye" }
+    options: { question: "question", compliment: "compliment", bye: "bye", exit: { actions: "Exiting.", exit: true } }
   },
   {
     id: "compliment",
@@ -157,8 +158,10 @@ const setupRoomOptionNodes = () => {
   ];
 };
 
+let graph: OptionGraph;
+
 const createGraph = (nodes: GraphNode[]) => {
-  const graph = new OptionGraph("test", ...nodes);
+  graph = new OptionGraph("test", ...nodes);
   return graph.commence().chain();
 };
 
@@ -247,7 +250,7 @@ test("optionGraph exits if a node attempts a verb but has no options", async () 
 test("optionGraph repeats nodes by default", async () => {
   await createGraph(speechNodes);
   await selectOptions()[0].action();
-  expect(selectOptions().length).toBe(3);
+  expect(selectOptions().length).toBe(4);
   expect(selectOptions()[0].label).toBe("question");
 });
 
@@ -256,7 +259,7 @@ test("optionGraph does not repeat nodes if instructed", async () => {
   graph.allowRepeats = false;
   await graph.commence().chain();
   await selectOptions()[0].action();
-  expect(selectOptions().length).toBe(2);
+  expect(selectOptions().length).toBe(3);
   expect(selectOptions()[0].label).not.toBe("question");
 });
 
@@ -265,7 +268,7 @@ test("individual nodes can opt to not repeat", async () => {
   nodes[1].allowRepeats = false;
   await createGraph(nodes);
   await selectOptions()[0].action();
-  expect(selectOptions().length).toBe(2);
+  expect(selectOptions().length).toBe(3);
   expect(selectOptions()[0].label).not.toBe("question");
 });
 
@@ -276,7 +279,7 @@ test("individual nodes can opt to repeat", async () => {
   graph.allowRepeats = false;
   await graph.commence().chain();
   await selectOptions()[0].action();
-  expect(selectOptions().length).toBe(3);
+  expect(selectOptions().length).toBe(4);
   expect(selectOptions()[0].label).toBe("question");
 });
 
@@ -400,4 +403,56 @@ test("the previous node is returned to after an inventory action, without action
   await selectOptions()[1].action();
   expect(x).toBe(1); // Action has been performed once, not twice.
   expect(selectOptions()[0].label).toBe("use item");
+});
+
+test("can be resumed", async () => {
+  await createGraph(speechNodes);
+
+  // Switch node and then exit.
+  await selectOptions()[0].action();
+  await selectOptions()[3].action();
+
+  // Start the OptionGraph again and we should be at the same node.
+  clearPage();
+  await graph.resume().chain();
+  expect(selectCurrentPage()).not.toInclude("hello");
+  expect(selectCurrentPage()).toInclude("question");
+});
+
+test("can be made non-resumable", async () => {
+  const nrGraph = new OptionGraph.Builder("nr")
+    .isResumable(false)
+    .withNodes(...speechNodes)
+    .build();
+  await nrGraph.commence().chain();
+  await selectOptions()[0].action();
+  await selectOptions()[3].action();
+  expect(() => nrGraph.resume()).toThrow("Attempted to resume non-resumable OptionGraph 'nr'");
+});
+
+describe("images", () => {
+  let iGraph: OptionGraph;
+
+  beforeEach(() => {
+    iGraph = new OptionGraph.Builder("i")
+      .withImage("test-image")
+      .withNodes(...speechNodes)
+      .build();
+  });
+
+  test("shows image whilst active", async () => {
+    await iGraph.commence().chain();
+    expect(selectImage()).toBe("test-image");
+
+    // Image should be replaced after leaving the graph via an optionless node.
+    await selectOptions()[2].action();
+    expect(selectImage()).toBeUndefined();
+  });
+
+  test("removes image when selecting exit node", async () => {
+    await iGraph.commence().chain();
+    await selectOptions()[0].action();
+    await selectOptions()[3].action();
+    expect(selectImage()).toBeUndefined();
+  });
 });

@@ -75,5 +75,13 @@ describe("basic checkpoint tests", () => {
     cy.say("hint", "Have you seen the device");
   });
 
-  // TODO Add game-over test.
+  it("Resumes successfully after a game over", () => {
+    cy.say("take device");
+    cy.say("east");
+    cy.choose("Next");
+    cy.say("Smash device", "You die");
+    cy.choose("Next", "GAME OVER", { global: true });
+    cy.choose("Reload Checkpoint");
+    cy.choose("Next", "blood red", { global: true });
+  });
 });

@@ -133,7 +133,7 @@ export class OptionGraph {
       return this._start(this.currentNode || this.startNode);
     }
 
-    throw Error(`Attempted to resume non-resumable OptionGraph ${this.id}.`);
+    throw Error(`Attempted to resume non-resumable OptionGraph '${this.id}'.`);
   }
 
   _start(node: GraphNode) {
@@ -144,11 +144,14 @@ export class OptionGraph {
     return this.activateNode(node);
   }
 
-  activateNode(node: GraphNode, performNodeActions = true) {
+  _recordCurrentNode(node: GraphNode) {
     if (this.resumable) {
       this.currentNode = node;
     }
+  }
 
+  activateNode(node: GraphNode, performNodeActions = true) {
+    this._recordCurrentNode(node);
     node.visited = true;
 
     let { actions, options } = node;
@@ -276,10 +279,8 @@ export class OptionGraph {
   _resetImage() {
     const room = selectRoom();
 
-    if (room) {
-      // Return to room image if we're in a room.
-      getStore().dispatch(changeImage(room.image));
-    }
+    // Return to room image if we're in a room.
+    getStore().dispatch(changeImage(room?.image));
   }
 
   /*

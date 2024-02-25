@@ -45,7 +45,7 @@ describe("Scene", () => {
     });
   };
 
-  it.only("Shows an OptionGraph's image and switches back to the room image", () => {
+  it("Shows an OptionGraph's image and switches back to the room image", () => {
     lastImageUrl = undefined;
     cy.startGame();
 

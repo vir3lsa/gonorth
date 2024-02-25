@@ -317,9 +317,16 @@ describe("deserializing snapshots", () => {
   });
 
   it("revives option graphs to their previous state", () => {
-    optionGraph.currentNode = optionGraph.getNode("node1");
+    optionGraph._recordCurrentNode(optionGraph.getNode("node1"));
     const snapshot = persistSnapshotAndLoad();
     expect(snapshot.optionGraphs.test99).toBeInstanceOf<typeof OptionGraph>(OptionGraph);
     expect(snapshot.optionGraphs.test99.currentNode.id).toBe("node1");
+  });
+
+  it("doesn't persist a non-resumable OptionGraph's current node", () => {
+    optionGraph.resumable = false;
+    optionGraph._recordCurrentNode(optionGraph.getNode("node1"));
+    const snapshot = persistSnapshotAndLoad();
+    expect(snapshot.optionGraphs.test99.currentNode).toBeUndefined();
   });
 });
