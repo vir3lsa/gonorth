@@ -13,6 +13,7 @@ interface Config {
   randomSeed?: string;
   skipPersistence?: boolean;
   startScreenImage?: string;
+  hideTitle?: boolean;
 }
 
 interface Game {

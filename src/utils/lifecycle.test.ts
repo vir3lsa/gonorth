@@ -1,11 +1,12 @@
 import { Item } from "../game/items/item";
 import { Room } from "../game/items/room";
 import { initGame, setStartingRoom } from "../gonorth";
-import { recordChanges } from "../redux/gameActions";
+import { newGame, recordChanges } from "../redux/gameActions";
 import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { moveItem } from "./itemFunctions";
-import { checkpoint, deleteSave, loadSave, goToRoom, resetStateToPrePlay } from "./lifecycle";
-import { selectAutoActions, selectInventory, selectRoom } from "./selectors";
+import { checkpoint, deleteSave, loadSave, goToRoom, resetStateToPrePlay, play } from "./lifecycle";
+import { selectAutoActions, selectGame, selectInventory, selectRoom } from "./selectors";
+import { selectCurrentPage } from "./testSelectors";
 
 jest.mock("./consoleIO");
 const consoleIO = require("./consoleIO");
@@ -37,7 +38,7 @@ beforeEach(() => {
     clear: () => {},
     key: (index: number) => null
   };
-  initGame("test", "", { debugMode: false }, "1.0.0", initialiser);
+  initGame("Space Auctioneer", "", { debugMode: false }, "1.0.0", initialiser);
   setStartingRoom(playground);
 });
 
@@ -94,4 +95,17 @@ test("goToRoom succeeds when a room name is passed", () => {
 test("resetStateToPrePlay restores auto actions", () => {
   resetStateToPrePlay();
   expect(selectAutoActions().length).toBe(2);
+});
+
+test("play shows the game title", async () => {
+  await play();
+  expect(selectCurrentPage()).toInclude("# Space Auctioneer");
+});
+
+test("play hides the game title", async () => {
+  const game = selectGame();
+  game.config.hideTitle = true;
+  getStore().dispatch(newGame(game, game.config.debugMode));
+  await play();
+  expect(selectCurrentPage()).not.toInclude("# Space Auctioneer");
 });

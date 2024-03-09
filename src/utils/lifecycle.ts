@@ -107,7 +107,9 @@ export function play() {
     titlePage += `&nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;${game.title} v${game.version}`;
   }
 
-  titlePage += `\n# ${game.title || "Untitled"}`;
+  if (!game.config.hideTitle) {
+    titlePage += `\n# ${game.title || "Untitled"}`;
+  }
 
   if (game.author) {
     titlePage += `\n### By ${game.author}`;

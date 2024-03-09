@@ -1,6 +1,10 @@
 # goNORTH Changelog
 
-## Unreleased
+## 1.11.0
+
+* 2024-03-09 Added a config option for hiding the game title.
+
+## 1.10.0
 
 * 2024-02-24 OptionGraphs may be made non-resumable.
 * 2024-02-23 OptionGraphs and the start screen may have images.
