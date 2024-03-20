@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { Box } from "@mui/system";
-import { connect } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
+import { revealScene } from "../redux/gameActions";
 
 interface Props {
   image?: string;
@@ -8,12 +9,19 @@ interface Props {
   gameStarted: boolean;
 }
 
-const SceneInner = (props: Props) => {
-  const [imageDisplayed, setImageDisplayed] = useState(true);
+const SceneInner: React.FC<Props> = ({ location, image, gameStarted }) => {
+  const sceneRevealed = useSelector((state: StoreState) => state.sceneRevealed);
+  const dispatch = useDispatch();
+  const showScene = useCallback((reveal: boolean) => dispatch(revealScene(reveal)), []);
+
+  // Show the scene when we change location etc.
+  useEffect(() => {
+    showScene(true);
+  }, [location, image, gameStarted]);
 
   return (
     <>
-      {props.gameStarted && (
+      {gameStarted && (
         <Box
           data-testid="scene-bar"
           sx={{
@@ -28,30 +36,30 @@ const SceneInner = (props: Props) => {
             display: "flex"
           }}
         >
-          <Box sx={{ flex: 1 }}>{props.location}</Box>
-          {props.image && (
+          <Box sx={{ flex: 1 }}>{location}</Box>
+          {image && (
             <Box
               sx={{ textDecoration: "underline", cursor: "pointer" }}
-              onClick={() => setImageDisplayed(!imageDisplayed)}
+              onClick={() => showScene(!sceneRevealed)}
               data-testid="image-toggle"
             >
-              <div role="button">{imageDisplayed ? "Hide Scene" : "Show Scene"}</div>
+              <div role="button">{sceneRevealed ? "Hide Scene" : "Show Scene"}</div>
             </Box>
           )}
         </Box>
       )}
-      {props.image && imageDisplayed && (
+      {image && sceneRevealed && (
         <div
           data-testid="scene-image"
           style={{
-            backgroundImage: `url(${props.image})`,
+            backgroundImage: `url(${image})`,
             backgroundRepeat: "no-repeat",
             backgroundSize: "cover",
             backgroundPosition: "center",
             imageRendering: "pixelated",
-            height: props.image ? "49vw" : 0,
+            height: image ? "49vw" : 0,
             maxHeight: "50%",
-            marginBottom: props.image ? "8px" : 0,
+            marginBottom: image ? "8px" : 0,
             borderRadius: "3px"
           }}
         ></div>

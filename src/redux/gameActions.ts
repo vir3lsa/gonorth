@@ -242,3 +242,8 @@ export const gameStarted = (gameStarted: boolean = true) => ({
   type: type.GAME_STARTED,
   gameStarted
 });
+
+export const revealScene = (sceneRevealed: boolean = true) => ({
+  type: type.REVEAL_SCENE,
+  sceneRevealed
+});

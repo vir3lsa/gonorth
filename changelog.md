@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## Unreleased
+
+* 2024-03-20 Improved auto-scroll behaviour, added scroll button.
+
 ## 1.11.0
 
 * 2024-03-09 Added a config option for hiding the game title.

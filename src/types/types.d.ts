@@ -169,6 +169,7 @@ interface StoreState {
   playerInput?: string;
   game?: Game;
   gameStarted: boolean;
+  sceneRevealed: boolean;
 }
 
 interface Dict {
@@ -218,6 +219,7 @@ interface ReduxAction {
   autoAction: AutoActionT;
   playerTurn: boolean;
   gameStarted: boolean;
+  sceneRevealed: boolean;
 }
 
 type GetState = () => StoreState;
