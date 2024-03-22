@@ -12,7 +12,10 @@ import Feedback from "./Feedback";
 import { Fab, Fade } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
-const SCROLL_MARGIN_OF_ERROR = 3;
+const SCROLL_MARGIN_OF_ERROR = 5;
+const SCROLL_ELEMENT_ID = "scrollPane";
+const SCROLL_DISTANCE = 50;
+
 let scrollIndex = 0;
 
 const debouncedScroll = debounce(() => {
@@ -20,13 +23,13 @@ const debouncedScroll = debounce(() => {
     scroller.scrollTo(`scrollPoint-${scrollIndex}`, {
       smooth: "easeInQuad",
       duration: 1500,
-      containerId: "scrollPane",
+      containerId: SCROLL_ELEMENT_ID,
       ignoreCancelEvents: true
     });
   } else {
     animateScroll.scrollToTop({
       duration: 0,
-      containerId: "scrollPane",
+      containerId: SCROLL_ELEMENT_ID,
       ignoreCancelEvents: true
     });
   }
@@ -68,7 +71,18 @@ const IODevice = (props: Props) => {
       animateScroll.scrollMore(distance, {
         smooth: "easeInQuad",
         duration: 750,
-        containerId: "scrollPane",
+        containerId: SCROLL_ELEMENT_ID,
+        ignoreCancelEvents: true
+      });
+    }
+  };
+
+  const handleEnterScroll = () => {
+    if (!scrolling) {
+      animateScroll.scrollMore(SCROLL_DISTANCE, {
+        smooth: "easeOutQuad",
+        duration: 250,
+        containerId: SCROLL_ELEMENT_ID,
         ignoreCancelEvents: true
       });
     }
@@ -125,7 +139,7 @@ const IODevice = (props: Props) => {
       <Scene />
       <Box sx={{ flex: 2, position: "relative", overflow: "auto" }}>
         <Box
-          id="scrollPane"
+          id={SCROLL_ELEMENT_ID}
           ref={scrollPaneRef}
           onScroll={debouncedScrollHandler}
           sx={{ overflow: "auto", height: "100%", maxHeight: "100%", position: "relative" }}
@@ -150,7 +164,7 @@ const IODevice = (props: Props) => {
           {interaction.options && interaction.options.length ? (
             <DecisionBar options={interaction.options} />
           ) : (
-            <ParserBar />
+            <ParserBar onEnterScroll={handleEnterScroll} />
           )}
         </Box>
         <div>

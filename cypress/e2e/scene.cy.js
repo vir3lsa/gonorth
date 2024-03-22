@@ -17,6 +17,28 @@ describe("Scene", () => {
     cy.getSceneImage();
     cy.getImageToggle().click();
     cy.getSceneImage().should("not.exist");
+    cy.getImageToggle().click();
+    cy.getSceneImage().should("exist");
+  });
+
+  it("Allows the scene image to be toggled via keywords", () => {
+    cy.startGame();
+    cy.getSceneImage();
+    cy.say("hide scene");
+    cy.getSceneImage().should("not.exist");
+    cy.say("reveal scene");
+    cy.getSceneImage().should("exist");
+  });
+
+  it("Shows the scene image when returning to a room", () => {
+    cy.startGame();
+    cy.getSceneImage();
+    cy.getImageToggle().click();
+    cy.say("east", "Going east.");
+    cy.choose("Next");
+    cy.say("west", "Going west.");
+    cy.choose("Next");
+    cy.getSceneImage().should("exist");
   });
 
   it("Does not show the image toggle in a scene with no image", () => {

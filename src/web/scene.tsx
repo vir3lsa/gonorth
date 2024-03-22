@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { KeyboardEvent, useCallback, useEffect } from "react";
 import { Box } from "@mui/system";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { revealScene } from "../redux/gameActions";
@@ -9,10 +9,19 @@ interface Props {
   gameStarted: boolean;
 }
 
+const ENTER = "Enter";
+const SPACE = " ";
+
 const SceneInner: React.FC<Props> = ({ location, image, gameStarted }) => {
   const sceneRevealed = useSelector((state: StoreState) => state.sceneRevealed);
   const dispatch = useDispatch();
   const showScene = useCallback((reveal: boolean) => dispatch(revealScene(reveal)), []);
+
+  const handleKeyUp = (event: KeyboardEvent<HTMLAnchorElement>) => {
+    if (event.key === ENTER || event.key === SPACE) {
+      showScene(!sceneRevealed);
+    }
+  };
 
   // Show the scene when we change location etc.
   useEffect(() => {
@@ -38,13 +47,16 @@ const SceneInner: React.FC<Props> = ({ location, image, gameStarted }) => {
         >
           <Box sx={{ flex: 1 }}>{location}</Box>
           {image && (
-            <Box
-              sx={{ textDecoration: "underline", cursor: "pointer" }}
+            <a
+              style={{ textDecoration: "underline", cursor: "pointer" }}
               onClick={() => showScene(!sceneRevealed)}
+              onKeyUp={handleKeyUp}
               data-testid="image-toggle"
+              role="button"
+              tabIndex={1}
             >
-              <div role="button">{sceneRevealed ? "Hide Scene" : "Show Scene"}</div>
-            </Box>
+              {sceneRevealed ? "Hide Scene" : "Show Scene"}
+            </a>
           )}
         </Box>
       )}

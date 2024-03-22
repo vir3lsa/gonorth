@@ -1,7 +1,9 @@
 # goNORTH Changelog
 
-## Unreleased
+## 1.12.0
 
+* 2024-03-22 Added "hide scene" and "reveal scene" keywords.
+* 2024-03-20 Ability to scroll down by pressing enter.
 * 2024-03-20 Improved auto-scroll behaviour, added scroll button.
 
 ## 1.11.0

@@ -4,7 +4,7 @@ import { RandomText } from "../interactions/text";
 import { getHelp, giveHint } from "../../gonorth";
 import { getKeywordsTable } from "../../utils/defaultHelp";
 import { getStore } from "../../redux/storeRegistry";
-import { addKeywords, removeKeywords } from "../../redux/gameActions";
+import { addKeywords, removeKeywords, revealScene } from "../../redux/gameActions";
 import { handleDebugOperations } from "../../utils/debugFunctions";
 import { clearPage } from "../../utils/sharedFunctions";
 import createWaitGraph from "./waitGraph";
@@ -87,6 +87,24 @@ export function createKeywords() {
     expectedArgs: ["operation", "args"]
   });
 
+  const hideScene = new Verb.Builder("hide scene")
+    .withDescription("Hide the scene image.")
+    .withAliases("close scene", "hide image")
+    .isKeyword()
+    .withOnSuccess(() => {
+      getStore().dispatch(revealScene(false));
+    })
+    .build();
+
+  const showScene = new Verb.Builder("show scene")
+    .withDescription("Reveal the scene image.")
+    .withAliases("reveal scene", "open scene", "show image", "reveal image", "open image")
+    .isKeyword()
+    .withOnSuccess(() => {
+      getStore().dispatch(revealScene(true));
+    })
+    .build();
+
   addKeyword(inventoryVerb);
   addKeyword(wait);
   addKeyword(help);
@@ -94,6 +112,8 @@ export function createKeywords() {
   addKeyword(hint);
   addKeyword(clear);
   addKeyword(debug);
+  addKeyword(hideScene);
+  addKeyword(showScene);
 }
 
 export function addKeyword(keyword: VerbT) {

@@ -1,15 +1,16 @@
-import React, { ChangeEvent, KeyboardEvent, useEffect, useRef } from "react";
+import React, { ChangeEvent, FC, KeyboardEvent, useEffect, useRef } from "react";
 import TextField from "@mui/material/TextField";
 import { receiveInput } from "../game/input/inputReceiver";
 import { reactionTimePassed } from "../utils/sharedFunctions";
 
+const MAX_HISTORY = 500;
+
 let historyIndex = 0;
 let history: string[] = [];
-const maxHistory = 500;
 
 history[0] = "";
 
-const captureInput = (event: KeyboardEvent<HTMLInputElement>) => {
+const captureInput = (event: KeyboardEvent<HTMLDivElement>, onEnterScroll: () => void) => {
   if (event.key === "Enter" && reactionTimePassed()) {
     const target = event.target as HTMLInputElement;
     const value = target.value;
@@ -26,13 +27,15 @@ const captureInput = (event: KeyboardEvent<HTMLInputElement>) => {
         history[1] = value; // In case we didn't have a working value
       }
 
-      if (history.length > maxHistory + 1) {
-        history = history.slice(0, maxHistory + 1);
+      if (history.length > MAX_HISTORY + 1) {
+        history = history.slice(0, MAX_HISTORY + 1);
       }
 
       // Blank the working value
       history[0] = "";
       historyIndex = 0;
+    } else {
+      onEnterScroll();
     }
   }
 };
@@ -67,7 +70,11 @@ const handleArrows = (event: KeyboardEvent<HTMLInputElement>) => {
   event.preventDefault();
 };
 
-export const ParserBar = () => {
+interface Props {
+  onEnterScroll: () => void;
+}
+
+export const ParserBar: FC<Props> = ({ onEnterScroll }) => {
   const inputRef = useRef<HTMLInputElement>();
 
   // Focus the text field
@@ -80,7 +87,7 @@ export const ParserBar = () => {
       fullWidth
       margin="normal"
       onKeyDown={handleArrows}
-      onKeyUp={captureInput}
+      onKeyUp={(event) => captureInput(event, onEnterScroll)}
       onChange={handleChange}
       inputRef={inputRef}
       autoComplete="off"
