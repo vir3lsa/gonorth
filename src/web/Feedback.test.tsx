@@ -8,13 +8,21 @@ import userEvent from "@testing-library/user-event";
 import { UserEvent } from "@testing-library/user-event/dist/types/setup/setup";
 import "@testing-library/jest-dom";
 import Feedback from "./Feedback";
+import { Provider } from "react-redux";
+import { createStore } from "redux";
+import gameReducer from "../redux/reducers/gameReducer";
 
 describe("Feedback component", () => {
   let user: UserEvent;
 
   beforeEach(() => {
     user = userEvent.setup();
-    render(<Feedback />);
+    const store = createStore(gameReducer);
+    render(
+      <Provider store={store}>
+        <Feedback />
+      </Provider>
+    );
   });
 
   test("is rendered", async () => {

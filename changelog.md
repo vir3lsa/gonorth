@@ -2,6 +2,7 @@
 
 ## 1.12.0
 
+* 2024-03-23 Upgraded to Node 20, improved feedback box focus behaviour.
 * 2024-03-22 Added "hide scene" and "reveal scene" keywords.
 * 2024-03-20 Ability to scroll down by pressing enter.
 * 2024-03-20 Improved auto-scroll behaviour, added scroll button.

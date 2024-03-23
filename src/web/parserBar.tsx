@@ -2,6 +2,7 @@ import React, { ChangeEvent, FC, KeyboardEvent, useEffect, useRef } from "react"
 import TextField from "@mui/material/TextField";
 import { receiveInput } from "../game/input/inputReceiver";
 import { reactionTimePassed } from "../utils/sharedFunctions";
+import { useSelector } from "react-redux";
 
 const MAX_HISTORY = 500;
 
@@ -76,9 +77,14 @@ interface Props {
 
 export const ParserBar: FC<Props> = ({ onEnterScroll }) => {
   const inputRef = useRef<HTMLInputElement>();
+  const feedbackOpen = useSelector((state: StoreState) => state.feedbackOpen);
 
-  // Focus the text field
-  useEffect(() => inputRef.current?.focus());
+  useEffect(() => {
+    // Focus the text field unless feedback box is open.
+    if (!feedbackOpen) {
+      inputRef.current?.focus();
+    }
+  });
 
   return (
     <TextField
