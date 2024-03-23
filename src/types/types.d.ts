@@ -170,6 +170,7 @@ interface StoreState {
   game?: Game;
   gameStarted: boolean;
   sceneRevealed: boolean;
+  feedbackOpen: boolean;
 }
 
 interface Dict {
@@ -220,6 +221,7 @@ interface ReduxAction {
   playerTurn: boolean;
   gameStarted: boolean;
   sceneRevealed: boolean;
+  feedbackOpen: boolean;
 }
 
 type GetState = () => StoreState;

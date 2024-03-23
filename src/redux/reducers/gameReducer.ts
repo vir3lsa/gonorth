@@ -32,7 +32,8 @@ export const initialState = {
   autoActions: [],
   rollingLog: [],
   gameStarted: false,
-  sceneRevealed: true
+  sceneRevealed: true,
+  feedbackOpen: false
 } as StoreState;
 
 export default function (state = initialState, action: ReduxAction) {
@@ -190,6 +191,8 @@ export default function (state = initialState, action: ReduxAction) {
       return { ...state, gameStarted: action.gameStarted };
     case type.REVEAL_SCENE:
       return { ...state, sceneRevealed: action.sceneRevealed };
+    case type.TOGGLE_FEEDBACK:
+      return { ...state, feedbackOpen: action.feedbackOpen };
     default:
       return state;
   }

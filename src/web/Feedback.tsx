@@ -1,6 +1,8 @@
 import { Button, Card, CardActions, CardContent, Popover, TextField, Typography } from "@mui/material";
 import React, { useState } from "react";
 import { selectConfig, selectRollingLog } from "../utils/selectors";
+import { useDispatch, useSelector } from "react-redux";
+import { toggleFeedback } from "../redux/gameActions";
 
 const Feedback = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();
@@ -8,9 +10,20 @@ const Feedback = () => {
   const [name, setName] = useState("");
   const [submittedFeedback, setSubmittedFeedback] = useState<string>();
   const [submittedName, setSubmittedName] = useState<string>();
+  const open = useSelector((state: StoreState) => state.feedbackOpen);
+  const dispatch = useDispatch();
 
-  const open = Boolean(anchorEl);
   const id = open ? "feedback-popover" : undefined;
+
+  const handleOpen = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    setAnchorEl(event.currentTarget);
+    dispatch(toggleFeedback(true));
+  };
+
+  const handleClose = () => {
+    setAnchorEl(undefined);
+    dispatch(toggleFeedback(false));
+  };
 
   const handleSubmit = () => {
     // Store current values so we don't submit them again.
@@ -23,19 +36,14 @@ const Feedback = () => {
 
   return (
     <>
-      <Button
-        variant="outlined"
-        color="secondary"
-        sx={{ marginBottom: "8px" }}
-        onClick={(event) => setAnchorEl(event.currentTarget)}
-      >
+      <Button variant="outlined" color="secondary" sx={{ marginBottom: "8px" }} onClick={handleOpen}>
         Feedback
       </Button>
       <Popover
         id={id}
         open={open}
         anchorEl={anchorEl}
-        onClose={() => setAnchorEl(undefined)}
+        onClose={handleClose}
         anchorOrigin={{
           vertical: "top",
           horizontal: "right"
