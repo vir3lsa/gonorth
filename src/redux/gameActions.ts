@@ -247,3 +247,8 @@ export const revealScene = (sceneRevealed: boolean = true) => ({
   type: type.REVEAL_SCENE,
   sceneRevealed
 });
+
+export const toggleFeedback = (feedbackOpen: boolean) => ({
+  type: type.TOGGLE_FEEDBACK,
+  feedbackOpen
+});

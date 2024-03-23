@@ -30,3 +30,4 @@ export const ADD_AUTO_ACTION = "ADD_AUTO_ACTION";
 export const ADD_LOG_ENTRY = "ADD_LOG_ENTRY";
 export const GAME_STARTED = "GAME_STARTED";
 export const REVEAL_SCENE = "REVEAL_SCENE";
+export const TOGGLE_FEEDBACK = "TOGGLE_FEEDBACK";

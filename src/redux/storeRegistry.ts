@@ -1,5 +1,4 @@
 import { Store } from "redux";
-import { ThunkAction } from "redux-thunk";
 import type { SnapshotPersistor } from "./snapshotPersistor";
 
 var registeredStore: Store | null, registeredPersistor: SnapshotPersistor | null;
