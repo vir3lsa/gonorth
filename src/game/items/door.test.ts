@@ -103,6 +103,37 @@ test("shortcut function can be used to close doors", async () => {
   expect(selectCurrentPage()).toInclude("close the heavy oak door");
 });
 
+describe("Builder", () => {
+  test("can be constructed using a builder", async () => {
+    const door = new Door.Builder("iris")
+      .withAliases("door")
+      .withDescription("futuristic")
+      .isLocked(false)
+      .isOpen(false)
+      .withOpenSuccessText("it irises open")
+      .build();
+    expect(door.name).toBe("iris");
+    expect(door.aliases).toContain("door");
+    expect(door.description).toBe("futuristic");
+    expect(door.locked).toBe(false);
+    expect(door.open).toBe(false);
+
+    await door.tryOpen();
+    expect(selectCurrentPage()).toInclude("it irises open");
+  });
+
+  test("verbs can be customised with the builder", async () => {
+    const x = 0;
+    const door = new Door.Builder("gate")
+      .isOpen(false)
+      .customiseVerb("open", (open) => open.addTest(() => x > 0, "x is zero"))
+      .build();
+    await door.tryOpen();
+    expect(door.open).toBe(false);
+    expect(selectCurrentPage()).toInclude("x is zero");
+  });
+});
+
 describe("serialization", () => {
   beforeEach(() => {
     getStore().dispatch(recordChanges());

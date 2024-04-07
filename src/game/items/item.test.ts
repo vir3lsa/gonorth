@@ -121,6 +121,18 @@ describe("basic item tests", () => {
     await pipe.try("take");
     expect(selectCurrentPage()).toInclude("be careful");
   });
+
+  test("verbs can be acquired using getVerb", () => {
+    const bat = new Item.Builder("bat").build();
+    const examine = bat.getVerb("examine");
+    expect(examine.name).toBe("examine");
+    expect(examine.aliases).toContain("x");
+  });
+
+  test("an error message is given if the verb cannot be found", () => {
+    const bat = new Item.Builder("bat").build();
+    expect(() => bat.getVerb("swing")).toThrow('No verb with the name "swing" exists on the item "bat"');
+  });
 });
 
 describe("builder tests", () => {
@@ -164,6 +176,28 @@ describe("builder tests", () => {
   test("a helpful error message is provided when adding a verb if build() is not called", () => {
     // @ts-ignore Deliberately testing wrong argument e.g. for when library is used as JavaScript.
     expect(() => room.addVerb(new Verb.Builder("unfinished"))).toThrow("forget to call build()?");
+  });
+
+  test("verbs may be customised", async () => {
+    const hat = new Item.Builder("hat")
+      .isHoldable()
+      .customiseVerb("examine", (examine) => examine.onSuccess.addAction("beebop"))
+      .customiseVerb("take", (take) => take.onSuccess.addAction("doowop"))
+      .build();
+    await hat.try("examine");
+    expect(selectCurrentPage()).toInclude("beebop");
+    await hat.try("take");
+    expect(selectCurrentPage()).toInclude("doowop");
+  });
+
+  test("cloned items maintiain verb customisations", async () => {
+    const hat = new Item.Builder("hat")
+      .isHoldable()
+      .customiseVerb("examine", (examine) => examine.onSuccess.addAction("beebop"))
+      .build();
+    const hat2 = hat.clone();
+    await hat2.try("examine");
+    expect(selectCurrentPage()).toInclude("beebop");
   });
 });
 

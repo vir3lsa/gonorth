@@ -413,6 +413,10 @@ type OptionAction = () => Promise<unknown>;
 /* Item */
 /********/
 
+interface VerbCustomisations {
+  [verbName: string]: (verb: VerbT) => void;
+}
+
 interface ItemConfig {
   [property: string]: unknown;
   name: string;
@@ -423,6 +427,7 @@ interface ItemConfig {
   aliases?: string[];
   hidesItems?: ItemT[];
   properties?: ItemProperties;
+  verbCustomisations?: VerbCustomisations;
 }
 
 interface ItemItemsDict {

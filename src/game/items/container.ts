@@ -1,8 +1,8 @@
 import { createDynamicText } from "../../utils/dynamicDescription";
 import { Verb } from "../verbs/verb";
-import { Item, Builder as ItemBuilder } from "./item";
+import { Item, Builder as ItemBuilder, customiseVerbs } from "./item";
 
-export function newContainer(config: ContainerConfig) {
+export function newContainer(config: ContainerConfig & ItemConfig) {
   const {
     name,
     aliases,
@@ -41,6 +41,7 @@ export function newContainer(config: ContainerConfig) {
   }
 
   Object.entries(remainingConfig).forEach(([key, value]) => (container[key] = value));
+  customiseVerbs(config.verbCustomisations, container);
 
   return container;
 }

@@ -1,7 +1,7 @@
 import { getStore } from "../../redux/storeRegistry";
 import { Door } from "./door";
 import { GoVerb } from "../verbs/verb";
-import { Item, Builder as ItemBuilder } from "./item";
+import { Item, Builder as ItemBuilder, customiseVerbs } from "./item";
 import { itemsRevealed, changeImage, addRoom } from "../../redux/gameActions";
 import { preferPaged } from "../../utils/dynamicDescription";
 import { ActionChain } from "../../utils/actionChain";
@@ -30,6 +30,7 @@ const newRoom = (config: RoomConfig & ItemConfig) => {
   }
 
   Object.entries(remainingConfig).forEach(([key, value]) => (room[key] = value));
+  customiseVerbs(config.verbCustomisations, room);
 
   return room;
 };

@@ -17,7 +17,8 @@ export function newVerb(config: VerbConfig) {
     interrogative,
     prepositionOptional,
     description,
-    expectedArgs
+    expectedArgs,
+    ...remainingConfig
   } = config;
 
   if (!name) {
@@ -30,7 +31,7 @@ export function newVerb(config: VerbConfig) {
     verb.makePrepositional(interrogative as string, Boolean(prepositionOptional));
   }
 
-  Object.entries(config).forEach(([key, value]) => (verb[key] = value));
+  Object.entries(remainingConfig).forEach(([key, value]) => (verb[key] = value));
   return verb;
 }
 

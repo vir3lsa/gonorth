@@ -1,11 +1,13 @@
-import { Item } from "./item";
+import { Item, customiseVerbs } from "./item";
 import { Verb } from "../verbs/verb";
 
-export function newDoor(config: DoorConfig) {
+export function newDoor(config: DoorConfig & ItemConfig) {
   const { name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key, ...remainingConfig } =
     config;
   const door = new Door(name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key);
   Object.entries(remainingConfig).forEach(([key, value]) => (door[key] = value));
+
+  customiseVerbs(config.verbCustomisations, door);
 
   return door;
 }
@@ -113,6 +115,47 @@ export class Door extends Item {
 
   tryClose() {
     return this.verbs.close.attempt(this);
+  }
+
+  static get Builder() {
+    return DoorBuilder;
+  }
+}
+
+class DoorBuilder extends Item.Builder {
+  config!: DoorConfig & ItemConfig;
+
+  constructor(name: string) {
+    super(name);
+  }
+
+  isOpen(open = true) {
+    this.config.open = open;
+    return this;
+  }
+
+  isLocked(locked = true) {
+    this.config.locked = locked;
+    return this;
+  }
+
+  withOpenSuccessText(text: string) {
+    this.config.openSuccessText = text;
+    return this;
+  }
+
+  withUnlockSuccessText(text: string) {
+    this.config.unlockSuccessText = text;
+    return this;
+  }
+
+  withKey(key: Key) {
+    this.config.key = key;
+    return this;
+  }
+
+  build() {
+    return newDoor(this.config);
   }
 }
 

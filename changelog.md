@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## Unreleased
+
+* 2024-04-01 Ability to customise verbs with Builders, DoorBuilder.
+
 ## 1.12.0
 
 * 2024-03-23 Upgraded to Node 20, improved feedback box focus behaviour.

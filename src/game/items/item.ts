@@ -20,7 +20,17 @@ export function newItem(config: ItemConfig, typeConstructor = Item) {
   const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems);
   Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
 
+  // Run any verb modification functions.
+  customiseVerbs(config.verbCustomisations, item);
+
   return item;
+}
+
+export function customiseVerbs(verbModifications: VerbCustomisations = {}, item: Item) {
+  Object.entries(verbModifications).forEach(([verbName, modifyFunction]) => {
+    const verb = item.getVerb(verbName);
+    modifyFunction(verb);
+  });
 }
 
 export class Item {
@@ -48,6 +58,7 @@ export class Item {
   private _visible!: boolean;
   private _itemsVisibleFromRoom!: boolean;
   private _doNotList!: boolean;
+  private _verbCustomisations: VerbCustomisations = {};
   protected uniqueItems: Set<ItemT>;
 
   clone(typeConstructor = Item) {
@@ -67,6 +78,7 @@ export class Item {
         itemsVisibleFromRoom: this.itemsVisibleFromRoom,
         itemsVisibleFromSelf: this.itemsVisibleFromSelf,
         doNotList: this.doNotList,
+        verbCustomisations: this.verbCustomisations || {},
         _cloned: true
       },
       typeConstructor
@@ -861,6 +873,14 @@ export class Item {
     this._takeSuccessText = value;
   }
 
+  get verbCustomisations() {
+    return this._verbCustomisations;
+  }
+
+  set verbCustomisations(value) {
+    this._verbCustomisations = value;
+  }
+
   get(property: string) {
     return this.properties[property];
   }
@@ -952,6 +972,7 @@ export class Item {
 
 export class Builder {
   config: ItemConfig;
+
   constructor(name: string = "") {
     this.config = { name };
   }
@@ -1031,6 +1052,15 @@ export class Builder {
     }
 
     this.config.properties[property] = value;
+    return this;
+  }
+
+  customiseVerb(verbName: string, customisation: (verb: Verb) => void) {
+    if (!this.config.verbCustomisations) {
+      this.config.verbCustomisations = {};
+    }
+
+    this.config.verbCustomisations[verbName] = customisation;
     return this;
   }
 
