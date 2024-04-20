@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-## Unreleased
+## 1.13.0
 
+* 2024-04-20 Helper function to determine if player is in a room.
 * 2024-04-01 Ability to customise verbs with Builders, DoorBuilder.
 
 ## 1.12.0

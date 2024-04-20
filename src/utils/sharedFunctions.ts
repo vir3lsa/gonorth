@@ -58,6 +58,16 @@ export function playerHasItem(item: Item) {
   return inventory.items.hasOwnProperty(item.name.toLowerCase());
 }
 
+/*
+ * Clears the page of text output.
+ */
 export function clearPage(newPage: string = "") {
   getStore().dispatch(changeInteraction(new Interaction(newPage)) as unknown as AnyAction);
+}
+
+/*
+ * Returns true if the player is in the named room.
+ */
+export function inRoom(roomName: string) {
+  return selectRoom().name.toLocaleLowerCase() === roomName.toLocaleLowerCase();
 }
