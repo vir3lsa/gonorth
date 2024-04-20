@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2024-04-20 Update GitHub action versions, resolve some vulnerable dependencies.
+
 ## 1.14.0
 
 * 2024-04-20 Default-export functions on a gonorth object.
