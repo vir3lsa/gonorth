@@ -4,8 +4,10 @@ import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
 import { changeImage, addEvent as eventAdded, gameStarted, newGame, setStartRoom } from "./redux/gameActions";
 import { Room } from "./game/items/room";
+import { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
+import { newVerb } from "./game/verbs/verb";
 import { ActionChain } from "./utils/actionChain";
-import { createPlayer, goToRoom, initAutoActions } from "./utils/lifecycle";
+import { createPlayer, goToRoom, initAutoActions, gameOver, theEnd, play, addAutoAction } from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import {
   selectRoom,
@@ -13,13 +15,22 @@ import {
   selectStartingRoom,
   selectEffects,
   selectInventoryItems,
-  selectItem
+  selectItem,
+  selectInventory,
+  selectOptionGraph,
+  selectTurn
 } from "./utils/selectors";
-import { forget, retrieve, store } from "./utils/persistentVariableFunctions";
+import { forget, retrieve, store, update } from "./utils/persistentVariableFunctions";
 import { createKeywords } from "./game/verbs/keywords";
 import { GoNorth } from "./web/GoNorth";
 import seedrandom from "seedrandom";
-import { clearPage } from "./utils/sharedFunctions";
+import { clearPage, inRoom, inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";
+import { getBasicItemList, bulletPointList, toTitleCase, getArticle, englishList } from "./utils/textFunctions";
+import { moveItem, getItem as getUniqueItem } from "./utils/itemFunctions";
+import { newDoor } from "./game/items/door";
+import { newContainer } from "./game/items/container";
+import { newItem } from "./game/items/item";
+import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
 
 const RESUME_HINTS = "RESUME_HINTS";
 const HINT_NODE = "HINT_NODE";
@@ -189,6 +200,64 @@ function getItem(name: string, index = 0) {
   }
 }
 
+const gonorth = {
+  addAutoAction,
+  addEvent,
+  addEffect,
+  addHintNodes,
+  addKeyword,
+  addSchedule,
+  addWildcardEffect,
+  attach,
+  bulletPointList,
+  englishList,
+  forget,
+  gameOver,
+  getArticle,
+  getBasicItemList,
+  getHelp,
+  getItem,
+  getKeyword,
+  getKeywords,
+  getRoom,
+  getUniqueItem,
+  giveHint,
+  goToRoom,
+  goToStartingRoom,
+  initGame,
+  inRoom,
+  inSameRoomAs,
+  moveItem,
+  newContainer,
+  newDoor,
+  newItem,
+  newVerb,
+  play,
+  playerCanCarry,
+  playerHasItem,
+  removeKeyword,
+  retrieve,
+  selectEffects,
+  selectInventory,
+  selectInventoryItems,
+  selectOptionGraph,
+  selectPlayer,
+  selectRoom,
+  selectTurn,
+  setHelp,
+  setHintNodeId,
+  setIntro,
+  setInventoryCapacity,
+  setStartingRoom,
+  store,
+  theEnd,
+  TIMEOUT_MILLIS,
+  TIMEOUT_TURNS,
+  toTitleCase,
+  update
+};
+
+export default gonorth;
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
 export { Door, newDoor, Key } from "./game/items/door";

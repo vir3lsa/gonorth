@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## 1.14.0
+
+* 2024-04-20 Default-export functions on a gonorth object.
+
 ## 1.13.0
 
 * 2024-04-20 Helper function to determine if player is in a room.
