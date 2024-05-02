@@ -20,7 +20,8 @@ import {
   okay,
   setHintNodeId,
   OptionGraph,
-  gameOver
+  gameOver,
+  Door
 } from "../../../lib/src/gonorth";
 import "./index.css";
 import whiteRoomImage from "./whiteRoom.gif";
@@ -59,7 +60,27 @@ function setUp() {
     true
   );
 
-  const greenRoom = new Room("Green Room", "The room's a beautiful forest green. The white room's to the east.", true);
+  const greenRoom = new Room(
+    "Green Room",
+    "The room's a beautiful forest green. The white room's to the east. There's a panelled door in the wall in front of you.",
+    true
+  );
+
+  greenRoom.addItems(
+    new Door.Builder("panelled door")
+      .isOpen(false)
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("green room")
+          .withTest(
+            () => Boolean(selectInventory().itemArray.find((item) => item.name === "strange device")),
+            "You have to be holding the strange device, for some reason."
+          )
+          .onSuccess("You step into the green wall, through the door, and find yourself in the red room.")
+          .withDestination("red room")
+      )
+      .build()
+  );
 
   whiteRoom.setEast(redRoom);
   whiteRoom.setWest(greenRoom);

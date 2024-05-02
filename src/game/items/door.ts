@@ -1,10 +1,24 @@
 import { Item, customiseVerbs } from "./item";
 import { Verb } from "../verbs/verb";
+import { inRoom, normaliseTest } from "../../utils/sharedFunctions";
+import { ActionChain } from "../../utils/actionChain";
+import { goToRoom } from "../../utils/lifecycle";
+import { selectRoom } from "../../utils/selectors";
 
 export function newDoor(config: DoorConfig & ItemConfig) {
-  const { name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key, ...remainingConfig } =
-    config;
-  const door = new Door(name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key);
+  const {
+    name,
+    description,
+    open,
+    locked,
+    openSuccessText,
+    unlockSuccessText,
+    aliases,
+    key,
+    traversals,
+    ...remainingConfig
+  } = config;
+  const door = new Door(name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key, traversals);
   Object.entries(remainingConfig).forEach(([key, value]) => (door[key] = value));
 
   customiseVerbs(config.verbCustomisations, door);
@@ -25,7 +39,8 @@ export class Door extends Item {
     openSuccessText?: string,
     unlockSuccessText?: string,
     aliases?: string[],
-    key?: KeyT
+    key?: KeyT,
+    traversals?: Traversal[]
   ) {
     super(name, description, false, -1, [], aliases);
     this.open = open;
@@ -70,6 +85,34 @@ export class Door extends Item {
         ])
         .build()
     );
+
+    if (traversals) {
+      // Create a verb from each traversal.
+      const traversalToVerb = traversals.reduce((acc, traversal) => {
+        acc[traversal.id] = new Verb.Builder()
+          .withName(`${name}-traversal-${traversal.id}`)
+          .withTest(...traversal.tests)
+          .withOnSuccess(traversal.onSuccess)
+          .withOnFailure(traversal.onFailure)
+          .build();
+        return acc;
+      }, {} as { [index: number]: Verb });
+
+      this.addVerb(
+        new Verb.Builder("go through")
+          .withAliases("traverse", "enter", "use")
+          .withSmartTest(() => this.open, `The ${name} is closed.`)
+          .withOnSuccess((context) => {
+            const traversal = traversals.find((traversal) => traversal.activationCondition(context));
+            const traversalId = traversal ? traversal.id : -1;
+            return (
+              traversalToVerb[traversalId]?.attempt(context) ||
+              `You step through the ${name} only to find yourself back in the ${selectRoom().name}.`
+            );
+          })
+          .build()
+      );
+    }
 
     this.verbs.unlock.makePrepositional("with what", true);
   }
@@ -120,6 +163,10 @@ export class Door extends Item {
   static get Builder() {
     return DoorBuilder;
   }
+
+  static get TraversalBuilder() {
+    return TraversalBuilder;
+  }
 }
 
 class DoorBuilder extends Item.Builder {
@@ -154,8 +201,84 @@ class DoorBuilder extends Item.Builder {
     return this;
   }
 
+  addTraversal(traversalBuilder: TraversalBuilder) {
+    if (!this.config.traversals) {
+      this.config.traversals = [];
+    }
+
+    this.config.traversals.push(traversalBuilder.build());
+    return this;
+  }
+
   build() {
     return newDoor(this.config);
+  }
+}
+
+class TraversalBuilder {
+  static idCounter = 0;
+
+  config: TraversalConfig = {
+    tests: [],
+    onSuccess: [],
+    onFailure: []
+  };
+
+  withOrigin(origin: string) {
+    this.config.origin = origin;
+    return this;
+  }
+
+  withActivationCondition(condition: Test) {
+    this.config.activationCondition = condition;
+    return this;
+  }
+
+  withTest(test: Test, onFailure: Action) {
+    this.config.tests.push({ test: normaliseTest(test), onFailure });
+    return this;
+  }
+
+  onSuccess(...onSuccess: Action[]) {
+    this.config.onSuccess = [...this.config.onSuccess, ...onSuccess];
+    return this;
+  }
+
+  onFailure(...onFailure: Action[]) {
+    this.config.onFailure = [...this.config.onFailure, ...onFailure];
+    return this;
+  }
+
+  withDestination(destination: string) {
+    this.config.destination = destination;
+    return this;
+  }
+
+  build() {
+    const { origin, activationCondition, tests, onSuccess, onFailure, destination } = this.config;
+    let originFunc: TestFunction = () => (origin ? inRoom(origin) : true);
+    let activationConditionFunc: TestFunction = originFunc;
+
+    if (activationCondition) {
+      const normalActCond = normaliseTest(activationCondition);
+      activationConditionFunc = (context) => originFunc(context) && normalActCond(context);
+    }
+
+    if (!origin && !activationCondition) {
+      throw Error("Tried to create Door Traversal but neither origin nor activationCondition were set.");
+    }
+
+    if (!destination) {
+      throw Error("Tried to create Door Traversal but destination was not set.");
+    }
+
+    return {
+      id: TraversalBuilder.idCounter++,
+      activationCondition: activationConditionFunc,
+      tests,
+      onSuccess: [...onSuccess, () => goToRoom(destination)],
+      onFailure
+    } as Traversal;
   }
 }
 

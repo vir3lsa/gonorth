@@ -2,6 +2,7 @@
 
 # Unreleased
 
+* 2024-04-29 Added go-through verb to Door and Traversals to DoorBuilder.
 * 2024-04-20 Update GitHub action versions, resolve some vulnerable dependencies.
 
 ## 1.14.0

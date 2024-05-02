@@ -1,12 +1,13 @@
-import { changeInteraction, recordChanges } from "../../redux/gameActions";
+import { changeInteraction, newGame, recordChanges } from "../../redux/gameActions";
 import { Door, Key } from "./door";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
 import { Interaction } from "../interactions/interaction";
-import { initGame } from "../../gonorth";
+import { goToRoom, initGame, selectRoom } from "../../gonorth";
 import { Item } from "./item";
-import { selectCurrentPage } from "../../utils/testSelectors";
+import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { AnyAction } from "redux";
+import { clickNext, clickNextAndWait, deferAction } from "../../utils/testFunctions";
 
 let game: Game, room: RoomT, door: DoorT;
 
@@ -18,9 +19,14 @@ consoleIO.showOptions = jest.fn();
 beforeEach(() => {
   unregisterStore();
   game = initGame("The Giant's Castle", "", { debugMode: false });
+  getStore().dispatch(newGame(game, false));
   getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);
-  room = new Room("Hall", "");
+  room = new Room.Builder("Hall").build();
+  room.setEast(new Room.Builder("Pantry").build());
+  room.setWest(new Room.Builder("Cellar").build());
   door = new Door("heavy oak door", "", false, true);
+  room.addItem(door);
+  goToRoom(room);
 });
 
 test("doors can be unlocked", async () => {
@@ -152,5 +158,160 @@ describe("serialization", () => {
   test("changes to key are recorded", () => {
     door.key = new Key("slender key");
     expect(door.alteredProperties).toEqual(new Set(["key"]));
+  });
+});
+
+describe("traversals", () => {
+  let x: number;
+  beforeEach(() => (x = 0));
+
+  test("a traversal can be added to allow going through a door from an origin", async () => {
+    const gate = new Door.Builder("gate")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("Hall")
+          .withTest(() => x > 0, "x too low")
+          .onFailure("no traversal")
+          .onSuccess("Well done")
+          .withDestination("Pantry")
+      )
+      .build();
+    room.addItem(gate);
+    x = 1;
+    gate.getVerb("go through").attempt(gate);
+    await deferAction(() => expect(selectCurrentPage()).toInclude("Well done"));
+    await clickNextAndWait();
+    expect(selectRoom().name).toBe("Pantry");
+  });
+
+  test("multiple traversals can be added and the one whose activation condition matches will be chosen", async () => {
+    const gate = new Door.Builder("gate")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withActivationCondition(() => x < 0)
+          .onSuccess("Well done")
+          .withDestination("Pantry")
+      )
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withActivationCondition(() => x > 0)
+          .onSuccess("You did it")
+          .withDestination("Cellar")
+      )
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withActivationCondition(() => x === 0)
+          .onSuccess("Wowee")
+          .withDestination("Cellar")
+      )
+      .build();
+    room.addItem(gate);
+    x = 1;
+    gate.getVerb("go through").attempt(gate);
+    await deferAction(() => expect(selectCurrentPage()).toInclude("You did it"));
+    await clickNextAndWait();
+    expect(selectRoom().name).toBe("Cellar");
+  });
+
+  test("activation conditions can be booleans", async () => {
+    const gate = new Door.Builder("gate")
+      .addTraversal(
+        new Door.TraversalBuilder().withActivationCondition(true).onSuccess("Success").withDestination("Pantry")
+      )
+      .build();
+    room.addItem(gate);
+    gate.getVerb("go through").attempt(gate);
+    return deferAction(() => expect(selectCurrentPage()).toInclude("Success"));
+  });
+
+  test("an origin and an activation condition may be added", () => {
+    const gate = new Door.Builder("gate")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("Hall")
+          .withActivationCondition(() => x > 0)
+          .onSuccess("One")
+          .withDestination("Pantry")
+      )
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("Hall")
+          .withActivationCondition(() => x < 0)
+          .onSuccess("Two")
+          .withDestination("Pantry")
+      )
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("Pantry")
+          .withActivationCondition(() => x > 0)
+          .onSuccess("Three")
+          .withDestination("Hall")
+      )
+      .build();
+    room.addItem(gate);
+    x = -1;
+    gate.getVerb("go through").attempt(gate);
+    return deferAction(() => expect(selectCurrentPage()).toInclude("Two"));
+  });
+
+  test("an action may occur when a test fails", async () => {
+    const gate = new Door.Builder("gate")
+      .addTraversal(new Door.TraversalBuilder().withOrigin("Hall").withTest(false, "Nope").withDestination("Pantry"))
+      .build();
+    room.addItem(gate);
+    gate.getVerb("go through").attempt(gate);
+    await deferAction(() => expect(selectCurrentPage()).toInclude("Nope"));
+    expect(selectInteraction().options).toBeUndefined();
+  });
+
+  test("an overall action may occur when tests fails", async () => {
+    const gate = new Door.Builder("gate")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("Hall")
+          .withTest(false, "Nope")
+          .onFailure("Bad")
+          .withDestination("Pantry")
+      )
+      .build();
+    room.addItem(gate);
+    gate.getVerb("go through").attempt(gate);
+    await deferAction(() => expect(selectCurrentPage()).toInclude("Nope"));
+    await deferAction(() => expect(selectCurrentPage()).toInclude("Bad"));
+    expect(selectInteraction().options).toBeUndefined();
+  });
+
+  test("an action may occur when a traversal succeeds", () => {
+    const gate = new Door.Builder("gate")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("Hall")
+          .onSuccess(() => (x = 12))
+          .withDestination("Pantry")
+      )
+      .build();
+    room.addItem(gate);
+    gate.getVerb("go through").attempt(gate);
+    return deferAction(() => expect(x).toBe(12));
+  });
+
+  test("cannot traverse if the door is closed", async () => {
+    const gate = new Door.Builder("gate")
+      .addTraversal(new Door.TraversalBuilder().withOrigin("Hall").withDestination("Pantry"))
+      .isOpen(false)
+      .build();
+    room.addItem(gate);
+    gate.getVerb("go through").attempt(gate);
+    return deferAction(() => expect(selectCurrentPage()).toInclude("The gate is closed."));
+  });
+
+  test("throws error if neither origin nor activationCondition set", () => {
+    const builder = new Door.TraversalBuilder().withDestination("Pantry");
+    expect(() => builder.build()).toThrow("neither origin nor activationCondition were set");
+  });
+
+  test("throws error if no destination is set", () => {
+    const builder = new Door.TraversalBuilder().withOrigin("Pantry");
+    expect(() => builder.build()).toThrow("destination was not set");
   });
 });

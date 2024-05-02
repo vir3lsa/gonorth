@@ -31,6 +31,6 @@ export const selectCyCommands = (): string[] => getStore().getState().cyCommands
 export const selectEventTimeoutOverride = (): number | undefined => getStore().getState().eventTimeoutOverride;
 export const selectEventTurnsOverride = (): number | undefined => getStore().getState().eventTurnsOverride;
 export const selectEffects = (): EffectsT => getStore().getState().effects;
-export const selectItem = (name: string): Set<ItemT> => getStore().getState().items[name];
+export const selectItem = (name: string): Set<ItemT> => getStore().getState().items[name.toLocaleLowerCase()];
 export const selectAutoActions = (): AutoActionT[] => getStore().getState().autoActions;
 export const selectRollingLog = (): LogEntry[] => getStore().getState().rollingLog;

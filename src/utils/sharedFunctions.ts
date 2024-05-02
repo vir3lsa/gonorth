@@ -71,3 +71,18 @@ export function clearPage(newPage: string = "") {
 export function inRoom(roomName: string) {
   return selectRoom().name.toLocaleLowerCase() === roomName.toLocaleLowerCase();
 }
+
+/**
+ * Turns a Test into a TestFunction.
+ * @param test The input Test
+ * @returns TestFunction
+ */
+export const normaliseTest = (test?: Test) => {
+  if (typeof test === "undefined") {
+    return () => true;
+  } else if (typeof test === "boolean") {
+    return () => test;
+  }
+
+  return test;
+};

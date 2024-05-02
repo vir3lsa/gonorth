@@ -476,6 +476,24 @@ interface DoorConfig {
   unlockSuccessText: string;
   aliases: string[];
   key: KeyT;
+  traversals?: Traversal[];
+}
+
+interface TraversalConfig {
+  origin?: string;
+  activationCondition?: Test;
+  tests: SmartTest[];
+  onSuccess: Action[];
+  onFailure: Action[];
+  destination?: string;
+}
+
+interface Traversal {
+  id: number;
+  activationCondition: TestFunction;
+  tests: SmartTest[];
+  onSuccess: Action[];
+  onFailure: Action[];
 }
 
 /*************/

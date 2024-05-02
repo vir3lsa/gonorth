@@ -1,7 +1,7 @@
 import { initGame, Item, Room } from "../gonorth";
 import { goToRoom } from "./lifecycle";
 import { selectPlayer } from "./selectors";
-import { inRoom, inSameRoomAs } from "./sharedFunctions";
+import { inRoom, inSameRoomAs, normaliseTest } from "./sharedFunctions";
 
 jest.mock("./consoleIO");
 const consoleIO = require("./consoleIO");
@@ -33,4 +33,11 @@ describe("inSameRoomAs function", () => {
   it("returns false when the player is not in the named room", () => expect(inRoom("scullery")).toBe(false));
   it("returns true when the player is in the named room case notwithstanding", () =>
     expect(inRoom("PARLOUR")).toBe(true));
+});
+
+describe("normaliseTest function", () => {
+  const context = { verb: ball.getVerb("inspect"), item: ball };
+  it("defaults to true", () => expect(normaliseTest(undefined)(context)).toBe(true));
+  it("turns a boolean into a function", () => expect(normaliseTest(false)(context)).toBe(false));
+  it("leaves a function alone", () => expect(normaliseTest(() => false)(context)).toBe(false));
 });

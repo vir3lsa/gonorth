@@ -2,7 +2,7 @@ import { getStore } from "../../redux/storeRegistry";
 import { verbCreated } from "../../redux/gameActions";
 import { ActionChain } from "../../utils/actionChain";
 import { selectEffects, selectRoom } from "../../utils/selectors";
-import { playerHasItem } from "../../utils/sharedFunctions";
+import { normaliseTest, playerHasItem } from "../../utils/sharedFunctions";
 import { checkAutoActions } from "../input/autoActionExecutor";
 
 export function newVerb(config: VerbConfig) {
@@ -36,16 +36,6 @@ export function newVerb(config: VerbConfig) {
 }
 
 const identity = () => undefined;
-
-const normaliseTest = (test: Test) => {
-  if (typeof test === "undefined") {
-    return () => true;
-  } else if (typeof test === "boolean") {
-    return () => test;
-  }
-
-  return test;
-};
 
 export class Verb {
   [property: string]: unknown;
