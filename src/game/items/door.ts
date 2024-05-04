@@ -94,6 +94,7 @@ export class Door extends Item {
           .withTest(...traversal.tests)
           .withOnSuccess(traversal.onSuccess)
           .withOnFailure(traversal.onFailure)
+          .isRemote()
           .build();
         return acc;
       }, {} as { [index: number]: Verb });
