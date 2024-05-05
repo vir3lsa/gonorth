@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* 2024-05-10 Traversals may have aliases.
+* 2024-05-05 Add doors directly to Room directions and defer to their traversal verbs.
 * 2024-05-04 Made traversal sub-verbs remote.
 
 ## 1.15.0

@@ -269,6 +269,7 @@ interface Context {
   verb: VerbT;
   item: ItemT;
   other?: ItemT;
+  alias?: string;
 }
 
 interface ActionChainHelpers {
@@ -454,6 +455,7 @@ interface DirectionObject {
   onSuccess?: ContextAction | ContextAction[];
   failureText?: string;
   directionName?: DirectionName;
+  door?: DoorT;
 }
 
 interface AdjacentRooms {
@@ -480,6 +482,7 @@ interface DoorConfig {
 }
 
 interface TraversalConfig {
+  aliases: string[];
   origin?: string;
   activationCondition?: Test;
   tests: SmartTest[];
@@ -489,6 +492,7 @@ interface TraversalConfig {
 }
 
 interface Traversal {
+  aliases: string[];
   id: number;
   activationCondition: TestFunction;
   tests: SmartTest[];

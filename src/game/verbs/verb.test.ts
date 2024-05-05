@@ -105,6 +105,25 @@ it("may have multiple tests", async () => {
   expect(selectCurrentPage()).toBe("no");
 });
 
+it("can receive the alias that was used to invoke it", async () => {
+  let result;
+  const jump = new Verb.Builder("jump")
+    .withAliases("hop")
+    .withOnSuccess(({ alias }) => (result = alias as string))
+    .build();
+  await jump.attempt("someItem", "someOther", "hop");
+  expect(result).toBe("hop");
+});
+
+it("can receive a partial context and args", async () => {
+  const explain = new Verb.Builder("explain")
+    .withExpectedArgs("tool", "prop")
+    .withOnSuccess(({ tool, prop }) => `tool: ${tool}, prop: ${prop}`)
+    .build();
+  await explain.attemptWithContext({ tool: "pan" }, "pen knife");
+  expect(selectCurrentPage()).toInclude("tool: pan, prop: pen knife");
+});
+
 describe("chainable actions", () => {
   it("supports cyclic text", async () => {
     verb.onSuccess = new CyclicText("a", "b", "c");

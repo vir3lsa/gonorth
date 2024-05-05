@@ -99,15 +99,27 @@ export class Door extends Item {
         return acc;
       }, {} as { [index: number]: Verb });
 
+      const goThroughAliases = ["traverse", "enter", "use"];
+      const goThroughAllAliases = ["go through", ...goThroughAliases];
+      const traversalAliases = traversals
+        .filter((traversal) => traversal.aliases.length)
+        .flatMap((traversal) => traversal.aliases);
+
       this.addVerb(
         new Verb.Builder("go through")
-          .withAliases("traverse", "enter", "use")
-          .withSmartTest(() => this.open, `The ${name} is closed.`)
+          .withAliases(...goThroughAliases, ...traversalAliases)
           .withOnSuccess((context) => {
-            const traversal = traversals.find((traversal) => traversal.activationCondition(context));
+            const traversal = traversals.find(
+              (traversal) =>
+                traversal.activationCondition(context) &&
+                (!context.alias ||
+                  goThroughAllAliases.includes(context.alias) ||
+                  traversal.aliases.includes(context.alias))
+            );
             const traversalId = traversal ? traversal.id : -1;
+            const traversalVerb = traversalToVerb[traversalId];
             return (
-              traversalToVerb[traversalId]?.attempt(context) ||
+              traversalVerb?.attemptWithContext({ ...context, verb: traversalVerb }) ||
               `You step through the ${name} only to find yourself back in the ${selectRoom().name}.`
             );
           })
@@ -220,10 +232,16 @@ class TraversalBuilder {
   static idCounter = 0;
 
   config: TraversalConfig = {
+    aliases: [],
     tests: [],
     onSuccess: [],
     onFailure: []
   };
+
+  withAliases(...aliases: string[]) {
+    this.config.aliases = [...this.config.aliases, ...aliases];
+    return this;
+  }
 
   withOrigin(origin: string) {
     this.config.origin = origin;
@@ -256,7 +274,7 @@ class TraversalBuilder {
   }
 
   build() {
-    const { origin, activationCondition, tests, onSuccess, onFailure, destination } = this.config;
+    const { aliases, origin, activationCondition, tests, onSuccess, onFailure, destination } = this.config;
     let originFunc: TestFunction = () => (origin ? inRoom(origin) : true);
     let activationConditionFunc: TestFunction = originFunc;
 
@@ -275,6 +293,7 @@ class TraversalBuilder {
 
     return {
       id: TraversalBuilder.idCounter++,
+      aliases,
       activationCondition: activationConditionFunc,
       tests,
       onSuccess: [...onSuccess, () => goToRoom(destination)],

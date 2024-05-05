@@ -1,6 +1,6 @@
 import { getStore } from "../../redux/storeRegistry";
 import { Door } from "./door";
-import { GoVerb } from "../verbs/verb";
+import { GoVerb, Verb } from "../verbs/verb";
 import { Item, Builder as ItemBuilder, customiseVerbs } from "./item";
 import { itemsRevealed, changeImage, addRoom } from "../../redux/gameActions";
 import { preferPaged } from "../../utils/dynamicDescription";
@@ -85,7 +85,6 @@ export class Room extends Item {
     }
 
     const onSuccessArray = !onSuccess || Array.isArray(onSuccess) ? onSuccess : [onSuccess];
-    const aliases = [directionName, ...(directionAliases[directionName || ""] || [])];
     const directionObject = {
       room,
       test,
@@ -94,16 +93,39 @@ export class Room extends Item {
       directionName
     } as DirectionObject;
 
-    // Map each of the direction aliases to the direction object
-    aliases
-      .filter((alias) => alias)
-      .forEach((alias) => {
-        this.adjacentRooms[alias as string] = directionObject;
-      });
+    this.setDirection(directionObject);
+  }
 
-    // Add the keyword if we don't already have it
-    if (directionName && !this.verbs[directionName]) {
-      this.addVerb(new GoVerb(directionName, [], this));
+  addDoor(door: Door, directionName: DirectionName) {
+    this.setDirection({ door, directionName });
+  }
+
+  setDirection(directionObject: DirectionObject) {
+    const { directionName } = directionObject;
+    const aliases: string[] = [directionName, ...(directionAliases[directionName || ""] || [])].filter(
+      (alias) => alias
+    ) as string[];
+
+    // Map each of the direction aliases to the direction object
+    aliases.forEach((alias) => {
+      this.adjacentRooms[alias as string] = directionObject;
+    });
+
+    const door = directionObject.door;
+    const goThrough = door?.getVerb("go through");
+
+    // Add the keyword
+    if (directionName) {
+      if (goThrough) {
+        this.addVerb(
+          new Verb.Builder(directionName)
+            .withAliases(...aliases)
+            .withOnSuccess((context) => goThrough.attemptWithContext({ ...context, item: door!, verb: goThrough }))
+            .build()
+        );
+      } else {
+        this.addVerb(new GoVerb(directionName, [], this));
+      }
     }
   }
 
@@ -122,6 +144,10 @@ export class Room extends Item {
     }
   }
 
+  setNorthDoor(door: Door) {
+    this.setDirection({ door, directionName: "north" });
+  }
+
   setSouth(
     room?: RoomT,
     navigable?: Navigable,
@@ -135,6 +161,10 @@ export class Room extends Item {
       // Adjacent rooms are bidirectional by default
       room.setNorth(this, navigable, onSuccess, failureText, false);
     }
+  }
+
+  setSouthDoor(door: Door) {
+    this.setDirection({ door, directionName: "south" });
   }
 
   setEast(
@@ -152,6 +182,10 @@ export class Room extends Item {
     }
   }
 
+  setEastDoor(door: Door) {
+    this.setDirection({ door, directionName: "east" });
+  }
+
   setWest(
     room?: RoomT,
     navigable?: Navigable,
@@ -165,6 +199,10 @@ export class Room extends Item {
       // Adjacent rooms are bidirectional by default
       room.setEast(this, navigable, onSuccess, failureText, false);
     }
+  }
+
+  setWestDoor(door: Door) {
+    this.setDirection({ door, directionName: "west" });
   }
 
   setUp(
@@ -182,6 +220,10 @@ export class Room extends Item {
     }
   }
 
+  setUpDoor(door: Door) {
+    this.setDirection({ door, directionName: "up" });
+  }
+
   setDown(
     room?: RoomT,
     navigable?: Navigable,
@@ -195,6 +237,10 @@ export class Room extends Item {
       // Adjacent rooms are bidirectional by default
       room.setUp(this, navigable, onSuccess, failureText, false);
     }
+  }
+
+  setDownDoor(door: Door) {
+    this.setDirection({ door, directionName: "down" });
   }
 
   go(directionName: DirectionName) {

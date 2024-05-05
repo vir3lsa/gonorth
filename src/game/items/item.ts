@@ -373,6 +373,9 @@ export class Item {
       this._verbList = [this._verbList];
     }
 
+    // Remove any existing instances of the verb.
+    this._verbList = this._verbList.filter((existingVerb) => existingVerb.name !== verb.name);
+
     this._verbList.push(verb);
     this._verbs[verb.name.toLowerCase()] = verb;
     verb.parent = this;
@@ -448,10 +451,11 @@ export class Item {
    * @param args to pass to the verb
    */
   async try(verbName: string, ...args: unknown[]) {
-    const verb = this.verbs[verbName.toLowerCase()];
+    const alias = verbName.toLowerCase();
+    const verb = this.verbs[alias];
 
     if (verb) {
-      return verb.attempt(this, ...args);
+      return verb.attemptWithContext({ item: this, verb, alias }, ...args);
     }
   }
 

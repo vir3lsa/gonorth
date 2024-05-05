@@ -264,7 +264,7 @@ describe("traversals", () => {
     expect(selectInteraction().options).toBeUndefined();
   });
 
-  test("an overall action may occur when tests fails", async () => {
+  test("an overall action may occur when tests fail", async () => {
     const gate = new Door.Builder("gate")
       .addTraversal(
         new Door.TraversalBuilder()
@@ -295,16 +295,6 @@ describe("traversals", () => {
     return deferAction(() => expect(x).toBe(12));
   });
 
-  test("cannot traverse if the door is closed", async () => {
-    const gate = new Door.Builder("gate")
-      .addTraversal(new Door.TraversalBuilder().withOrigin("Hall").withDestination("Pantry"))
-      .isOpen(false)
-      .build();
-    room.addItem(gate);
-    gate.getVerb("go through").attempt(gate);
-    return deferAction(() => expect(selectCurrentPage()).toInclude("The gate is closed."));
-  });
-
   test("throws error if neither origin nor activationCondition set", () => {
     const builder = new Door.TraversalBuilder().withDestination("Pantry");
     expect(() => builder.build()).toThrow("neither origin nor activationCondition were set");
@@ -313,5 +303,35 @@ describe("traversals", () => {
   test("throws error if no destination is set", () => {
     const builder = new Door.TraversalBuilder().withOrigin("Pantry");
     expect(() => builder.build()).toThrow("destination was not set");
+  });
+
+  test("traversals may have aliases", () => {
+    const gate = new Door.Builder("gate")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withAliases("swim", "bound")
+          .withOrigin("Hall")
+          .onSuccess("splash")
+          .withDestination("Pantry")
+      )
+      .build();
+    room.addItem(gate);
+    gate.try("swim");
+    return deferAction(() => expect(selectCurrentPage()).toInclude("splash"));
+  });
+
+  test("normal aliases may be used for a traversal with aliases", () => {
+    const gate = new Door.Builder("gate")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withAliases("swim", "bound")
+          .withOrigin("Hall")
+          .onSuccess("splash")
+          .withDestination("Pantry")
+      )
+      .build();
+    room.addItem(gate);
+    gate.try("go through");
+    return deferAction(() => expect(selectCurrentPage()).toInclude("splash"));
   });
 });

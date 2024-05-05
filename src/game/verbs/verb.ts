@@ -63,7 +63,7 @@ export class Verb {
     aliases: string[] = [],
     isKeyword = false,
     description = "",
-    expectedArgs = ["item", "other"]
+    expectedArgs = ["item", "other", "alias"]
   ) {
     this.name = name;
     this.isKeyword = isKeyword;
@@ -230,23 +230,34 @@ export class Verb {
   }
 
   /**
-   * Checks auto actions that should precede the verb, tests the verb's conditions and runs the verb's success or
-   * failure actions accordingly.
+   * Creates verb context before attempting the verb.
    * @param args Arguments to pass to the verb functions.
    * @returns A Promise that resolves when the verb's actions have executed.
    */
-  async attempt(...args: unknown[]) {
+  attempt(...args: unknown[]) {
     // Turn the anonymous args into key/value pairs based on the expected args. Any additional unexpected args won't be included.
     const context = this.createContext(args);
+    return this.attemptWithContext(context);
+  }
+
+  /**
+   * Checks auto actions that should precede the verb, tests the verb's conditions and runs the verb's success or
+   * failure actions accordingly.
+   * @param context The context in which the verb is attempted.
+   * @param args Additional arguments to add to the context.
+   * @returns A Promise that resolves when the verb's actions have executed.
+   */
+  async attemptWithContext(context: Partial<Context>, ...args: unknown[]) {
+    const wholeContext = args.length ? this.augmentContext(context, args) : context;
 
     // Check for auto actions that need to run before this verb.
-    const autoActionResult = await checkAutoActions(context);
+    const autoActionResult = await checkAutoActions(wholeContext as Context);
 
     if (!autoActionResult) {
       return false;
     }
 
-    const { item, other } = context;
+    const { item, other } = wholeContext;
 
     const effect = selectEffects().getEffect(item, other, this.name);
 
@@ -255,7 +266,7 @@ export class Verb {
       const effectChain = effect.effects;
 
       if (effectChain) {
-        const effectResult = await effectChain.chain(context);
+        const effectResult = await effectChain.chain(wholeContext);
         const continueVerb = effect.continueVerb;
 
         if (!continueVerb) {
@@ -265,12 +276,12 @@ export class Verb {
     }
 
     // All tests, or an effect, must be successful for verb to proceed.
-    const success = effect ? effect.successful : await this._tests.chain(context);
+    const success = effect ? effect.successful : await this._tests.chain(wholeContext);
 
     if (success) {
-      return this.onSuccess.chain(context);
+      return this.onSuccess.chain(wholeContext);
     } else {
-      return this.onFailure.chain(context);
+      return this.onFailure.chain(wholeContext);
     }
   }
 
@@ -278,12 +289,28 @@ export class Verb {
    * Turns anonymous args into key/value pairs based on the expected args. Any additional unexpected args won't be included.
    */
   createContext(args: unknown[]) {
-    const context = this.expectedArgs.reduce((acc, key, index) => {
+    return this.createContextWithExpectedArgs(args, this.expectedArgs);
+  }
+
+  augmentContext(context: Partial<Context>, args: unknown[]) {
+    const stillExpectedArgs = this.expectedArgs.filter((expected) => !Object.keys(context).includes(expected));
+    return { ...context, ...this.createContextWithExpectedArgs(args, stillExpectedArgs) };
+  }
+
+  createContextWithExpectedArgs(args: unknown[], expectedArgs: string[]) {
+    const context = expectedArgs.reduce((acc, key, index) => {
       acc[key] = args[index];
       return acc;
     }, {} as Context);
 
-    return { ...context, verb: this };
+    context.verb = this;
+
+    // See if one of the args looks like the alias the verb was invoked with.
+    if (typeof context.alias === "string") {
+      context.alias = context.alias.toLowerCase();
+    }
+
+    return context;
   }
 
   static get Builder() {
