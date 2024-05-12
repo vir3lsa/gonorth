@@ -109,19 +109,22 @@ export class Door extends Item {
         new Verb.Builder("go through")
           .withAliases(...goThroughAliases, ...traversalAliases)
           .withOnSuccess((context) => {
+            const { alias } = context;
             const traversal = traversals.find(
               (traversal) =>
                 traversal.activationCondition(context) &&
-                (!context.alias ||
-                  goThroughAllAliases.includes(context.alias) ||
-                  traversal.aliases.includes(context.alias))
+                (!alias || goThroughAllAliases.includes(alias) || traversal.aliases.includes(alias))
             );
             const traversalId = traversal ? traversal.id : -1;
             const traversalVerb = traversalToVerb[traversalId];
-            return (
-              traversalVerb?.attemptWithContext({ ...context, verb: traversalVerb }) ||
-              `You step through the ${name} only to find yourself back in the ${selectRoom().name}.`
-            );
+
+            if (traversalVerb) {
+              return traversalVerb?.attemptWithContext({ ...context, verb: traversalVerb });
+            } else if (alias && goThroughAllAliases.includes(alias)) {
+              return "You can't go that way.";
+            } else {
+              return "You're not sure how to do that.";
+            }
           })
           .build()
       );

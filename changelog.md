@@ -1,6 +1,6 @@
 # goNORTH Changelog
 
-## Unreleased
+## 1.16.0
 
 * 2024-05-10 Traversals may have aliases.
 * 2024-05-05 Add doors directly to Room directions and defer to their traversal verbs.

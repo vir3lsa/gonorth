@@ -71,13 +71,15 @@ function setUp() {
       .isOpen(false)
       .addTraversal(
         new Door.TraversalBuilder()
+          .withAliases("transit")
           .withOrigin("green room")
+          .withDestination("red room")
+          .withTest(({ item: door }) => door.open, "The door is closed.")
           .withTest(
             () => Boolean(selectInventory().itemArray.find((item) => item.name === "strange device")),
             "You have to be holding the strange device, for some reason."
           )
           .onSuccess("You step into the green wall, through the door, and find yourself in the red room.")
-          .withDestination("red room")
       )
       .build()
   );

@@ -334,4 +334,24 @@ describe("traversals", () => {
     gate.try("go through");
     return deferAction(() => expect(selectCurrentPage()).toInclude("splash"));
   });
+
+  test("gives default response if no traversal matches the alias", () => {
+    const portal = new Door.Builder("portal")
+      .addTraversal(
+        new Door.TraversalBuilder().withAliases("warp").withOrigin("Pantry").onSuccess("zap").withDestination("Hall")
+      )
+      .build();
+    room.addItem(portal);
+    portal.try("warp");
+    return deferAction(() => expect(selectCurrentPage()).toInclude("You're not sure how to do that."));
+  });
+
+  test("gives default response if no traversal activation condition succeeds", () => {
+    const archway = new Door.Builder("archway")
+      .addTraversal(new Door.TraversalBuilder().withOrigin("Pantry").onSuccess("how grand").withDestination("Hall"))
+      .build();
+    room.addItem(archway);
+    archway.try("go through");
+    return deferAction(() => expect(selectCurrentPage()).toInclude("You can't go that way."));
+  });
 });
