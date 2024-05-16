@@ -486,6 +486,8 @@ interface TraversalConfig {
   origin?: string;
   activationCondition?: Test;
   tests: SmartTest[];
+  requiresOpen: boolean;
+  onClosed?: Action;
   onSuccess: Action[];
   onFailure: Action[];
   destination?: string;

@@ -354,4 +354,40 @@ describe("traversals", () => {
     archway.try("go through");
     return deferAction(() => expect(selectCurrentPage()).toInclude("You can't go that way."));
   });
+
+  test("doors usually have to be open", () => {
+    const doubleDoor = new Door.Builder("double door")
+      .isOpen(false)
+      .addTraversal(new Door.TraversalBuilder().withOrigin("Hall").withDestination("Pantry"))
+      .build();
+    room.addItem(doubleDoor);
+    doubleDoor.try("go through");
+    return deferAction(() => expect(selectCurrentPage()).toInclude("The double door is closed"));
+  });
+
+  test("onClosed text can be overridden", () => {
+    const singleDoor = new Door.Builder("single door")
+      .isOpen(false)
+      .addTraversal(new Door.TraversalBuilder().onDoorClosed("Ouch").withOrigin("Hall").withDestination("Pantry"))
+      .build();
+    room.addItem(singleDoor);
+    singleDoor.try("go through");
+    return deferAction(() => expect(selectCurrentPage()).toInclude("Ouch"));
+  });
+
+  test("traversals may choose not to require the door to be open", () => {
+    const bigDoor = new Door.Builder("big door")
+      .isOpen(false)
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .requiresDoorOpen(false)
+          .withOrigin("Hall")
+          .withDestination("Pantry")
+          .onSuccess("Hooray")
+      )
+      .build();
+    room.addItem(bigDoor);
+    bigDoor.try("go through");
+    return deferAction(() => expect(selectCurrentPage()).toInclude("Hooray"));
+  });
 });

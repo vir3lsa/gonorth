@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## 1.17.0
+
+* 2024-05-16 Traversals may override door closed text or not require the door to be open.
+
 ## 1.16.0
 
 * 2024-05-10 Traversals may have aliases.
