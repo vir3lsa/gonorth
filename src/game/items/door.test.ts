@@ -109,6 +109,24 @@ test("shortcut function can be used to close doors", async () => {
   expect(selectCurrentPage()).toInclude("close the heavy oak door");
 });
 
+test("openSuccessText can be an Action", async () => {
+  const hatch = new Door.Builder("hatch")
+    .isOpen(false)
+    .withOpenSuccessText(() => "It pops open")
+    .build();
+  await hatch.tryOpen();
+  expect(selectCurrentPage()).toInclude("It pops open");
+});
+
+test("unlockSuccessText can be an Action", async () => {
+  const hatch = new Door.Builder("hatch")
+    .isLocked()
+    .withUnlockSuccessText(() => "Click")
+    .build();
+  await hatch.tryUnlock();
+  expect(selectCurrentPage()).toInclude("Click");
+});
+
 describe("Builder", () => {
   test("can be constructed using a builder", async () => {
     const door = new Door.Builder("iris")

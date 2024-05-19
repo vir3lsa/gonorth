@@ -474,8 +474,8 @@ interface DoorConfig {
   description: UnknownText;
   open: boolean;
   locked: boolean;
-  openSuccessText: string;
-  unlockSuccessText: string;
+  openSuccessText: Action;
+  unlockSuccessText: Action;
   aliases: string[];
   key: KeyT;
   traversals?: Traversal[];

@@ -2,6 +2,7 @@
 
 ## 1.17.0
 
+* 2024-05-19 Door open and unlock success text may be an Action.
 * 2024-05-16 Traversals may override door closed text or not require the door to be open.
 
 ## 1.16.0

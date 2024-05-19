@@ -1,9 +1,7 @@
 import { Item, customiseVerbs } from "./item";
 import { Verb } from "../verbs/verb";
 import { inRoom, normaliseTest } from "../../utils/sharedFunctions";
-import { ActionChain } from "../../utils/actionChain";
 import { goToRoom } from "../../utils/lifecycle";
-import { selectRoom } from "../../utils/selectors";
 
 export function newDoor(config: DoorConfig & ItemConfig) {
   const {
@@ -36,8 +34,8 @@ export class Door extends Item {
     description: UnknownText,
     open = true,
     locked = false,
-    openSuccessText?: string,
-    unlockSuccessText?: string,
+    openSuccessText?: Action,
+    unlockSuccessText?: Action,
     aliases?: string[],
     key?: KeyT,
     traversals?: Traversal[]
@@ -202,13 +200,23 @@ class DoorBuilder extends Item.Builder {
     return this;
   }
 
-  withOpenSuccessText(text: string) {
-    this.config.openSuccessText = text;
+  withOpenSuccessText(onSuccess: Action) {
+    this.config.openSuccessText = onSuccess;
     return this;
   }
 
-  withUnlockSuccessText(text: string) {
-    this.config.unlockSuccessText = text;
+  withUnlockSuccessText(onSuccess: Action) {
+    this.config.unlockSuccessText = onSuccess;
+    return this;
+  }
+
+  onOpenSuccess(onSuccess: Action) {
+    this.config.openSuccessText = onSuccess;
+    return this;
+  }
+
+  onUnlockSuccess(onSuccess: Action) {
+    this.config.unlockSuccessText = onSuccess;
     return this;
   }
 
