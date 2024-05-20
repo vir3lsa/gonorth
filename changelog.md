@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## 1.17.1
+
+* 2024-05-19 Removed requirement for dynamic description arrays to contain strings only.
+
 ## 1.17.0
 
 * 2024-05-19 Door open and unlock success text may be an Action.
