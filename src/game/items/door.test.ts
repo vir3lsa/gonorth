@@ -373,20 +373,20 @@ describe("traversals", () => {
     return deferAction(() => expect(selectCurrentPage()).toInclude("You can't go that way."));
   });
 
-  test("doors usually have to be open", () => {
+  test("door open tests can be added with default text", () => {
     const doubleDoor = new Door.Builder("double door")
       .isOpen(false)
-      .addTraversal(new Door.TraversalBuilder().withOrigin("Hall").withDestination("Pantry"))
+      .addTraversal(new Door.TraversalBuilder().withOrigin("Hall").withDestination("Pantry").withDoorOpenTest())
       .build();
     room.addItem(doubleDoor);
     doubleDoor.try("go through");
     return deferAction(() => expect(selectCurrentPage()).toInclude("The double door is closed"));
   });
 
-  test("onClosed text can be overridden", () => {
+  test("door open tests can be added with a custom onFailure action", () => {
     const singleDoor = new Door.Builder("single door")
       .isOpen(false)
-      .addTraversal(new Door.TraversalBuilder().onDoorClosed("Ouch").withOrigin("Hall").withDestination("Pantry"))
+      .addTraversal(new Door.TraversalBuilder().withDoorOpenTest("Ouch").withOrigin("Hall").withDestination("Pantry"))
       .build();
     room.addItem(singleDoor);
     singleDoor.try("go through");
@@ -398,7 +398,6 @@ describe("traversals", () => {
       .isOpen(false)
       .addTraversal(
         new Door.TraversalBuilder()
-          .requiresDoorOpen(false)
           .withOrigin("Hall")
           .withDestination("Pantry")
           .onSuccess("Hooray")

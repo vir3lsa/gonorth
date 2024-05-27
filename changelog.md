@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## 2.0.0
+
+* 2024-05-27 Replaced onDoorClosed and requiresOpen with withDoorOpenTest to give more control over test ordering.
+
 ## 1.17.1
 
 * 2024-05-19 Removed requirement for dynamic description arrays to contain strings only.

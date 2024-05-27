@@ -245,7 +245,6 @@ class TraversalBuilder {
   config: TraversalConfig = {
     aliases: [],
     tests: [],
-    requiresOpen: true,
     onSuccess: [],
     onFailure: []
   };
@@ -270,13 +269,11 @@ class TraversalBuilder {
     return this;
   }
 
-  requiresDoorOpen(requiresOpen: boolean) {
-    this.config.requiresOpen = requiresOpen;
-    return this;
-  }
-
-  onDoorClosed(onClosed: Action) {
-    this.config.onClosed = onClosed;
+  withDoorOpenTest(onFailure?: Action) {
+    this.config.tests.push({
+      test: ({ item: door }) => Boolean(door.open),
+      onFailure: onFailure || (({ item: door }) => `The ${door!.name} is closed.`)
+    });
     return this;
   }
 
@@ -303,13 +300,6 @@ class TraversalBuilder {
     if (activationCondition) {
       const normalActCond = normaliseTest(activationCondition);
       activationConditionFunc = (context) => originFunc(context) && normalActCond(context);
-    }
-
-    if (this.config.requiresOpen) {
-      tests.unshift({
-        test: ({ item: door }) => Boolean(door.open),
-        onFailure: this.config.onClosed || (({ item: door }) => `The ${door!.name} is closed.`)
-      });
     }
 
     if (!origin && !activationCondition) {
