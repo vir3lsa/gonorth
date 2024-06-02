@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## 2.1.0
+
+* 2024-06-01 Added Door onLocked and onNeedsKey overrides, added KeyBuilder, fixed tryUnlock issue.
+
 ## 2.0.0
 
 * 2024-05-27 Replaced onDoorClosed and requiresOpen with withDoorOpenTest to give more control over test ordering.

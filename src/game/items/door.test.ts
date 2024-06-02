@@ -85,8 +85,15 @@ test("doors can't be unlocked with the wrong key", async () => {
   expect(selectCurrentPage()).toInclude("doesn't fit");
 });
 
+test("doors can't be opened with a key when none is required", async () => {
+  await door.tryUnlock(new Key("skeleton"));
+  expect(selectCurrentPage()).toInclude("can't be unlocked with a key");
+});
+
 test("keys must be Key instances", () => {
-  expect(() => (door.key = new Item("key"))).toThrow("Keys must be Key instances.");
+  expect(() => (door.key = new Item("key"))).toThrow(
+    "Keys must be Key instances."
+  );
 });
 
 test("shortcut function can be used to unlock doors", async () => {
@@ -125,6 +132,25 @@ test("unlockSuccessText can be an Action", async () => {
     .build();
   await hatch.tryUnlock();
   expect(selectCurrentPage()).toInclude("Click");
+});
+
+test("onLocked can be overridden", async () => {
+  const grate = new Door.Builder("grate")
+    .isLocked()
+    .onLocked(() => "Doesn't budge")
+    .build();
+  await grate.tryOpen();
+  expect(selectCurrentPage()).toInclude("Doesn't budge");
+});
+
+test("onNeedsKey can be overridden", async () => {
+  const vault = new Door.Builder("vault")
+    .isLocked()
+    .withKey(new Key.Builder("key").build())
+    .onNeedsKey(() => "Yeah right")
+    .build();
+  await vault.tryUnlock();
+  expect(selectCurrentPage()).toInclude("Yeah right");
 });
 
 describe("Builder", () => {

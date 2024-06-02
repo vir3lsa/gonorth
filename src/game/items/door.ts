@@ -16,8 +16,21 @@ export function newDoor(config: DoorConfig & ItemConfig) {
     traversals,
     ...remainingConfig
   } = config;
-  const door = new Door(name, description, open, locked, openSuccessText, unlockSuccessText, aliases, key, traversals);
-  Object.entries(remainingConfig).forEach(([key, value]) => (door[key] = value));
+  const door = new Door(
+    name,
+    description,
+    open,
+    locked,
+    openSuccessText,
+    unlockSuccessText,
+    aliases,
+    key,
+    traversals,
+    config
+  );
+  Object.entries(remainingConfig).forEach(
+    ([key, value]) => (door[key] = value)
+  );
 
   customiseVerbs(config.verbCustomisations, door);
 
@@ -38,7 +51,8 @@ export class Door extends Item {
     unlockSuccessText?: Action,
     aliases?: string[],
     key?: KeyT,
-    traversals?: Traversal[]
+    traversals?: Traversal[],
+    config?: DoorConfig
   ) {
     super(name, description, false, -1, [], aliases);
     this.open = open;
@@ -47,7 +61,10 @@ export class Door extends Item {
 
     this.addVerb(
       new Verb.Builder("open")
-        .withSmartTest(() => !this.locked, `The ${name} is locked.`)
+        .withSmartTest(
+          () => !this.locked,
+          config?.onLocked || `The ${name} is locked.`
+        )
         .withSmartTest(() => !this.open, `The ${name} is already open.`)
         .withOnSuccess(() => {
           this.open = true;
@@ -67,7 +84,14 @@ export class Door extends Item {
     this.addVerb(
       new Verb.Builder("unlock")
         .withSmartTest(() => this.locked, `The ${name} is already unlocked.`)
-        .withSmartTest(({ other: key }) => !Boolean(this.key) || Boolean(key), `The ${name} appears to need a key.`)
+        .withSmartTest(
+          ({ other: key }) => !Boolean(this.key) || Boolean(key),
+          config?.onNeedsKey || `The ${name} appears to need a key.`
+        )
+        .withSmartTest(
+          ({ other: key }) => !Boolean(key) || Boolean(this.key),
+          `The ${name} can't be unlocked with a key.`
+        )
         .withSmartTest(
           ({ other: key }) => (this.key ? this.key.name === key!.name : true),
           ({ other: key }) => `The ${key!.name} doesn't fit.`
@@ -79,7 +103,9 @@ export class Door extends Item {
           },
           ({ item: door }) =>
             unlockSuccessText ||
-            (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)
+            (door.key
+              ? "The key turns easily in the lock."
+              : `The ${name} unlocks with a soft *click*.`),
         ])
         .build()
     );
@@ -111,13 +137,18 @@ export class Door extends Item {
             const traversal = traversals.find(
               (traversal) =>
                 traversal.activationCondition(context) &&
-                (!alias || goThroughAllAliases.includes(alias) || traversal.aliases.includes(alias))
+                (!alias ||
+                  goThroughAllAliases.includes(alias) ||
+                  traversal.aliases.includes(alias))
             );
             const traversalId = traversal ? traversal.id : -1;
             const traversalVerb = traversalToVerb[traversalId];
 
             if (traversalVerb) {
-              return traversalVerb?.attemptWithContext({ ...context, verb: traversalVerb });
+              return traversalVerb?.attemptWithContext({
+                ...context,
+                verb: traversalVerb,
+              });
             } else if (alias && goThroughAllAliases.includes(alias)) {
               return "You can't go that way.";
             } else {
@@ -162,8 +193,10 @@ export class Door extends Item {
     this._key = key;
   }
 
-  tryUnlock() {
-    return this.verbs.unlock.attempt(this, this.key);
+  tryUnlock(key?: Key) {
+    return key
+      ? this.verbs.unlock.attempt(this, key)
+      : this.verbs.unlock.attempt(this);
   }
 
   tryOpen() {
@@ -197,6 +230,16 @@ class DoorBuilder extends Item.Builder {
 
   isLocked(locked = true) {
     this.config.locked = locked;
+    return this;
+  }
+
+  onLocked(onLocked: Action) {
+    this.config.onLocked = onLocked;
+    return this;
+  }
+
+  onNeedsKey(onNeedsKey: Action) {
+    this.config.onNeedsKey = onNeedsKey;
     return this;
   }
 
@@ -246,7 +289,7 @@ class TraversalBuilder {
     aliases: [],
     tests: [],
     onSuccess: [],
-    onFailure: []
+    onFailure: [],
   };
 
   withAliases(...aliases: string[]) {
@@ -272,7 +315,8 @@ class TraversalBuilder {
   withDoorOpenTest(onFailure?: Action) {
     this.config.tests.push({
       test: ({ item: door }) => Boolean(door.open),
-      onFailure: onFailure || (({ item: door }) => `The ${door!.name} is closed.`)
+      onFailure:
+        onFailure || (({ item: door }) => `The ${door!.name} is closed.`),
     });
     return this;
   }
@@ -293,21 +337,34 @@ class TraversalBuilder {
   }
 
   build() {
-    const { aliases, origin, activationCondition, tests, onSuccess, onFailure, destination } = this.config;
+    const {
+      aliases,
+      origin,
+      activationCondition,
+      tests,
+      onSuccess,
+      onFailure,
+      destination,
+    } = this.config;
     let originFunc: TestFunction = () => (origin ? inRoom(origin) : true);
     let activationConditionFunc: TestFunction = originFunc;
 
     if (activationCondition) {
       const normalActCond = normaliseTest(activationCondition);
-      activationConditionFunc = (context) => originFunc(context) && normalActCond(context);
+      activationConditionFunc = (context) =>
+        originFunc(context) && normalActCond(context);
     }
 
     if (!origin && !activationCondition) {
-      throw Error("Tried to create Door Traversal but neither origin nor activationCondition were set.");
+      throw Error(
+        "Tried to create Door Traversal but neither origin nor activationCondition were set."
+      );
     }
 
     if (!destination) {
-      throw Error("Tried to create Door Traversal but destination was not set.");
+      throw Error(
+        "Tried to create Door Traversal but destination was not set."
+      );
     }
 
     return {
@@ -316,7 +373,7 @@ class TraversalBuilder {
       activationCondition: activationConditionFunc,
       tests,
       onSuccess: [...onSuccess, () => goToRoom(destination)],
-      onFailure
+      onFailure,
     } as Traversal;
   }
 }
@@ -328,5 +385,19 @@ class TraversalBuilder {
 export class Key extends Item {
   clone(): KeyT {
     return super.clone(Key);
+  }
+
+  static get Builder() {
+    return KeyBuilder;
+  }
+}
+
+class KeyBuilder extends Item.Builder {
+  constructor(name: string) {
+    super(name);
+  }
+
+  build() {
+    return new Key(this.config.name);
   }
 }
