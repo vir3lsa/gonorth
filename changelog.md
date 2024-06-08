@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## Unreleased
+
+* 2024-06-08 Added withVerb method to VerbBuilder (to complement existing withVerbs method).
+
 ## 2.1.0
 
 * 2024-06-01 Added Door onLocked and onNeedsKey overrides, added KeyBuilder, fixed tryUnlock issue.

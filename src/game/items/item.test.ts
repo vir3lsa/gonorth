@@ -199,6 +199,14 @@ describe("builder tests", () => {
     await hat2.try("examine");
     expect(selectCurrentPage()).toInclude("beebop");
   });
+
+  test("Single verbs may be added", async () => {
+    const blah = new Item.Builder("blah")
+      .withVerb(new Verb.Builder("bleh").withOnSuccess("bleeeh").build())
+      .build();
+    await blah.try("bleh");
+    expect(selectCurrentPage()).toInclude("bleeeh");
+  });
 });
 
 describe("putting items", () => {

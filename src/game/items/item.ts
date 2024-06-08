@@ -1001,6 +1001,19 @@ export class Builder {
     return this;
   }
 
+  withVerb(verb: VerbT) {
+    if (!this.config.verbs) {
+      this.config.verbs = [];
+    }
+
+    if (!Array.isArray(this.config.verbs)) {
+      this.config.verbs = [this.config.verbs];
+    }
+
+    this.config.verbs!.push(verb);
+    return this;
+  }
+
   withVerbs(...verbs: VerbT[]) {
     this.config.verbs = verbs;
     return this;
@@ -1048,7 +1061,9 @@ export class Builder {
 
   withProperty(property: string, value: Serializable) {
     if (typeof value === "function") {
-      throw Error("Attempted to set a function as a property value. All item properties must be serializable.");
+      throw Error(
+        "Attempted to set a function as a property value. All item properties must be serializable."
+      );
     }
 
     if (!this.config.properties) {
