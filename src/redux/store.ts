@@ -44,7 +44,10 @@ export const initStore = (name?: string) => {
           }, {} as AllItemsDict),
       optionGraphs: (optionGraphs: OptionGraphDict) =>
         Object.entries(optionGraphs).reduce((acc, [id, optionGraph]) => {
-          acc[id] = { currentNode: optionGraph.currentNode?.id };
+          if (optionGraph.persist) {
+            acc[id] = { currentNode: optionGraph.currentNode?.id };
+          }
+
           return acc;
         }, {} as SerializableOptionGraphDict)
     },
@@ -163,7 +166,12 @@ export const initStore = (name?: string) => {
         Object.entries(snapshotOptionGraphs).forEach(([id, snapshotOptionGraph]) => {
           if (snapshotOptionGraph.currentNode) {
             const optionGraph = stateOptionGraphs[id];
-            optionGraph.currentNode = optionGraph.getNode(snapshotOptionGraph.currentNode);
+
+            if (optionGraph) {
+              optionGraph.currentNode = optionGraph.getNode(
+                snapshotOptionGraph.currentNode
+              );
+            }
           }
         });
 

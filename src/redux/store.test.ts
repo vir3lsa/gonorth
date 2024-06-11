@@ -16,6 +16,7 @@ let result: Snapshot;
 let vase: ItemT;
 let room: RoomT;
 let optionGraph: OptionGraphT;
+let transientOptionGraph: OptionGraphT;
 
 const setUpStoreTests = () => {
   unregisterStore();
@@ -24,6 +25,8 @@ const setUpStoreTests = () => {
   getStore().dispatch(changeRoom(room));
   persistor = getPersistor();
   optionGraph = new OptionGraph("test99", { id: "node1" });
+  transientOptionGraph = new OptionGraph.Builder("transient").build();
+  transientOptionGraph.persist = false;
 
   vase = new Item("vase", "green", true);
   vase.description = new RandomText("big", "small"); // Ensure changes to this are recorded.
@@ -40,7 +43,7 @@ beforeEach(() => {
     length: 0,
     clear: () => {},
     key: () => "",
-    removeItem: () => {}
+    removeItem: () => {},
   };
   setUpStoreTests();
 });
@@ -78,13 +81,19 @@ describe("basic persistor tests", () => {
     expect(result.optionGraphs.test99).toEqual<SerializableOptionGraph>({});
   });
 
+  it("doesn't serialize non-persistent option graphs", () => {
+    expect(result.optionGraphs.transient).toBeUndefined();
+  });
+
   it("reveals whether a snapshot exists", () => {
     expect(persistor.hasSnapshot()).toBe(true);
   });
 });
 
 describe("changing items", () => {
-  let otherRoom: RoomT, externalText: RandomText, externalManagedText: ManagedTextT;
+  let otherRoom: RoomT,
+    externalText: RandomText,
+    externalManagedText: ManagedTextT;
 
   beforeEach(() => {
     otherRoom = new Room("Forest");
@@ -113,7 +122,10 @@ describe("changing items", () => {
   it("serializes references to items by name", () => {
     otherRoom.addItem(vase); // Causes vase's container to change.
     persistSnapshotGetResult();
-    expect(result.allItems.vase.container).toEqual({ isItem: true, name: "Forest" });
+    expect(result.allItems.vase.container).toEqual({
+      isItem: true,
+      name: "Forest",
+    });
   });
 
   it("completely serializes changes to Text fields", () => {
@@ -149,13 +161,21 @@ describe("changing items", () => {
     expect(result.allItems.vase.description.isText).toBe(true);
     expect(result.allItems.vase.description.phaseNum).toBe(0);
     expect(result.allItems.vase.description.phases.length).toBe(2);
-    expect(result.allItems.vase.description.phases[0].text.texts).toEqual(["1", "2"]);
-    expect(result.allItems.vase.description.phases[1].text.texts).toEqual(["3", "4"]);
+    expect(result.allItems.vase.description.phases[0].text.texts).toEqual([
+      "1",
+      "2",
+    ]);
+    expect(result.allItems.vase.description.phases[1].text.texts).toEqual([
+      "3",
+      "4",
+    ]);
   });
 });
 
 describe("deserializing snapshots", () => {
-  let otherRoom: RoomT, externalText: RandomText, externalManagedText: ManagedTextT;
+  let otherRoom: RoomT,
+    externalText: RandomText,
+    externalManagedText: ManagedTextT;
 
   const setUpDeserializationTests = () => {
     otherRoom = new Room("Garden");
@@ -191,7 +211,9 @@ describe("deserializing snapshots", () => {
   it("loads all items the player has seen", () => {
     goToRoom(otherRoom);
     const snapshot = persistSnapshotAndLoad();
-    expect(snapshot.itemNames).toEqual(new Set(["hydroponics", "floor", "room", "vase", "garden", "ornament"]));
+    expect(snapshot.itemNames).toEqual(
+      new Set(["hydroponics", "floor", "room", "vase", "garden", "ornament"])
+    );
   });
 
   it("loads the current room as an actual room", () => {
@@ -205,7 +227,9 @@ describe("deserializing snapshots", () => {
     const snapshot = persistSnapshotAndLoad();
     expect([...snapshot.allItems]).toHaveLength(6);
 
-    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    const revivedVase = [...snapshot.allItems].find(
+      (item) => item.name === "vase"
+    );
     expect(revivedVase.size).toBe(5);
     expect(Object.is(revivedVase, vase)).toBe(true);
   });
@@ -215,7 +239,9 @@ describe("deserializing snapshots", () => {
     const snapshot = persistSnapshotAndLoad();
     expect([...snapshot.allItems]).toHaveLength(6);
 
-    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    const revivedVase = [...snapshot.allItems].find(
+      (item) => item.name === "vase"
+    );
     expect(Object.is(revivedVase.container, otherRoom)).toBe(true);
     expect(Object.is(revivedVase, vase)).toBe(true);
   });
@@ -224,7 +250,9 @@ describe("deserializing snapshots", () => {
     vase.description = new SequentialText("lovely", "pretty");
     vase.description.next();
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    const revivedVase = [...snapshot.allItems].find(
+      (item) => item.name === "vase"
+    );
     expect(revivedVase.description instanceof SequentialText).toBe(true);
     expect(revivedVase.description.texts).toEqual(["lovely", "pretty"]);
     expect(revivedVase.description.index).toBe(0);
@@ -233,7 +261,9 @@ describe("deserializing snapshots", () => {
   it("udpates Text fields changed during recording", () => {
     (vase.description as RandomText).next();
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    const revivedVase = [...snapshot.allItems].find(
+      (item) => item.name === "vase"
+    );
     expect(revivedVase.description instanceof RandomText).toBe(true);
     expect(revivedVase.description.candidates.length).toBe(1);
   });
@@ -241,7 +271,9 @@ describe("deserializing snapshots", () => {
   it("deserializes external Texts in full when they've been set on an Item field during recording", () => {
     vase.description = externalText;
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    const revivedVase = [...snapshot.allItems].find(
+      (item) => item.name === "vase"
+    );
     expect(revivedVase.description instanceof RandomText).toBe(true);
     expect(revivedVase.description.isText).toBe(true);
     expect(revivedVase.description.partial).toBe(false);
@@ -251,7 +283,9 @@ describe("deserializing snapshots", () => {
   it("deserializes external ManagedTexts in full when they've been set on an Item field during recording", () => {
     vase.description = externalManagedText;
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    const revivedVase = [...snapshot.allItems].find(
+      (item) => item.name === "vase"
+    );
     expect(revivedVase.description instanceof ManagedText).toBe(true);
     expect(revivedVase.description.isText).toBe(true);
     expect(revivedVase.description.partial).toBe(false);
@@ -267,7 +301,11 @@ describe("deserializing snapshots", () => {
     expect(retrieve(propertyName)).toEqual(value);
   };
 
-  const updateCustomStateTest = (propertyName: string, value1: PersistentVariable, value2: PersistentVariable) => {
+  const updateCustomStateTest = (
+    propertyName: string,
+    value1: PersistentVariable,
+    value2: PersistentVariable
+  ) => {
     store(propertyName, value1);
     update(propertyName, value2);
     const snapshot = persistSnapshotAndLoad();
@@ -275,14 +313,21 @@ describe("deserializing snapshots", () => {
     expect(retrieve(propertyName)).toEqual(value2);
   };
 
-  it("deserializes custom string properties", () => customStateTest("fruit", "apple"));
-  it("deserializes custom number properties", () => customStateTest("maths", 3));
-  it("deserializes custom array properties", () => customStateTest("list", ["a", 2, ["c"]]));
-  it("deserializes custom object properties", () => customStateTest("thing", { cat: "dog", bat: 4 }));
+  it("deserializes custom string properties", () =>
+    customStateTest("fruit", "apple"));
+  it("deserializes custom number properties", () =>
+    customStateTest("maths", 3));
+  it("deserializes custom array properties", () =>
+    customStateTest("list", ["a", 2, ["c"]]));
+  it("deserializes custom object properties", () =>
+    customStateTest("thing", { cat: "dog", bat: 4 }));
 
-  it("deserializes updated custom string properties", () => updateCustomStateTest("animal", "badger", "tortoise"));
-  it("deserializes updated custom number properties", () => updateCustomStateTest("maths", 3, 5));
-  it("deserializes updated custom array properties", () => updateCustomStateTest("list", ["a", 2, ["c"]], ["c", 3]));
+  it("deserializes updated custom string properties", () =>
+    updateCustomStateTest("animal", "badger", "tortoise"));
+  it("deserializes updated custom number properties", () =>
+    updateCustomStateTest("maths", 3, 5));
+  it("deserializes updated custom array properties", () =>
+    updateCustomStateTest("list", ["a", 2, ["c"]], ["c", 3]));
   it("deserializes updated custom object properties", () =>
     updateCustomStateTest("thing", { cat: "dog", bat: 4 }, { bird: "goose" }));
 
@@ -298,7 +343,9 @@ describe("deserializing snapshots", () => {
   it("moves moved items to their new containers", () => {
     moveItem(vase, otherRoom);
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    const revivedVase = [...snapshot.allItems].find(
+      (item) => item.name === "vase"
+    );
     expect(Object.is(revivedVase.container, otherRoom)).toBe(true);
     expect(room.items.vase).toBeUndefined();
     expect(otherRoom.items.vase).toBeDefined();
@@ -308,7 +355,9 @@ describe("deserializing snapshots", () => {
     vase.set("origin", "egyptian");
     vase.set("circumference", 20);
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
+    const revivedVase = [...snapshot.allItems].find(
+      (item) => item.name === "vase"
+    );
     expect(revivedVase.get("origin")).toBe("egyptian");
     expect(revivedVase.get("circumference")).toBe(20);
 
@@ -319,7 +368,9 @@ describe("deserializing snapshots", () => {
   it("revives option graphs to their previous state", () => {
     optionGraph._recordCurrentNode(optionGraph.getNode("node1"));
     const snapshot = persistSnapshotAndLoad();
-    expect(snapshot.optionGraphs.test99).toBeInstanceOf<typeof OptionGraph>(OptionGraph);
+    expect(snapshot.optionGraphs.test99).toBeInstanceOf<typeof OptionGraph>(
+      OptionGraph
+    );
     expect(snapshot.optionGraphs.test99.currentNode.id).toBe("node1");
   });
 
@@ -328,5 +379,29 @@ describe("deserializing snapshots", () => {
     optionGraph._recordCurrentNode(optionGraph.getNode("node1"));
     const snapshot = persistSnapshotAndLoad();
     expect(snapshot.optionGraphs.test99.currentNode).toBeUndefined();
+  });
+
+  it("handles a persisted option graph that's not in current state", () => {
+    const grapho = new OptionGraph.Builder("grapho")
+      .withNodes(new OptionGraph.NodeBuilder("n1").build())
+      .build();
+    grapho.persist = true;
+    grapho._recordCurrentNode(grapho.getNode("n1"));
+
+    persistor.persistSnapshot();
+
+    // Check the new OptionGraph was persisted as expected.
+    expect(
+      JSON.parse(mockStorage[persistor.key]).optionGraphs.grapho.currentNode
+    ).toBe("n1");
+
+    // Reset everything to simulate starting a new session.
+    setUpStoreTests();
+    setUpDeserializationTests();
+
+    const loadedSnapshot = persistor.loadSnapshot();
+
+    // Check the new OptionGraph wasn't deserialised because it's not also in state.
+    expect(loadedSnapshot.optionGraphs.grapho).toBeUndefined();
   });
 });

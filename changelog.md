@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* 2024-06-11 Fixed issue with incorrectly persisting and deserialising OptionGraphs not in initial state.
 * 2024-06-08 Added withVerb method to VerbBuilder (to complement existing withVerbs method).
 
 ## 2.1.0
