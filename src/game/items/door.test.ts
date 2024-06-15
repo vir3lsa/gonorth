@@ -220,7 +220,6 @@ describe("traversals", () => {
           .withDestination("Pantry")
       )
       .build();
-    room.addItem(gate);
     x = 1;
     gate.getVerb("go through").attempt(gate);
     await deferAction(() => expect(selectCurrentPage()).toInclude("Well done"));
@@ -249,7 +248,6 @@ describe("traversals", () => {
           .withDestination("Cellar")
       )
       .build();
-    room.addItem(gate);
     x = 1;
     gate.getVerb("go through").attempt(gate);
     await deferAction(() => expect(selectCurrentPage()).toInclude("You did it"));
@@ -263,7 +261,6 @@ describe("traversals", () => {
         new Door.TraversalBuilder().withActivationCondition(true).onSuccess("Success").withDestination("Pantry")
       )
       .build();
-    room.addItem(gate);
     gate.getVerb("go through").attempt(gate);
     return deferAction(() => expect(selectCurrentPage()).toInclude("Success"));
   });
@@ -292,7 +289,6 @@ describe("traversals", () => {
           .withDestination("Hall")
       )
       .build();
-    room.addItem(gate);
     x = -1;
     gate.getVerb("go through").attempt(gate);
     return deferAction(() => expect(selectCurrentPage()).toInclude("Two"));
@@ -302,7 +298,6 @@ describe("traversals", () => {
     const gate = new Door.Builder("gate")
       .addTraversal(new Door.TraversalBuilder().withOrigin("Hall").withTest(false, "Nope").withDestination("Pantry"))
       .build();
-    room.addItem(gate);
     gate.getVerb("go through").attempt(gate);
     await deferAction(() => expect(selectCurrentPage()).toInclude("Nope"));
     expect(selectInteraction().options).toBeUndefined();
@@ -318,7 +313,6 @@ describe("traversals", () => {
           .withDestination("Pantry")
       )
       .build();
-    room.addItem(gate);
     gate.getVerb("go through").attempt(gate);
     await deferAction(() => expect(selectCurrentPage()).toInclude("Nope"));
     await deferAction(() => expect(selectCurrentPage()).toInclude("Bad"));
@@ -334,7 +328,6 @@ describe("traversals", () => {
           .withDestination("Pantry")
       )
       .build();
-    room.addItem(gate);
     gate.getVerb("go through").attempt(gate);
     return deferAction(() => expect(x).toBe(12));
   });
@@ -359,7 +352,6 @@ describe("traversals", () => {
           .withDestination("Pantry")
       )
       .build();
-    room.addItem(gate);
     gate.try("swim");
     return deferAction(() => expect(selectCurrentPage()).toInclude("splash"));
   });
@@ -374,7 +366,6 @@ describe("traversals", () => {
           .withDestination("Pantry")
       )
       .build();
-    room.addItem(gate);
     gate.try("go through");
     return deferAction(() => expect(selectCurrentPage()).toInclude("splash"));
   });
@@ -385,7 +376,6 @@ describe("traversals", () => {
         new Door.TraversalBuilder().withAliases("warp").withOrigin("Pantry").onSuccess("zap").withDestination("Hall")
       )
       .build();
-    room.addItem(portal);
     portal.try("warp");
     return deferAction(() => expect(selectCurrentPage()).toInclude("You're not sure how to do that."));
   });
@@ -404,7 +394,6 @@ describe("traversals", () => {
       .isOpen(false)
       .addTraversal(new Door.TraversalBuilder().withOrigin("Hall").withDestination("Pantry").withDoorOpenTest())
       .build();
-    room.addItem(doubleDoor);
     doubleDoor.try("go through");
     return deferAction(() => expect(selectCurrentPage()).toInclude("The double door is closed"));
   });
@@ -414,7 +403,6 @@ describe("traversals", () => {
       .isOpen(false)
       .addTraversal(new Door.TraversalBuilder().withDoorOpenTest("Ouch").withOrigin("Hall").withDestination("Pantry"))
       .build();
-    room.addItem(singleDoor);
     singleDoor.try("go through");
     return deferAction(() => expect(selectCurrentPage()).toInclude("Ouch"));
   });
@@ -422,15 +410,62 @@ describe("traversals", () => {
   test("traversals may choose not to require the door to be open", () => {
     const bigDoor = new Door.Builder("big door")
       .isOpen(false)
+      .addTraversal(new Door.TraversalBuilder().withOrigin("Hall").withDestination("Pantry").onSuccess("Hooray"))
+      .build();
+    bigDoor.try("go through");
+    return deferAction(() => expect(selectCurrentPage()).toInclude("Hooray"));
+  });
+
+  test("traversals may include reversals", () => {
+    const swingDoor = new Door.Builder("swing door")
       .addTraversal(
         new Door.TraversalBuilder()
           .withOrigin("Hall")
           .withDestination("Pantry")
-          .onSuccess("Hooray")
+          .onSuccess(() => `From ${selectRoom().name}`),
+        true
       )
       .build();
-    room.addItem(bigDoor);
-    bigDoor.try("go through");
-    return deferAction(() => expect(selectCurrentPage()).toInclude("Hooray"));
+    goToRoom("Pantry");
+    swingDoor.try("traverse");
+    return deferAction(() => expect(selectCurrentPage()).toInclude("From Pantry"));
+  });
+
+  test("reversals include door open tests", () => {
+    const swingDoor = new Door.Builder("swing door")
+      .isOpen(false)
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("Hall")
+          .withDestination("Pantry")
+          .withDoorOpenTest(() => `Stuck in ${selectRoom().name}`)
+          .onSuccess(() => `From ${selectRoom().name}`),
+        true
+      )
+      .build();
+    goToRoom("Pantry");
+    swingDoor.try("traverse");
+    return deferAction(() => expect(selectCurrentPage()).toInclude("Stuck in Pantry"));
+  });
+
+  test("reversals inherit aliases, tests, and onFailure", () => {
+    const x = 0;
+    const tunnel = new Door.Builder("tunnel")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withAliases("crawl")
+          .withOrigin("Hall")
+          .withDestination("Pantry")
+          .withTest(() => x > 0, "x is zero")
+          .onFailure("Global failure"),
+        true
+      )
+      .build();
+    goToRoom("Pantry");
+    tunnel.try("crawl");
+    return deferAction(() => {
+      expect(selectCurrentPage()).toInclude("x is zero");
+      expect(selectCurrentPage()).toInclude("Global failure");
+    });
   });
 });

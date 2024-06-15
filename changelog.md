@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-## 2.1.1
+## 2.2.0
 
+* 2024-06-15 Ability to add the reverse when adding a Traversal to a door.
 * 2024-06-15 Fixed defect where focused option button would reset, another where focus didn't return to options.
 * 2024-06-11 Fixed issue with incorrectly persisting and deserialising OptionGraphs not in initial state.
 * 2024-06-08 Added withVerb method to VerbBuilder (to complement existing withVerbs method).

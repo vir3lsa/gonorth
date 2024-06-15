@@ -268,9 +268,21 @@ class DoorBuilder extends Item.Builder {
     return this;
   }
 
-  addTraversal(traversalBuilder: TraversalBuilder) {
+  addTraversal(traversalBuilder: TraversalBuilder, andReverse?: boolean) {
     if (!this.config.traversals) {
       this.config.traversals = [];
+    }
+
+    if (andReverse) {
+      const reverseBuilder = new TraversalBuilder()
+        .withAliases(...traversalBuilder.config.aliases)
+        .withOrigin(traversalBuilder.config.destination)
+        .withDestination(traversalBuilder.config.origin)
+        .withActivationCondition(traversalBuilder.config.activationCondition)
+        .onSuccess(traversalBuilder.config.onSuccess)
+        .onFailure(traversalBuilder.config.onFailure);
+      reverseBuilder.config.tests = [...traversalBuilder.config.tests];
+      this.config.traversals.push(reverseBuilder.build());
     }
 
     this.config.traversals.push(traversalBuilder.build());
@@ -297,12 +309,12 @@ class TraversalBuilder {
     return this;
   }
 
-  withOrigin(origin: string) {
+  withOrigin(origin?: string) {
     this.config.origin = origin;
     return this;
   }
 
-  withActivationCondition(condition: Test) {
+  withActivationCondition(condition?: Test) {
     this.config.activationCondition = condition;
     return this;
   }
@@ -315,8 +327,7 @@ class TraversalBuilder {
   withDoorOpenTest(onFailure?: Action) {
     this.config.tests.push({
       test: ({ item: door }) => Boolean(door.open),
-      onFailure:
-        onFailure || (({ item: door }) => `The ${door!.name} is closed.`),
+      onFailure: onFailure || (({ item: door }) => `The ${door!.name} is closed.`),
     });
     return this;
   }
@@ -331,40 +342,27 @@ class TraversalBuilder {
     return this;
   }
 
-  withDestination(destination: string) {
+  withDestination(destination?: string) {
     this.config.destination = destination;
     return this;
   }
 
   build() {
-    const {
-      aliases,
-      origin,
-      activationCondition,
-      tests,
-      onSuccess,
-      onFailure,
-      destination,
-    } = this.config;
+    const { aliases, origin, activationCondition, tests, onSuccess, onFailure, destination } = this.config;
     let originFunc: TestFunction = () => (origin ? inRoom(origin) : true);
     let activationConditionFunc: TestFunction = originFunc;
 
     if (activationCondition) {
       const normalActCond = normaliseTest(activationCondition);
-      activationConditionFunc = (context) =>
-        originFunc(context) && normalActCond(context);
+      activationConditionFunc = (context) => originFunc(context) && normalActCond(context);
     }
 
     if (!origin && !activationCondition) {
-      throw Error(
-        "Tried to create Door Traversal but neither origin nor activationCondition were set."
-      );
+      throw Error("Tried to create Door Traversal but neither origin nor activationCondition were set.");
     }
 
     if (!destination) {
-      throw Error(
-        "Tried to create Door Traversal but destination was not set."
-      );
+      throw Error("Tried to create Door Traversal but destination was not set.");
     }
 
     return {
