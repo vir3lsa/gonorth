@@ -147,6 +147,8 @@ describe("builder tests", () => {
       .withTakeSuccessText("yoink")
       .withProperty("appearance", "pipelike")
       .withProperty("length", 12)
+      .itemsVisibleFromSelf(false)
+      .itemsVisibleFromRoom(false)
       .build();
     expect(pipe.name).toBe("pipe");
     expect(pipe.description).toBe("This is not a pipe");
@@ -157,6 +159,8 @@ describe("builder tests", () => {
     expect(pipe.takeSuccessText).toBe("yoink");
     expect(pipe.get("appearance")).toBe("pipelike");
     expect(pipe.get("length")).toBe(12);
+    expect(pipe.itemsVisibleFromSelf).toBe(false);
+    expect(pipe.itemsVisibleFromRoom).toBe(false);
   });
 
   test("items built with a builder have the correct verbs", () => {

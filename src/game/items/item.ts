@@ -1039,6 +1039,16 @@ export class Builder {
     return this;
   }
 
+  itemsVisibleFromSelf(visible = true) {
+    this.config.itemsVisibleFromSelf = visible;
+    return this;
+  }
+
+  itemsVisibleFromRoom(visible = true) {
+    this.config.itemsVisibleFromRoom = visible;
+    return this;
+  }
+
   isDoNotList(doNotList = true) {
     this.config.doNotList = doNotList;
     return this;
@@ -1061,9 +1071,7 @@ export class Builder {
 
   withProperty(property: string, value: Serializable) {
     if (typeof value === "function") {
-      throw Error(
-        "Attempted to set a function as a property value. All item properties must be serializable."
-      );
+      throw Error("Attempted to set a function as a property value. All item properties must be serializable.");
     }
 
     if (!this.config.properties) {

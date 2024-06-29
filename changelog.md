@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## Unreleased
+
+* 2024-06-29 Added itemsVisibleFromSelf and itemsVisisbleFromRoom to ItemBuilder.
+
 ## 2.2.0
 
 * 2024-06-15 Ability to add the reverse when adding a Traversal to a door.
