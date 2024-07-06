@@ -1,6 +1,8 @@
 # goNORTH Changelog
 
-## 3.0.0 (Unreleased)
+## Unreleased
+
+## 3.0.0
 
 * 2024-07-06 Ability to omit aliases when building items, doors, containers and rooms. Rooms also create additional aliases, like items do.
 * 2024-06-29 Added itemsVisibleFromSelf and itemsVisisbleFromRoom to ItemBuilder.
