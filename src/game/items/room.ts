@@ -1,7 +1,7 @@
 import { getStore } from "../../redux/storeRegistry";
 import { Door } from "./door";
 import { GoVerb, Verb } from "../verbs/verb";
-import { Item, Builder as ItemBuilder, customiseVerbs } from "./item";
+import { Item, Builder as ItemBuilder, customiseVerbs, omitAliases } from "./item";
 import { itemsRevealed, changeImage, addRoom } from "../../redux/gameActions";
 import { preferPaged } from "../../utils/dynamicDescription";
 import { ActionChain } from "../../utils/actionChain";
@@ -16,14 +16,14 @@ const directionAliases = {
   east: ["e", "right"],
   west: ["w", "left"],
   up: ["u", "upward", "upwards"],
-  down: ["d", "downward", "downwards"]
+  down: ["d", "downward", "downwards"],
 } as {
   [name: string]: string[] | undefined;
 };
 
 const newRoom = (config: RoomConfig & ItemConfig) => {
-  const { name, description, checkpoint, verbs, ...remainingConfig } = config;
-  const room = new Room(name, description, checkpoint);
+  const { name, description, checkpoint, verbs, aliases, ...remainingConfig } = config;
+  const room = new Room(name, description, checkpoint, aliases);
 
   if (verbs) {
     room.addVerbs(...verbs);
@@ -31,6 +31,9 @@ const newRoom = (config: RoomConfig & ItemConfig) => {
 
   Object.entries(remainingConfig).forEach(([key, value]) => (room[key] = value));
   customiseVerbs(config.verbCustomisations, room);
+
+  // Remove unwanted aliases.
+  omitAliases(config.omitAliases, room);
 
   return room;
 };
@@ -40,11 +43,11 @@ export class Room extends Item {
   private _image?: string;
   private _checkpoint!: boolean;
 
-  constructor(name: string, description: UnknownText = "placeholder", checkpoint = true) {
-    super(name, preferPaged(description), false, -1);
+  constructor(name: string, description: UnknownText = "placeholder", checkpoint = true, aliases?: string[]) {
+    super(name, preferPaged(description), false, -1, undefined, aliases);
     this.adjacentRooms = {};
     this.canHoldItems = true;
-    this.aliases = ["room", "floor"];
+    this.aliases = [...this.aliases, "room", "floor"];
     this.checkpoint = checkpoint;
     this.isRoom = true;
     getStore().dispatch(addRoom(this));
@@ -90,7 +93,7 @@ export class Room extends Item {
       test,
       onSuccess: onSuccessArray,
       failureText: failText,
-      directionName
+      directionName,
     } as DirectionObject;
 
     this.setDirection(directionObject);

@@ -426,6 +426,7 @@ interface ItemConfig {
   size?: number;
   verbs?: VerbT | VerbT[];
   aliases?: string[];
+  omitAliases?: string[];
   hidesItems?: ItemT[];
   properties?: ItemProperties;
   verbCustomisations?: VerbCustomisations;

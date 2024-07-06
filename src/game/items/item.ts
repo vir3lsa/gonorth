@@ -23,6 +23,9 @@ export function newItem(config: ItemConfig, typeConstructor = Item) {
   // Run any verb modification functions.
   customiseVerbs(config.verbCustomisations, item);
 
+  // Remove any unwanted aliases.
+  omitAliases(config.omitAliases, item);
+
   return item;
 }
 
@@ -31,6 +34,10 @@ export function customiseVerbs(verbModifications: VerbCustomisations = {}, item:
     const verb = item.getVerb(verbName);
     modifyFunction(verb);
   });
+}
+
+export function omitAliases(aliases: string[] = [], item: Item) {
+  item.aliases = item.aliases.filter((alias) => !aliases?.includes(alias));
 }
 
 export class Item {
@@ -59,6 +66,7 @@ export class Item {
   private _itemsVisibleFromRoom!: boolean;
   private _doNotList!: boolean;
   private _verbCustomisations: VerbCustomisations = {};
+  private omitAliases: string[] = [];
   protected uniqueItems: Set<ItemT>;
 
   clone(typeConstructor = Item) {
@@ -70,6 +78,7 @@ export class Item {
         size: this.size,
         verbs: this._verbList,
         aliases: [...this._aliases],
+        omitAliases: this.omitAliases,
         hidesItems: this.hidesItems.map((item) => item.clone()),
         containerListing: this.containerListing,
         canHoldItems: this.canHoldItems,
@@ -79,7 +88,7 @@ export class Item {
         itemsVisibleFromSelf: this.itemsVisibleFromSelf,
         doNotList: this.doNotList,
         verbCustomisations: this.verbCustomisations || {},
-        _cloned: true
+        _cloned: true,
       },
       typeConstructor
     );
@@ -88,7 +97,9 @@ export class Item {
     copy.name = this.name;
 
     // Remove unwanted aliases added due to our 'sidestep' above.
-    copy.aliases = copy.aliases.filter((alias) => alias !== copy.name && alias !== "copy");
+    copy.aliases = copy.aliases.filter(
+      (alias) => alias !== copy.name && alias !== "copy" && !this.omitAliases.includes(alias)
+    );
 
     return copy;
   }
@@ -301,17 +312,17 @@ export class Item {
         [
           {
             test: ({ other }) => other !== this,
-            onFailure: () => `You can't give ${this.article}${this.name} to itself. Obviously.`
+            onFailure: () => `You can't give ${this.article}${this.name} to itself. Obviously.`,
           },
           {
             test: ({ other }) => Boolean(other!._isNpc),
             onFailure: ({ other }) =>
-              `You know you can't give ${this.article}${this.name} to the ${other!.name}. So just stop it.`
+              `You know you can't give ${this.article}${this.name} to the ${other!.name}. So just stop it.`,
           },
           {
             test: () => false,
-            onFailure: ({ other }) => `It doesn't look like ${other!.name} wants ${this.article}${this.name}.`
-          }
+            onFailure: ({ other }) => `It doesn't look like ${other!.name} wants ${this.article}${this.name}.`,
+          },
         ],
         ({ item, other }) => moveItem(item, other!),
         ["offer", "pass", "show"]
@@ -1021,6 +1032,11 @@ export class Builder {
 
   withAliases(...aliases: string[]) {
     this.config.aliases = aliases;
+    return this;
+  }
+
+  omitAliases(...aliases: string[]) {
+    this.config.omitAliases = aliases;
     return this;
   }
 

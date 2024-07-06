@@ -211,6 +211,16 @@ describe("builder tests", () => {
     await blah.try("bleh");
     expect(selectCurrentPage()).toInclude("bleeeh");
   });
+
+  test("Aliases may be omitted", () => {
+    const numbers = new Item.Builder("one two three").withAliases("four five six").omitAliases("one", "five").build();
+    expect(numbers.aliases).toEqual(["two", "three", "four", "six", "four five six"]);
+  });
+
+  test("Cloned items maintain omitted aliases", () => {
+    const numbers = new Item.Builder("one two three").withAliases("four five six").omitAliases("one", "five").build();
+    expect(numbers.clone().aliases).toEqual(numbers.aliases);
+  });
 });
 
 describe("putting items", () => {

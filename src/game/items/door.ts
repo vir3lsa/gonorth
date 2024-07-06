@@ -1,4 +1,4 @@
-import { Item, customiseVerbs } from "./item";
+import { Item, customiseVerbs, omitAliases } from "./item";
 import { Verb } from "../verbs/verb";
 import { inRoom, normaliseTest } from "../../utils/sharedFunctions";
 import { goToRoom } from "../../utils/lifecycle";
@@ -28,11 +28,12 @@ export function newDoor(config: DoorConfig & ItemConfig) {
     traversals,
     config
   );
-  Object.entries(remainingConfig).forEach(
-    ([key, value]) => (door[key] = value)
-  );
+  Object.entries(remainingConfig).forEach(([key, value]) => (door[key] = value));
 
   customiseVerbs(config.verbCustomisations, door);
+
+  // Remove any unwanted aliases.
+  omitAliases(config.omitAliases, door);
 
   return door;
 }
@@ -61,10 +62,7 @@ export class Door extends Item {
 
     this.addVerb(
       new Verb.Builder("open")
-        .withSmartTest(
-          () => !this.locked,
-          config?.onLocked || `The ${name} is locked.`
-        )
+        .withSmartTest(() => !this.locked, config?.onLocked || `The ${name} is locked.`)
         .withSmartTest(() => !this.open, `The ${name} is already open.`)
         .withOnSuccess(() => {
           this.open = true;
@@ -103,9 +101,7 @@ export class Door extends Item {
           },
           ({ item: door }) =>
             unlockSuccessText ||
-            (door.key
-              ? "The key turns easily in the lock."
-              : `The ${name} unlocks with a soft *click*.`),
+            (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`),
         ])
         .build()
     );
@@ -137,9 +133,7 @@ export class Door extends Item {
             const traversal = traversals.find(
               (traversal) =>
                 traversal.activationCondition(context) &&
-                (!alias ||
-                  goThroughAllAliases.includes(alias) ||
-                  traversal.aliases.includes(alias))
+                (!alias || goThroughAllAliases.includes(alias) || traversal.aliases.includes(alias))
             );
             const traversalId = traversal ? traversal.id : -1;
             const traversalVerb = traversalToVerb[traversalId];
@@ -194,9 +188,7 @@ export class Door extends Item {
   }
 
   tryUnlock(key?: Key) {
-    return key
-      ? this.verbs.unlock.attempt(this, key)
-      : this.verbs.unlock.attempt(this);
+    return key ? this.verbs.unlock.attempt(this, key) : this.verbs.unlock.attempt(this);
   }
 
   tryOpen() {

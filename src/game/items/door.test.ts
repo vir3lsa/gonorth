@@ -182,6 +182,22 @@ describe("Builder", () => {
     expect(door.open).toBe(false);
     expect(selectCurrentPage()).toInclude("x is zero");
   });
+
+  test("aliases may be omitted", () => {
+    const stairGate = new Door.Builder("stair gate")
+      .withAliases("child proof door")
+      .omitAliases("stair", "proof")
+      .build();
+    expect(stairGate.aliases).toEqual(["gate", "child", "door", "child proof door"]);
+  });
+
+  test("cloned aliases are also omitted", () => {
+    const stairGate = new Door.Builder("stair gate")
+      .withAliases("child proof door")
+      .omitAliases("stair", "proof")
+      .build();
+    expect(stairGate.clone().aliases).toEqual(["gate", "child", "door", "child proof door"]);
+  });
 });
 
 describe("serialization", () => {
