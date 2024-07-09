@@ -156,13 +156,6 @@ describe("parser", () => {
     });
     it("tries more specific items first", () => inputTest("x chair man", "impressive"));
     it("handles prepositional verbs", () => inputTest("put the cushion in the chair", "cushion in the chair"));
-    it("gives feedback when the first item isn't recognised", () =>
-      inputTest("put mug in chair", "You can't put that in the chair"));
-    it("gives feedback when the second item isn't recognised", () =>
-      inputTest("put cushion in sofa", "Put the cushion where?"));
-    it("gives feedback when no second item is given", () => inputTest("put cushion", "Put the cushion where?"));
-    it("gives feedback when the second item isn't a container, deferring to verb", () =>
-      inputTest("put cushion in red ball", "can't put the cushion"));
     it("allows interaction with items inside other items", async () => {
       await inputTest("put cushion in chair", "You put the cushion in the chair");
       await inputTest("take cushion", "the cushion");
@@ -254,6 +247,25 @@ describe("parser", () => {
       it("returns true following a successful action", async () => expect(await parse("open hatch")).toBe(true));
       it("returns false when input is unparsable", async () => expect(await parse("open shop")).toBe(false));
       it("returns false when verb fails", async () => expect(await parse("take trophy")).toBe(false));
+    });
+
+    describe("feedback", () => {
+      it("gives feedback when the first item isn't recognised", () =>
+        inputTest("put mug in chair", "You can't put that in the chair"));
+      it("gives feedback when the second item isn't recognised", () =>
+        inputTest("put cushion in sofa", "Put the cushion where?"));
+      it("gives feedback when no second item is given", () => inputTest("put cushion", "Put the cushion where?"));
+      it("gives feedback when the second item isn't a container, deferring to verb", () =>
+        inputTest("put cushion in red ball", "can't put the cushion"));
+      it("converts x to examine when the item doesn't exist", async () => {
+        await inputTest("x flower", "You can't examine that");
+        await inputTest("look flower", "You can't examine that");
+        await inputTest("ex flower", "You can't examine that");
+      });
+      it("converts x to examine when the item exists elsewhere", () => {
+        goToRoom("Pantry");
+        inputTest("x red ball", "you can't examine it");
+      });
     });
   });
 });

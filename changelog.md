@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* 2024-07-08 Converted 'x' to 'examine' in parser feedback messages.
+
 ## 3.0.0
 
 * 2024-07-06 Ability to omit aliases when building items, doors, containers and rooms. Rooms also create additional aliases, like items do.
