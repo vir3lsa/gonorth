@@ -475,6 +475,7 @@ interface DoorConfig {
   description: UnknownText;
   open: boolean;
   locked: boolean;
+  alwaysOpen?: boolean;
   onLocked: Action;
   onNeedsKey: Action;
   openSuccessText: Action;

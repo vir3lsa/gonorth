@@ -60,51 +60,54 @@ export class Door extends Item {
     this.locked = locked;
     this.key = key;
 
-    this.addVerb(
-      new Verb.Builder("open")
-        .withSmartTest(() => !this.locked, config?.onLocked || `The ${name} is locked.`)
-        .withSmartTest(() => !this.open, `The ${name} is already open.`)
-        .withOnSuccess(() => {
-          this.open = true;
-        }, openSuccessText || `The ${name} opens relatively easily.`)
-        .build()
-    );
+    if (!config || !config.alwaysOpen) {
+      this.addVerb(
+        new Verb.Builder("open")
+          .withSmartTest(() => !this.locked, config?.onLocked || `The ${name} is locked.`)
+          .withSmartTest(() => !this.open, `The ${name} is already open.`)
+          .withOnSuccess(() => {
+            this.open = true;
+          }, openSuccessText || `The ${name} opens relatively easily.`)
+          .build()
+      );
 
-    this.addVerb(
-      new Verb.Builder("close")
-        .withSmartTest(() => this.open, `The ${name} is already closed.`)
-        .withOnSuccess(() => {
-          this.open = false;
-        }, `You close the ${name}.`)
-        .build()
-    );
+      this.addVerb(
+        new Verb.Builder("close")
+          .withSmartTest(() => this.open, `The ${name} is already closed.`)
+          .withOnSuccess(() => {
+            this.open = false;
+          }, `You close the ${name}.`)
+          .build()
+      );
 
-    this.addVerb(
-      new Verb.Builder("unlock")
-        .withSmartTest(() => this.locked, `The ${name} is already unlocked.`)
-        .withSmartTest(
-          ({ other: key }) => !Boolean(this.key) || Boolean(key),
-          config?.onNeedsKey || `The ${name} appears to need a key.`
-        )
-        .withSmartTest(
-          ({ other: key }) => !Boolean(key) || Boolean(this.key),
-          `The ${name} can't be unlocked with a key.`
-        )
-        .withSmartTest(
-          ({ other: key }) => (this.key ? this.key.name === key!.name : true),
-          ({ other: key }) => `The ${key!.name} doesn't fit.`
-        )
-        .withOnSuccess([
-          ({ item: door }) => {
-            // Ensure we don't return false to avoid breaking the action chain.
-            door.locked = false;
-          },
-          ({ item: door }) =>
-            unlockSuccessText ||
-            (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`),
-        ])
-        .build()
-    );
+      this.addVerb(
+        new Verb.Builder("unlock")
+          .makePrepositional("with what", true)
+          .withSmartTest(() => this.locked, `The ${name} is already unlocked.`)
+          .withSmartTest(
+            ({ other: key }) => !Boolean(this.key) || Boolean(key),
+            config?.onNeedsKey || `The ${name} appears to need a key.`
+          )
+          .withSmartTest(
+            ({ other: key }) => !Boolean(key) || Boolean(this.key),
+            `The ${name} can't be unlocked with a key.`
+          )
+          .withSmartTest(
+            ({ other: key }) => (this.key ? this.key.name === key!.name : true),
+            ({ other: key }) => `The ${key!.name} doesn't fit.`
+          )
+          .withOnSuccess([
+            ({ item: door }) => {
+              // Ensure we don't return false to avoid breaking the action chain.
+              door.locked = false;
+            },
+            ({ item: door }) =>
+              unlockSuccessText ||
+              (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`),
+          ])
+          .build()
+      );
+    }
 
     if (traversals) {
       // Create a verb from each traversal.
@@ -152,8 +155,6 @@ export class Door extends Item {
           .build()
       );
     }
-
-    this.verbs.unlock.makePrepositional("with what", true);
   }
 
   get open() {
@@ -225,6 +226,11 @@ class DoorBuilder extends Item.Builder {
     return this;
   }
 
+  isAlwaysOpen(alwaysOpen = true) {
+    this.config.alwaysOpen = alwaysOpen;
+    return this;
+  }
+
   onLocked(onLocked: Action) {
     this.config.onLocked = onLocked;
     return this;
@@ -282,6 +288,10 @@ class DoorBuilder extends Item.Builder {
   }
 
   build() {
+    if (this.config.alwaysOpen && this.config.open === false) {
+      throw Error(`Door "${this.config.name}" cannot be both always open and closed.`);
+    }
+
     return newDoor(this.config);
   }
 }

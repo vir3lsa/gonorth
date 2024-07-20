@@ -198,6 +198,17 @@ describe("Builder", () => {
       .build();
     expect(stairGate.clone().aliases).toEqual(["gate", "child", "door", "child proof door"]);
   });
+
+  test("doors may be always open", () => {
+    const curtain = new Door.Builder("curtain").isAlwaysOpen().build();
+    expect(curtain.verbs.open).toBeUndefined();
+    expect(curtain.verbs.close).toBeUndefined();
+    expect(curtain.verbs.unlock).toBeUndefined();
+  });
+
+  test("doors can't be always open and closed", () => {
+    expect(() => new Door.Builder("hall").isAlwaysOpen().isOpen(false).build()).toThrow();
+  });
 });
 
 describe("serialization", () => {
