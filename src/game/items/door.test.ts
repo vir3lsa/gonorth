@@ -125,6 +125,12 @@ test("openSuccessText can be an Action", async () => {
   expect(selectCurrentPage()).toInclude("It pops open");
 });
 
+test("onCloseSuccess can be an Action", async () => {
+  const fireDoor = new Door.Builder("fire door").onCloseSuccess(() => "Safety first.").build();
+  await fireDoor.tryClose();
+  expect(selectCurrentPage()).toInclude("Safety first.");
+});
+
 test("unlockSuccessText can be an Action", async () => {
   const hatch = new Door.Builder("hatch")
     .isLocked()

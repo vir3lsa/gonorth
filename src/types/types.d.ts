@@ -479,6 +479,7 @@ interface DoorConfig {
   onLocked: Action;
   onNeedsKey: Action;
   openSuccessText: Action;
+  onCloseSuccess: Action;
   unlockSuccessText: Action;
   aliases: string[];
   key: KeyT;

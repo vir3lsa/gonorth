@@ -67,7 +67,7 @@ export class Door extends Item {
           .withSmartTest(() => !this.open, `The ${name} is already open.`)
           .withOnSuccess(() => {
             this.open = true;
-          }, openSuccessText || `The ${name} opens relatively easily.`)
+          }, openSuccessText ?? `The ${name} opens relatively easily.`)
           .build()
       );
 
@@ -76,7 +76,7 @@ export class Door extends Item {
           .withSmartTest(() => this.open, `The ${name} is already closed.`)
           .withOnSuccess(() => {
             this.open = false;
-          }, `You close the ${name}.`)
+          }, config?.onCloseSuccess ?? `You close the ${name}.`)
           .build()
       );
 
@@ -86,7 +86,7 @@ export class Door extends Item {
           .withSmartTest(() => this.locked, `The ${name} is already unlocked.`)
           .withSmartTest(
             ({ other: key }) => !Boolean(this.key) || Boolean(key),
-            config?.onNeedsKey || `The ${name} appears to need a key.`
+            config?.onNeedsKey ?? `The ${name} appears to need a key.`
           )
           .withSmartTest(
             ({ other: key }) => !Boolean(key) || Boolean(this.key),
@@ -102,7 +102,7 @@ export class Door extends Item {
               door.locked = false;
             },
             ({ item: door }) =>
-              unlockSuccessText ||
+              unlockSuccessText ??
               (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`),
           ])
           .build()
@@ -253,6 +253,11 @@ class DoorBuilder extends Item.Builder {
 
   onOpenSuccess(onSuccess: Action) {
     this.config.openSuccessText = onSuccess;
+    return this;
+  }
+
+  onCloseSuccess(onSuccess: Action) {
+    this.config.onCloseSuccess = onSuccess;
     return this;
   }
 

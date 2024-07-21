@@ -1,5 +1,11 @@
 # goNORTH Changelog
 
+## Unreleased
+
+## 3.2.0
+
+* 2024-07-21 Door onCloseSuccess actions can be added via the builder.
+
 ## 3.1.0
 
 * 2024-07-20 Doors can be made 'always open' to prevent verbs being added.
