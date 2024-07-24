@@ -113,7 +113,7 @@ export class Item {
     size = 1,
     verbs: VerbT | VerbT[] = [],
     aliases: string[] = [],
-    hidesItems: ItemT[] = []
+    hidesItems: (ItemT | Builder)[] = []
   ) {
     if (selectAllItemNames().has(name)) {
       throw Error(
@@ -470,7 +470,7 @@ export class Item {
     }
   }
 
-  addItems(...items: ItemT[]) {
+  addItems(...items: (ItemT | Builder)[]) {
     items.forEach((item) => this.addItem(item));
   }
 
@@ -478,9 +478,9 @@ export class Item {
    * Adds an item to this item's roster.
    * @param item The item to add.
    */
-  addItem(item: ItemT) {
-    if (item instanceof Item.Builder) {
-      throw Error(`Tried to add an item to ${this.name} but received a Builder. Did you forget to call build()?`);
+  addItem(item: ItemT | Builder) {
+    if (item instanceof Builder) {
+      item = item.build();
     }
 
     if (this.uniqueItems.has(item)) {
@@ -544,8 +544,9 @@ export class Item {
     }
   }
 
-  set hidesItems(hidesItems: Item | Item[]) {
-    const hidesItemsArray = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
+  set hidesItems(hidesItems: Item | Builder | (Item | Builder)[]) {
+    const array = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
+    const hidesItemsArray = array.map((item) => (item instanceof Builder ? item.build() : item));
     this.recordAlteredProperty("hidesItems", hidesItemsArray);
     this._hidesItems = hidesItemsArray;
   }
@@ -1040,7 +1041,7 @@ export class Builder {
     return this;
   }
 
-  hidesItems(...items: ItemT[]) {
+  hidesItems(...items: (ItemT | Builder)[]) {
     this.config.hidesItems = items;
     return this;
   }

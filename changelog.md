@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* 2024-07-24 Item.addItem and Item.Builder.hidesItems accept Builders as well as items, for convenience.
+
 ## 3.2.0
 
 * 2024-07-21 Door onCloseSuccess actions can be added via the builder.

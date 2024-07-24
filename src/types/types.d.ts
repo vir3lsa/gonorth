@@ -38,6 +38,7 @@ type Intro = string | string[] | AnyText;
 /***********/
 
 type ItemT = import("../game/items/item").Item;
+type ItemBuilderT = import("../game/items/item").Builder;
 type RoomT = import("../game/items/room").Room;
 type TextT = import("../game/interactions/text").Text;
 type SequentialTextT = import("../game/interactions/text").SequentialText;
@@ -427,7 +428,7 @@ interface ItemConfig {
   verbs?: VerbT | VerbT[];
   aliases?: string[];
   omitAliases?: string[];
-  hidesItems?: ItemT[];
+  hidesItems?: (ItemT | ItemBuilderT)[];
   properties?: ItemProperties;
   verbCustomisations?: VerbCustomisations;
 }

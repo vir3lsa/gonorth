@@ -110,6 +110,18 @@ describe("basic item tests", () => {
     expect(selectCurrentPage()).toInclude("already carrying");
   });
 
+  test("items can be added as Builders", async () => {
+    const laptop = new Item.Builder("laptop");
+    room.addItem(laptop);
+    expect(room.items.laptop[0].name).toBe("laptop");
+  });
+
+  test("hidden items can be added as Builders", async () => {
+    const laptop = new Item.Builder("laptop").hidesItems(new Item.Builder("sticker")).build();
+    await laptop.try("examine");
+    expect(laptop.items.sticker[0].name).toBe("sticker");
+  });
+
   test("items with no container may be taken programmatically", async () => {
     const dog = new Item.Builder("dog").isHoldable().build();
     await dog.try("take");
