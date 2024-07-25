@@ -111,7 +111,7 @@ export class Item {
     description: UnknownText = "It's fairly ordinary looking.",
     holdable = false,
     size = 1,
-    verbs: VerbT | VerbT[] = [],
+    verbs: VerbT | VerbBuilderT | (VerbT | VerbBuilderT)[] = [],
     aliases: string[] = [],
     hidesItems: (ItemT | Builder)[] = []
   ) {
@@ -375,10 +375,8 @@ export class Item {
     verbs.forEach((verb) => this.addVerb(verb));
   }
 
-  addVerb(verb: VerbT) {
-    if (verb instanceof Verb.Builder) {
-      throw Error(`Tried to add a verb to ${this.name} but received a Builder. Did you forget to call build()?`);
-    }
+  addVerb(verbOrBuilder: VerbT | VerbBuilderT) {
+    const verb = verbOrBuilder instanceof Verb.Builder ? verbOrBuilder.build() : verbOrBuilder;
 
     if (!Array.isArray(this._verbList)) {
       this._verbList = [this._verbList];
@@ -423,7 +421,7 @@ export class Item {
     this._verbs = verbs;
   }
 
-  set verbList(verbs: Verb | Verb[]) {
+  set verbList(verbs: Verb | VerbBuilderT | (Verb | VerbBuilderT)[]) {
     this._verbList = [];
     this._verbs = {};
     const verbArray = Array.isArray(verbs) ? verbs : [verbs];
@@ -478,10 +476,8 @@ export class Item {
    * Adds an item to this item's roster.
    * @param item The item to add.
    */
-  addItem(item: ItemT | Builder) {
-    if (item instanceof Builder) {
-      item = item.build();
-    }
+  addItem(itemOrBuilder: ItemT | Builder) {
+    const item = itemOrBuilder instanceof Builder ? itemOrBuilder.build() : itemOrBuilder;
 
     if (this.uniqueItems.has(item)) {
       debug(`Not adding ${item.name} to ${this.name} as it's already present.`);
@@ -1013,7 +1009,7 @@ export class Builder {
     return this;
   }
 
-  withVerb(verb: VerbT) {
+  withVerb(verb: VerbT | VerbBuilderT) {
     if (!this.config.verbs) {
       this.config.verbs = [];
     }
@@ -1026,7 +1022,7 @@ export class Builder {
     return this;
   }
 
-  withVerbs(...verbs: VerbT[]) {
+  withVerbs(...verbs: (VerbT | VerbBuilderT)[]) {
     this.config.verbs = verbs;
     return this;
   }

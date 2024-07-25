@@ -56,6 +56,7 @@ type ActionChainT = import("../utils/actionChain").ActionChain;
 type ActionClassT = import("../utils/actionChain").ActionClass;
 type OptionGraphT = import("../game/interactions/optionGraph").OptionGraph;
 type VerbT = import("../game/verbs/verb").Verb;
+type VerbBuilderT = import("../game/verbs/verb").Builder;
 type AutoActionT = import("../game/input/autoAction").AutoAction;
 type OptionT = import("../game/interactions/option").Option;
 type SnaphotPersistorT = import("../redux/snapshotPersistor").SnapshotPersistor;
@@ -425,7 +426,7 @@ interface ItemConfig {
   description?: UnknownText;
   holdable?: boolean;
   size?: number;
-  verbs?: VerbT | VerbT[];
+  verbs?: VerbT | VerbBuilderT | (VerbT | VerbBuilderT)[];
   aliases?: string[];
   omitAliases?: string[];
   hidesItems?: (ItemT | ItemBuilderT)[];

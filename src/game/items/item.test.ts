@@ -184,14 +184,9 @@ describe("builder tests", () => {
     expect(pipe.getVerb("smoke")).not.toBeUndefined();
   });
 
-  test("a helpful error message is provided when adding an item if build() is not called", () => {
-    // @ts-ignore Deliberately testing wrong argument e.g. for when library is used as JavaScript.
-    expect(() => room.addItem(new Item.Builder().withName("unfinished"))).toThrow("forget to call build()?");
-  });
-
-  test("a helpful error message is provided when adding a verb if build() is not called", () => {
-    // @ts-ignore Deliberately testing wrong argument e.g. for when library is used as JavaScript.
-    expect(() => room.addVerb(new Verb.Builder("unfinished"))).toThrow("forget to call build()?");
+  test("verbs may be added as builders", () => {
+    const spinner = new Item.Builder("spinner").withVerb(new Verb.Builder("spin")).build();
+    expect(spinner.getVerb("spin")).toBeDefined();
   });
 
   test("verbs may be customised", async () => {
