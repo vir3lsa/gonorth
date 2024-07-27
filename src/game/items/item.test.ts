@@ -110,6 +110,12 @@ describe("basic item tests", () => {
     expect(selectCurrentPage()).toInclude("already carrying");
   });
 
+  test("items can produce another item", async () => {
+    const spoons = new Item.Builder("spoons").isHoldable().producesItem(new Item.Builder("spoon")).build();
+    await spoons.try("take");
+    expect(selectInventoryItems()[0].name).toBe("spoon");
+  });
+
   test("items can be added as Builders", async () => {
     const laptop = new Item.Builder("laptop");
     room.addItem(laptop);

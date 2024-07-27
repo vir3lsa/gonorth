@@ -17,7 +17,7 @@ import { moveItem } from "../../utils/itemFunctions";
 
 export function newItem(config: ItemConfig, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
-  const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems);
+  const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems, config);
   Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
 
   // Run any verb modification functions.
@@ -113,7 +113,8 @@ export class Item {
     size = 1,
     verbs: VerbT | VerbBuilderT | (VerbT | VerbBuilderT)[] = [],
     aliases: string[] = [],
-    hidesItems: (ItemT | Builder)[] = []
+    hidesItems: (ItemT | Builder)[] = [],
+    config?: ItemConfig
   ) {
     if (selectAllItemNames().has(name)) {
       throw Error(
@@ -233,7 +234,7 @@ export class Item {
           )
           .withOnSuccess(({ item }) => {
             const container = item.container;
-            moveItem(item, selectInventory());
+            moveItem(config?.producesItem ?? item, selectInventory());
 
             // If we have custom success text, use it.
             if (this.takeSuccessText) {
@@ -1084,6 +1085,11 @@ export class Builder {
 
   takesParserPrecedence(takesPrecedence = true) {
     this.config.takesParserPrecedence = takesPrecedence;
+    return this;
+  }
+
+  producesItem(item: Item | Builder) {
+    this.config.producesItem = item instanceof Builder ? item.build() : item;
     return this;
   }
 
