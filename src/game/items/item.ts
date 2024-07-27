@@ -1082,6 +1082,11 @@ export class Builder {
     return this;
   }
 
+  takesParserPrecedence(takesPrecedence = true) {
+    this.config.takesParserPrecedence = takesPrecedence;
+    return this;
+  }
+
   withProperty(property: string, value: Serializable) {
     if (typeof value === "function") {
       throw Error("Attempted to set a function as a property value. All item properties must be serializable.");

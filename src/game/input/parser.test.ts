@@ -198,7 +198,7 @@ describe("parser", () => {
     it("applies wildcard effects", () => inputTest("hide red ball from the blue ball", "You hide it", "It's hidden"));
 
     describe("auto disambiguation", () => {
-      let apple1: Item, apple2;
+      let apple1: Item, apple2: Item;
       beforeEach(() => {
         apple1 = new Item("nice apple", "nice and crunchy", true);
         apple2 = new Item("rotten apple", "squishy and gross", true);
@@ -213,6 +213,17 @@ describe("parser", () => {
 
       it("auto disambiguates when items don't support the verb", () =>
         inputTest("squish apple", "gross juice squeezes out"));
+
+      it("auto disambiguates when an item take precedence", () => {
+        apple1.takesParserPrecedence = true;
+        return inputTest("take apple", "the nice apple");
+      });
+
+      it("doesn't auto disambiguate if more than one item take precedence", () => {
+        apple1.takeParserPrecedence = true;
+        apple2.takeParserPrecedence = true;
+        return inputTest("take apple", "Which apple");
+      });
     });
 
     it("records names and aliases when hidden items are revealed", async () => {

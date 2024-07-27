@@ -197,7 +197,13 @@ export class Parser {
     if (vc.itemDetails.length) {
       const { alias, itemsWithName } = vc.itemDetails[0];
 
-      const validItemsWithName = itemsWithName.filter((item: ItemT) => item?.visible && item.verbs[vc.possibleVerb!]);
+      let validItemsWithName = itemsWithName.filter((item: ItemT) => item?.visible && item.verbs[vc.possibleVerb!]);
+      const itemsWithPrecedence = validItemsWithName.filter((item) => item.takesParserPrecedence);
+
+      // If one and only one item takes precedence, use that one.
+      if (itemsWithPrecedence.length === 1) {
+        validItemsWithName = [itemsWithPrecedence[0]];
+      }
 
       if (!validItemsWithName.length) {
         this.dt.roomItem = itemsWithName[0] || this.dt.roomItem; // Record a room item for feedback purposes.

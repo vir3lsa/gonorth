@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+* 2024-07-27 Items may be given parser precedence for auto-disambiguation.
 * 2024-07-25 Item.addVerb and Item.Builder.withVerb accept Builders as well as verbs, for convenience.
 * 2024-07-24 Item.addItem and Item.Builder.hidesItems accept Builders as well as items, for convenience.
 
