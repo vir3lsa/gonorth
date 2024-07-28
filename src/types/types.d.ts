@@ -432,7 +432,7 @@ interface ItemConfig {
   hidesItems?: (ItemT | ItemBuilderT)[];
   properties?: ItemProperties;
   verbCustomisations?: VerbCustomisations;
-  producesItem?: ItemT;
+  producesSingular?: ItemT;
 }
 
 interface ItemItemsDict {

@@ -215,7 +215,7 @@ describe("parser", () => {
         inputTest("squish apple", "gross juice squeezes out"));
 
       it("auto disambiguates when an item take precedence", () => {
-        apple1.takesParserPrecedence = true;
+        apple1.hasParserPrecedence = true;
         return inputTest("take apple", "the nice apple");
       });
 

@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-## Unreleased
+## 3.3.0
 
+* 2024-07-28 Renamed methods and properties for items producing singular items, added smart test.
 * 2024-07-27 Items may produce another item e.g. when taking one from many.
 * 2024-07-27 Items may be given parser precedence for auto-disambiguation.
 * 2024-07-25 Item.addVerb and Item.Builder.withVerb accept Builders as well as verbs, for convenience.

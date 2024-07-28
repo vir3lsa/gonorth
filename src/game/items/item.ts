@@ -14,6 +14,7 @@ import { addItem, itemsRevealed } from "../../redux/gameActions";
 import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 import { moveItem } from "../../utils/itemFunctions";
+import { playerHasItem } from "../../utils/sharedFunctions";
 
 export function newItem(config: ItemConfig, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
@@ -201,6 +202,10 @@ export class Item {
             ({ item }) => `You're already carrying ${item!.properNoun ? "" : "the "}${item!.name}!`
           )
           .withSmartTest(
+            () => !config?.producesSingular || !playerHasItem(config.producesSingular),
+            () => `You've already got a ${config?.producesSingular!.name}.`
+          )
+          .withSmartTest(
             ({ item }) => Boolean(!item.container || item.container.itemsVisibleFromSelf),
             "You can't see that."
           )
@@ -234,7 +239,7 @@ export class Item {
           )
           .withOnSuccess(({ item }) => {
             const container = item.container;
-            moveItem(config?.producesItem ?? item, selectInventory());
+            moveItem(config?.producesSingular ?? item, selectInventory());
 
             // If we have custom success text, use it.
             if (this.takeSuccessText) {
@@ -1083,13 +1088,13 @@ export class Builder {
     return this;
   }
 
-  takesParserPrecedence(takesPrecedence = true) {
-    this.config.takesParserPrecedence = takesPrecedence;
+  hasParserPrecedence(hasPrecedence = true) {
+    this.config.hasParserPrecedence = hasPrecedence;
     return this;
   }
 
-  producesItem(item: Item | Builder) {
-    this.config.producesItem = item instanceof Builder ? item.build() : item;
+  isManyAndProduces(item: Item | Builder) {
+    this.config.producesSingular = item instanceof Builder ? item.build() : item;
     return this;
   }
 

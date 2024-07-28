@@ -198,7 +198,7 @@ export class Parser {
       const { alias, itemsWithName } = vc.itemDetails[0];
 
       let validItemsWithName = itemsWithName.filter((item: ItemT) => item?.visible && item.verbs[vc.possibleVerb!]);
-      const itemsWithPrecedence = validItemsWithName.filter((item) => item.takesParserPrecedence);
+      const itemsWithPrecedence = validItemsWithName.filter((item) => item.hasParserPrecedence);
 
       // If one and only one item takes precedence, use that one.
       if (itemsWithPrecedence.length === 1) {

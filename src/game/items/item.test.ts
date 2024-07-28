@@ -111,9 +111,16 @@ describe("basic item tests", () => {
   });
 
   test("items can produce another item", async () => {
-    const spoons = new Item.Builder("spoons").isHoldable().producesItem(new Item.Builder("spoon")).build();
+    const spoons = new Item.Builder("spoons").isHoldable().isManyAndProduces(new Item.Builder("spoon")).build();
     await spoons.try("take");
     expect(selectInventoryItems()[0].name).toBe("spoon");
+  });
+
+  test("message is correct when trying to take produced item twice", async () => {
+    const spoons = new Item.Builder("spoons").isHoldable().isManyAndProduces(new Item.Builder("spoon")).build();
+    await spoons.try("take");
+    await spoons.try("take");
+    expect(selectCurrentPage()).toInclude("already got a spoon");
   });
 
   test("items can be added as Builders", async () => {
