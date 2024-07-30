@@ -1,5 +1,27 @@
 # goNORTH Changelog
 
+## 3.3.0
+
+* 2024-07-28 Renamed methods and properties for items producing singular items, added smart test.
+* 2024-07-27 Items may produce another item e.g. when taking one from many.
+* 2024-07-27 Items may be given parser precedence for auto-disambiguation.
+* 2024-07-25 Item.addVerb and Item.Builder.withVerb accept Builders as well as verbs, for convenience.
+* 2024-07-24 Item.addItem and Item.Builder.hidesItems accept Builders as well as items, for convenience.
+
+## 3.2.0
+
+* 2024-07-21 Door onCloseSuccess actions can be added via the builder.
+
+## 3.1.0
+
+* 2024-07-20 Doors can be made 'always open' to prevent verbs being added.
+* 2024-07-08 Converted 'x' to 'examine' in parser feedback messages.
+
+## 3.0.0
+
+* 2024-07-06 Ability to omit aliases when building items, doors, containers and rooms. Rooms also create additional aliases, like items do.
+* 2024-06-29 Added itemsVisibleFromSelf and itemsVisisbleFromRoom to ItemBuilder.
+
 ## 2.2.0
 
 * 2024-06-15 Ability to add the reverse when adding a Traversal to a door.

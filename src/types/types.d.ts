@@ -38,6 +38,7 @@ type Intro = string | string[] | AnyText;
 /***********/
 
 type ItemT = import("../game/items/item").Item;
+type ItemBuilderT = import("../game/items/item").Builder;
 type RoomT = import("../game/items/room").Room;
 type TextT = import("../game/interactions/text").Text;
 type SequentialTextT = import("../game/interactions/text").SequentialText;
@@ -55,6 +56,7 @@ type ActionChainT = import("../utils/actionChain").ActionChain;
 type ActionClassT = import("../utils/actionChain").ActionClass;
 type OptionGraphT = import("../game/interactions/optionGraph").OptionGraph;
 type VerbT = import("../game/verbs/verb").Verb;
+type VerbBuilderT = import("../game/verbs/verb").Builder;
 type AutoActionT = import("../game/input/autoAction").AutoAction;
 type OptionT = import("../game/interactions/option").Option;
 type SnaphotPersistorT = import("../redux/snapshotPersistor").SnapshotPersistor;
@@ -424,11 +426,13 @@ interface ItemConfig {
   description?: UnknownText;
   holdable?: boolean;
   size?: number;
-  verbs?: VerbT | VerbT[];
+  verbs?: VerbT | VerbBuilderT | (VerbT | VerbBuilderT)[];
   aliases?: string[];
-  hidesItems?: ItemT[];
+  omitAliases?: string[];
+  hidesItems?: (ItemT | ItemBuilderT)[];
   properties?: ItemProperties;
   verbCustomisations?: VerbCustomisations;
+  producesSingular?: ItemT;
 }
 
 interface ItemItemsDict {
@@ -474,9 +478,11 @@ interface DoorConfig {
   description: UnknownText;
   open: boolean;
   locked: boolean;
+  alwaysOpen?: boolean;
   onLocked: Action;
   onNeedsKey: Action;
   openSuccessText: Action;
+  onCloseSuccess: Action;
   unlockSuccessText: Action;
   aliases: string[];
   key: KeyT;

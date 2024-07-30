@@ -77,7 +77,7 @@ export class Parser {
       tokens: [],
       verbConstructions: {
         verbs: {},
-        notVerbs: {}
+        notVerbs: {},
       },
       registeredVerbs: [],
       registeredItem: undefined,
@@ -89,7 +89,7 @@ export class Parser {
       duplicateAliasItems: undefined,
       duplicateAlias: undefined,
       duplicateItemIsPrimary: true,
-      tooManyDuplicates: false
+      tooManyDuplicates: false,
     };
   }
 
@@ -151,7 +151,7 @@ export class Parser {
       possibleVerb: "",
       itemDetails: [],
       itemConstructions: {},
-      validCombination: false
+      validCombination: false,
     };
     const possibleVerbWords = this.tokens.slice(verbIndex, verbIndex + numWords);
     vc.possibleVerb = possibleVerbWords.join(" ");
@@ -197,7 +197,13 @@ export class Parser {
     if (vc.itemDetails.length) {
       const { alias, itemsWithName } = vc.itemDetails[0];
 
-      const validItemsWithName = itemsWithName.filter((item: ItemT) => item?.visible && item.verbs[vc.possibleVerb!]);
+      let validItemsWithName = itemsWithName.filter((item: ItemT) => item?.visible && item.verbs[vc.possibleVerb!]);
+      const itemsWithPrecedence = validItemsWithName.filter((item) => item.hasParserPrecedence);
+
+      // If one and only one item takes precedence, use that one.
+      if (itemsWithPrecedence.length === 1) {
+        validItemsWithName = [itemsWithPrecedence[0]];
+      }
 
       if (!validItemsWithName.length) {
         this.dt.roomItem = itemsWithName[0] || this.dt.roomItem; // Record a room item for feedback purposes.
@@ -285,7 +291,7 @@ export class Parser {
           itemIndex,
           endIndex,
           possibleItem,
-          itemsWithName: []
+          itemsWithName: [],
         };
         verbConstruction.itemConstructions[possibleItem] = ic;
 
@@ -337,10 +343,21 @@ export class Parser {
     return itemDetails.push({ alias, itemsWithName: ic.itemsWithName, itemIndex: ic.itemIndex });
   }
 
+  // Handles special cases where we want to use the canonical verb name, rather than an alias.
+  getReportedVerb(registeredVerb: string) {
+    if (registeredVerb === "x" || registeredVerb === "ex" || registeredVerb === "look") {
+      return "examine";
+    }
+
+    return registeredVerb;
+  }
+
   async giveFeedback() {
     let message;
 
     if (this.dt.registeredVerb) {
+      const reportedVerb = this.getReportedVerb(this.dt.registeredVerb);
+
       if (this.dt.roomItem) {
         if (!this.dt.actualVerb) {
           this.findActualVerb();
@@ -351,26 +368,24 @@ export class Parser {
           return this.handleDuplicateAliases();
         } else if (this.dt.verbSupported) {
           // Prepositional verb missing a second item
-          message = `${toTitleCase(this.dt.registeredVerb)} the ${this.dt.registeredItem} ${
-            this.dt.actualVerb!.interrogative
-          }?`;
+          message = `${toTitleCase(reportedVerb)} the ${this.dt.registeredItem} ${this.dt.actualVerb!.interrogative}?`;
         } else if (this.dt.actualVerb && this.dt.actualVerb.prepositional) {
           // Prepositional verb with missing (or unsupported) first item
-          message = `You can't ${this.dt.registeredVerb} that ${this.dt.roomItem.preposition} the ${
+          message = `You can't ${reportedVerb} that ${this.dt.roomItem.preposition} the ${
             this.dt.registeredItem
           }${this.addPlayerName()}. Did you mean something else?`;
         } else {
           // The item's in the room but doesn't support the verb
-          message = `You can't ${this.dt.registeredVerb} the ${
+          message = `You can't ${reportedVerb} the ${
             this.dt.registeredItem
           }${this.addPlayerName()}. It wouldn't achieve much.`;
         }
       } else if (this.dt.registeredItem) {
         // The item exists elsewhere
-        message = `The ${this.dt.registeredItem} isn't here, so you can't ${this.dt.registeredVerb} it. I'm sure you've seen it somewhere though.`;
+        message = `The ${this.dt.registeredItem} isn't here, so you can't ${reportedVerb} it. I'm sure you've seen it somewhere though.`;
       } else {
         // The item doesn't (yet) exist anywhere
-        message = `You can't ${this.dt.registeredVerb} that${this.addPlayerName()}. Did you mean something else?`;
+        message = `You can't ${reportedVerb} that${this.addPlayerName()}. Did you mean something else?`;
       }
     } else {
       if (this.dt.roomItem) {

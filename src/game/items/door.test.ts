@@ -125,6 +125,12 @@ test("openSuccessText can be an Action", async () => {
   expect(selectCurrentPage()).toInclude("It pops open");
 });
 
+test("onCloseSuccess can be an Action", async () => {
+  const fireDoor = new Door.Builder("fire door").onCloseSuccess(() => "Safety first.").build();
+  await fireDoor.tryClose();
+  expect(selectCurrentPage()).toInclude("Safety first.");
+});
+
 test("unlockSuccessText can be an Action", async () => {
   const hatch = new Door.Builder("hatch")
     .isLocked()
@@ -181,6 +187,33 @@ describe("Builder", () => {
     await door.tryOpen();
     expect(door.open).toBe(false);
     expect(selectCurrentPage()).toInclude("x is zero");
+  });
+
+  test("aliases may be omitted", () => {
+    const stairGate = new Door.Builder("stair gate")
+      .withAliases("child proof door")
+      .omitAliases("stair", "proof")
+      .build();
+    expect(stairGate.aliases).toEqual(["gate", "child", "door", "child proof door"]);
+  });
+
+  test("cloned aliases are also omitted", () => {
+    const stairGate = new Door.Builder("stair gate")
+      .withAliases("child proof door")
+      .omitAliases("stair", "proof")
+      .build();
+    expect(stairGate.clone().aliases).toEqual(["gate", "child", "door", "child proof door"]);
+  });
+
+  test("doors may be always open", () => {
+    const curtain = new Door.Builder("curtain").isAlwaysOpen().build();
+    expect(curtain.verbs.open).toBeUndefined();
+    expect(curtain.verbs.close).toBeUndefined();
+    expect(curtain.verbs.unlock).toBeUndefined();
+  });
+
+  test("doors can't be always open and closed", () => {
+    expect(() => new Door.Builder("hall").isAlwaysOpen().isOpen(false).build()).toThrow();
   });
 });
 

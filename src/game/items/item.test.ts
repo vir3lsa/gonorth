@@ -110,6 +110,31 @@ describe("basic item tests", () => {
     expect(selectCurrentPage()).toInclude("already carrying");
   });
 
+  test("items can produce another item", async () => {
+    const spoons = new Item.Builder("spoons").isHoldable().isManyAndProduces(new Item.Builder("spoon")).build();
+    await spoons.try("take");
+    expect(selectInventoryItems()[0].name).toBe("spoon");
+  });
+
+  test("message is correct when trying to take produced item twice", async () => {
+    const spoons = new Item.Builder("spoons").isHoldable().isManyAndProduces(new Item.Builder("spoon")).build();
+    await spoons.try("take");
+    await spoons.try("take");
+    expect(selectCurrentPage()).toInclude("already got a spoon");
+  });
+
+  test("items can be added as Builders", async () => {
+    const laptop = new Item.Builder("laptop");
+    room.addItem(laptop);
+    expect(room.items.laptop[0].name).toBe("laptop");
+  });
+
+  test("hidden items can be added as Builders", async () => {
+    const laptop = new Item.Builder("laptop").hidesItems(new Item.Builder("sticker")).build();
+    await laptop.try("examine");
+    expect(laptop.items.sticker[0].name).toBe("sticker");
+  });
+
   test("items with no container may be taken programmatically", async () => {
     const dog = new Item.Builder("dog").isHoldable().build();
     await dog.try("take");
@@ -147,6 +172,8 @@ describe("builder tests", () => {
       .withTakeSuccessText("yoink")
       .withProperty("appearance", "pipelike")
       .withProperty("length", 12)
+      .itemsVisibleFromSelf(false)
+      .itemsVisibleFromRoom(false)
       .build();
     expect(pipe.name).toBe("pipe");
     expect(pipe.description).toBe("This is not a pipe");
@@ -157,6 +184,8 @@ describe("builder tests", () => {
     expect(pipe.takeSuccessText).toBe("yoink");
     expect(pipe.get("appearance")).toBe("pipelike");
     expect(pipe.get("length")).toBe(12);
+    expect(pipe.itemsVisibleFromSelf).toBe(false);
+    expect(pipe.itemsVisibleFromRoom).toBe(false);
   });
 
   test("items built with a builder have the correct verbs", () => {
@@ -168,14 +197,9 @@ describe("builder tests", () => {
     expect(pipe.getVerb("smoke")).not.toBeUndefined();
   });
 
-  test("a helpful error message is provided when adding an item if build() is not called", () => {
-    // @ts-ignore Deliberately testing wrong argument e.g. for when library is used as JavaScript.
-    expect(() => room.addItem(new Item.Builder().withName("unfinished"))).toThrow("forget to call build()?");
-  });
-
-  test("a helpful error message is provided when adding a verb if build() is not called", () => {
-    // @ts-ignore Deliberately testing wrong argument e.g. for when library is used as JavaScript.
-    expect(() => room.addVerb(new Verb.Builder("unfinished"))).toThrow("forget to call build()?");
+  test("verbs may be added as builders", () => {
+    const spinner = new Item.Builder("spinner").withVerb(new Verb.Builder("spin")).build();
+    expect(spinner.getVerb("spin")).toBeDefined();
   });
 
   test("verbs may be customised", async () => {
@@ -206,6 +230,16 @@ describe("builder tests", () => {
       .build();
     await blah.try("bleh");
     expect(selectCurrentPage()).toInclude("bleeeh");
+  });
+
+  test("Aliases may be omitted", () => {
+    const numbers = new Item.Builder("one two three").withAliases("four five six").omitAliases("one", "five").build();
+    expect(numbers.aliases).toEqual(["two", "three", "four", "six", "four five six"]);
+  });
+
+  test("Cloned items maintain omitted aliases", () => {
+    const numbers = new Item.Builder("one two three").withAliases("four five six").omitAliases("one", "five").build();
+    expect(numbers.clone().aliases).toEqual(numbers.aliases);
   });
 });
 
