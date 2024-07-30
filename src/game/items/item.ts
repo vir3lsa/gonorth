@@ -14,14 +14,18 @@ import { addItem, itemsRevealed } from "../../redux/gameActions";
 import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 import { moveItem } from "../../utils/itemFunctions";
+import { playerHasItem } from "../../utils/sharedFunctions";
 
 export function newItem(config: ItemConfig, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
-  const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems);
+  const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems, config);
   Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
 
   // Run any verb modification functions.
   customiseVerbs(config.verbCustomisations, item);
+
+  // Remove any unwanted aliases.
+  omitAliases(config.omitAliases, item);
 
   return item;
 }
@@ -31,6 +35,10 @@ export function customiseVerbs(verbModifications: VerbCustomisations = {}, item:
     const verb = item.getVerb(verbName);
     modifyFunction(verb);
   });
+}
+
+export function omitAliases(aliases: string[] = [], item: Item) {
+  item.aliases = item.aliases.filter((alias) => !aliases?.includes(alias));
 }
 
 export class Item {
@@ -59,6 +67,7 @@ export class Item {
   private _itemsVisibleFromRoom!: boolean;
   private _doNotList!: boolean;
   private _verbCustomisations: VerbCustomisations = {};
+  private omitAliases: string[] = [];
   protected uniqueItems: Set<ItemT>;
 
   clone(typeConstructor = Item) {
@@ -70,6 +79,7 @@ export class Item {
         size: this.size,
         verbs: this._verbList,
         aliases: [...this._aliases],
+        omitAliases: this.omitAliases,
         hidesItems: this.hidesItems.map((item) => item.clone()),
         containerListing: this.containerListing,
         canHoldItems: this.canHoldItems,
@@ -79,7 +89,7 @@ export class Item {
         itemsVisibleFromSelf: this.itemsVisibleFromSelf,
         doNotList: this.doNotList,
         verbCustomisations: this.verbCustomisations || {},
-        _cloned: true
+        _cloned: true,
       },
       typeConstructor
     );
@@ -88,7 +98,9 @@ export class Item {
     copy.name = this.name;
 
     // Remove unwanted aliases added due to our 'sidestep' above.
-    copy.aliases = copy.aliases.filter((alias) => alias !== copy.name && alias !== "copy");
+    copy.aliases = copy.aliases.filter(
+      (alias) => alias !== copy.name && alias !== "copy" && !this.omitAliases.includes(alias)
+    );
 
     return copy;
   }
@@ -100,9 +112,10 @@ export class Item {
     description: UnknownText = "It's fairly ordinary looking.",
     holdable = false,
     size = 1,
-    verbs: VerbT | VerbT[] = [],
+    verbs: VerbT | VerbBuilderT | (VerbT | VerbBuilderT)[] = [],
     aliases: string[] = [],
-    hidesItems: ItemT[] = []
+    hidesItems: (ItemT | Builder)[] = [],
+    config?: ItemConfig
   ) {
     if (selectAllItemNames().has(name)) {
       throw Error(
@@ -189,6 +202,10 @@ export class Item {
             ({ item }) => `You're already carrying ${item!.properNoun ? "" : "the "}${item!.name}!`
           )
           .withSmartTest(
+            () => !config?.producesSingular || !playerHasItem(config.producesSingular),
+            () => `You've already got a ${config?.producesSingular!.name}.`
+          )
+          .withSmartTest(
             ({ item }) => Boolean(!item.container || item.container.itemsVisibleFromSelf),
             "You can't see that."
           )
@@ -222,7 +239,7 @@ export class Item {
           )
           .withOnSuccess(({ item }) => {
             const container = item.container;
-            moveItem(item, selectInventory());
+            moveItem(config?.producesSingular ?? item, selectInventory());
 
             // If we have custom success text, use it.
             if (this.takeSuccessText) {
@@ -301,17 +318,17 @@ export class Item {
         [
           {
             test: ({ other }) => other !== this,
-            onFailure: () => `You can't give ${this.article}${this.name} to itself. Obviously.`
+            onFailure: () => `You can't give ${this.article}${this.name} to itself. Obviously.`,
           },
           {
             test: ({ other }) => Boolean(other!._isNpc),
             onFailure: ({ other }) =>
-              `You know you can't give ${this.article}${this.name} to the ${other!.name}. So just stop it.`
+              `You know you can't give ${this.article}${this.name} to the ${other!.name}. So just stop it.`,
           },
           {
             test: () => false,
-            onFailure: ({ other }) => `It doesn't look like ${other!.name} wants ${this.article}${this.name}.`
-          }
+            onFailure: ({ other }) => `It doesn't look like ${other!.name} wants ${this.article}${this.name}.`,
+          },
         ],
         ({ item, other }) => moveItem(item, other!),
         ["offer", "pass", "show"]
@@ -364,10 +381,8 @@ export class Item {
     verbs.forEach((verb) => this.addVerb(verb));
   }
 
-  addVerb(verb: VerbT) {
-    if (verb instanceof Verb.Builder) {
-      throw Error(`Tried to add a verb to ${this.name} but received a Builder. Did you forget to call build()?`);
-    }
+  addVerb(verbOrBuilder: VerbT | VerbBuilderT) {
+    const verb = verbOrBuilder instanceof Verb.Builder ? verbOrBuilder.build() : verbOrBuilder;
 
     if (!Array.isArray(this._verbList)) {
       this._verbList = [this._verbList];
@@ -412,7 +427,7 @@ export class Item {
     this._verbs = verbs;
   }
 
-  set verbList(verbs: Verb | Verb[]) {
+  set verbList(verbs: Verb | VerbBuilderT | (Verb | VerbBuilderT)[]) {
     this._verbList = [];
     this._verbs = {};
     const verbArray = Array.isArray(verbs) ? verbs : [verbs];
@@ -459,7 +474,7 @@ export class Item {
     }
   }
 
-  addItems(...items: ItemT[]) {
+  addItems(...items: (ItemT | Builder)[]) {
     items.forEach((item) => this.addItem(item));
   }
 
@@ -467,10 +482,8 @@ export class Item {
    * Adds an item to this item's roster.
    * @param item The item to add.
    */
-  addItem(item: ItemT) {
-    if (item instanceof Item.Builder) {
-      throw Error(`Tried to add an item to ${this.name} but received a Builder. Did you forget to call build()?`);
-    }
+  addItem(itemOrBuilder: ItemT | Builder) {
+    const item = itemOrBuilder instanceof Builder ? itemOrBuilder.build() : itemOrBuilder;
 
     if (this.uniqueItems.has(item)) {
       debug(`Not adding ${item.name} to ${this.name} as it's already present.`);
@@ -533,8 +546,9 @@ export class Item {
     }
   }
 
-  set hidesItems(hidesItems: Item | Item[]) {
-    const hidesItemsArray = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
+  set hidesItems(hidesItems: Item | Builder | (Item | Builder)[]) {
+    const array = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
+    const hidesItemsArray = array.map((item) => (item instanceof Builder ? item.build() : item));
     this.recordAlteredProperty("hidesItems", hidesItemsArray);
     this._hidesItems = hidesItemsArray;
   }
@@ -1001,7 +1015,7 @@ export class Builder {
     return this;
   }
 
-  withVerb(verb: VerbT) {
+  withVerb(verb: VerbT | VerbBuilderT) {
     if (!this.config.verbs) {
       this.config.verbs = [];
     }
@@ -1014,7 +1028,7 @@ export class Builder {
     return this;
   }
 
-  withVerbs(...verbs: VerbT[]) {
+  withVerbs(...verbs: (VerbT | VerbBuilderT)[]) {
     this.config.verbs = verbs;
     return this;
   }
@@ -1024,7 +1038,12 @@ export class Builder {
     return this;
   }
 
-  hidesItems(...items: ItemT[]) {
+  omitAliases(...aliases: string[]) {
+    this.config.omitAliases = aliases;
+    return this;
+  }
+
+  hidesItems(...items: (ItemT | Builder)[]) {
     this.config.hidesItems = items;
     return this;
   }
@@ -1036,6 +1055,16 @@ export class Builder {
 
   withCapacity(capacity: number) {
     this.config.capacity = capacity;
+    return this;
+  }
+
+  itemsVisibleFromSelf(visible = true) {
+    this.config.itemsVisibleFromSelf = visible;
+    return this;
+  }
+
+  itemsVisibleFromRoom(visible = true) {
+    this.config.itemsVisibleFromRoom = visible;
     return this;
   }
 
@@ -1059,11 +1088,19 @@ export class Builder {
     return this;
   }
 
+  hasParserPrecedence(hasPrecedence = true) {
+    this.config.hasParserPrecedence = hasPrecedence;
+    return this;
+  }
+
+  isManyAndProduces(item: Item | Builder) {
+    this.config.producesSingular = item instanceof Builder ? item.build() : item;
+    return this;
+  }
+
   withProperty(property: string, value: Serializable) {
     if (typeof value === "function") {
-      throw Error(
-        "Attempted to set a function as a property value. All item properties must be serializable."
-      );
+      throw Error("Attempted to set a function as a property value. All item properties must be serializable.");
     }
 
     if (!this.config.properties) {

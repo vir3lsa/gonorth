@@ -165,6 +165,22 @@ describe("container", () => {
     expect(bucket.description).toBe("open");
   });
 
+  test("aliases may be omitted", () => {
+    const pocket = new Container.Builder("trouser pocket")
+      .withAliases("cloth pouch")
+      .omitAliases("trouser", "cloth")
+      .build();
+    expect(pocket.aliases).toEqual(["pocket", "pouch", "cloth pouch"]);
+  });
+
+  test("cloned aliases are also omitted", () => {
+    const pocket = new Container.Builder("trouser pocket")
+      .withAliases("cloth pouch")
+      .omitAliases("trouser", "cloth")
+      .build();
+    expect(pocket.clone().aliases).toEqual(["pocket", "pouch", "cloth pouch"]);
+  });
+
   test("can be closed", async () => {
     expect(chest.open).toBe(true);
     clearPage();

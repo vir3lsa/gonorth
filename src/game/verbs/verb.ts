@@ -318,7 +318,7 @@ export class Verb {
   }
 }
 
-class Builder {
+export class Builder {
   config: VerbConfig;
   constructor(name: string = "") {
     this.config = { name, tests: [] };

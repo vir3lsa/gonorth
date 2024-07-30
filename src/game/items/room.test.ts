@@ -213,4 +213,20 @@ describe("Room", () => {
     hall.removeItem(artifact);
     expect(hall.capacity).toBe(-1);
   });
+
+  test("aliases may be omitted", () => {
+    const largeRoom = new Room.Builder("very large room")
+      .withAliases("really big space")
+      .omitAliases("very", "really")
+      .build();
+    expect(largeRoom.aliases).toEqual(["large", "room", "big", "space", "really big space", "floor"]);
+  });
+
+  test("cloned aliases are also omitted", () => {
+    const largeRoom = new Room.Builder("very large room")
+      .withAliases("really big space")
+      .omitAliases("very", "really")
+      .build();
+    expect(largeRoom.clone().aliases).toEqual(["large", "room", "big", "space", "really big space", "floor"]);
+  });
 });
