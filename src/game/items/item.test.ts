@@ -123,6 +123,13 @@ describe("basic item tests", () => {
     expect(selectCurrentPage()).toInclude("already got a spoon");
   });
 
+  test("article is correct when trying to take produced item twice", async () => {
+    const spoons = new Item.Builder("onions").isHoldable().isManyAndProduces(new Item.Builder("onion")).build();
+    await spoons.try("take");
+    await spoons.try("take");
+    expect(selectCurrentPage()).toInclude("already got an onion");
+  });
+
   test("items can be added as Builders", async () => {
     const laptop = new Item.Builder("laptop");
     room.addItem(laptop);

@@ -203,7 +203,7 @@ export class Item {
           )
           .withSmartTest(
             () => !config?.producesSingular || !playerHasItem(config.producesSingular),
-            () => `You've already got a ${config?.producesSingular!.name}.`
+            ({ item }) => `You've already got ${item!.article} ${config?.producesSingular!.name}.`
           )
           .withSmartTest(
             ({ item }) => Boolean(!item.container || item.container.itemsVisibleFromSelf),

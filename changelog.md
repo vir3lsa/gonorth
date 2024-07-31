@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2024-07-31 Used correct item article in plural item smart test message.
+
 ## 3.3.0
 
 * 2024-07-28 Renamed methods and properties for items producing singular items, added smart test.
