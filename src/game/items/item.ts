@@ -336,6 +336,31 @@ export class Item {
 
       giveVerb.makePrepositional("to whom");
       this.addVerb(giveVerb);
+
+      if (config?.producesSingular) {
+        // Parent needs relevant verbs to pass onto the child.
+        Object.values(config.producesSingular.verbs).forEach((verb) => {
+          if (!this.verbs[verb.name] || !verb.remote) {
+            const parentVerb = new Verb.Builder(verb.name)
+              .withAliases(...verb.aliases)
+              .isRemote()
+              .withOnSuccess(
+                ({ item }) => {
+                  if (!verb.remote) {
+                    return item.try("take");
+                  }
+                },
+                (context) => verb.attemptWithContext({ ...context, item: config.producesSingular })
+              );
+
+            if (verb.prepositional) {
+              parentVerb.makePrepositional(verb.interrogative!, verb.prepositionOptional);
+            }
+
+            this.addVerb(parentVerb);
+          }
+        });
+      }
     }
 
     this._constructed = true; // Indicate construction has completed.

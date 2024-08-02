@@ -124,10 +124,34 @@ describe("basic item tests", () => {
   });
 
   test("article is correct when trying to take produced item twice", async () => {
-    const spoons = new Item.Builder("onions").isHoldable().isManyAndProduces(new Item.Builder("onion")).build();
-    await spoons.try("take");
-    await spoons.try("take");
+    const onions = new Item.Builder("onions").isHoldable().isManyAndProduces(new Item.Builder("onion")).build();
+    await onions.try("take");
+    await onions.try("take");
     expect(selectCurrentPage()).toInclude("already got an onion");
+  });
+
+  test("verbs are deferred to the child after first taking the child", async () => {
+    const onions = new Item.Builder("onions")
+      .isHoldable()
+      .isManyAndProduces(new Item.Builder("onion").isHoldable())
+      .withTakeSuccessText("you take an onion")
+      .build();
+    await onions.try("put", room);
+    expect(selectCurrentPage()).toInclude("you take an onion");
+    expect(selectCurrentPage()).toInclude("put the onion on the floor");
+  });
+
+  test("remote verbs on the child are deferred to without first taking the child", async () => {
+    const onions = new Item.Builder("onions")
+      .isHoldable()
+      .isManyAndProduces(
+        new Item.Builder("onion").withVerb(new Verb.Builder("smell").isRemote().withOnSuccess("smells strongly"))
+      )
+      .withTakeSuccessText("you take an onion")
+      .build();
+    await onions.try("smell");
+    expect(selectCurrentPage()).not.toInclude("you take an onion");
+    expect(selectCurrentPage()).toInclude("smells strongly");
   });
 
   test("items can be added as Builders", async () => {
