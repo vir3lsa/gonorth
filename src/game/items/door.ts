@@ -2,6 +2,7 @@ import { Item, customiseVerbs, omitAliases } from "./item";
 import { Verb } from "../verbs/verb";
 import { inRoom, normaliseTest } from "../../utils/sharedFunctions";
 import { goToRoom } from "../../utils/lifecycle";
+import { CyclicText } from "../interactions/text";
 
 export function newDoor(config: DoorConfig & ItemConfig) {
   const {
@@ -39,6 +40,8 @@ export function newDoor(config: DoorConfig & ItemConfig) {
 }
 
 export class Door extends Item {
+  static peekSuccessText: CyclicText;
+
   private _open!: boolean;
   private _locked!: boolean;
   private _key?: KeyT;
@@ -110,7 +113,7 @@ export class Door extends Item {
     }
 
     if (traversals) {
-      // Create a verb from each traversal.
+      // Create a go-through verb from each traversal.
       const traversalToVerb = traversals.reduce((acc, traversal) => {
         acc[traversal.id] = new Verb.Builder()
           .withName(`${name}-traversal-${traversal.id}`)
@@ -152,7 +155,33 @@ export class Door extends Item {
               return "You're not sure how to do that.";
             }
           })
-          .build()
+      );
+
+      // Create a peek verb from each traversal.
+      const traversalToPeekVerb = traversals.reduce((acc, traversal) => {
+        acc[traversal.id] = new Verb.Builder()
+          .withName(`${name}-peek-${traversal.id}`)
+          .withTest(...traversal.tests)
+          .withOnSuccess(() => Door.peekText.next(name, traversal.destination))
+          .isRemote()
+          .build();
+        return acc;
+      }, {} as { [index: number]: Verb });
+
+      this.addVerb(
+        new Verb.Builder("peek")
+          .withAliases("peer", "look through", "look beyond", "look past")
+          .withOnSuccess((context) => {
+            const traversal = traversals.find((traversal) => traversal.activationCondition(context));
+            const traversalId = traversal ? traversal.id : -1;
+            const traversalPeekVerb = traversalToPeekVerb[traversalId];
+
+            if (traversalPeekVerb) {
+              return traversalPeekVerb.attemptWithContext(context);
+            } else {
+              return `You can't see beyond the ${name}.`;
+            }
+          })
       );
     }
   }
@@ -206,6 +235,18 @@ export class Door extends Item {
 
   static get TraversalBuilder() {
     return TraversalBuilder;
+  }
+
+  static get peekText() {
+    if (!Door.peekSuccessText) {
+      Door.peekSuccessText = new CyclicText(
+        (name, destination) => `Beyond the ${name} you can see the ${destination}.`,
+        (name, destination) => `Peering carefully around the ${name}, you can make out the ${destination}.`,
+        (name, destination) => `You can see through to the ${destination} past the ${name}.`
+      );
+    }
+
+    return Door.peekSuccessText;
   }
 }
 
@@ -375,6 +416,7 @@ class TraversalBuilder {
     return {
       id: TraversalBuilder.idCounter++,
       aliases,
+      destination,
       activationCondition: activationConditionFunc,
       tests,
       onSuccess: [...onSuccess, () => goToRoom(destination)],

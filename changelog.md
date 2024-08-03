@@ -2,6 +2,7 @@
 
 # 3.4.0
 
+* 2024-07-03 Ability to peek through doors.
 * 2024-07-02 Items that produce singular items trigger a 'take' action and then defer verbs to their children.
 * 2024-07-31 Used correct item article in plural item smart test message.
 

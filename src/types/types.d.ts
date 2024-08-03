@@ -502,6 +502,7 @@ interface TraversalConfig {
 interface Traversal {
   aliases: string[];
   id: number;
+  destination: string;
   activationCondition: TestFunction;
   tests: SmartTest[];
   onSuccess: Action[];
