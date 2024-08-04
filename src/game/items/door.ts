@@ -115,9 +115,10 @@ export class Door extends Item {
     if (traversals) {
       // Create a go-through verb from each traversal.
       const traversalToVerb = traversals.reduce((acc, traversal) => {
+        const tests = [...traversal.tests, traversal.doorOpenTest].filter((test) => test) as SmartTest[];
         acc[traversal.id] = new Verb.Builder()
           .withName(`${name}-traversal-${traversal.id}`)
-          .withTest(...traversal.tests)
+          .withTest(...tests)
           .withOnSuccess(traversal.onSuccess)
           .withOnFailure(traversal.onFailure)
           .isRemote()
@@ -159,10 +160,16 @@ export class Door extends Item {
 
       // Create a peek verb from each traversal.
       const traversalToPeekVerb = traversals.reduce((acc, traversal) => {
+        const tests = [...traversal.tests];
+
+        if (!config?.transparent && traversal.doorOpenTest) {
+          tests.push(traversal.doorOpenTest);
+        }
+
         acc[traversal.id] = new Verb.Builder()
           .withName(`${name}-peek-${traversal.id}`)
-          .withTest(...traversal.tests)
-          .withOnSuccess(() => Door.peekText.next(name, traversal.destination))
+          .withTest(...tests)
+          .withOnSuccess(traversal.onPeekSuccess ?? (() => Door.peekText.next(name, traversal.destination)))
           .isRemote()
           .build();
         return acc;
@@ -241,7 +248,7 @@ export class Door extends Item {
     if (!Door.peekSuccessText) {
       Door.peekSuccessText = new CyclicText(
         (name, destination) => `Beyond the ${name} you can see the ${destination}.`,
-        (name, destination) => `Peering carefully around the ${name}, you can make out the ${destination}.`,
+        (name, destination) => `Peering carefully through the ${name}, you can make out the ${destination}.`,
         (name, destination) => `You can see through to the ${destination} past the ${name}.`
       );
     }
@@ -269,6 +276,11 @@ class DoorBuilder extends Item.Builder {
 
   isAlwaysOpen(alwaysOpen = true) {
     this.config.alwaysOpen = alwaysOpen;
+    return this;
+  }
+
+  isTransparent(transparent = true) {
+    this.config.transparent = transparent;
     return this;
   }
 
@@ -322,10 +334,15 @@ class DoorBuilder extends Item.Builder {
         .withAliases(...traversalBuilder.config.aliases)
         .withOrigin(traversalBuilder.config.destination)
         .withDestination(traversalBuilder.config.origin)
+        .withTests(...traversalBuilder.config.tests)
         .withActivationCondition(traversalBuilder.config.activationCondition)
         .onSuccess(traversalBuilder.config.onSuccess)
         .onFailure(traversalBuilder.config.onFailure);
-      reverseBuilder.config.tests = [...traversalBuilder.config.tests];
+
+      if (traversalBuilder.config.doorOpenTest) {
+        reverseBuilder.withDoorOpenTest(traversalBuilder.config.doorOpenTest.onFailure);
+      }
+
       this.config.traversals.push(reverseBuilder.build());
     }
 
@@ -353,7 +370,7 @@ class TraversalBuilder {
   };
 
   withAliases(...aliases: string[]) {
-    this.config.aliases = [...this.config.aliases, ...aliases];
+    this.config.aliases.push(...aliases);
     return this;
   }
 
@@ -372,11 +389,16 @@ class TraversalBuilder {
     return this;
   }
 
+  withTests(...tests: SmartTest[]) {
+    this.config.tests.push(...tests);
+    return this;
+  }
+
   withDoorOpenTest(onFailure?: Action) {
-    this.config.tests.push({
+    this.config.doorOpenTest = {
       test: ({ item: door }) => Boolean(door.open),
       onFailure: onFailure || (({ item: door }) => `The ${door!.name} is closed.`),
-    });
+    };
     return this;
   }
 
@@ -390,17 +412,32 @@ class TraversalBuilder {
     return this;
   }
 
+  onPeekSuccess(...onSuccess: Action[]) {
+    this.config.onPeekSuccess = onSuccess;
+    return this;
+  }
+
   withDestination(destination?: string) {
     this.config.destination = destination;
     return this;
   }
 
   build() {
-    const { aliases, origin, activationCondition, tests, onSuccess, onFailure, destination } = this.config;
+    const {
+      aliases,
+      origin,
+      activationCondition,
+      tests,
+      doorOpenTest,
+      onSuccess,
+      onFailure,
+      onPeekSuccess,
+      destination,
+    } = this.config;
     let originFunc: TestFunction = () => (origin ? inRoom(origin) : true);
     let activationConditionFunc: TestFunction = originFunc;
 
-    if (activationCondition) {
+    if (activationCondition !== undefined) {
       const normalActCond = normaliseTest(activationCondition);
       activationConditionFunc = (context) => originFunc(context) && normalActCond(context);
     }
@@ -419,8 +456,10 @@ class TraversalBuilder {
       destination,
       activationCondition: activationConditionFunc,
       tests,
+      doorOpenTest,
       onSuccess: [...onSuccess, () => goToRoom(destination)],
       onFailure,
+      onPeekSuccess,
     } as Traversal;
   }
 }

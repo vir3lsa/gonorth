@@ -479,6 +479,7 @@ interface DoorConfig {
   open: boolean;
   locked: boolean;
   alwaysOpen?: boolean;
+  transparent?: boolean;
   onLocked: Action;
   onNeedsKey: Action;
   openSuccessText: Action;
@@ -494,8 +495,10 @@ interface TraversalConfig {
   origin?: string;
   activationCondition?: Test;
   tests: SmartTest[];
+  doorOpenTest?: SmartTest;
   onSuccess: Action[];
   onFailure: Action[];
+  onPeekSuccess?: Action[];
   destination?: string;
 }
 
@@ -505,8 +508,10 @@ interface Traversal {
   destination: string;
   activationCondition: TestFunction;
   tests: SmartTest[];
+  doorOpenTest?: SmartTest;
   onSuccess: Action[];
   onFailure: Action[];
+  onPeekSuccess: Action[];
 }
 
 /*************/

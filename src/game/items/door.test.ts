@@ -501,4 +501,76 @@ describe("traversals", () => {
       expect(selectCurrentPage()).toInclude("Global failure");
     });
   });
+
+  test("can peek through doors", async () => {
+    const door = new Door.Builder("round door")
+      .addTraversal(new Door.TraversalBuilder().withOrigin("Hall").withDestination("Pantry"))
+      .build();
+    await door.try("peek");
+    expect(selectCurrentPage()).toInclude("Beyond the round door you can see the Pantry.");
+  });
+
+  test("doors must be open to peek through", async () => {
+    const door = new Door.Builder("round door")
+      .addTraversal(
+        new Door.TraversalBuilder().withOrigin("Hall").withDestination("Pantry").withDoorOpenTest("door closed")
+      )
+      .isOpen(false)
+      .build();
+    await door.try("peek");
+    expect(selectCurrentPage()).toInclude("door closed");
+  });
+
+  test("peeking has the same tests as going through and context is passed", async () => {
+    const door = new Door.Builder("round door")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("Hall")
+          .withDestination("Pantry")
+          .withTest(false, (context) => `${context.verb?.name} no way`)
+      )
+      .build();
+    await door.try("peek");
+    expect(selectCurrentPage()).toInclude("peek no way");
+  });
+
+  test("peeking has the same activation conditions as going through", async () => {
+    const door = new Door.Builder("round door")
+      .addTraversal(
+        new Door.TraversalBuilder().withOrigin("Hall").withDestination("Pantry").withActivationCondition(false)
+      )
+      .build();
+    await door.try("peek");
+    // No activation condition met.
+    expect(selectCurrentPage()).toInclude("can't see beyond the round door");
+  });
+
+  test("can override default peek behaviour", async () => {
+    const door = new Door.Builder("water door")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("Hall")
+          .withDestination("Pantry")
+          .onPeekSuccess(({ verb }) => `do the ${verb?.name}`)
+      )
+      .build();
+    await door.try("peek");
+    expect(selectCurrentPage()).toInclude("do the peek");
+  });
+
+  test("closed transparent doors may be peeked through", async () => {
+    const door = new Door.Builder("closed door")
+      .addTraversal(
+        new Door.TraversalBuilder()
+          .withOrigin("Hall")
+          .withDestination("Pantry")
+          .withDoorOpenTest("door closed")
+          .onPeekSuccess("peek through glass")
+      )
+      .isOpen(false)
+      .isTransparent()
+      .build();
+    await door.try("peek");
+    expect(selectCurrentPage()).toInclude("peek through glass");
+  });
 });
