@@ -305,4 +305,18 @@ describe("container", () => {
     const chest = new Container.Builder("safe").withClosedDescription(({ item }) => `${item.name} closed`).build();
     expect(chest.description).toBe("safe closed");
   });
+
+  test("correct plurality used", () => {
+    const box = new Container.Builder("box").build();
+    expect(box.lockedText).toBe("The box is locked.");
+    expect(box.alreadyOpenText).toBe("The box is already open.");
+    expect(box.alreadyClosedText).toBe("The box is already closed.");
+    expect(box.alreadyUnlockedText).toBe("The box is already unlocked.");
+
+    const boxes = new Container.Builder("boxes").isPlural().build();
+    expect(boxes.lockedText).toBe("The boxes are locked.");
+    expect(boxes.alreadyOpenText).toBe("The boxes are already open.");
+    expect(boxes.alreadyClosedText).toBe("The boxes are already closed.");
+    expect(boxes.alreadyUnlockedText).toBe("The boxes are already unlocked.");
+  });
 });

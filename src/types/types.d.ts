@@ -433,6 +433,7 @@ interface ItemConfig {
   properties?: ItemProperties;
   verbCustomisations?: VerbCustomisations;
   producesSingular?: ItemT;
+  plural?: boolean;
 }
 
 interface ItemItemsDict {
@@ -474,6 +475,7 @@ type Navigable = boolean | DoorT | (() => boolean);
 /********/
 
 interface DoorConfig {
+  [property: string]: unknown;
   name: string;
   description: UnknownText;
   open: boolean;
@@ -519,6 +521,7 @@ interface Traversal {
 /*************/
 
 interface ContainerConfig {
+  [property: string]: unknown;
   name: string;
   aliases: string[];
   closedDescription: UnknownText;

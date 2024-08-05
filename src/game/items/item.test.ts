@@ -8,7 +8,8 @@ import { initGame, setInventoryCapacity, goToRoom } from "../../gonorth";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { Container } from "./container";
 import { Verb } from "../verbs/verb";
-import { clickNextAndWait } from "../../utils/testFunctions";
+import { clickNextAndWait, deferAction } from "../../utils/testFunctions";
+import { clearPage } from "../../utils/sharedFunctions";
 
 let game, room: RoomT;
 
@@ -188,6 +189,52 @@ describe("basic item tests", () => {
   test("an error message is given if the verb cannot be found", () => {
     const bat = new Item.Builder("bat").build();
     expect(() => bat.getVerb("swing")).toThrow('No verb with the name "swing" exists on the item "bat"');
+  });
+
+  test("correct plurality used for singular item", async () => {
+    const gift = new Item.Builder("gift").isHoldable().isPlural().withTakeSuccessText("For me?").build();
+    await gift.try("take");
+    expect(selectCurrentPage()).toInclude("For me?");
+    return deferAction(async () => {
+      await gift.try("give", gift);
+      expect(selectCurrentPage()).toInclude("can't give the gift to itself");
+      await gift.try("put", gift);
+      expect(selectCurrentPage()).toInclude("can't put the gift in itself");
+    });
+  });
+
+  test("correct plurality used for plural item", async () => {
+    const gifts = new Item.Builder("gifts").isHoldable().isPlural().withTakeSuccessText("For me?").build();
+    await gifts.try("take");
+    expect(selectCurrentPage()).toInclude("For me?");
+    return deferAction(async () => {
+      await gifts.try("give", gifts);
+      expect(selectCurrentPage()).toInclude("can't give the gifts to themselves");
+      await gifts.try("put", gifts);
+      expect(selectCurrentPage()).toInclude("can't put the gifts in themselves");
+    });
+  });
+
+  test("correct plurality used when taking too large singular item", async () => {
+    setInventoryCapacity(10);
+    const boulder = new Item.Builder("boulder").isHoldable().withSize(100).build();
+    await boulder.try("take");
+    expect(selectCurrentPage()).toInclude("The boulder is far too large");
+    boulder.size = 11;
+    clearPage();
+    await boulder.try("take");
+    expect(selectCurrentPage()).toInclude("The boulder is too big");
+  });
+
+  test("correct plurality used when taking too large plural item", async () => {
+    setInventoryCapacity(10);
+    const boulders = new Item.Builder("boulders").isPlural().isHoldable().withSize(100).build();
+    await boulders.try("take");
+    expect(selectCurrentPage()).toInclude("The boulders are far too large");
+    boulders.size = 11;
+    clearPage();
+    await boulders.try("take");
+    expect(selectCurrentPage()).toInclude("The boulders are too big");
   });
 });
 

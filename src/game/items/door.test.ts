@@ -8,6 +8,7 @@ import { Item } from "./item";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { AnyAction } from "redux";
 import { clickNext, clickNextAndWait, deferAction } from "../../utils/testFunctions";
+import { clearPage } from "../../utils/sharedFunctions";
 
 let game: Game, room: RoomT, door: DoorT;
 
@@ -573,4 +574,35 @@ describe("traversals", () => {
     await door.try("peek");
     expect(selectCurrentPage()).toInclude("peek through glass");
   });
+});
+
+test("correct plurality is used", async () => {
+  const door = new Door.Builder("door").isOpen(false).isLocked().build();
+  await door.try("open");
+  expect(selectCurrentPage()).toBe("The door is locked.");
+  await door.try("unlock");
+  expect(selectCurrentPage()).toInclude("The door unlocks with a soft *click*");
+  await door.try("close");
+  expect(selectCurrentPage()).toInclude("The door is already closed.");
+  await door.try("open");
+  expect(selectCurrentPage()).toInclude("The door opens relatively easily.");
+  await door.try("open");
+  expect(selectCurrentPage()).toInclude("The door is already open.");
+  await door.try("unlock");
+  expect(selectCurrentPage()).toInclude("The door is already unlocked.");
+
+  clearPage();
+  const doors1 = new Door.Builder("doors").isOpen(false).isLocked().isPlural().build();
+  await doors1.try("open");
+  expect(selectCurrentPage()).toBe("The doors are locked.");
+  await doors1.try("unlock");
+  expect(selectCurrentPage()).toInclude("The doors unlock with a soft *click*");
+  await doors1.try("close");
+  expect(selectCurrentPage()).toInclude("The doors are already closed.");
+  await doors1.try("open");
+  expect(selectCurrentPage()).toInclude("The doors open relatively easily.");
+  await doors1.try("open");
+  expect(selectCurrentPage()).toInclude("The doors are already open.");
+  await doors1.try("unlock");
+  expect(selectCurrentPage()).toInclude("The doors are already unlocked.");
 });

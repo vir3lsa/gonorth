@@ -67,6 +67,7 @@ export class Item {
   private _itemsVisibleFromRoom!: boolean;
   private _doNotList!: boolean;
   private _verbCustomisations: VerbCustomisations = {};
+  private _config?: ItemConfig;
   private omitAliases: string[] = [];
   protected uniqueItems: Set<ItemT>;
 
@@ -144,6 +145,7 @@ export class Item {
     this.doNotList = false;
     this.properties = {};
     this.properNoun = "";
+    this.config = config;
 
     aliases.forEach((alias) => this.createAliases(alias));
 
@@ -219,7 +221,7 @@ export class Item {
               const capacity = inventory.capacity;
               return capacity === -1 || (capacity > -1 && item.size <= capacity * 2);
             },
-            ({ item }) => `The ${item!.name} is far too large to pick up.`
+            ({ item }) => `The ${item!.name} ${this.isOrAre()} far too large to pick up.`
           )
           .withSmartTest(
             ({ item }) => {
@@ -227,7 +229,7 @@ export class Item {
               const capacity = inventory.capacity;
               return capacity === -1 || (capacity > -1 && item.size <= capacity);
             },
-            ({ item }) => `The ${item!.name} is too big to pick up.`
+            ({ item }) => `The ${item!.name} ${this.isOrAre()} too big to pick up.`
           )
           .withSmartTest(
             ({ item }) => {
@@ -264,9 +266,9 @@ export class Item {
         .withSmartTest(
           ({ other }) => other !== this,
           ({ other }) =>
-            `You can't put ${this.properNoun ? "" : "the "}${this.name} ${
-              other!.preposition
-            } itself. That would be nonsensical.`
+            `You can't put ${this.properNoun ? "" : "the "}${this.name} ${other!.preposition} ${
+              config?.plural ? "themselves" : "itself"
+            }. That would be nonsensical.`
         )
         .withSmartTest(
           ({ other }) => other!.canHoldItems,
@@ -318,7 +320,8 @@ export class Item {
         [
           {
             test: ({ other }) => other !== this,
-            onFailure: () => `You can't give ${this.article}${this.name} to itself. Obviously.`,
+            onFailure: () =>
+              `You can't give ${this.article}${this.name} to ${config?.plural ? "themselves" : "itself"}. Obviously.`,
           },
           {
             test: ({ other }) => Boolean(other!._isNpc),
@@ -835,6 +838,10 @@ export class Item {
     verb.addTest(test);
   }
 
+  isOrAre() {
+    return this.config?.plural ? "are" : "is";
+  }
+
   get holdable() {
     return this._holdable;
   }
@@ -944,6 +951,14 @@ export class Item {
   set properties(value) {
     this.recordAlteredProperty("properties", value);
     this._properties = value;
+  }
+
+  get config() {
+    return this._config;
+  }
+
+  set config(value) {
+    this._config = value;
   }
 
   toJSON() {
@@ -1120,6 +1135,11 @@ export class Builder {
 
   isManyAndProduces(item: Item | Builder) {
     this.config.producesSingular = item instanceof Builder ? item.build() : item;
+    return this;
+  }
+
+  isPlural(plural = true) {
+    this.config.plural = plural;
     return this;
   }
 

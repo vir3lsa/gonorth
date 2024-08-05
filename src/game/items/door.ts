@@ -58,25 +58,27 @@ export class Door extends Item {
     traversals?: Traversal[],
     config?: DoorConfig
   ) {
-    super(name, description, false, -1, [], aliases);
+    super(name, description, false, -1, [], aliases, undefined, config);
     this.open = open;
     this.locked = locked;
     this.key = key;
 
+    const addS = () => (this.config?.plural ? "" : "s");
+
     if (!config || !config.alwaysOpen) {
       this.addVerb(
         new Verb.Builder("open")
-          .withSmartTest(() => !this.locked, config?.onLocked || `The ${name} is locked.`)
-          .withSmartTest(() => !this.open, `The ${name} is already open.`)
+          .withSmartTest(() => !this.locked, config?.onLocked || `The ${name} ${this.isOrAre()} locked.`)
+          .withSmartTest(() => !this.open, `The ${name} ${this.isOrAre()} already open.`)
           .withOnSuccess(() => {
             this.open = true;
-          }, openSuccessText ?? `The ${name} opens relatively easily.`)
+          }, openSuccessText ?? `The ${name} open${addS()} relatively easily.`)
           .build()
       );
 
       this.addVerb(
         new Verb.Builder("close")
-          .withSmartTest(() => this.open, `The ${name} is already closed.`)
+          .withSmartTest(() => this.open, `The ${name} ${this.isOrAre()} already closed.`)
           .withOnSuccess(() => {
             this.open = false;
           }, config?.onCloseSuccess ?? `You close the ${name}.`)
@@ -86,10 +88,10 @@ export class Door extends Item {
       this.addVerb(
         new Verb.Builder("unlock")
           .makePrepositional("with what", true)
-          .withSmartTest(() => this.locked, `The ${name} is already unlocked.`)
+          .withSmartTest(() => this.locked, `The ${name} ${this.isOrAre()} already unlocked.`)
           .withSmartTest(
             ({ other: key }) => !Boolean(this.key) || Boolean(key),
-            config?.onNeedsKey ?? `The ${name} appears to need a key.`
+            config?.onNeedsKey ?? `The ${name} appear${addS()} to need a key.`
           )
           .withSmartTest(
             ({ other: key }) => !Boolean(key) || Boolean(this.key),
@@ -106,7 +108,7 @@ export class Door extends Item {
             },
             ({ item: door }) =>
               unlockSuccessText ??
-              (door.key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`),
+              (door.key ? "The key turns easily in the lock." : `The ${name} unlock${addS()} with a soft *click*.`),
           ])
           .build()
       );
