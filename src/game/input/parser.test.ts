@@ -114,6 +114,13 @@ describe("parser", () => {
       addEffect(redBall, blueBall, "throw", true, true, "You take careful aim.");
       addWildcardEffect(blueBall, "hide", true, true, "You hide it from the blue ball.");
 
+      // Add a prepositional verb with subject and object reversed.
+      redBox.addVerb(
+        new Verb.Builder("store")
+          .makePrepositional("store what in the red box?")
+          .withOnSuccess(({ other }) => `You store the ${other!.name} in the red box`)
+      );
+
       hall.setNorth(north);
       hall.setSouth(south);
       hall.setEast(east);
@@ -196,6 +203,8 @@ describe("parser", () => {
     it("applies a pre-verb effect when one is registered, and continues the verb", () =>
       inputTest("throw red ball at blue ball", "You take careful aim", "The red ball hits the blue ball"));
     it("applies wildcard effects", () => inputTest("hide red ball from the blue ball", "You hide it", "It's hidden"));
+    it("performs reversed prepositional verbs", () =>
+      inputTest("store red ball in red box", "You store the red ball in the red box"));
 
     describe("auto disambiguation", () => {
       let apple1: Item, apple2: Item;

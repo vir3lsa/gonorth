@@ -2,6 +2,7 @@
 
 # Unreleased
 
+* 2024-08-06 Prepositional verbs work when the subject and object are reversed.
 * 2024-08-04 Items can be made plural and 'isOrAre' function added.
 
 ## 3.5.0

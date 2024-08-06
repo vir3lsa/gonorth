@@ -195,66 +195,70 @@ export class Parser {
     vc.itemDetails = this.findRoomItems(vc, this.tokens, vc.endIndex);
 
     if (vc.itemDetails.length) {
-      const { alias, itemsWithName } = vc.itemDetails[0];
+      // We may have found more than one item in the input, so try until we find a valid combination.
+      for (let itemDetailsIndex = 0; itemDetailsIndex < vc.itemDetails.length; itemDetailsIndex++) {
+        const { alias, itemsWithName } = vc.itemDetails[itemDetailsIndex];
 
-      let validItemsWithName = itemsWithName.filter((item: ItemT) => item?.visible && item.verbs[vc.possibleVerb!]);
-      const itemsWithPrecedence = validItemsWithName.filter((item) => item.hasParserPrecedence);
+        let validItemsWithName = itemsWithName.filter((item: ItemT) => item?.visible && item.verbs[vc.possibleVerb!]);
+        const itemsWithPrecedence = validItemsWithName.filter((item) => item.hasParserPrecedence);
 
-      // If one and only one item takes precedence, use that one.
-      if (itemsWithPrecedence.length === 1) {
-        validItemsWithName = [itemsWithPrecedence[0]];
-      }
-
-      if (!validItemsWithName.length) {
-        this.dt.roomItem = itemsWithName[0] || this.dt.roomItem; // Record a room item for feedback purposes.
-      }
-
-      for (let itemIndex in validItemsWithName) {
-        const item = validItemsWithName[itemIndex];
-        vc.roomItem = item;
-        this.dt.roomItem = item || this.dt.roomItem; // Record a valid room item.
-
-        vc.actualVerb = item.verbs[vc.possibleVerb];
-        this.dt.actualVerb = item.verbs[vc.possibleVerb];
-        this.dt.verbSupported = true;
-        let indirectItemsWithName, indirectItem, indirectAlias;
-        vc.validCombination = true;
-
-        // Do we have a valid indirect item?
-        indirectAlias = vc.itemDetails[1]?.alias;
-        indirectItemsWithName = vc.itemDetails[1]?.itemsWithName;
-
-        if (indirectItemsWithName) {
-          indirectItem = indirectItemsWithName[0];
-
-          if (indirectItem && indirectItem.visible) {
-            vc.indirectItem = indirectItem;
-            this.dt.indirectItem = indirectItem;
-          }
+        // If one and only one item takes precedence, use that one.
+        if (itemsWithPrecedence.length === 1) {
+          validItemsWithName = [itemsWithPrecedence[0]];
         }
 
-        if (this.dt.actualVerb.prepositional && !this.dt.actualVerb.prepositionOptional && !this.dt.indirectItem) {
-          vc.validCombination = false;
+        if (!validItemsWithName.length) {
+          this.dt.roomItem = itemsWithName[0] || this.dt.roomItem; // Record a room item for feedback purposes.
         }
 
-        if (vc.validCombination) {
-          if (validItemsWithName.length > 1) {
-            // Primary item name is a duplicate
-            this.recordDuplicates(validItemsWithName, alias, true);
+        for (let itemIndex in validItemsWithName) {
+          const item = validItemsWithName[itemIndex];
+          vc.roomItem = item;
+          this.dt.roomItem = item || this.dt.roomItem; // Record a valid room item.
+
+          vc.actualVerb = item.verbs[vc.possibleVerb];
+          this.dt.actualVerb = item.verbs[vc.possibleVerb];
+          this.dt.verbSupported = true;
+          let indirectItemsWithName, indirectItem, indirectAlias;
+          vc.validCombination = true;
+
+          // Do we have a valid indirect item?
+          const indirectItemIndex = itemDetailsIndex === 0 ? 1 : 0;
+          indirectAlias = vc.itemDetails[indirectItemIndex]?.alias;
+          indirectItemsWithName = vc.itemDetails[indirectItemIndex]?.itemsWithName;
+
+          if (indirectItemsWithName) {
+            indirectItem = indirectItemsWithName[0];
+
+            if (indirectItem && indirectItem.visible) {
+              vc.indirectItem = indirectItem;
+              this.dt.indirectItem = indirectItem;
+            }
           }
 
-          if (indirectItemsWithName?.length > 1) {
-            // Secondary item name is a duplicate
-            this.recordDuplicates(indirectItemsWithName, indirectAlias, false);
+          if (this.dt.actualVerb.prepositional && !this.dt.actualVerb.prepositionOptional && !this.dt.indirectItem) {
+            vc.validCombination = false;
           }
 
-          if (validItemsWithName.length > 1 || indirectItemsWithName?.length > 1) {
-            // If we have any duplicates we need to disambiguate.
-            return this.giveFeedback();
-          }
+          if (vc.validCombination) {
+            if (validItemsWithName.length > 1) {
+              // Primary item name is a duplicate
+              this.recordDuplicates(validItemsWithName, alias, true);
+            }
 
-          // If there's no effect registered (or no indirect item), try the verb as usual.
-          return item.try(vc.possibleVerb, this.dt.indirectItem);
+            if (indirectItemsWithName?.length > 1) {
+              // Secondary item name is a duplicate
+              this.recordDuplicates(indirectItemsWithName, indirectAlias, false);
+            }
+
+            if (validItemsWithName.length > 1 || indirectItemsWithName?.length > 1) {
+              // If we have any duplicates we need to disambiguate.
+              return this.giveFeedback();
+            }
+
+            // If there's no effect registered (or no indirect item), try the verb as usual.
+            return item.try(vc.possibleVerb, this.dt.indirectItem);
+          }
         }
       }
     }
@@ -304,7 +308,7 @@ export class Parser {
           }
         }
 
-        // Is the item in the room and visible? Does it support the verb?
+        // Is the item in the room and visible?
         ic.itemsWithName = room.accessibleItems[possibleItem]?.filter((item) => item.visible) || [];
 
         // Try items in the player's inventory as well
