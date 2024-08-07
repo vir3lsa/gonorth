@@ -4,12 +4,13 @@ import { Parser } from "./parser";
 import { Door } from "../items/door";
 import { Item } from "../items/item";
 import { Verb } from "../verbs/verb";
-import { addEffect, addWildcardEffect, initGame, setInventoryCapacity } from "../../gonorth";
+import { addEffect, initGame, setInventoryCapacity } from "../../gonorth";
 import { goToRoom } from "../../utils/lifecycle";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { selectRoom } from "../../utils/selectors";
 import { Container } from "../items/container";
 import { clearPage } from "../../utils/sharedFunctions";
+import { Effect, VerbRelation } from "../../utils/effects";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -109,10 +110,42 @@ describe("parser", () => {
       blueBall.addVerb(
         new Verb.Builder("club").withAliases("put").withOnSuccess("You hit the ball into the hole.").build()
       );
-      addEffect(redBall, chairman, "throw", true, false, "The chair man catches the ball.");
-      addWildcardEffect(chairman, "hide", true, false, ({ item }) => `The chair man can't find the ${item.name}.`);
-      addEffect(redBall, blueBall, "throw", true, true, "You take careful aim.");
-      addWildcardEffect(blueBall, "hide", true, true, "You hide it from the blue ball.");
+      addEffect(
+        new Effect.Builder()
+          .withPrimaryItem(redBall)
+          .withSecondaryItem(chairman)
+          .withVerbName("throw")
+          .isSuccessful()
+          .withVerbRelation(VerbRelation.Instead)
+          .withActions("The chair man catches the ball.")
+      );
+      addEffect(
+        new Effect.Builder()
+          .withAnyPrimaryItem()
+          .withSecondaryItem(chairman)
+          .withVerbName("hide")
+          .isSuccessful()
+          .withVerbRelation(VerbRelation.Instead)
+          .withActions(({ item }) => `The chair man can't find the ${item.name}.`)
+      );
+      addEffect(
+        new Effect.Builder()
+          .withPrimaryItem(redBall)
+          .withSecondaryItem(blueBall)
+          .withVerbName("throw")
+          .isSuccessful()
+          .withVerbRelation(VerbRelation.Before)
+          .withActions("You take careful aim.")
+      );
+      addEffect(
+        new Effect.Builder()
+          .withAnyPrimaryItem()
+          .withSecondaryItem(blueBall)
+          .withVerbName("hide")
+          .isSuccessful()
+          .withVerbRelation(VerbRelation.Before)
+          .withActions("You hide it from the blue ball.")
+      );
 
       // Add a prepositional verb with subject and object reversed.
       redBox.addVerb(

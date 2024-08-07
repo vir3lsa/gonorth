@@ -1,7 +1,7 @@
 import { unregisterStore } from "../redux/storeRegistry";
 import { initStore } from "../redux/store";
 import { Item, newItem } from "../game/items/item";
-import { Effects } from "./effects";
+import { Effect, Effects, VerbRelation } from "./effects";
 import { selectCurrentPage } from "./testSelectors";
 import { initGame } from "../gonorth";
 
@@ -14,15 +14,41 @@ beforeEach(() => {
 
   const paint = new Item("paint");
   effects = new Effects();
-  effects.add(paint, new Item("canvas"), "apply", true, false, "A beautiful picture appears on the canvas.");
-  effects.add(paint, new Item("face"), "apply", false, false, "It's the wrong kind of paint for face painting.");
-  effects.addWildcard("pool", "put", true, false, ({ item }) => `The ${item.name} hits the water with a splash.`);
-  effects.addWildcard(
-    "fire",
-    "put",
-    false,
-    false,
-    ({ item }) => `The ${item.name} doesn't seem to want to catch fire.`
+  effects.add(
+    new Effect.Builder()
+      .withPrimaryItem(paint)
+      .withSecondaryItem(new Item("canvas"))
+      .withVerbName("apply")
+      .isSuccessful()
+      .withVerbRelation(VerbRelation.Instead)
+      .withActions("A beautiful picture appears on the canvas.")
+  );
+  effects.add(
+    new Effect.Builder()
+      .withPrimaryItem(paint)
+      .withSecondaryItem(new Item("face"))
+      .withVerbName("apply")
+      .isSuccessful(false)
+      .withVerbRelation(VerbRelation.Instead)
+      .withActions("It's the wrong kind of paint for face painting.")
+  );
+  effects.add(
+    new Effect.Builder()
+      .withAnyPrimaryItem()
+      .withSecondaryItem("pool")
+      .withVerbName("put")
+      .isSuccessful()
+      .withVerbRelation(VerbRelation.Instead)
+      .withActions(({ item }) => `The ${item.name} hits the water with a splash.`)
+  );
+  effects.add(
+    new Effect.Builder()
+      .withAnyPrimaryItem()
+      .withSecondaryItem("fire")
+      .withVerbName("put")
+      .isSuccessful(false)
+      .withVerbRelation(VerbRelation.Instead)
+      .withActions(({ item }) => `The ${item.name} doesn't seem to want to catch fire.`)
   );
 });
 
@@ -54,7 +80,15 @@ test("effects are realised even when considered unsuccessful", async () => {
 });
 
 test("effects can be added using item names", async () => {
-  effects.add("cat", "dog", "pit", true, false, "The cat bests the dog");
+  effects.add(
+    new Effect.Builder()
+      .withPrimaryItem("cat")
+      .withSecondaryItem("dog")
+      .withVerbName("pit")
+      .isSuccessful()
+      .withVerbRelation(VerbRelation.Instead)
+      .withActions("The cat bests the dog")
+  );
   await effects.apply("cat", "dog", "pit")!.chain();
   expect(selectCurrentPage()).toInclude("The cat bests");
 });

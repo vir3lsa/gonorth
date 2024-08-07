@@ -156,33 +156,8 @@ function setHintNodeId(nodeId: string) {
   store(HINT_NODE, nodeId, true);
 }
 
-function addEffect(
-  primaryItem: string | ItemT,
-  secondaryItem: string | ItemT,
-  verbName: string,
-  successful: boolean,
-  continueVerb: boolean,
-  ...effects: ContextAction[]
-) {
-  if (typeof verbName !== "string") {
-    throw Error("Tried to add an effect without specifying a verb name.");
-  }
-
-  selectEffects().add(primaryItem, secondaryItem, verbName, successful, continueVerb, ...effects);
-}
-
-function addWildcardEffect(
-  secondaryItem: string | ItemT,
-  verbName: string,
-  successful: boolean,
-  continueVerb: boolean,
-  ...effects: ContextAction[]
-) {
-  if (typeof verbName !== "string") {
-    throw Error("Tried to add a wildcard effect without specifying a verb name.");
-  }
-
-  selectEffects().addWildcard(secondaryItem, verbName, successful, continueVerb, ...effects);
+function addEffect(effect: EffectT | EffectBuilderT) {
+  selectEffects().add(effect);
 }
 
 /**
@@ -207,7 +182,6 @@ const gonorth = {
   addHintNodes,
   addKeyword,
   addSchedule,
-  addWildcardEffect,
   attach,
   bulletPointList,
   englishList,
@@ -254,7 +228,7 @@ const gonorth = {
   TIMEOUT_MILLIS,
   TIMEOUT_TURNS,
   toTitleCase,
-  update
+  update,
 };
 
 export default gonorth;
@@ -306,5 +280,4 @@ export {
   addHintNodes,
   setHintNodeId,
   addEffect,
-  addWildcardEffect
 };

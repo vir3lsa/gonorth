@@ -4,6 +4,9 @@ import { ActionChain } from "../../utils/actionChain";
 import { selectEffects, selectRoom } from "../../utils/selectors";
 import { normaliseTest, playerHasItem } from "../../utils/sharedFunctions";
 import { checkAutoActions } from "../input/autoActionExecutor";
+import { VerbRelation } from "../../utils/effects";
+
+const { Before, Instead, After } = VerbRelation;
 
 export function newVerb(config: VerbConfig) {
   const {
@@ -261,28 +264,37 @@ export class Verb {
 
     const effect = selectEffects().getEffect(item, other, this.name);
 
-    if (effect) {
-      // See if there's an effect for this combination of items and verb.
-      const effectChain = effect.effects;
+    // See if there's an effect for this combination of items and verb.
+    const effectChain = effect?.actionChain;
 
-      if (effectChain) {
-        const effectResult = await effectChain.chain(wholeContext);
-        const continueVerb = effect.continueVerb;
+    if (effect && effectChain && effect.verbRelation !== After) {
+      // Effect happens before or instead of the verb.
+      const effectResult = await effectChain.chain(wholeContext);
 
-        if (!continueVerb) {
-          return effectResult;
-        }
+      if (effect.verbRelation === Instead) {
+        // Effect happens instead of the verb.
+        return effectResult;
       }
     }
 
     // All tests, or an effect, must be successful for verb to proceed.
-    const success = effect ? effect.successful : await this._tests.chain(wholeContext);
+    const success = effect?.verbRelation === Before ? effect.successful : await this._tests.chain(wholeContext);
+    let verbPromise;
 
     if (success) {
-      return this.onSuccess.chain(wholeContext);
+      verbPromise = this.onSuccess.chain(wholeContext);
+
+      if (!effect || !effectChain || effect.verbRelation === Before) {
+        // No effect, or it happens before the verb.
+        return verbPromise;
+      }
     } else {
       return this.onFailure.chain(wholeContext);
     }
+
+    // Effect happens after the verb.
+    await verbPromise;
+    return effectChain.chain(wholeContext);
   }
 
   /*

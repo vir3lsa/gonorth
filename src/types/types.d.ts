@@ -52,6 +52,9 @@ type EventT = import("../game/events/event").Event;
 type ScheduleT = import("../game/events/schedule").Schedule;
 type RouteT = import("../game/events/route").Route;
 type EffectsT = import("../utils/effects").Effects;
+type EffectT = import("../utils/effects").Effect;
+type EffectBuilderT = import("../utils/effects").EffectBuilder;
+type VerbRelation = import("../utils/effects").VerbRelation;
 type ActionChainT = import("../utils/actionChain").ActionChain;
 type ActionClassT = import("../utils/actionChain").ActionClass;
 type OptionGraphT = import("../game/interactions/optionGraph").OptionGraph;
@@ -286,13 +289,18 @@ type AnyContext = Context | ActionChainHelpers;
 interface EffectsDict {
   [primaryKey: string]: {
     [secondaryKey: string]: {
-      [verbName: string]: {
-        successful: boolean;
-        continueVerb: boolean;
-        effects: ActionChainT;
-      };
+      [verbName: string]: EffectT;
     };
   };
+}
+
+interface EffectConfig {
+  primaryItem?: ItemOrString;
+  secondaryItem: ItemOrString;
+  verbName: string;
+  successful: boolean;
+  verbRelation: VerbRelation;
+  actions: ContextAction[];
 }
 
 type ActionFunction = (context: ChainContext) => MaybeAction;

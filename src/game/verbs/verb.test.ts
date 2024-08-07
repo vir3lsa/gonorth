@@ -5,7 +5,7 @@ import { Interaction } from "../interactions/interaction";
 import { CyclicText, SequentialText, RandomText, PagedText, ConcatText } from "../interactions/text";
 import { Option } from "../interactions/option";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
-import { addEffect, addWildcardEffect, initGame, moveItem } from "../../gonorth";
+import { addEffect, initGame, moveItem } from "../../gonorth";
 import { clickNext, clickNextAndWait, deferAction } from "../../utils/testFunctions";
 import { selectEffects, selectInventory, selectVerbNames } from "../../utils/selectors";
 import { Item } from "../items/item";
@@ -13,9 +13,10 @@ import { Room } from "../items/room";
 import { checkAutoActions } from "../input/autoActionExecutor";
 import { ActionChain } from "../../utils/actionChain";
 import { AnyAction } from "redux";
+import { Effect, VerbRelation } from "../../utils/effects";
 
 jest.mock("../input/autoActionExecutor", () => ({
-  checkAutoActions: jest.fn(async () => true)
+  checkAutoActions: jest.fn(async () => true),
 }));
 
 const mockedAutoActionExecutor = jest.mocked(checkAutoActions);
@@ -290,7 +291,7 @@ describe("chainable actions", () => {
     const verb = newVerb({
       name: "fly",
       aliases: ["levitate"],
-      isKeyword: false
+      isKeyword: false,
     });
     expect(verb.name).toBe("fly");
     expect(verb.aliases).toStrictEqual(["levitate"]);
@@ -466,7 +467,9 @@ describe("smart tests", () => {
 });
 
 describe("effects", () => {
-  let egg: Item, bat: Item;
+  let egg: Item,
+    bat: Item,
+    verbSuccess = true;
 
   beforeEach(() => {
     unregisterStore();
@@ -477,10 +480,10 @@ describe("effects", () => {
       .isHoldable()
       .withVerbs(
         new Verb.Builder("hit")
+          .withSmartTest(() => verbSuccess, "verb not successful")
           .makePrepositional("with what")
           .withOnSuccess("hit it good")
           .withOnFailure("missed it")
-          .build()
       )
       .build();
 
@@ -490,7 +493,15 @@ describe("effects", () => {
   });
 
   it("triggers effects, after actions, objects available in actions", async () => {
-    addEffect("egg", "bat", "hit", true, false, ({ item, other }) => `${other!.name} smash ${item.name}`);
+    addEffect(
+      new Effect.Builder()
+        .withPrimaryItem("egg")
+        .withSecondaryItem("bat")
+        .withVerbName("hit")
+        .isSuccessful(true)
+        .withVerbRelation(VerbRelation.Instead)
+        .withActions(({ item, other }) => `${other!.name} smash ${item.name}`)
+    );
     await egg.try("hit", bat);
     expect(selectCurrentPage()).toInclude("bat smash egg");
     expect(selectCurrentPage()).not.toInclude("hit it good");
@@ -499,21 +510,45 @@ describe("effects", () => {
   });
 
   it("optionally continues executing the verb after a successful effect", async () => {
-    addEffect("egg", "bat", "hit", true, true, ({ item, other }) => `${other!.name} smash ${item.name}`);
+    addEffect(
+      new Effect.Builder()
+        .withPrimaryItem("egg")
+        .withSecondaryItem("bat")
+        .withVerbName("hit")
+        .isSuccessful(true)
+        .withVerbRelation(VerbRelation.Before)
+        .withActions(({ item, other }) => `${other!.name} smash ${item.name}`)
+    );
     await egg.try("hit", bat);
     expect(selectCurrentPage()).toInclude("bat smash egg");
     expect(selectCurrentPage()).toInclude("hit it good");
   });
 
   it("optionally continues executing the verb after a failed effect", async () => {
-    addEffect("egg", "bat", "hit", false, true, ({ item, other }) => `${other!.name} brush ${item.name}`);
+    addEffect(
+      new Effect.Builder()
+        .withPrimaryItem("egg")
+        .withSecondaryItem("bat")
+        .withVerbName("hit")
+        .isSuccessful(false)
+        .withVerbRelation(VerbRelation.Before)
+        .withActions(({ item, other }) => `${other!.name} brush ${item.name}`)
+    );
     await egg.try("hit", bat);
     expect(selectCurrentPage()).toInclude("bat brush egg");
     expect(selectCurrentPage()).toInclude("missed it");
   });
 
   it("triggers wildcard effects, objects available in actions", async () => {
-    addWildcardEffect("bat", "hit", true, false, ({ item, other }) => `${other!.name} smash ${item.name}`);
+    addEffect(
+      new Effect.Builder()
+        .withAnyPrimaryItem()
+        .withSecondaryItem("bat")
+        .withVerbName("hit")
+        .isSuccessful(true)
+        .withVerbRelation(VerbRelation.Instead)
+        .withActions(({ item, other }) => `${other!.name} smash ${item.name}`)
+    );
     await egg.try("hit", bat);
     expect(selectCurrentPage()).toInclude("bat smash egg");
     expect(selectCurrentPage()).not.toInclude("hit it good");
@@ -522,14 +557,29 @@ describe("effects", () => {
   });
 
   it("optionally continues executing the verb after a successful wildcard effect", async () => {
-    addWildcardEffect("bat", "hit", true, true, ({ item, other }) => `${other!.name} smash ${item.name}`);
+    addEffect(
+      new Effect.Builder()
+        .withAnyPrimaryItem()
+        .withSecondaryItem("bat")
+        .withVerbName("hit")
+        .withVerbRelation(VerbRelation.Before)
+        .withActions(({ item, other }) => `${other!.name} smash ${item.name}`)
+    );
     await egg.try("hit", bat);
     expect(selectCurrentPage()).toInclude("bat smash egg");
     expect(selectCurrentPage()).toInclude("hit it good");
   });
 
   it("optionally continues executing the verb after a failed wildcard effect", async () => {
-    addWildcardEffect("bat", "hit", false, true, ({ item, other }) => `${other!.name} brush ${item.name}`);
+    addEffect(
+      new Effect.Builder()
+        .withAnyPrimaryItem()
+        .withSecondaryItem("bat")
+        .withVerbName("hit")
+        .isSuccessful(false)
+        .withVerbRelation(VerbRelation.Before)
+        .withActions(({ item, other }) => `${other!.name} brush ${item.name}`)
+    );
     await egg.try("hit", bat);
     expect(selectCurrentPage()).toInclude("bat brush egg");
     expect(selectCurrentPage()).toInclude("missed it");
@@ -537,17 +587,63 @@ describe("effects", () => {
 
   it("executes effects for normally non-prepositional verbs", async () => {
     const microscope = new Item.Builder("microscope").build();
-    addEffect("egg", "microscope", "examine", true, false, "It looks interesting.");
+    addEffect(
+      new Effect.Builder()
+        .withPrimaryItem("egg")
+        .withSecondaryItem("microscope")
+        .withVerbName("examine")
+        .withVerbRelation(VerbRelation.Instead)
+        .withActions("It looks interesting")
+    );
     await egg.try("examine", microscope);
-    expect(selectCurrentPage()).toInclude("It looks interesting.");
+    expect(selectCurrentPage()).toInclude("It looks interesting");
   });
 
   it("executes effects before the verb", async () => {
     // Check it's effect then verb, not verb then effect.
     let x = 60;
-    addEffect("egg", "bat", "hit", true, true, () => (x /= 3));
+    addEffect(
+      new Effect.Builder()
+        .withPrimaryItem("egg")
+        .withSecondaryItem("bat")
+        .withVerbName("hit")
+        .withVerbRelation(VerbRelation.Before)
+        .withActions(() => (x /= 3))
+    );
     egg.verbs.hit.onSuccess.addAction(() => (x += 10));
     await egg.try("hit", bat);
     expect(x).toBe(30);
+  });
+
+  it("executes effects after the verb", async () => {
+    // Check it's verb then effect, not effect then verb.
+    let x = 60;
+    addEffect(
+      new Effect.Builder()
+        .withPrimaryItem("egg")
+        .withSecondaryItem("bat")
+        .withVerbName("hit")
+        .withVerbRelation(VerbRelation.After)
+        .withActions(() => (x /= 2))
+    );
+    egg.verbs.hit.onSuccess.addAction(() => (x += 10));
+    await egg.try("hit", bat);
+    expect(x).toBe(35);
+  });
+
+  it("doesn't execute after the verb if the verb is unsuccessful", async () => {
+    verbSuccess = false;
+    let x = 60;
+    addEffect(
+      new Effect.Builder()
+        .withPrimaryItem("egg")
+        .withSecondaryItem("bat")
+        .withVerbName("hit")
+        .withVerbRelation(VerbRelation.After)
+        .withActions(() => (x /= 2))
+    );
+    egg.verbs.hit.onSuccess.addAction(() => (x += 10));
+    await egg.try("hit", bat);
+    expect(x).toBe(60);
   });
 });
