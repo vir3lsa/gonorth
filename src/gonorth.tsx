@@ -260,6 +260,7 @@ export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs
 export { inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";
 export { moveItem } from "./utils/itemFunctions";
 export { AutoAction } from "./game/input/autoAction";
+export { Effect, VerbRelation } from "./utils/effects";
 export * from "./utils/persistentVariableFunctions";
 export * from "./utils/textFunctions";
 export * from "./utils/itemFunctions";

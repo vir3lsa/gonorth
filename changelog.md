@@ -1,6 +1,6 @@
 # goNORTH Changelog
 
-# Unreleased
+# 4.0.0
 
 * 2024-08-07 Breaking change - effects can take place before, instead of, or after the verb.
 * 2024-08-06 Prepositional verbs work when the subject and object are reversed.
