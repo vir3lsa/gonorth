@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 5.0.0
+
+* 2024-08-13 Breaking change - verb addAliases method uses varargs rather than an array.
+
 # 4.0.0
 
 * 2024-08-07 Breaking change - effects can take place before, instead of, or after the verb.

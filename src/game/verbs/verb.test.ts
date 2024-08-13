@@ -78,7 +78,7 @@ it("adds verb names and aliases to the global registry", () => {
 });
 
 it("adds new aliases to the global registry", () => {
-  verb.addAliases(["twist", "twizzle"]);
+  verb.addAliases("twist", "twizzle");
   expect(storeHasVerb("twist")).toBeTruthy();
   expect(storeHasVerb("twizzle")).toBeTruthy();
 });

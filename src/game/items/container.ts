@@ -390,6 +390,16 @@ class Builder extends ItemBuilder {
     return this;
   }
 
+  withAlreadyOpenText(text: string) {
+    this.config.alreadyOpenText = text;
+    return this;
+  }
+
+  withAlreadyClosedText(text: string) {
+    this.config.alreadyClosedText = text;
+    return this;
+  }
+
   withAlreadyUnlockedText(text: string) {
     this.config.alreadyUnlockedText = text;
     return this;

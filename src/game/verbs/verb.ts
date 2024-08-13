@@ -203,17 +203,17 @@ export class Verb {
 
   set aliases(aliases: string | string[]) {
     this._aliases = [];
-    this.addAliases(aliases);
+    const aliasArray = Array.isArray(aliases) ? aliases : [aliases]
+    this.addAliases(...aliasArray);
   }
 
   get aliases(): string[] {
     return this._aliases;
   }
 
-  addAliases(aliases: string | string[]) {
+  addAliases(...aliases: string[]) {
     if (aliases) {
-      const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
-      this._aliases.push(...aliasArray);
+      this._aliases.push(...aliases);
       this._addAliasesToParent();
       const nameMap = this.aliases.reduce(
         (acc, alias) => {
