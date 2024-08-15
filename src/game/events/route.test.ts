@@ -56,12 +56,12 @@ beforeEach(() => {
   se.setNorth(ne);
   ne.setWest(nw);
 
-  gran = new Npc("gran", "wiley");
+  gran = new Npc.Builder("gran").withDescription("wiley").build();
   nw.addItem(gran);
 });
 
 test("routes can be built", () => {
-  createRoute(new Npc("badger", "stripey"), true, false, undefined, "north");
+  createRoute(new Npc.Builder("badger").withDescription("stripey").build(), true, false, undefined, "north");
 });
 
 test("NPCs can follow routes", async () => {

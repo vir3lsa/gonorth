@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 6.0.0
+
+* 2024-08-14 Breaking change - NPCs can only be constructed using a Builder.
+
 # 5.0.0
 
 * 2024-08-13 Breaking change - verb addAliases method uses varargs rather than an array.

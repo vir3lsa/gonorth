@@ -1,4 +1,4 @@
-import { Item } from "./item";
+import { Item, customiseVerbs, omitAliases } from "./item";
 import { Room } from "./room";
 import { Event } from "../events/event";
 import { getStore } from "../../redux/storeRegistry";
@@ -9,12 +9,22 @@ import { selectRoom } from "../../utils/selectors";
 export class Npc extends Item {
   encounters: Event[];
 
-  constructor(name: string, description: UnknownText) {
-    super(name, description || `${name} is unremarkable.`, false);
+  constructor(builder: Builder) {
+    const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = builder.config;
+    super(name, description || `${name} is unremarkable.`, holdable, size, verbs, aliases, hidesItems, builder.config);
     this._isNpc = true; // Avoids circular dependency in item.js
     this.encounters = [];
     this.article = "";
     this.preposition = "to";
+
+    // Set each remaining config value on the NPC.
+    Object.entries(remainingConfig).forEach(([key, value]) => (this[key] = value));
+
+    // Apply any verb modifications.
+    customiseVerbs(remainingConfig.verbCustomisations, this);
+
+    // Remove any unwanted aliases.
+    omitAliases(remainingConfig.omitAliases, this);
   }
 
   roomIsRoom(room: any): room is Room {
@@ -55,5 +65,19 @@ export class Npc extends Item {
     encounter.recurring = true;
     this.encounters.push(encounter);
     getStore().dispatch(addEvent(encounter));
+  }
+
+  static get Builder() {
+    return Builder;
+  }
+}
+
+class Builder extends Item.Builder {
+  constructor(name: string) {
+    super(name);
+  }
+
+  build() {
+    return new Npc(this);
   }
 }

@@ -7,7 +7,7 @@ import { goToRoom, initGame, selectRoom } from "../../gonorth";
 import { Item } from "./item";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { AnyAction } from "redux";
-import { clickNext, clickNextAndWait, deferAction } from "../../utils/testFunctions";
+import { clickNextAndWait, deferAction } from "../../utils/testFunctions";
 import { clearPage } from "../../utils/sharedFunctions";
 
 let game: Game, room: RoomT, door: DoorT;
