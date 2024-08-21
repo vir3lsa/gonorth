@@ -314,31 +314,33 @@ export class Item {
           .build()
       );
 
-      // Give always fails - override with effects for special cases
-      const giveVerb = new Verb(
-        "give",
-        [
-          {
-            test: ({ other }) => other !== this,
-            onFailure: () =>
-              `You can't give ${this.article}${this.name} to ${config?.plural ? "themselves" : "itself"}. Obviously.`,
-          },
-          {
-            test: ({ other }) => Boolean(other!._isNpc),
-            onFailure: ({ other }) =>
-              `You know you can't give ${this.article}${this.name} to the ${other!.name}. So just stop it.`,
-          },
-          {
-            test: () => false,
-            onFailure: ({ other }) => `It doesn't look like ${other!.name} wants ${this.article}${this.name}.`,
-          },
-        ],
-        ({ item, other }) => moveItem(item, other!),
-        ["offer", "pass", "show"]
+      this.addVerb(
+        new Verb.Builder("give")
+          .withSmartTest(
+            ({ other }) => other !== this,
+            () =>
+              `You can't give ${this.article} ${this.name} to ${
+                config?.plural ? "themselves" : "itself"
+              }. Obviously.`
+          )
+          .withSmartTest(
+            ({ other }) => Boolean(other!._isNpc),
+            ({ other }) =>
+              `You know you can't give ${this.article} ${this.name} to the ${
+                other!.name
+              }. So just stop it.`
+          )
+          .withSmartTest(
+            () => false,
+            ({ other }) =>
+              `It doesn't look like ${other!.name} wants ${this.article} ${
+                this.name
+              }.`
+          )
+          .withOnSuccess(({ item, other }) => moveItem(item, other!))
+          .withAliases("offer", "pass", "show")
+          .makePrepositional("to whom")
       );
-
-      giveVerb.makePrepositional("to whom");
-      this.addVerb(giveVerb);
 
       if (config?.producesSingular) {
         // Parent needs relevant verbs to pass onto the child.
