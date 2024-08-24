@@ -1,6 +1,6 @@
 # goNORTH Changelog
 
-# Unreleased
+# 6.1.0
 
 * 2024-08-24 NodeGraph Options may be built with a builder.
 * 2024-08-23 Made 'withVerbs' method of ItemBuilder additive rather than destructive.
