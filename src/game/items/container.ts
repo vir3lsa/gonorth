@@ -103,14 +103,14 @@ export class Container extends Item {
     this.closeable = closeable;
     this.lockable = lockable;
     this.key = key;
-    this.lockedText = `The ${this.name} ${this.isOrAre()} locked.`;
+    this.lockedText = `The ${this.name} ${this.isOrAre} locked.`;
     this.openText = `The ${this.name} opens easily.`;
-    this.alreadyOpenText = `The ${this.name} ${this.isOrAre()} already open.`;
+    this.alreadyOpenText = `The ${this.name} ${this.isOrAre} already open.`;
     this.closeText = `You close the ${this.name} with a soft thud.`;
-    this.alreadyClosedText = `The ${this.name} ${this.isOrAre()} already closed.`;
+    this.alreadyClosedText = `The ${this.name} ${this.isOrAre} already closed.`;
     this.wrongKeyText = `The key doesn't fit.`;
     this.needsKeyText = `The ${name} appears to need a key.`;
-    this.alreadyUnlockedText = `The ${name} ${this.isOrAre()} already unlocked.`;
+    this.alreadyUnlockedText = `The ${name} ${this.isOrAre} already unlocked.`;
 
     if (this.closeable) {
       this.openVerb = new Verb.Builder("open")

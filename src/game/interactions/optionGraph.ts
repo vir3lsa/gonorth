@@ -231,8 +231,8 @@ export class OptionGraph {
                     actions: new ActionClass(
                       () => graphOption.inventoryAction?.(item),
                       false
-                    ),
-                  },
+                    )
+                  }
                 }),
                 {}
               );
@@ -240,7 +240,7 @@ export class OptionGraph {
                 id: inventoryNodeId,
                 actions: "Use which item?",
                 options: inventoryOptions,
-                visited: false,
+                visited: false
               };
               this.recordNodeIds(inventoryNode);
 
@@ -332,13 +332,17 @@ export class OptionGraph {
   static get NodeBuilder() {
     return NodeBuilder;
   }
+
+  static get OptionBuilder() {
+    return OptionBuilder;
+  }
 }
 
 class OptionGraphBuilder {
-  id;
-  image?: string;
-  resumable = true;
-  nodes: GraphNode[] = [];
+  private id;
+  private image?: string;
+  private resumable = true;
+  private nodes: GraphNode[] = [];
 
   constructor(id: string) {
     this.id = id;
@@ -355,8 +359,13 @@ class OptionGraphBuilder {
   }
 
   withNodes(...nodes: (NodeBuilder | GraphNode)[]) {
-    const nodeObjs = nodes.map((node) => (node instanceof NodeBuilder ? node.build() : node));
-    this.nodes = nodeObjs;
+    nodes.forEach((node) => this.withNode(node));
+    return this;
+  }
+
+  withNode(node: NodeBuilder | GraphNode) {
+    const nodeObj = node instanceof NodeBuilder ? node.build() : node;
+    this.nodes.push(nodeObj);
     return this;
   }
 
@@ -370,10 +379,10 @@ class OptionGraphBuilder {
 }
 
 class NodeBuilder {
-  id;
-  actions: Action[] = [];
-  options?: GraphOptions;
-  isNoEndTurn?: boolean;
+  private id;
+  private actions: Action[] = [];
+  private options?: GraphOptions;
+  private isNoEndTurn?: boolean;
 
   constructor(id: string) {
     this.id = id;
@@ -389,12 +398,37 @@ class NodeBuilder {
     return this;
   }
 
-  withOption(label: string, value: SomeGraphOption) {
+  withOption(
+    labelOrValue: string | GraphOption | OptionBuilder,
+    value?: SomeGraphOption | OptionBuilder
+  ) {
     if (!this.options) {
       this.options = {};
     }
 
-    this.options[label] = value;
+    let graphOption;
+    if (value instanceof OptionBuilder) {
+      graphOption = value.build();
+    } else {
+      graphOption = value;
+    }
+
+    if (typeof labelOrValue === "string") {
+      this.options[labelOrValue] = graphOption;
+    } else {
+      graphOption =
+        labelOrValue instanceof OptionBuilder
+          ? labelOrValue.build()
+          : labelOrValue;
+      let id = graphOption.id;
+
+      if (!id) {
+        throw Error("Tried to create an OptionGraph Option without an ID.");
+      }
+
+      this.options[id] = graphOption;
+    }
+
     return this;
   }
 
@@ -412,5 +446,73 @@ class NodeBuilder {
       visited: false,
       allowRepeats: true
     } as GraphNode;
+  }
+}
+
+class OptionBuilder {
+  private id?: string;
+  private condition?: Condition;
+  private node?: string;
+  private skipNodeActionsBool?: boolean;
+  private exitBool?: boolean;
+  private room?: RoomT;
+  private action?: Action;
+  private inventoryAction?: InventoryAction;
+
+  constructor(id?: string) {
+    this.id = id;
+  }
+
+  withId(id: string) {
+    this.id = id;
+    return this;
+  }
+
+  withCondition(condition: Condition) {
+    this.condition = condition;
+    return this;
+  }
+
+  withNode(node: string) {
+    this.node = node;
+    return this;
+  }
+
+  skipNodeActions(skip = true) {
+    this.skipNodeActionsBool = skip;
+    return this;
+  }
+
+  exit(exit = true) {
+    this.exitBool = exit;
+    return this;
+  }
+
+  withRoom(room: RoomT) {
+    this.room = room;
+    return this;
+  }
+
+  withAction(action: Action) {
+    this.action = action;
+    return this;
+  }
+
+  withInventoryAction(action: InventoryAction) {
+    this.inventoryAction = action;
+    return this;
+  }
+
+  build(): GraphOption {
+    return {
+      id: this.id,
+      condition: this.condition,
+      node: this.node,
+      skipNodeActions: this.skipNodeActionsBool,
+      exit: this.exitBool,
+      room: this.room,
+      actions: this.action,
+      inventoryAction: this.inventoryAction
+    };
   }
 }

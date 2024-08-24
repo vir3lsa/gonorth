@@ -71,6 +71,7 @@
     "uuid": "8.3.2"
   },
   "prettier": {
-    "trailingComma": "none"
+    "trailingComma": "none",
+    "printWidth": 120
   }
 }

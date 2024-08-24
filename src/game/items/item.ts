@@ -90,7 +90,7 @@ export class Item {
         itemsVisibleFromSelf: this.itemsVisibleFromSelf,
         doNotList: this.doNotList,
         verbCustomisations: this.verbCustomisations || {},
-        _cloned: true,
+        _cloned: true
       },
       typeConstructor
     );
@@ -221,7 +221,7 @@ export class Item {
               const capacity = inventory.capacity;
               return capacity === -1 || (capacity > -1 && item.size <= capacity * 2);
             },
-            ({ item }) => `The ${item!.name} ${this.isOrAre()} far too large to pick up.`
+            ({ item }) => `The ${item!.name} ${this.isOrAre} far too large to pick up.`
           )
           .withSmartTest(
             ({ item }) => {
@@ -229,7 +229,7 @@ export class Item {
               const capacity = inventory.capacity;
               return capacity === -1 || (capacity > -1 && item.size <= capacity);
             },
-            ({ item }) => `The ${item!.name} ${this.isOrAre()} too big to pick up.`
+            ({ item }) => `The ${item!.name} ${this.isOrAre} too big to pick up.`
           )
           .withSmartTest(
             ({ item }) => {
@@ -266,14 +266,13 @@ export class Item {
         .withSmartTest(
           ({ other }) => other !== this,
           ({ other }) =>
-            `You can't put ${this.properNoun ? "" : "the "}${this.name} ${other!.preposition} ${
+            `You can't put ${this.theOrNone} ${this.name} ${other!.preposition} ${
               config?.plural ? "themselves" : "itself"
             }. That would be nonsensical.`
         )
         .withSmartTest(
           ({ other }) => other!.canHoldItems,
-          ({ other }) =>
-            `You can't put ${this.properNoun ? "" : "the "}${this.name} ${other!.preposition} the ${other!.name}.`
+          ({ other }) => `You can't put ${this.theOrNone} ${this.name} ${other!.preposition} the ${other!.name}.`
         )
         .withSmartTest(
           ({ other }) => other!.free === -1 || this.size <= other!.free,
@@ -282,13 +281,11 @@ export class Item {
         .withOnSuccess(
           ({ item, other }) => moveItem(item, other!),
           ({ item, other }) => {
-            const article = item.properNoun ? "" : "the ";
-
             if (other!.isRoom) {
-              return `You put ${article}${item.name} on the floor.`;
+              return `You put ${item.theOrNone} ${item.name} on the floor.`;
             }
 
-            return `You put ${article}${item.name} ${other!.preposition} the ${other!.name}.`;
+            return `You put ${item.theOrNone} ${item.name} ${other!.preposition} the ${other!.name}.`;
           }
         )
         .build();
@@ -306,10 +303,7 @@ export class Item {
               }
             },
             ({ item }) => moveItem(item, selectRoom()),
-            ({ item }) => {
-              const article = item.properNoun ? "" : "the ";
-              return `You put ${article}${item.name} on the floor.`;
-            }
+            ({ item }) => `You put ${item.theOrNone} ${item.name} on the floor.`
           )
           .build()
       );
@@ -319,23 +313,16 @@ export class Item {
           .withSmartTest(
             ({ other }) => other !== this,
             () =>
-              `You can't give ${this.article} ${this.name} to ${
-                config?.plural ? "themselves" : "itself"
-              }. Obviously.`
+              `You can't give ${this.theOrNone} ${this.name} to ${config?.plural ? "themselves" : "itself"}. Obviously.`
           )
           .withSmartTest(
             ({ other }) => Boolean(other!._isNpc),
             ({ other }) =>
-              `You know you can't give ${this.article} ${this.name} to the ${
-                other!.name
-              }. So just stop it.`
+              `You know you can't give ${this.theOrNone} ${this.name} to the ${other!.name}. So just stop it.`
           )
           .withSmartTest(
             () => false,
-            ({ other }) =>
-              `It doesn't look like ${other!.name} wants ${this.article} ${
-                this.name
-              }.`
+            ({ other }) => `It doesn't look like ${other!.name} wants ${this.theOrNone} ${this.name}.`
           )
           .withOnSuccess(({ item, other }) => moveItem(item, other!))
           .withAliases("offer", "pass", "show")
@@ -383,7 +370,7 @@ export class Item {
     const article = getArticle(name);
 
     if (article !== this.article) {
-      this.article = getArticle(name);
+      this.article = article;
     }
 
     this.createAliases(name);
@@ -840,8 +827,12 @@ export class Item {
     verb.addTest(test);
   }
 
-  isOrAre() {
+  get isOrAre() {
     return this.config?.plural ? "are" : "is";
+  }
+
+  get theOrNone() {
+    return this.properNoun ? "" : "the";
   }
 
   get holdable() {
@@ -1071,7 +1062,7 @@ export class Builder {
   }
 
   withVerbs(...verbs: (VerbT | VerbBuilderT)[]) {
-    this.config.verbs = verbs;
+    verbs.forEach((verb) => this.withVerb(verb));
     return this;
   }
 

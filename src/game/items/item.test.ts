@@ -192,7 +192,7 @@ describe("basic item tests", () => {
   });
 
   test("correct plurality used for singular item", async () => {
-    const gift = new Item.Builder("gift").isHoldable().isPlural().withTakeSuccessText("For me?").build();
+    const gift = new Item.Builder("gift").isHoldable().withTakeSuccessText("For me?").build();
     await gift.try("take");
     expect(selectCurrentPage()).toInclude("For me?");
     return deferAction(async () => {
@@ -303,9 +303,7 @@ describe("builder tests", () => {
   });
 
   test("Single verbs may be added", async () => {
-    const blah = new Item.Builder("blah")
-      .withVerb(new Verb.Builder("bleh").withOnSuccess("bleeeh").build())
-      .build();
+    const blah = new Item.Builder("blah").withVerb(new Verb.Builder("bleh").withOnSuccess("bleeeh").build()).build();
     await blah.try("bleh");
     expect(selectCurrentPage()).toInclude("bleeeh");
   });
@@ -318,6 +316,18 @@ describe("builder tests", () => {
   test("Cloned items maintain omitted aliases", () => {
     const numbers = new Item.Builder("one two three").withAliases("four five six").omitAliases("one", "five").build();
     expect(numbers.clone().aliases).toEqual(numbers.aliases);
+  });
+
+  test("Items can be given verbs in dribs and drabs", () => {
+    const book = new Item.Builder("book")
+      .withVerb(new Verb.Builder("read"))
+      .withVerb(new Verb.Builder("open"))
+      .withVerbs(new Verb.Builder("tear"), new Verb.Builder("burn"))
+      .build();
+    expect(book.getVerb("read").name).toBe("read");
+    expect(book.getVerb("open").name).toBe("open");
+    expect(book.getVerb("tear").name).toBe("tear");
+    expect(book.getVerb("burn").name).toBe("burn");
   });
 });
 

@@ -386,6 +386,7 @@ type InventoryAction = (item: ItemT) => string;
 type SomeGraphOption = string | GraphOption | Action;
 
 interface GraphOption {
+  id?: string;
   condition?: Condition;
   node?: string;
   skipNodeActions?: boolean;

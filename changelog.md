@@ -1,5 +1,12 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2024-08-24 NodeGraph Options may be built with a builder.
+* 2024-08-23 Made 'withVerbs' method of ItemBuilder additive rather than destructive.
+* 2024-08-22 Added 'withNode' method to OptionGraph NodeBuilder.
+* 2024-08-21 Updated Prettier config to remove trailing commas.
+
 # 6.0.0
 
 * 2024-08-14 Breaking change - NPCs can only be constructed using a Builder.

@@ -430,6 +430,61 @@ test("can be made non-resumable", async () => {
   expect(() => nrGraph.resume()).toThrow("Attempted to resume non-resumable OptionGraph 'nr'");
 });
 
+test("can be built with a builder a node at a time", () => {
+  const graphy = new OptionGraph.Builder("graphy")
+    .withNode(new OptionGraph.NodeBuilder("1"))
+    .withNode(new OptionGraph.NodeBuilder("2"))
+    .withNodes(
+      new OptionGraph.NodeBuilder("3"),
+      new OptionGraph.NodeBuilder("4")
+    )
+    .build();
+  expect(graphy.getNode("1").id).toBe("1");
+  expect(graphy.getNode("2").id).toBe("2");
+  expect(graphy.getNode("3").id).toBe("3");
+  expect(graphy.getNode("4").id).toBe("4");
+});
+
+test("options can be build with a builder", () => {
+  const graph = new OptionGraph.Builder("gr1")
+    .withNode(
+      new OptionGraph.NodeBuilder("1").withOption(
+        new OptionGraph.OptionBuilder("a")
+          .withAction("b")
+          .exit()
+          .skipNodeActions()
+          .withCondition(() => true)
+          .withInventoryAction(() => "")
+          .withNode("")
+      )
+    )
+    .build();
+  expect(graph.getNode("1").options).toBeDefined();
+  const options = graph.getNode("1").options as GraphOptions;
+  const option = options["a"] as GraphOption;
+  expect(option.actions).toBe("b");
+  expect(option.exit).toBe(true);
+  expect(option.skipNodeActions).toBe(true);
+  expect(option.condition).toBeDefined();
+  expect(option.inventoryAction).toBeDefined();
+  expect(option.node).toBe("");
+});
+
+test("options can be added with a label and a builder", () => {
+  const graph = new OptionGraph.Builder("gr2")
+    .withNode(
+      new OptionGraph.NodeBuilder("1").withOption(
+        "a",
+        new OptionGraph.OptionBuilder().withNode("c")
+      )
+    )
+    .build();
+  const options = graph.getNode("1").options as GraphOptions;
+  const option = options["a"] as GraphOption;
+  expect(option).toBeDefined();
+  expect(option.node).toBe("c");
+});
+
 describe("images", () => {
   let iGraph: OptionGraph;
 

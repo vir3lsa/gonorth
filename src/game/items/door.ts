@@ -68,8 +68,8 @@ export class Door extends Item {
     if (!config || !config.alwaysOpen) {
       this.addVerb(
         new Verb.Builder("open")
-          .withSmartTest(() => !this.locked, config?.onLocked || `The ${name} ${this.isOrAre()} locked.`)
-          .withSmartTest(() => !this.open, `The ${name} ${this.isOrAre()} already open.`)
+          .withSmartTest(() => !this.locked, config?.onLocked || `The ${name} ${this.isOrAre} locked.`)
+          .withSmartTest(() => !this.open, `The ${name} ${this.isOrAre} already open.`)
           .withOnSuccess(() => {
             this.open = true;
           }, openSuccessText ?? `The ${name} open${addS()} relatively easily.`)
@@ -78,7 +78,7 @@ export class Door extends Item {
 
       this.addVerb(
         new Verb.Builder("close")
-          .withSmartTest(() => this.open, `The ${name} ${this.isOrAre()} already closed.`)
+          .withSmartTest(() => this.open, `The ${name} ${this.isOrAre} already closed.`)
           .withOnSuccess(() => {
             this.open = false;
           }, config?.onCloseSuccess ?? `You close the ${name}.`)
@@ -88,7 +88,7 @@ export class Door extends Item {
       this.addVerb(
         new Verb.Builder("unlock")
           .makePrepositional("with what", true)
-          .withSmartTest(() => this.locked, `The ${name} ${this.isOrAre()} already unlocked.`)
+          .withSmartTest(() => this.locked, `The ${name} ${this.isOrAre} already unlocked.`)
           .withSmartTest(
             ({ other: key }) => !Boolean(this.key) || Boolean(key),
             config?.onNeedsKey ?? `The ${name} appear${addS()} to need a key.`
@@ -108,7 +108,7 @@ export class Door extends Item {
             },
             ({ item: door }) =>
               unlockSuccessText ??
-              (door.key ? "The key turns easily in the lock." : `The ${name} unlock${addS()} with a soft *click*.`),
+              (door.key ? "The key turns easily in the lock." : `The ${name} unlock${addS()} with a soft *click*.`)
           ])
           .build()
       );
