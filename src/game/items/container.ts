@@ -18,6 +18,7 @@ export function newContainer(config: ContainerConfig & ItemConfig) {
     verbs,
     lockable,
     key,
+    items,
     ...remainingConfig
   } = config;
   const container = new Container(
@@ -40,6 +41,8 @@ export function newContainer(config: ContainerConfig & ItemConfig) {
   if (verbs) {
     container.addVerbs(...verbs);
   }
+
+  container.addItems(...(items ?? []));
 
   Object.entries(remainingConfig).forEach(([key, value]) => (container[key] = value));
   customiseVerbs(config.verbCustomisations, container);

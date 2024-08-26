@@ -319,4 +319,16 @@ describe("container", () => {
     expect(boxes.alreadyClosedText).toBe("The boxes are already closed.");
     expect(boxes.alreadyUnlockedText).toBe("The boxes are already unlocked.");
   });
+
+  test("Non-hidden items may be added via the builder", () => {
+    const cake = new Container.Builder("cake")
+      .hasItem(new Item.Builder("bride"))
+      .hasItem(new Item.Builder("groom"))
+      .hasItems(new Item.Builder("icing"), new Item.Builder("ribbon"))
+      .build();
+    expect(cake.items.bride).toBeDefined();
+    expect(cake.items.groom).toBeDefined();
+    expect(cake.items.icing).toBeDefined();
+    expect(cake.items.ribbon).toBeDefined();
+  });
 });

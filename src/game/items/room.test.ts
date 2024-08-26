@@ -229,4 +229,16 @@ describe("Room", () => {
       .build();
     expect(largeRoom.clone().aliases).toEqual(["large", "room", "big", "space", "really big space", "floor"]);
   });
+
+  test("Non-hidden items may be added via the builder", () => {
+    const nursery = new Room.Builder("nursery")
+      .hasItem(new Item.Builder("bride"))
+      .hasItem(new Item.Builder("groom"))
+      .hasItems(new Item.Builder("icing"), new Item.Builder("ribbon"))
+      .build();
+    expect(nursery.items.bride).toBeDefined();
+    expect(nursery.items.groom).toBeDefined();
+    expect(nursery.items.icing).toBeDefined();
+    expect(nursery.items.ribbon).toBeDefined();
+  });
 });

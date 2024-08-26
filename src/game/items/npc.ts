@@ -10,12 +10,14 @@ export class Npc extends Item {
   encounters: Event[];
 
   constructor(builder: Builder) {
-    const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = builder.config;
+    const { name, description, holdable, size, verbs, aliases, hidesItems, items, ...remainingConfig } = builder.config;
     super(name, description || `${name} is unremarkable.`, holdable, size, verbs, aliases, hidesItems, builder.config);
     this._isNpc = true; // Avoids circular dependency in item.js
     this.encounters = [];
     this.article = "";
     this.preposition = "to";
+
+    this.addItems(...(items ?? []));
 
     // Set each remaining config value on the NPC.
     Object.entries(remainingConfig).forEach(([key, value]) => (this[key] = value));

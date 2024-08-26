@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 6.2.0
+
+* 2024-08-26 Non-hidden items may be added via the builders.
+
 # 6.1.0
 
 * 2024-08-24 NodeGraph Options may be built with a builder.

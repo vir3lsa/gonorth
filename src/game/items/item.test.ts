@@ -329,6 +329,18 @@ describe("builder tests", () => {
     expect(book.getVerb("tear").name).toBe("tear");
     expect(book.getVerb("burn").name).toBe("burn");
   });
+
+  test("Non-hidden items may be added via the builder", () => {
+    const cake = new Item.Builder("cake")
+      .hasItem(new Item.Builder("bride"))
+      .hasItem(new Item.Builder("groom"))
+      .hasItems(new Item.Builder("icing"), new Item.Builder("ribbon"))
+      .build();
+    expect(cake.items.bride).toBeDefined();
+    expect(cake.items.groom).toBeDefined();
+    expect(cake.items.icing).toBeDefined();
+    expect(cake.items.ribbon).toBeDefined();
+  });
 });
 
 describe("putting items", () => {
@@ -753,5 +765,17 @@ describe("serialization", () => {
   test("setting a function as a property causes an error", () => {
     // @ts-ignore Deliberately testing wrong argument e.g. for when library is used as JavaScript.
     expect(() => ball.set("sound", () => "woosh")).toThrow();
+  });
+
+  test("hidden items may be added singly or as varargs", () => {
+    const house = new Item.Builder("house")
+      .hidesItem(new Item.Builder("chaise-longue"))
+      .hidesItem(new Item.Builder("tin opener"))
+      .hidesItems(new Item.Builder("man"), new Item.Builder("sink"))
+      .build();
+    expect(house.hidesItems[0].name).toBe("chaise-longue");
+    expect(house.hidesItems[1].name).toBe("tin opener");
+    expect(house.hidesItems[2].name).toBe("man");
+    expect(house.hidesItems[3].name).toBe("sink");
   });
 });

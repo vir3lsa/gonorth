@@ -22,12 +22,14 @@ const directionAliases = {
 };
 
 const newRoom = (config: RoomConfig & ItemConfig) => {
-  const { name, description, checkpoint, verbs, aliases, ...remainingConfig } = config;
+  const { name, description, checkpoint, verbs, aliases, items, ...remainingConfig } = config;
   const room = new Room(name, description, checkpoint, aliases);
 
   if (verbs) {
     room.addVerbs(...verbs);
   }
+
+  room.addItems(...(items ?? []));
 
   Object.entries(remainingConfig).forEach(([key, value]) => (room[key] = value));
   customiseVerbs(config.verbCustomisations, room);

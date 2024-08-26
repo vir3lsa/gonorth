@@ -216,6 +216,18 @@ describe("Builder", () => {
   test("doors can't be always open and closed", () => {
     expect(() => new Door.Builder("hall").isAlwaysOpen().isOpen(false).build()).toThrow();
   });
+
+  test("Non-hidden items may be added via the builder", () => {
+    const gate = new Door.Builder("gate")
+      .hasItem(new Item.Builder("padlock"))
+      .hasItem(new Item.Builder("bolt"))
+      .hasItems(new Item.Builder("bars"), new Item.Builder("latch"))
+      .build();
+    expect(gate.items.padlock).toBeDefined();
+    expect(gate.items.bolt).toBeDefined();
+    expect(gate.items.bars).toBeDefined();
+    expect(gate.items.latch).toBeDefined();
+  });
 });
 
 describe("serialization", () => {

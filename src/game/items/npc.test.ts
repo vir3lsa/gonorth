@@ -3,6 +3,7 @@ import { Interaction, Verb, initGame } from "../../gonorth";
 import { changeInteraction, newGame } from "../../redux/gameActions";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Npc } from "./npc";
+import { Item } from "./item";
 import { selectCurrentPage } from "../../utils/testSelectors";
 
 jest.mock("../../utils/consoleIO");
@@ -55,5 +56,17 @@ describe("NPC tests", () => {
   test("NPC aliases can be omitted", () => {
     const npc = new Npc.Builder("Prof Cloud").omitAliases("prof").build();
     expect(npc.aliases).toEqual(["cloud"]);
+  });
+
+  test("Non-hidden items may be added via the builder", () => {
+    const nurse = new Npc.Builder("nurse")
+      .hasItem(new Item.Builder("bride"))
+      .hasItem(new Item.Builder("groom"))
+      .hasItems(new Item.Builder("icing"), new Item.Builder("ribbon"))
+      .build();
+    expect(nurse.items.bride).toBeDefined();
+    expect(nurse.items.groom).toBeDefined();
+    expect(nurse.items.icing).toBeDefined();
+    expect(nurse.items.ribbon).toBeDefined();
   });
 });

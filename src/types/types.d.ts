@@ -438,6 +438,7 @@ interface ItemConfig {
   verbs?: VerbT | VerbBuilderT | (VerbT | VerbBuilderT)[];
   aliases?: string[];
   omitAliases?: string[];
+  items?: (ItemT | ItemBuilderT)[];
   hidesItems?: (ItemT | ItemBuilderT)[];
   properties?: ItemProperties;
   verbCustomisations?: VerbCustomisations;

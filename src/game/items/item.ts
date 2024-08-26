@@ -17,9 +17,11 @@ import { moveItem } from "../../utils/itemFunctions";
 import { playerHasItem } from "../../utils/sharedFunctions";
 
 export function newItem(config: ItemConfig, typeConstructor = Item) {
-  const { name, description, holdable, size, verbs, aliases, hidesItems, ...remainingConfig } = config;
+  const { name, description, holdable, size, verbs, aliases, hidesItems, items, ...remainingConfig } = config;
   const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems, config);
   Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
+
+  item.addItems(...(items ?? []));
 
   // Run any verb modification functions.
   customiseVerbs(config.verbCustomisations, item);
@@ -1077,7 +1079,30 @@ export class Builder {
   }
 
   hidesItems(...items: (ItemT | Builder)[]) {
-    this.config.hidesItems = items;
+    items.forEach((item) => this.hidesItem(item));
+    return this;
+  }
+
+  hidesItem(item: ItemT | Builder) {
+    if (!this.config.hidesItems) {
+      this.config.hidesItems = [];
+    }
+
+    this.config.hidesItems.push(item);
+    return this;
+  }
+
+  hasItems(...items: (ItemT | Builder)[]) {
+    items.forEach((item) => this.hasItem(item));
+    return this;
+  }
+
+  hasItem(item: ItemT | Builder) {
+    if (!this.config.items) {
+      this.config.items = [];
+    }
+
+    this.config.items.push(item);
     return this;
   }
 
