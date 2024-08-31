@@ -500,6 +500,7 @@ interface DoorConfig {
   aliases: string[];
   key: KeyT;
   traversals?: Traversal[];
+  verbs?: VerbT[];
 }
 
 interface TraversalConfig {

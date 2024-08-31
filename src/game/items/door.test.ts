@@ -3,7 +3,7 @@ import { Door, Key } from "./door";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
 import { Interaction } from "../interactions/interaction";
-import { goToRoom, initGame, selectRoom } from "../../gonorth";
+import { goToRoom, initGame, selectRoom, Verb } from "../../gonorth";
 import { Item } from "./item";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { AnyAction } from "redux";
@@ -92,9 +92,7 @@ test("doors can't be opened with a key when none is required", async () => {
 });
 
 test("keys must be Key instances", () => {
-  expect(() => (door.key = new Item("key"))).toThrow(
-    "Keys must be Key instances."
-  );
+  expect(() => (door.key = new Item("key"))).toThrow("Keys must be Key instances.");
 });
 
 test("shortcut function can be used to unlock doors", async () => {
@@ -227,6 +225,12 @@ describe("Builder", () => {
     expect(gate.items.bolt).toBeDefined();
     expect(gate.items.bars).toBeDefined();
     expect(gate.items.latch).toBeDefined();
+  });
+
+  test("verbs may be added via the builder", () => {
+    const turnstyle = new Door.Builder("turnstyle").withVerb(new Verb.Builder("turn")).build();
+    expect(turnstyle.verbs.turn).toBeDefined();
+    expect(turnstyle.verbs.examine).toBeDefined();
   });
 });
 

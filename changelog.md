@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased.
+
+* 2024-08-31 Fixed bug where door verbs didn't work.
+
 # 6.2.0
 
 * 2024-08-26 Non-hidden items may be added via the builders.

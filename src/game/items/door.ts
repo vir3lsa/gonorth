@@ -15,6 +15,7 @@ export function newDoor(config: DoorConfig & ItemConfig) {
     aliases,
     key,
     traversals,
+    verbs,
     items,
     ...remainingConfig
   } = config;
@@ -30,6 +31,10 @@ export function newDoor(config: DoorConfig & ItemConfig) {
     traversals,
     config
   );
+
+  if (verbs) {
+    door.addVerbs(...verbs);
+  }
 
   door.addItems(...(items ?? []));
   Object.entries(remainingConfig).forEach(([key, value]) => (door[key] = value));
