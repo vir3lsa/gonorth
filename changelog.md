@@ -1,6 +1,6 @@
 # goNORTH Changelog
 
-# Unreleased.
+# 6.2.1
 
 * 2024-08-31 Fixed bug where door verbs didn't work.
 
