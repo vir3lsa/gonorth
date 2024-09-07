@@ -236,6 +236,11 @@ describe("basic item tests", () => {
     await boulders.try("take");
     expect(selectCurrentPage()).toInclude("The boulders are too big");
   });
+
+  test("container listings may be functions", () => {
+    const mouse = new Item.Builder("mouse").withContainerListing((item) => `a little white ${item.name}`).build();
+    expect(mouse.containerListing).toBe("a little white mouse");
+  });
 });
 
 describe("builder tests", () => {

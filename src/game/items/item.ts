@@ -64,7 +64,7 @@ export class Item {
   private _properties!: ItemProperties;
   private _alteredProperties: Set<string>;
   private _article!: string;
-  private _containerListing?: string;
+  private _containerListing?: TextFunction;
   private _visible!: boolean;
   private _itemsVisibleFromRoom!: boolean;
   private _doNotList!: boolean;
@@ -597,12 +597,12 @@ export class Item {
   }
 
   get containerListing() {
-    return this._containerListing;
+    return this._containerListing?.(this);
   }
 
-  set containerListing(listing) {
+  set containerListing(listing: UnknownText | undefined) {
     this.recordAlteredProperty("containerListing", listing);
-    this._containerListing = listing;
+    this._containerListing = listing ? createDynamicText(listing) : undefined;
   }
 
   get items() {
@@ -1106,7 +1106,7 @@ export class Builder {
     return this;
   }
 
-  withContainerListing(containerListing: string) {
+  withContainerListing(containerListing: UnknownText) {
     this.config.containerListing = containerListing;
     return this;
   }

@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2024-09-07 Made containerListing able to be dynamic.
+
 # 6.2.1
 
 * 2024-08-31 Fixed bug where door verbs didn't work.
