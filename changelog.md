@@ -2,6 +2,7 @@
 
 # Unreleased
 
+* 2024-09-07 Ensure we're exporting types.
 * 2024-09-07 Made containerListing able to be dynamic.
 
 # 6.2.1

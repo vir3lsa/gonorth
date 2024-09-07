@@ -14,6 +14,7 @@
     "esModuleInterop": true,
     "strict": true,
     "noEmitOnError": false,
+    "declaration": true,
     "paths": {
       "@items/*": ["./src/game/items/*"],
       "@interactions/*": ["./src/game/interactions/*"]

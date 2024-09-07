@@ -9,6 +9,7 @@
   "files": [
     "lib"
   ],
+  "types": "lib/src/gonorth.d.ts",
   "scripts": {
     "build": "tsc",
     "build:whiteroom": "webpack --env UI_TEST_MODE --config 'examples/white_room/webpack.config.js'",
