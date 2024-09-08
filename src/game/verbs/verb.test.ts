@@ -464,6 +464,30 @@ describe("smart tests", () => {
     await zeta.attempt(10);
     expect(selectCurrentPage()).toBe("fail-10\n\napple\n\nb\n\nc");
   });
+
+  it("can be passed any number of failure actions", async () => {
+    let x = 0;
+    const impossible = new Verb.Builder("impossible")
+      .withSmartTest(
+        false,
+        () => x++,
+        () => "done"
+      )
+      .build();
+    await impossible.attempt();
+    expect(x).toBe(1);
+    expect(selectCurrentPage()).toContain("done");
+  });
+
+  it("can be passed failure actions as an array", async () => {
+    let x = 0;
+    const impossible = new Verb.Builder("impossible")
+      .withSmartTest(false, [() => x++, () => x++, () => x++, () => "done"])
+      .build();
+    await impossible.attempt();
+    expect(x).toBe(3);
+    expect(selectCurrentPage()).toContain("done");
+  });
 });
 
 describe("effects", () => {

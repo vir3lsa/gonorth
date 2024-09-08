@@ -118,9 +118,11 @@ export class Verb {
 
     const tests = Array.isArray(test) ? test : [test];
     this._tests = new ActionChain(
-      ...(tests.map((itest) =>
-        this.createChainableTest((itest as SmartTest).test || itest, (itest as SmartTest).onFailure)
-      ) as Action[])
+      ...(tests.map((itest) => {
+        let onFailure = (itest as SmartTest).onFailure as Action[];
+        onFailure = Array.isArray(onFailure) ? onFailure : [onFailure];
+        return this.createChainableTest((itest as SmartTest).test || itest, ...onFailure);
+      }) as Action[])
     );
     this._tests.renderNexts = false;
   }
@@ -130,7 +132,7 @@ export class Verb {
    * @param test the test to add.
    * @param onFailure the onFailure action to execute when the test fails.
    */
-  addTest(test: Test, onFailure: Action = identity) {
+  addTest(test: Test, ...onFailure: Action[]) {
     const chainableTest = this.createChainableTest(test, onFailure);
     this._tests.addAction(chainableTest);
   }
@@ -140,14 +142,14 @@ export class Verb {
    * @param test the test to add.
    * @param onFailure the onFailure action to execute when the test fails.
    */
-  insertTest(test: Test, onFailure: Action = identity) {
-    const chainableTest = this.createChainableTest(test, onFailure);
+  insertTest(test: Test, ...onFailure: Action[]) {
+    const chainableTest = this.createChainableTest(test, ...onFailure);
     this._tests.insertAction(chainableTest);
   }
 
-  createChainableTest(test: Test, onFailure: Action = identity) {
+  createChainableTest(test: Test, ...onFailure: Action[]) {
     const normalisedTest = normaliseTest(test);
-    const onFailureChain = new ActionChain(onFailure);
+    const onFailureChain = new ActionChain(...(onFailure || identity));
 
     const chainableTest: Action = (context) => {
       const result = normalisedTest(context as Context);
@@ -203,7 +205,7 @@ export class Verb {
 
   set aliases(aliases: string | string[]) {
     this._aliases = [];
-    const aliasArray = Array.isArray(aliases) ? aliases : [aliases]
+    const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
     this.addAliases(...aliasArray);
   }
 
@@ -346,7 +348,7 @@ export class Builder {
     return this;
   }
 
-  withSmartTest(test: Test, onFailure: Action) {
+  withSmartTest(test: Test, ...onFailure: Action[]) {
     const smartTest: SmartTest = { test: normaliseTest(test), onFailure };
     this.config.tests = [...this.config.tests!, smartTest];
     return this;
