@@ -241,23 +241,34 @@ export class Item {
             },
             ({ item }) => `You don't have enough room for ${item!.properNoun ? "" : "the "}${item!.name}.`
           )
-          .withOnSuccess(({ item }) => {
-            const container = item.container;
-            moveItem(config?.producesSingular ?? item, selectInventory());
+          .withOnSuccess(
+            async (context) => {
+              const result = await context.item.container?.try("__relinquish");
 
-            // If we have custom success text, use it.
-            if (this.takeSuccessText) {
-              return this.takeSuccessText;
+              if (result === false) {
+                // The relinquish verb failed - abort the take verb and print the result.
+                context.abort!();
+                return result;
+              }
+            },
+            ({ item }) => {
+              const container = item.container;
+              moveItem(config?.producesSingular ?? item, selectInventory());
+
+              // If we have custom success text, use it.
+              if (this.takeSuccessText) {
+                return this.takeSuccessText;
+              }
+
+              // Otherwise, if the item's in a room, take from there.
+              if (container && !container.isRoom) {
+                return takeFromContainerText.next(item, container);
+              }
+
+              // Else, take from generic container.
+              return takeFromRoomText.next(item);
             }
-
-            // Otherwise, if the item's in a room, take from there.
-            if (container && !container.isRoom) {
-              return takeFromContainerText.next(item, container);
-            }
-
-            // Else, take from generic container.
-            return takeFromRoomText.next(item);
-          })
+          )
           .isRemote()
           .build()
       );

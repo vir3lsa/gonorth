@@ -547,6 +547,7 @@ interface ContainerConfig {
   verbs: VerbT[];
   lockable: boolean;
   key: string | KeyT;
+  relinquishTests: SmartTest[];
 }
 
 /**************/

@@ -1,4 +1,5 @@
 import { createDynamicText } from "../../utils/dynamicDescription";
+import { normaliseTest } from "../../utils/sharedFunctions";
 import { Verb } from "../verbs/verb";
 import { Item, Builder as ItemBuilder, customiseVerbs, omitAliases } from "./item";
 
@@ -191,6 +192,19 @@ export class Container extends Item {
           .build()
       );
     }
+
+    if (config?.relinquishTests) {
+      const relinquish = new Verb.Builder("__relinquish");
+
+      // Add each relinquish test as a smart test.
+      config.relinquishTests.forEach((smartTest) => {
+        let onFailure = (smartTest as SmartTest).onFailure as Action[];
+        onFailure = Array.isArray(onFailure) ? onFailure : [onFailure];
+        relinquish.withSmartTest(smartTest.test, ...onFailure);
+      });
+
+      this.addVerb(relinquish);
+    }
   }
 
   addOpenAliases(...aliases: string[]) {
@@ -321,6 +335,7 @@ class Builder extends ItemBuilder {
 
   constructor(name?: string) {
     super(name);
+    this.config.relinquishTests = [];
   }
 
   withCloseText(closeText: string) {
@@ -410,6 +425,11 @@ class Builder extends ItemBuilder {
 
   withUnlockSuccessText(text: string) {
     this.config.unlockSuccessText = text;
+    return this;
+  }
+
+  withRelinquishTest(test: Test, ...onFailure: Action[]) {
+    this.config.relinquishTests.push({ test: normaliseTest(test), onFailure });
     return this;
   }
 

@@ -1,12 +1,13 @@
 import { Item } from "./item";
 import { Verb } from "../verbs/verb";
-import { initGame } from "../../gonorth";
+import { initGame, selectInventory, selectInventoryItems } from "../../gonorth";
 import { recordChanges } from "../../redux/gameActions";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Container } from "./container";
 import { selectCurrentPage } from "../../utils/testSelectors";
 import { Key } from "./door";
 import { clearPage } from "../../utils/sharedFunctions";
+import { deferAction } from "../../utils/testFunctions";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -330,5 +331,37 @@ describe("container", () => {
     expect(cake.items.groom).toBeDefined();
     expect(cake.items.icing).toBeDefined();
     expect(cake.items.ribbon).toBeDefined();
+  });
+
+  test("containers may have relinquish tests", async () => {
+    let x = 0;
+    let y = 0;
+    const ball = new Item.Builder("ball").isHoldable().build();
+    const box = new Container.Builder("box")
+      .withRelinquishTest(() => x < 1, "x too big")
+      .withRelinquishTest(() => y < 1, "y too big")
+      .hasItem(ball)
+      .isOpen()
+      .build();
+    await ball.try("take");
+    expect(selectInventory().items.ball[0].name).toBe("ball");
+    expect(selectCurrentPage()).not.toInclude("x too big");
+    expect(selectCurrentPage()).not.toInclude("y too big");
+  });
+
+  test("relinquish tests may fail", async () => {
+    let x = 0;
+    let y = 1;
+    const ball = new Item.Builder("ball").isHoldable().build();
+    const box = new Container.Builder("box")
+      .withRelinquishTest(() => x < 1, "x too big")
+      .withRelinquishTest(() => y < 1, "y too big")
+      .hasItem(ball)
+      .isOpen()
+      .build();
+    await ball.try("take");
+    expect(selectInventory().items.ball).not.toBeDefined();
+    expect(selectCurrentPage()).not.toInclude("x too big");
+    expect(selectCurrentPage()).toInclude("y too big");
   });
 });
