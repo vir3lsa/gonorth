@@ -243,7 +243,9 @@ export class Item {
           )
           .withOnSuccess(
             async (context) => {
-              const result = await context.item.container?.try("__relinquish");
+              const container = context.item.container;
+              const relinquish = container?.verbs["__relinquish"];
+              const result = await relinquish?.attemptWithContext({ ...context, other: container });
 
               if (result === false) {
                 // The relinquish verb failed - abort the take verb and print the result.

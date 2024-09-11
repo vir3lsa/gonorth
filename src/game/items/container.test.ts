@@ -337,7 +337,7 @@ describe("container", () => {
     let x = 0;
     let y = 0;
     const ball = new Item.Builder("ball").isHoldable().build();
-    const box = new Container.Builder("box")
+    new Container.Builder("box")
       .withRelinquishTest(() => x < 1, "x too big")
       .withRelinquishTest(() => y < 1, "y too big")
       .hasItem(ball)
@@ -349,19 +349,22 @@ describe("container", () => {
     expect(selectCurrentPage()).not.toInclude("y too big");
   });
 
-  test("relinquish tests may fail", async () => {
+  test("relinquish tests may fail and receive context", async () => {
     let x = 0;
     let y = 1;
     const ball = new Item.Builder("ball").isHoldable().build();
-    const box = new Container.Builder("box")
+    new Container.Builder("box")
       .withRelinquishTest(() => x < 1, "x too big")
-      .withRelinquishTest(() => y < 1, "y too big")
+      .withRelinquishTest(
+        () => y < 1,
+        ({ item, other }) => `y too big to take ${item!.name} from ${other!.name}`
+      )
       .hasItem(ball)
       .isOpen()
       .build();
     await ball.try("take");
     expect(selectInventory().items.ball).not.toBeDefined();
     expect(selectCurrentPage()).not.toInclude("x too big");
-    expect(selectCurrentPage()).toInclude("y too big");
+    expect(selectCurrentPage()).toInclude("y too big to take ball from box");
   });
 });

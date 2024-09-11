@@ -194,7 +194,7 @@ export class Container extends Item {
     }
 
     if (config?.relinquishTests) {
-      const relinquish = new Verb.Builder("__relinquish");
+      const relinquish = new Verb.Builder("__relinquish").isRemote();
 
       // Add each relinquish test as a smart test.
       config.relinquishTests.forEach((smartTest) => {
