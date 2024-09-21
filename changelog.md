@@ -1,6 +1,6 @@
 # goNORTH Changelog
 
-# Unreleased
+# 6.3.0
 
 * 2024-09-10 Containers may define relinquish tests to dictate when items may be taken from them.
 * 2024-09-08 Verb smart tests onFailure arguments are now varargs.
