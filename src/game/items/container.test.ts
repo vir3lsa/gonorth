@@ -333,13 +333,14 @@ describe("container", () => {
     expect(cake.items.ribbon).toBeDefined();
   });
 
-  test("containers may have relinquish tests", async () => {
+  test("containers may have relinquish tests and receive context", async () => {
     let x = 0;
     let y = 0;
     const ball = new Item.Builder("ball").isHoldable().build();
     new Container.Builder("box")
       .withRelinquishTest(() => x < 1, "x too big")
       .withRelinquishTest(() => y < 1, "y too big")
+      .withRelinquishTest(({ item, other }) => item.name === "ball" && other!.name === "box", "wrong names")
       .hasItem(ball)
       .isOpen()
       .build();
@@ -347,6 +348,7 @@ describe("container", () => {
     expect(selectInventory().items.ball[0].name).toBe("ball");
     expect(selectCurrentPage()).not.toInclude("x too big");
     expect(selectCurrentPage()).not.toInclude("y too big");
+    expect(selectCurrentPage()).not.toInclude("wrong names");
   });
 
   test("relinquish tests may fail and receive context", async () => {
