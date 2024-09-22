@@ -1,13 +1,13 @@
-import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event, SUCCEEDED, DORMANT } from "./event";
+import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event, SUCCEEDED, DORMANT, EventBuilder } from "./event";
 
 export class ScheduleBuilder {
-  eventBuilders: EventBuilder[];
+  events: Event[];
   condition?: boolean | Condition;
   continueOnFail = false;
   isRecurring = false;
 
   constructor() {
-    this.eventBuilders = [];
+    this.events = [];
   }
 
   withCondition(condition?: boolean | Condition) {
@@ -25,48 +25,18 @@ export class ScheduleBuilder {
     return this;
   }
 
-  addEvent(...actions: Action[]) {
-    const eventBuilder = new EventBuilder(this, actions);
-    this.eventBuilders.push(eventBuilder);
-    return eventBuilder;
+  addEvent(event: Event | EventBuilder) {
+    if (event instanceof EventBuilder && !event.name) {
+      event.withName(`schedule event ${this.events.length}`);
+    }
+
+    const eventObj = event instanceof EventBuilder ? event.build() : event;
+    this.events.push(eventObj);
+    return this;
   }
 
   build() {
     return new Schedule(this);
-  }
-}
-
-class EventBuilder {
-  scheduleBuilder: ScheduleBuilder;
-  actions: Action[];
-  delay?: number;
-  delayType?: TimeoutType;
-
-  constructor(scheduleBuilder: ScheduleBuilder, actions: Action[]) {
-    this.scheduleBuilder = scheduleBuilder;
-    this.actions = actions;
-  }
-
-  withDelay(delay?: number, type?: TimeoutType) {
-    if (type !== TIMEOUT_MILLIS && type !== TIMEOUT_TURNS) {
-      throw Error("Delay type must be one of 'TIMEOUT_MILLIS' and 'TIMEOUT_TURNS'");
-    }
-
-    this.delay = delay;
-    this.delayType = type;
-    return this;
-  }
-
-  addEvent(...actions: Action[]) {
-    return this.scheduleBuilder.addEvent(actions);
-  }
-
-  recurring() {
-    return this.scheduleBuilder.recurring();
-  }
-
-  build() {
-    return this.scheduleBuilder.build();
   }
 }
 
@@ -88,12 +58,12 @@ export class Schedule {
   constructor(builder: ScheduleBuilder) {
     this.continueOnFail = builder.continueOnFail || false;
     this.stage = 0;
-    const numEvents = builder.eventBuilders.length;
+    const numEvents = builder.events.length;
 
     // Handle to next Event so previous event can trigger it
     let nextEvent: Event;
     // Iterate from last to first so each event can trigger the next
-    this.events = builder.eventBuilders.reverse().map((eventBuilder, index) => {
+    this.events = builder.events.reverse().map((event, index) => {
       let condition;
 
       if (index === numEvents - 1) {
@@ -101,28 +71,20 @@ export class Schedule {
         condition = builder.condition || true;
       } else if (index === 0 && builder.isRecurring) {
         // Reset the schedule when it completes
-        eventBuilder.actions.unshift(() => this.reset());
+        event.action.insertAction(() => this.reset());
       } else if (index === 0) {
         this.state = STATE_COMPLETED;
       }
 
-      const event = new Event(
-        `schedule event ${index}`,
-        eventBuilder.actions,
-        condition,
-        eventBuilder.delay,
-        eventBuilder.delayType
-      );
-
       if (nextEvent) {
         // Commence next event
         const nextInChain = nextEvent;
-        event.onComplete = async () => {
+        event.onComplete.addAction(async () => {
           if ((event.state === SUCCEEDED || this.continueOnFail) && !this.cancelled) {
             this.stage++;
             nextInChain.commence();
           }
-        };
+        });
       }
 
       return (nextEvent = event);

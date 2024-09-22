@@ -24,7 +24,7 @@ export class Event {
   executionCount;
   timeoutId?: NodeJS.Timeout;
   state;
-  _onComplete!: OptionAction;
+  _onComplete!: ActionChain;
   recurring;
   countdown?: number;
 
@@ -34,7 +34,7 @@ export class Event {
     condition: boolean | Condition = true,
     timeout = 0,
     timeoutType: TimeoutType = TIMEOUT_TURNS,
-    onComplete: OptionAction = () => Promise.resolve(),
+    onComplete: Action = [],
     recurring = false
   ) {
     this.name = name;
@@ -62,15 +62,12 @@ export class Event {
     return this._condition;
   }
 
-  set onComplete(onComplete) {
-    if (typeof onComplete !== "function") {
-      throw Error("onComplete must be a function");
-    }
-
-    this._onComplete = onComplete;
+  set onComplete(onComplete: Action) {
+    const actionArray = Array.isArray(onComplete) ? onComplete : [onComplete];
+    this._onComplete = new ActionChain(...actionArray);
   }
 
-  get onComplete() {
+  get onComplete(): ActionChain {
     return this._onComplete;
   }
 
@@ -148,7 +145,7 @@ export class Event {
       this.state = SUCCEEDED;
     }
 
-    await this.onComplete();
+    await this.onComplete.chain();
 
     if (this.recurring) {
       this.state = DORMANT;
@@ -176,16 +173,20 @@ export class Event {
   }
 }
 
-class EventBuilder {
+export class EventBuilder {
   name;
   actions?: Action[];
   condition: boolean | Condition = true;
   timeout?: number;
   timeoutType?: TimeoutType;
-  onComplete?: OptionAction;
+  onComplete?: Action[];
   recurring: boolean = false;
 
-  constructor(name: string) {
+  constructor(name?: string) {
+    this.name = name;
+  }
+
+  withName(name: string) {
     this.name = name;
   }
 
@@ -222,8 +223,12 @@ class EventBuilder {
     return this;
   }
 
-  withOnComplete(onComplete: OptionAction) {
-    this.onComplete = onComplete;
+  withOnComplete(...onComplete: Action[]) {
+    if (!this.onComplete) {
+      this.onComplete = [];
+    }
+
+    this.onComplete.push(onComplete);
     return this;
   }
 
@@ -233,6 +238,10 @@ class EventBuilder {
   }
 
   build() {
+    if (!this.name) {
+      throw Error("Must provide a name for each Event.");
+    }
+
     return new Event(
       this.name,
       this.actions,

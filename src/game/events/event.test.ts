@@ -128,3 +128,19 @@ test("events may be reset after being cancelled", async () => {
   await handleTurnEnd();
   expect(x).toBe(2);
 });
+
+test("events may perform additional actions after completing", async () => {
+  let x = 0;
+  addEvent(
+    new Event.Builder("happen")
+      .withActions(
+        () => x++,
+        () => (x += 2)
+      )
+      .withOnComplete(() => (x *= 2))
+      .withOnComplete(() => (x += 5))
+      .build()
+  );
+  await handleTurnEnd();
+  expect(x).toBe(11);
+});

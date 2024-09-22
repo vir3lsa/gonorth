@@ -1,5 +1,5 @@
 import { Schedule, ScheduleBuilder } from "./schedule";
-import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
+import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { addSchedule, initGame } from "../../gonorth";
 import { unregisterStore } from "../../redux/storeRegistry";
@@ -22,7 +22,12 @@ function createBuilder(condition: boolean | Condition, continueOnFail: boolean) 
 }
 
 function addEvent(builder: ScheduleBuilder, delay: number, delayType: TimeoutType, ...actions: Action[]) {
-  builder.addEvent(...actions).withDelay(delay, delayType);
+  builder.addEvent(
+    new Event.Builder()
+      .withActions(...actions)
+      .withTimeout(delay)
+      .withTimeoutType(delayType)
+  );
 }
 
 function buildAndExecute(builder: ScheduleBuilder) {

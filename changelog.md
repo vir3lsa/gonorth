@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2024-09-22 Breaking change - ScheduleBuilder uses Events directly, event onComplete actions now varargs.
+
 # 6.3.0
 
 * 2024-09-10 Containers may define relinquish tests to dictate when items may be taken from them.

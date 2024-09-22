@@ -1,5 +1,5 @@
 import { Schedule } from "./schedule";
-import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
+import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { selectRoom } from "../../utils/selectors";
 
 class Builder {
@@ -102,9 +102,12 @@ export class Route {
         return step.text;
       };
 
-      scheduleBuilder
-        .addEvent(() => builder.subject?.go(step.direction), getText)
-        .withDelay(step.delay, step.delayType);
+      scheduleBuilder.addEvent(
+        new Event.Builder()
+          .withActions(() => builder.subject?.go(step.direction), getText)
+          .withTimeout(step.delay || 0)
+          .withTimeoutType(step.delayType || TIMEOUT_TURNS)
+      );
     });
 
     this.schedule = scheduleBuilder.build();
