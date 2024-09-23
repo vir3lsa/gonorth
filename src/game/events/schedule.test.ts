@@ -132,3 +132,13 @@ test("schedules may reset if necessary", async () => {
   await schedule.commence(true);
   expect(x).toBe(3);
 });
+
+test("individual events may have conditions", async () => {
+  const builder = createBuilder(true, false);
+  builder.addEvent(new Event.Builder().withCondition(() => x > 5).withAction(() => (x = 100)));
+  await buildAndExecute(builder);
+  expect(x).toBe(1); // Event's condition not met.
+  x = 10;
+  await handleTurnEnd();
+  expect(x).toBe(100); // Condition met.
+});

@@ -1,3 +1,4 @@
+import { processEvent } from "../../utils/eventUtils";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event, SUCCEEDED, DORMANT, EventBuilder } from "./event";
 
 export class ScheduleBuilder {
@@ -71,7 +72,7 @@ export class Schedule {
         condition = builder.condition || true;
       } else if (index === 0 && builder.isRecurring) {
         // Reset the schedule when it completes
-        event.action.insertAction(() => this.reset());
+        event.onComplete.addAction(() => this.reset());
       } else if (index === 0) {
         this.state = STATE_COMPLETED;
       }
@@ -82,7 +83,7 @@ export class Schedule {
         event.onComplete.addAction(async () => {
           if ((event.state === SUCCEEDED || this.continueOnFail) && !this.cancelled) {
             this.stage++;
-            nextInChain.commence();
+            processEvent(nextInChain);
           }
         });
       }

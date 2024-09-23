@@ -2,6 +2,7 @@
 
 # Unreleased
 
+* 2024-09023 Schedule events may have their own conditions.
 * 2024-09-22 Breaking change - ScheduleBuilder uses Events directly, event onComplete actions now varargs.
 
 # 6.3.0
