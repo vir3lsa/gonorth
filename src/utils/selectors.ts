@@ -25,6 +25,7 @@ export const selectOptionGraph = (name: string): OptionGraphT => getStore().getS
 export const selectConfig = (): Config => getStore().getState().game.config;
 export const selectActionChainPromise = (): Promise<string> => getStore().getState().actionChainPromise;
 export const selectEvents = (): EventT[] => getStore().getState().events;
+export const selectSchedules = (): ScheduleT[] => getStore().getState().schedules;
 export const selectRecordChanges = (): boolean => getStore().getState().recordChanges;
 export const selectStartingRoom = (): RoomT => getStore().getState().startingRoom;
 export const selectCyCommands = (): string[] => getStore().getState().cyCommands;

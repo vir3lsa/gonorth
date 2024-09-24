@@ -2,7 +2,14 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
-import { changeImage, addEvent as eventAdded, gameStarted, newGame, setStartRoom } from "./redux/gameActions";
+import {
+  changeImage,
+  addEvent as eventAdded,
+  addSchedule as scheduleAdded,
+  gameStarted,
+  newGame,
+  setStartRoom
+} from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 import { newVerb } from "./game/verbs/verb";
@@ -46,7 +53,6 @@ function initGame(title: string, author: string, config: Config, version?: strin
     author: author,
     config: config,
     introActions: new ActionChain(() => goToStartingRoom()),
-    schedules: [],
     help: getHelpGraph(),
     hintGraph: getHintGraph(),
     initialiser,
@@ -120,7 +126,7 @@ function addEvent(event: EventT) {
 }
 
 function addSchedule(schedule: ScheduleT | RouteT) {
-  game.schedules.push(schedule);
+  getStore().dispatch(scheduleAdded(schedule));
 }
 
 function setInventoryCapacity(size: number) {

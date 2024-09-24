@@ -22,7 +22,6 @@ interface Game {
   config: Config;
   container?: Element;
   introActions: ActionChainT;
-  schedules: (ScheduleT | RouteT)[];
   help: OptionGraphT;
   hintGraph: OptionGraphT;
   initialiser?: SimpleAction;
@@ -153,6 +152,7 @@ interface StoreState {
   itemNames: Set<string>;
   actionChainPromise?: Promise<string>;
   events: EventT[];
+  schedules: ScheduleT[];
   keywords: Keywords;
   room?: RoomT;
   recordChanges: false;

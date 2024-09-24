@@ -8,6 +8,7 @@ export const ITEMS_REVEALED = "ITEM_REVEALED";
 export const CHAIN_STARTED = "CHAIN_STARTED";
 export const CHAIN_ENDED = "CHAIN_ENDED";
 export const ADD_EVENT = "ADD_EVENT";
+export const ADD_SCHEDULE = "ADD_SCHEDULE";
 export const ADD_KEYWORDS = "ADD_KEYWORDS";
 export const REMOVE_KEYWORDS = "REMOVE_KEYWORDS";
 export const ADD_ROOM = "ADD_ROOM";

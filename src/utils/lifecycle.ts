@@ -1,6 +1,6 @@
 import { processEvent } from "./eventUtils";
 import { getPersistor, getStore } from "../redux/storeRegistry";
-import { selectConfig, selectEvents, selectGame, selectItem, selectKeywords, selectRoom } from "./selectors";
+import { selectConfig, selectEvents, selectGame, selectItem, selectRoom, selectSchedules } from "./selectors";
 import {
   nextTurn,
   changeRoom,
@@ -27,8 +27,8 @@ export async function handleTurnEnd() {
     await processEvent(events[i]);
   }
 
-  for (let i in selectGame().schedules) {
-    await processEvent(selectGame().schedules[i].currentEvent);
+  for (let i in selectSchedules()) {
+    await processEvent(selectSchedules()[i].currentEvent);
   }
 
   // End the turn

@@ -1,8 +1,8 @@
-import { Schedule } from "./schedule";
+import { Schedule, ScheduleBuilder } from "./schedule";
 import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { selectRoom } from "../../utils/selectors";
 
-class Builder {
+class Builder extends ScheduleBuilder {
   steps: Step[];
   currentStep?: Step;
   subject?: NpcT;
@@ -13,21 +13,12 @@ class Builder {
   delay?: number;
 
   constructor() {
+    super();
     this.steps = [];
   }
 
   withSubject(subject: NpcT) {
     this.subject = subject;
-    return this;
-  }
-
-  withCondition(condition: boolean | Condition) {
-    this.condition = condition;
-    return this;
-  }
-
-  withContinueOnFail(value: boolean) {
-    this.continueOnFail = value;
     return this;
   }
 
@@ -81,12 +72,10 @@ class Step {
   }
 }
 
-export class Route {
+export class Route extends Schedule {
   static get Builder() {
     return Builder;
   }
-
-  schedule;
 
   constructor(builder: Builder) {
     const scheduleBuilder = new Schedule.Builder()
@@ -110,14 +99,6 @@ export class Route {
       );
     });
 
-    this.schedule = scheduleBuilder.build();
-  }
-
-  get currentEvent() {
-    return this.schedule.currentEvent;
-  }
-
-  cancel() {
-    this.schedule.cancel();
+    super(scheduleBuilder);
   }
 }

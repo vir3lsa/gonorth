@@ -14,6 +14,7 @@ export const initialState = {
   // The names of items (including aliases) the player has encountered.
   itemNames: new Set(),
   events: [],
+  schedules: [],
   keywords: {} as KeywordsDict,
   recordChanges: false,
   rooms: {},
@@ -89,6 +90,9 @@ export default function (state = initialState, action: ReduxAction) {
     case type.ADD_EVENT:
       const events = [...state.events, action.payload];
       return { ...state, events };
+    case type.ADD_SCHEDULE:
+      const schedules = [...state.schedules, action.payload];
+      return { ...state, schedules };
     case type.ADD_KEYWORDS:
       return { ...state, keywords: { ...state.keywords, ...action.keywords } };
     case type.REMOVE_KEYWORDS:

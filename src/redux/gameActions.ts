@@ -135,6 +135,11 @@ export const addEvent = (event: EventT) => ({
   payload: event
 });
 
+export const addSchedule = (schedule: ScheduleT) => ({
+  type: type.ADD_SCHEDULE,
+  payload: schedule
+});
+
 export const addKeywords = (keywords: KeywordsDict) => ({
   type: type.ADD_KEYWORDS,
   keywords
