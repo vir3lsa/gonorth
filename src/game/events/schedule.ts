@@ -2,12 +2,14 @@ import { processEvent } from "../../utils/eventUtils";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event, SUCCEEDED, DORMANT, EventBuilder } from "./event";
 
 export class ScheduleBuilder {
+  id: string;
   events: Event[];
   condition?: boolean | Condition;
   continueOnFail = false;
   isRecurring = false;
 
-  constructor() {
+  constructor(id: string) {
+    this.id = id;
     this.events = [];
   }
 
@@ -26,6 +28,11 @@ export class ScheduleBuilder {
     return this;
   }
 
+  addEvents(...events: (Event | EventBuilder)[]) {
+    events.forEach((event) => this.addEvent(event));
+    return this;
+  }
+
   addEvent(event: Event | EventBuilder) {
     if (event instanceof EventBuilder && !event.name) {
       event.withName(`schedule event ${this.events.length}`);
@@ -37,12 +44,16 @@ export class ScheduleBuilder {
   }
 
   build() {
+    if (!this.id) {
+      throw Error("Tried to build a Schedule with no ID.");
+    }
+
     return new Schedule(this);
   }
 }
 
 const STATE_READY = "READY";
-const STATE_RUNNING = "RUNNING";
+export const STATE_RUNNING = "RUNNING";
 const STATE_COMPLETED = "COMPLETED";
 
 export class Schedule {
@@ -50,6 +61,8 @@ export class Schedule {
     return ScheduleBuilder;
   }
 
+  id: string;
+  _condition!: Condition;
   continueOnFail;
   stage: number;
   events: Event[];
@@ -57,24 +70,22 @@ export class Schedule {
   state = STATE_READY;
 
   constructor(builder: ScheduleBuilder) {
+    this.id = builder.id;
+    this.condition = builder.condition;
     this.continueOnFail = builder.continueOnFail || false;
     this.stage = 0;
-    const numEvents = builder.events.length;
 
     // Handle to next Event so previous event can trigger it
     let nextEvent: Event;
     // Iterate from last to first so each event can trigger the next
     this.events = builder.events.reverse().map((event, index) => {
-      let condition;
-
-      if (index === numEvents - 1) {
-        // Add condition to the last i.e. the first event in the (reversed) schedule
-        condition = builder.condition || true;
-      } else if (index === 0 && builder.isRecurring) {
+      if (index === 0 && builder.isRecurring) {
         // Reset the schedule when it completes
         event.onComplete.addAction(() => this.reset());
       } else if (index === 0) {
-        this.state = STATE_COMPLETED;
+        event.onComplete.addAction(() => {
+          this.state = STATE_COMPLETED;
+        });
       }
 
       if (nextEvent) {
@@ -95,6 +106,22 @@ export class Schedule {
     this.events.reverse();
   }
 
+  set condition(condition: boolean | undefined | Condition) {
+    if (typeof condition === "undefined") {
+      this._condition = () => false; // Schedule must be triggered manually.
+    } else if (typeof condition === "boolean") {
+      this._condition = () => condition;
+    } else if (typeof condition === "function") {
+      this._condition = condition;
+    } else {
+      throw Error("Schedule condition must be boolean or function.");
+    }
+  }
+
+  checkCondition() {
+    return this._condition ? this._condition() : true;
+  }
+
   get currentEvent() {
     return this.events[this.stage];
   }
@@ -109,8 +136,6 @@ export class Schedule {
 
     if (this.state === STATE_READY) {
       this.state = STATE_RUNNING;
-      // Don't return result as events should be independent of outer chains.
-      this.currentEvent.commence();
     }
   }
 

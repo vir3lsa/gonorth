@@ -19,6 +19,7 @@ import { OptionGraph } from "../game/interactions/optionGraph";
 import { AutoAction } from "../game/input/autoAction";
 import { clearPage, playerHasItem } from "./sharedFunctions";
 import packageJson from "../../package.json";
+import { STATE_RUNNING } from "../game/events/schedule";
 
 export async function handleTurnEnd() {
   const events = selectEvents();
@@ -28,7 +29,15 @@ export async function handleTurnEnd() {
   }
 
   for (let i in selectSchedules()) {
-    await processEvent(selectSchedules()[i].currentEvent);
+    const schedule = selectSchedules()[i];
+
+    if (schedule.checkCondition()) {
+      schedule.commence();
+    }
+
+    if (schedule.state === STATE_RUNNING) {
+      await processEvent(selectSchedules()[i].currentEvent);
+    }
   }
 
   // End the turn

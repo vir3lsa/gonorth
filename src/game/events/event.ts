@@ -5,6 +5,7 @@ import {
   selectEventTurnsOverride,
   selectOptions
 } from "../../utils/selectors";
+import { normaliseTest } from "../../utils/sharedFunctions";
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
@@ -210,6 +211,12 @@ export class EventBuilder {
 
   withCondition(condition: boolean | Condition) {
     this.condition = condition;
+    return this;
+  }
+
+  withDelay(delay: number, timeoutType: TimeoutType) {
+    this.withTimeout(delay);
+    this.withTimeoutType(timeoutType);
     return this;
   }
 

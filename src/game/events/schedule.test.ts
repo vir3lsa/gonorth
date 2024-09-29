@@ -18,7 +18,7 @@ beforeEach(() => {
 });
 
 function createBuilder(condition: boolean | Condition, continueOnFail: boolean) {
-  return new Schedule.Builder().withCondition(condition).withContinueOnFail(continueOnFail);
+  return new Schedule.Builder("scheduleTest").withCondition(condition).withContinueOnFail(continueOnFail);
 }
 
 function addEvent(builder: ScheduleBuilder, delay: number, delayType: TimeoutType, ...actions: Action[]) {
@@ -103,33 +103,36 @@ test("schedules can recur", async () => {
 });
 
 test("schedules don't reset by default", async () => {
-  const builder = createBuilder(false, false);
+  const builder = createBuilder(true, false);
   addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
-  const schedule = builder.build();
-  await schedule.commence();
+  await buildAndExecute(builder);
   expect(x).toBe(2);
-  await schedule.commence();
+  await handleTurnEnd();
   expect(x).toBe(2); // Still 2
 });
 
 test("schedules may be manually reset", async () => {
-  const builder = createBuilder(false, false);
+  const builder = createBuilder(true, false);
   addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
   const schedule = builder.build();
-  await schedule.commence();
+  addSchedule(schedule);
+  await handleTurnEnd();
   expect(x).toBe(2);
   schedule.reset();
-  await schedule.commence();
+  await handleTurnEnd();
   expect(x).toBe(3);
 });
 
-test("schedules may reset if necessary", async () => {
+test("schedules may triggered and reset manually", async () => {
   const builder = createBuilder(false, false);
   addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
   const schedule = builder.build();
+  addSchedule(schedule);
   await schedule.commence();
+  await handleTurnEnd();
   expect(x).toBe(2);
   await schedule.commence(true);
+  await handleTurnEnd();
   expect(x).toBe(3);
 });
 
@@ -141,4 +144,15 @@ test("individual events may have conditions", async () => {
   x = 10;
   await handleTurnEnd();
   expect(x).toBe(100); // Condition met.
+});
+
+test("multiple events may be added at once", async () => {
+  let x = 0;
+  const builder = createBuilder(true, false);
+  builder.addEvents(
+    new Event.Builder().withAction(() => x++),
+    new Event.Builder().withAction(() => x++)
+  );
+  await buildAndExecute(builder);
+  expect(x).toBe(2);
 });

@@ -168,9 +168,7 @@ export const initStore = (name?: string) => {
             const optionGraph = stateOptionGraphs[id];
 
             if (optionGraph) {
-              optionGraph.currentNode = optionGraph.getNode(
-                snapshotOptionGraph.currentNode
-              );
+              optionGraph.currentNode = optionGraph.getNode(snapshotOptionGraph.currentNode);
             }
           }
         });

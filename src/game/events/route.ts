@@ -12,8 +12,8 @@ class Builder extends ScheduleBuilder {
   direction?: string;
   delay?: number;
 
-  constructor() {
-    super();
+  constructor(id: string) {
+    super(id);
     this.steps = [];
   }
 
@@ -78,10 +78,6 @@ export class Route extends Schedule {
   }
 
   constructor(builder: Builder) {
-    const scheduleBuilder = new Schedule.Builder()
-      .withCondition(builder.condition)
-      .withContinueOnFail(builder.continueOnFail);
-
     builder.steps.forEach((step) => {
       const getText = () => {
         if (builder.subject?.container === selectRoom() && builder.findPlayerText) {
@@ -91,7 +87,7 @@ export class Route extends Schedule {
         return step.text;
       };
 
-      scheduleBuilder.addEvent(
+      builder.addEvent(
         new Event.Builder()
           .withActions(() => builder.subject?.go(step.direction), getText)
           .withTimeout(step.delay || 0)
@@ -99,6 +95,6 @@ export class Route extends Schedule {
       );
     });
 
-    super(scheduleBuilder);
+    super(builder);
   }
 }

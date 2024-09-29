@@ -25,7 +25,7 @@ function createRoute(
   text: UnknownText = "",
   ...directions: string[]
 ) {
-  const routeBuilder = new Route.Builder()
+  const routeBuilder = new Route.Builder("routeTest")
     .withSubject(subject)
     .withCondition(condition)
     .withContinueOnFail(continueOnFail);
