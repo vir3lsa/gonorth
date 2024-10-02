@@ -1,4 +1,18 @@
-import { goToRoom, initGame, Item, OptionGraph, retrieve, Room, store, update } from "../gonorth";
+import {
+  addEvent,
+  addSchedule,
+  Event,
+  goToRoom,
+  initGame,
+  Item,
+  OptionGraph,
+  retrieve,
+  Room,
+  Schedule,
+  store,
+  TIMEOUT_MILLIS,
+  update
+} from "../gonorth";
 import { handleTurnEnd } from "../utils/lifecycle";
 import { moveItem } from "../utils/itemFunctions";
 import { changeRoom, loadSnapshot, recordChanges } from "./gameActions";
@@ -17,8 +31,10 @@ let vase: ItemT;
 let room: RoomT;
 let optionGraph: OptionGraphT;
 let transientOptionGraph: OptionGraphT;
+let testEvent: Event;
+let testSchedule: Schedule;
 
-const setUpStoreTests = () => {
+const setUpStoreTests = (additionalSetup?: () => void) => {
   unregisterStore();
   initGame("test", "", { debugMode: false }), true, false;
   room = new Room("Hydroponics");
@@ -32,7 +48,19 @@ const setUpStoreTests = () => {
   vase.description = new RandomText("big", "small"); // Ensure changes to this are recorded.
   room.addItems(vase);
 
+  testEvent = new Event.Builder("testEvent").build();
+  testEvent.countdown = 7;
+  testEvent.state = "TEST_STATE";
+  addEvent(testEvent);
+
+  testSchedule = new Schedule.Builder("testSchedule").build();
+  testSchedule.stage = 3;
+  testSchedule.state = "TEST_STATE";
+  addSchedule(testSchedule);
+
   goToRoom(room);
+
+  additionalSetup?.();
 };
 
 beforeEach(() => {
@@ -43,7 +71,7 @@ beforeEach(() => {
     length: 0,
     clear: () => {},
     key: () => "",
-    removeItem: () => {},
+    removeItem: () => {}
   };
   setUpStoreTests();
 });
@@ -88,12 +116,20 @@ describe("basic persistor tests", () => {
   it("reveals whether a snapshot exists", () => {
     expect(persistor.hasSnapshot()).toBe(true);
   });
+
+  it("seralizes events", () => {
+    expect(result.events.testEvent.countdown).toBe(7);
+    expect(result.events.testEvent.state).toBe("TEST_STATE");
+  });
+
+  it("seralizes schedules", () => {
+    expect(result.schedules.testSchedule.stage).toBe(3);
+    expect(result.schedules.testSchedule.state).toBe("TEST_STATE");
+  });
 });
 
 describe("changing items", () => {
-  let otherRoom: RoomT,
-    externalText: RandomText,
-    externalManagedText: ManagedTextT;
+  let otherRoom: RoomT, externalText: RandomText, externalManagedText: ManagedTextT;
 
   beforeEach(() => {
     otherRoom = new Room("Forest");
@@ -124,7 +160,7 @@ describe("changing items", () => {
     persistSnapshotGetResult();
     expect(result.allItems.vase.container).toEqual({
       isItem: true,
-      name: "Forest",
+      name: "Forest"
     });
   });
 
@@ -161,21 +197,13 @@ describe("changing items", () => {
     expect(result.allItems.vase.description.isText).toBe(true);
     expect(result.allItems.vase.description.phaseNum).toBe(0);
     expect(result.allItems.vase.description.phases.length).toBe(2);
-    expect(result.allItems.vase.description.phases[0].text.texts).toEqual([
-      "1",
-      "2",
-    ]);
-    expect(result.allItems.vase.description.phases[1].text.texts).toEqual([
-      "3",
-      "4",
-    ]);
+    expect(result.allItems.vase.description.phases[0].text.texts).toEqual(["1", "2"]);
+    expect(result.allItems.vase.description.phases[1].text.texts).toEqual(["3", "4"]);
   });
 });
 
 describe("deserializing snapshots", () => {
-  let otherRoom: RoomT,
-    externalText: RandomText,
-    externalManagedText: ManagedTextT;
+  let otherRoom: RoomT, externalText: RandomText, externalManagedText: ManagedTextT;
 
   const setUpDeserializationTests = () => {
     otherRoom = new Room("Garden");
@@ -192,11 +220,11 @@ describe("deserializing snapshots", () => {
     setUpDeserializationTests();
   });
 
-  const persistSnapshotAndLoad = () => {
+  const persistSnapshotAndLoad = (additionalSetup?: () => void) => {
     persistor.persistSnapshot();
 
     // Reset everything to simulate starting a new session.
-    setUpStoreTests();
+    setUpStoreTests(additionalSetup);
     setUpDeserializationTests();
 
     return persistor.loadSnapshot();
@@ -211,9 +239,7 @@ describe("deserializing snapshots", () => {
   it("loads all items the player has seen", () => {
     goToRoom(otherRoom);
     const snapshot = persistSnapshotAndLoad();
-    expect(snapshot.itemNames).toEqual(
-      new Set(["hydroponics", "floor", "room", "vase", "garden", "ornament"])
-    );
+    expect(snapshot.itemNames).toEqual(new Set(["hydroponics", "floor", "room", "vase", "garden", "ornament"]));
   });
 
   it("loads the current room as an actual room", () => {
@@ -227,9 +253,7 @@ describe("deserializing snapshots", () => {
     const snapshot = persistSnapshotAndLoad();
     expect([...snapshot.allItems]).toHaveLength(6);
 
-    const revivedVase = [...snapshot.allItems].find(
-      (item) => item.name === "vase"
-    );
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
     expect(revivedVase.size).toBe(5);
     expect(Object.is(revivedVase, vase)).toBe(true);
   });
@@ -239,9 +263,7 @@ describe("deserializing snapshots", () => {
     const snapshot = persistSnapshotAndLoad();
     expect([...snapshot.allItems]).toHaveLength(6);
 
-    const revivedVase = [...snapshot.allItems].find(
-      (item) => item.name === "vase"
-    );
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
     expect(Object.is(revivedVase.container, otherRoom)).toBe(true);
     expect(Object.is(revivedVase, vase)).toBe(true);
   });
@@ -250,9 +272,7 @@ describe("deserializing snapshots", () => {
     vase.description = new SequentialText("lovely", "pretty");
     vase.description.next();
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find(
-      (item) => item.name === "vase"
-    );
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
     expect(revivedVase.description instanceof SequentialText).toBe(true);
     expect(revivedVase.description.texts).toEqual(["lovely", "pretty"]);
     expect(revivedVase.description.index).toBe(0);
@@ -261,9 +281,7 @@ describe("deserializing snapshots", () => {
   it("udpates Text fields changed during recording", () => {
     (vase.description as RandomText).next();
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find(
-      (item) => item.name === "vase"
-    );
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
     expect(revivedVase.description instanceof RandomText).toBe(true);
     expect(revivedVase.description.candidates.length).toBe(1);
   });
@@ -271,9 +289,7 @@ describe("deserializing snapshots", () => {
   it("deserializes external Texts in full when they've been set on an Item field during recording", () => {
     vase.description = externalText;
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find(
-      (item) => item.name === "vase"
-    );
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
     expect(revivedVase.description instanceof RandomText).toBe(true);
     expect(revivedVase.description.isText).toBe(true);
     expect(revivedVase.description.partial).toBe(false);
@@ -283,9 +299,7 @@ describe("deserializing snapshots", () => {
   it("deserializes external ManagedTexts in full when they've been set on an Item field during recording", () => {
     vase.description = externalManagedText;
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find(
-      (item) => item.name === "vase"
-    );
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
     expect(revivedVase.description instanceof ManagedText).toBe(true);
     expect(revivedVase.description.isText).toBe(true);
     expect(revivedVase.description.partial).toBe(false);
@@ -301,11 +315,7 @@ describe("deserializing snapshots", () => {
     expect(retrieve(propertyName)).toEqual(value);
   };
 
-  const updateCustomStateTest = (
-    propertyName: string,
-    value1: PersistentVariable,
-    value2: PersistentVariable
-  ) => {
+  const updateCustomStateTest = (propertyName: string, value1: PersistentVariable, value2: PersistentVariable) => {
     store(propertyName, value1);
     update(propertyName, value2);
     const snapshot = persistSnapshotAndLoad();
@@ -313,21 +323,14 @@ describe("deserializing snapshots", () => {
     expect(retrieve(propertyName)).toEqual(value2);
   };
 
-  it("deserializes custom string properties", () =>
-    customStateTest("fruit", "apple"));
-  it("deserializes custom number properties", () =>
-    customStateTest("maths", 3));
-  it("deserializes custom array properties", () =>
-    customStateTest("list", ["a", 2, ["c"]]));
-  it("deserializes custom object properties", () =>
-    customStateTest("thing", { cat: "dog", bat: 4 }));
+  it("deserializes custom string properties", () => customStateTest("fruit", "apple"));
+  it("deserializes custom number properties", () => customStateTest("maths", 3));
+  it("deserializes custom array properties", () => customStateTest("list", ["a", 2, ["c"]]));
+  it("deserializes custom object properties", () => customStateTest("thing", { cat: "dog", bat: 4 }));
 
-  it("deserializes updated custom string properties", () =>
-    updateCustomStateTest("animal", "badger", "tortoise"));
-  it("deserializes updated custom number properties", () =>
-    updateCustomStateTest("maths", 3, 5));
-  it("deserializes updated custom array properties", () =>
-    updateCustomStateTest("list", ["a", 2, ["c"]], ["c", 3]));
+  it("deserializes updated custom string properties", () => updateCustomStateTest("animal", "badger", "tortoise"));
+  it("deserializes updated custom number properties", () => updateCustomStateTest("maths", 3, 5));
+  it("deserializes updated custom array properties", () => updateCustomStateTest("list", ["a", 2, ["c"]], ["c", 3]));
   it("deserializes updated custom object properties", () =>
     updateCustomStateTest("thing", { cat: "dog", bat: 4 }, { bird: "goose" }));
 
@@ -343,9 +346,7 @@ describe("deserializing snapshots", () => {
   it("moves moved items to their new containers", () => {
     moveItem(vase, otherRoom);
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find(
-      (item) => item.name === "vase"
-    );
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
     expect(Object.is(revivedVase.container, otherRoom)).toBe(true);
     expect(room.items.vase).toBeUndefined();
     expect(otherRoom.items.vase).toBeDefined();
@@ -355,9 +356,7 @@ describe("deserializing snapshots", () => {
     vase.set("origin", "egyptian");
     vase.set("circumference", 20);
     const snapshot = persistSnapshotAndLoad();
-    const revivedVase = [...snapshot.allItems].find(
-      (item) => item.name === "vase"
-    );
+    const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
     expect(revivedVase.get("origin")).toBe("egyptian");
     expect(revivedVase.get("circumference")).toBe(20);
 
@@ -368,9 +367,7 @@ describe("deserializing snapshots", () => {
   it("revives option graphs to their previous state", () => {
     optionGraph._recordCurrentNode(optionGraph.getNode("node1"));
     const snapshot = persistSnapshotAndLoad();
-    expect(snapshot.optionGraphs.test99).toBeInstanceOf<typeof OptionGraph>(
-      OptionGraph
-    );
+    expect(snapshot.optionGraphs.test99).toBeInstanceOf<typeof OptionGraph>(OptionGraph);
     expect(snapshot.optionGraphs.test99.currentNode.id).toBe("node1");
   });
 
@@ -382,18 +379,14 @@ describe("deserializing snapshots", () => {
   });
 
   it("handles a persisted option graph that's not in current state", () => {
-    const grapho = new OptionGraph.Builder("grapho")
-      .withNodes(new OptionGraph.NodeBuilder("n1").build())
-      .build();
+    const grapho = new OptionGraph.Builder("grapho").withNodes(new OptionGraph.NodeBuilder("n1").build()).build();
     grapho.persist = true;
     grapho._recordCurrentNode(grapho.getNode("n1"));
 
     persistor.persistSnapshot();
 
     // Check the new OptionGraph was persisted as expected.
-    expect(
-      JSON.parse(mockStorage[persistor.key]).optionGraphs.grapho.currentNode
-    ).toBe("n1");
+    expect(JSON.parse(mockStorage[persistor.key]).optionGraphs.grapho.currentNode).toBe("n1");
 
     // Reset everything to simulate starting a new session.
     setUpStoreTests();
@@ -403,5 +396,56 @@ describe("deserializing snapshots", () => {
 
     // Check the new OptionGraph wasn't deserialised because it's not also in state.
     expect(loadedSnapshot.optionGraphs.grapho).toBeUndefined();
+  });
+
+  it("revives events", () => {
+    testEvent.countdown = 9;
+    testEvent.state = "TEXAS";
+    const snapshot = persistSnapshotAndLoad();
+    expect(snapshot.events[0].countdown).toBe(9);
+    expect(snapshot.events[0].state).toBe("TEXAS");
+  });
+
+  it("leaves event countdown as undefined if necessary", () => {
+    testEvent.state = "WISCONSIN";
+    testEvent.countdown = undefined;
+    const snapshot = persistSnapshotAndLoad();
+    expect(snapshot.events[0].countdown).toBeUndefined();
+    expect(snapshot.events[0].state).toBe("WISCONSIN");
+  });
+
+  it("revives schedules", () => {
+    testSchedule.stage = 72;
+    testSchedule.state = "WYOMING";
+    const snapshot = persistSnapshotAndLoad();
+    expect(snapshot.schedules[0].stage).toBe(72);
+    expect(snapshot.schedules[0].state).toBe("WYOMING");
+  });
+
+  describe("event timeouts", () => {
+    let snapshot: RevivedSnapshot;
+
+    afterEach(() => {
+      testEvent.cancel();
+      snapshot?.events[0]?.cancel();
+    });
+
+    it("gives a revived event a new timeout ID", () => {
+      testEvent.timeoutType = TIMEOUT_MILLIS;
+      testEvent.timeout = 10000; // Long enough not to complete.
+      testEvent.commence();
+
+      const timeoutIdBefore = testEvent.timeoutId;
+      snapshot = persistSnapshotAndLoad(() => {
+        testEvent.timeoutType = TIMEOUT_MILLIS;
+        testEvent.timeout = 10000;
+      });
+      snapshot.events[0].tick();
+      const timeoutIdAfter = snapshot.events[0].timeoutId;
+
+      expect(timeoutIdBefore).toBeDefined();
+      expect(timeoutIdAfter).toBeDefined();
+      expect(timeoutIdAfter).not.toEqual(timeoutIdBefore);
+    });
   });
 });

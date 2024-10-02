@@ -3,7 +3,7 @@ import gameReducer from "./reducers";
 import { registerStore } from "./storeRegistry";
 import thunk from "redux-thunk";
 import { SnapshotPersistor } from "./snapshotPersistor";
-import { selectAllItems, selectOptionGraphs, selectRooms } from "../utils/selectors";
+import { selectAllItems, selectEvents, selectOptionGraphs, selectRooms, selectSchedules } from "../utils/selectors";
 import { moveItem } from "../utils/itemFunctions";
 import {
   CyclicText,
@@ -17,6 +17,8 @@ import {
 } from "../game/interactions/text";
 import type { Room } from "../game/items/room";
 import type { Item } from "../game/items/item";
+import { STATE_READY } from "../game/events/schedule";
+import { DORMANT } from "../game/events/event";
 
 const isSerializedItem = (arg?: Serialized): arg is SerializedItem => {
   return Boolean(arg?.hasOwnProperty("isItem"));
@@ -29,9 +31,9 @@ const isSerializedText = (arg?: Serialized): arg is SerializedText => {
 export const initStore = (name?: string) => {
   const store = createStore(gameReducer, applyMiddleware(thunk));
   const persistor = new SnapshotPersistor(store, {
-    version: 8,
+    version: 9,
     name,
-    whitelist: ["turn", "itemNames", "room", "allItems", "customState", "optionGraphs"],
+    whitelist: ["turn", "itemNames", "room", "allItems", "customState", "optionGraphs", "schedules", "events"],
     serializers: {
       itemNames: (value: Set<string>) => [...value],
       room: (room: Room) => room?.name.toLowerCase(),
@@ -49,7 +51,29 @@ export const initStore = (name?: string) => {
           }
 
           return acc;
-        }, {} as SerializableOptionGraphDict)
+        }, {} as SerializableOptionGraphDict),
+      schedules: (schedules: ScheduleT[]) =>
+        schedules.reduce((acc, schedule) => {
+          if (schedule.stage > 0 || schedule.state !== STATE_READY) {
+            acc[schedule.id] = {
+              stage: schedule.stage,
+              state: schedule.state
+            };
+          }
+
+          return acc;
+        }, {} as SerializableScheduleDict),
+      events: (events: EventT[]) =>
+        events.reduce((acc, event) => {
+          if (event.state !== DORMANT || typeof event.countdown !== "undefined") {
+            acc[event.name] = {
+              state: event.state,
+              countdown: event.countdown
+            };
+          }
+
+          return acc;
+        }, {} as SerializableEventDict)
     },
     deserializers: {
       itemNames: (value) => new Set(value as string[]),
@@ -174,6 +198,32 @@ export const initStore = (name?: string) => {
         });
 
         return stateOptionGraphs;
+      },
+      schedules: (snapshotSchedules) => {
+        const stateSchedules = [...selectSchedules()];
+        stateSchedules.forEach((stateSchedule) => {
+          const snapshotSchedule = (snapshotSchedules as SerializableScheduleDict)[stateSchedule.id];
+
+          if (snapshotSchedule) {
+            stateSchedule.stage = snapshotSchedule.stage;
+            stateSchedule.state = snapshotSchedule.state;
+          }
+        });
+
+        return stateSchedules;
+      },
+      events: (snapshotEvents) => {
+        const stateEvents = [...selectEvents()];
+        stateEvents.forEach((stateEvent) => {
+          const snapshotEvent = (snapshotEvents as SerializableEventDict)[stateEvent.name];
+
+          if (snapshotEvent) {
+            stateEvent.state = snapshotEvent.state;
+            stateEvent.countdown = snapshotEvent.countdown;
+          }
+        });
+
+        return stateEvents;
       }
     }
   });

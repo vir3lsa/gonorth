@@ -1,5 +1,5 @@
 import { processEvent } from "../../utils/eventUtils";
-import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event, SUCCEEDED, DORMANT, EventBuilder } from "./event";
+import { Event, SUCCEEDED, EventBuilder } from "./event";
 
 export class ScheduleBuilder {
   id: string;
@@ -52,7 +52,7 @@ export class ScheduleBuilder {
   }
 }
 
-const STATE_READY = "READY";
+export const STATE_READY = "READY";
 export const STATE_RUNNING = "RUNNING";
 const STATE_COMPLETED = "COMPLETED";
 

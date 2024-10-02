@@ -140,6 +140,24 @@ interface SerializableOptionGraphDict {
   [name: string]: SerializableOptionGraph;
 }
 
+interface SerializableSchedule {
+  stage: number;
+  state: string;
+}
+
+interface SerializableScheduleDict {
+  [id: string]: SerializableSchedule;
+}
+
+interface SerializableEvent {
+  state: string;
+  countdown?: number;
+}
+
+interface SerializableEventDict {
+  [id: string]: SerializableEvent;
+}
+
 interface StoreState {
   turn: number;
   debugMode: boolean;

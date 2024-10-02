@@ -2,6 +2,7 @@
 
 # Unreleased
 
+* 2024-10-02 Events and Schedules stored in save game state.
 * 2024-09-24 Schedules may have conditions or be triggered manually. Schedules require IDs.
 * 2024-09-24 Route extends Schedule and schedules are stored in Redux state.
 * 2024-09-23 Schedule events may have their own conditions.

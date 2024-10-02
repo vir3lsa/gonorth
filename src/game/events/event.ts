@@ -5,7 +5,6 @@ import {
   selectEventTurnsOverride,
   selectOptions
 } from "../../utils/selectors";
-import { normaliseTest } from "../../utils/sharedFunctions";
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
@@ -115,12 +114,15 @@ export class Event {
   }
 
   tick() {
-    if (typeof this.countdown !== "undefined") {
+    if (this.timeoutType === TIMEOUT_TURNS && typeof this.countdown !== "undefined") {
       this.countdown--;
 
       if (this.countdown <= 0) {
         return this.trigger();
       }
+    } else if (this.timeoutType === TIMEOUT_MILLIS && !this.timeoutId) {
+      // Event has likely been revived from storage and needs a new timer.
+      this.commence();
     }
   }
 
