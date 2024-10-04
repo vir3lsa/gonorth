@@ -18,6 +18,8 @@ import { moveItem } from "../utils/itemFunctions";
 import { changeRoom, loadSnapshot, recordChanges } from "./gameActions";
 import { getPersistor, getStore, unregisterStore } from "./storeRegistry";
 import { SequentialText, RandomText, ManagedText } from "../game/interactions/text";
+import { processEvent } from "../utils/eventUtils";
+import { STATE_RUNNING } from "../game/events/schedule";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -53,9 +55,13 @@ const setUpStoreTests = (additionalSetup?: () => void) => {
   testEvent.state = "TEST_STATE";
   addEvent(testEvent);
 
-  testSchedule = new Schedule.Builder("testSchedule").build();
+  testSchedule = new Schedule.Builder("testSchedule")
+    .addEvents(new Event.Builder(), new Event.Builder(), new Event.Builder(), new Event.Builder())
+    .build();
   testSchedule.stage = 3;
   testSchedule.state = "TEST_STATE";
+  testSchedule.currentEvent.state = "TEST_STATE_2";
+  testSchedule.currentEvent.countdown = 5;
   addSchedule(testSchedule);
 
   goToRoom(room);
@@ -415,11 +421,12 @@ describe("deserializing snapshots", () => {
   });
 
   it("revives schedules", () => {
-    testSchedule.stage = 72;
     testSchedule.state = "WYOMING";
     const snapshot = persistSnapshotAndLoad();
-    expect(snapshot.schedules[0].stage).toBe(72);
+    expect(snapshot.schedules[0].stage).toBe(3);
     expect(snapshot.schedules[0].state).toBe("WYOMING");
+    expect(snapshot.schedules[0].currentEvent.state).toBe("TEST_STATE_2");
+    expect(snapshot.schedules[0].currentEvent.countdown).toBe(5);
   });
 
   describe("event timeouts", () => {
@@ -430,7 +437,7 @@ describe("deserializing snapshots", () => {
       snapshot?.events[0]?.cancel();
     });
 
-    it("gives a revived event a new timeout ID", () => {
+    it("gives a revived event a new timeout ID", async () => {
       testEvent.timeoutType = TIMEOUT_MILLIS;
       testEvent.timeout = 10000; // Long enough not to complete.
       testEvent.commence();
@@ -440,8 +447,33 @@ describe("deserializing snapshots", () => {
         testEvent.timeoutType = TIMEOUT_MILLIS;
         testEvent.timeout = 10000;
       });
-      snapshot.events[0].tick();
+
+      // When the event next ticks the timer restarts.
+      await handleTurnEnd();
       const timeoutIdAfter = snapshot.events[0].timeoutId;
+
+      expect(timeoutIdBefore).toBeDefined();
+      expect(timeoutIdAfter).toBeDefined();
+      expect(timeoutIdAfter).not.toEqual(timeoutIdBefore);
+    });
+
+    it("gives a revived schedule event a new timeout ID", async () => {
+      testSchedule.state = STATE_RUNNING;
+      const event = testSchedule.currentEvent;
+      event.timeoutType = TIMEOUT_MILLIS;
+      event.timeout = 10000; // Long enough not to complete.
+      event.commence();
+
+      const timeoutIdBefore = event.timeoutId;
+      snapshot = persistSnapshotAndLoad(() => {
+        const newEvent = testSchedule.currentEvent;
+        newEvent.timeoutType = TIMEOUT_MILLIS;
+        newEvent.timeout = 10000;
+      });
+
+      // When the event next ticks the timer restarts.
+      await handleTurnEnd();
+      const timeoutIdAfter = snapshot.schedules[0].currentEvent.timeoutId;
 
       expect(timeoutIdBefore).toBeDefined();
       expect(timeoutIdAfter).toBeDefined();

@@ -143,6 +143,7 @@ interface SerializableOptionGraphDict {
 interface SerializableSchedule {
   stage: number;
   state: string;
+  currentEvent: SerializableEvent;
 }
 
 interface SerializableScheduleDict {

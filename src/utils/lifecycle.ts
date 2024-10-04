@@ -36,7 +36,7 @@ export async function handleTurnEnd() {
     }
 
     if (schedule.state === STATE_RUNNING) {
-      await processEvent(selectSchedules()[i].currentEvent);
+      await processEvent(schedule.currentEvent);
     }
   }
 

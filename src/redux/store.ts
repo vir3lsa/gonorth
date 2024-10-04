@@ -57,7 +57,11 @@ export const initStore = (name?: string) => {
           if (schedule.stage > 0 || schedule.state !== STATE_READY) {
             acc[schedule.id] = {
               stage: schedule.stage,
-              state: schedule.state
+              state: schedule.state,
+              currentEvent: {
+                state: schedule.currentEvent.state,
+                countdown: schedule.currentEvent.countdown
+              }
             };
           }
 
@@ -207,6 +211,8 @@ export const initStore = (name?: string) => {
           if (snapshotSchedule) {
             stateSchedule.stage = snapshotSchedule.stage;
             stateSchedule.state = snapshotSchedule.state;
+            stateSchedule.currentEvent.state = snapshotSchedule.currentEvent.state;
+            stateSchedule.currentEvent.countdown = snapshotSchedule.currentEvent.countdown;
           }
         });
 
