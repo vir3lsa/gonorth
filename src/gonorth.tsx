@@ -37,7 +37,8 @@ import { moveItem, getItem as getUniqueItem } from "./utils/itemFunctions";
 import { newDoor } from "./game/items/door";
 import { newContainer } from "./game/items/container";
 import { newItem } from "./game/items/item";
-import { TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
+import { EventBuilder, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
+import { ScheduleBuilder } from "./game/events/schedule";
 
 const RESUME_HINTS = "RESUME_HINTS";
 const HINT_NODE = "HINT_NODE";
@@ -121,11 +122,13 @@ function getRoom() {
   return selectRoom();
 }
 
-function addEvent(event: EventT) {
+function addEvent(eventOrBuilder: EventT | EventBuilder) {
+  const event = eventOrBuilder instanceof EventBuilder ? eventOrBuilder.build() : eventOrBuilder;
   getStore().dispatch(eventAdded(event));
 }
 
-function addSchedule(schedule: ScheduleT | RouteT) {
+function addSchedule(scheduleOrBuilder: ScheduleT | ScheduleBuilder) {
+  const schedule = scheduleOrBuilder instanceof ScheduleBuilder ? scheduleOrBuilder.build() : scheduleOrBuilder;
   getStore().dispatch(scheduleAdded(schedule));
 }
 

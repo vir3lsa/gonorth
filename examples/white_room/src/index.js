@@ -21,7 +21,10 @@ import {
   setHintNodeId,
   OptionGraph,
   gameOver,
-  Door
+  Door,
+  addSchedule,
+  Schedule,
+  playerHasItem
 } from "../../../lib/src/gonorth";
 import "./index.css";
 import whiteRoomImage from "./whiteRoom.gif";
@@ -142,12 +145,31 @@ function setUp() {
       laserHoleEvent.commence();
       return "There's a loud *bang* and a thin line of blinding white light briefly emits from the nozzle of the device.";
     })
-    .withTimeout(10000)
+    .withCondition(false)
+    .withTimeout(1000)
     .withTimeoutType(TIMEOUT_MILLIS)
     .isRecurring()
     .build();
 
   addEvent(laserHoleEvent);
+  addEvent(fireEvent);
+
+  const cursedDoll = new Item.Builder("doll").isHoldable().isDoNotList();
+
+  addSchedule(
+    new Schedule.Builder("weirdness")
+      .withCondition(() => playerHasItem("doll"))
+      .addEvent(
+        new Event.Builder()
+          .withDelay(2, TIMEOUT_TURNS)
+          .withAction("A strange sound behind you makes the hairs on your neck stand on end.")
+      )
+      .addEvent(
+        new Event.Builder()
+          .withDelay(1500, TIMEOUT_MILLIS)
+          .withAction("The lights blink. It was pitch black for the briefest moment.")
+      )
+  );
 
   strangeDevice.addVerb(
     new Verb.Builder("fire").withOnSuccess(() => fireEvent.commence(), "You pull the trigger. Nothing happens.").build()
@@ -211,7 +233,7 @@ function setUp() {
     .build();
   whiteRoom.addVerb(new Verb.Builder("shout").withOnSuccess(() => shoutGraph.commence()).build());
 
-  whiteRoom.addItems(strangeDevice, redButton, greenButton, table, apple, orange, largeObject);
+  whiteRoom.addItems(strangeDevice, redButton, greenButton, table, apple, orange, largeObject, cursedDoll);
   setInventoryCapacity(10);
   setStartingRoom(whiteRoom);
 

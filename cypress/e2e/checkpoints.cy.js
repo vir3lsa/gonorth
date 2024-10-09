@@ -84,4 +84,20 @@ describe("basic checkpoint tests", () => {
     cy.choose("Reload Checkpoint");
     cy.choose("Next", "blood red", { global: true });
   });
+
+  it("Saves event and schedule state", () => {
+    cy.say("take device");
+    cy.say("take doll"); // Countdown of 2 turns begins.
+    cy.say("fire device"); // Start 1 second timer for fire event.
+    cy.say("x");
+    cy.reloadGame();
+    cy.shows("blinding white light", "strange sound behind you"); // Device fires, First schedule event triggers, next timer begins.
+    cy.say("x");
+    cy.reloadGame();
+    cy.shows("The lights blink"); // Second schedule event triggers.
+    cy.say("x device");
+    cy.say("x device");
+    cy.say("x device");
+    cy.say("x device", "a hole appears");
+  });
 });

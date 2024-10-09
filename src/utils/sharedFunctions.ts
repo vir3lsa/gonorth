@@ -1,5 +1,5 @@
 import { AnyAction } from "redux";
-import { selectConfig, selectInventory, selectLastChange, selectPlayer, selectRoom } from "./selectors";
+import { selectConfig, selectInventory, selectItem, selectLastChange, selectPlayer, selectRoom } from "./selectors";
 import type { Item } from "../game/items/item";
 import { getStore } from "../redux/storeRegistry";
 import { changeInteraction } from "../redux/gameActions";
@@ -42,18 +42,24 @@ export function inSameRoomAs(item: Item) {
   return room === itemRoom;
 }
 
-/*
+/**
  * Returns true if the player has room in her inventory for the item.
+ * @param itemOrName The name or alias of the item, or the item itself.
+ * @param index (Optional) The index of the item if there are multiple items with the provided alias. Defaults to 0.
  */
-export function playerCanCarry(item: Item) {
+export function playerCanCarry(itemOrName: Item | string, index = 0) {
+  const item = typeof itemOrName === "string" ? [...selectItem(itemOrName)][index] : itemOrName;
   const inventory = selectInventory();
   return (inventory.capacity === -1 || inventory.free >= item.size) && !inventory.items[item.name.toLowerCase()];
 }
 
-/*
+/**
  * Returns true if the player is carrying the item.
+ * @param itemOrName The name or alias of the item, or the item itself.
+ * @param index (Optional) The index of the item if there are multiple items with the provided alias. Defaults to 0.
  */
-export function playerHasItem(item: Item) {
+export function playerHasItem(itemOrName: Item | string, index = 0) {
+  const item = typeof itemOrName === "string" ? [...selectItem(itemOrName)][index] : itemOrName;
   const inventory = selectInventory();
   return inventory.items.hasOwnProperty(item.name.toLowerCase());
 }
