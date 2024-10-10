@@ -104,7 +104,11 @@ export class Event {
     if (this.timeout) {
       if (this.timeoutType === TIMEOUT_MILLIS) {
         this.timeoutId = setTimeout(() => this.trigger(), timeout);
-        this.timeoutId.unref(); // Allow process to exit even when timer is still running.
+
+        if (typeof process === "object") {
+          // We're running in NodeJS
+          this.timeoutId.unref(); // Allow process to exit even when timer is still running (useful for tests).
+        }
       } else {
         this.countdown = timeout;
       }
