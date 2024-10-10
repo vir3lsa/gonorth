@@ -172,7 +172,12 @@ function setUp() {
   );
 
   strangeDevice.addVerb(
-    new Verb.Builder("fire").withOnSuccess(() => fireEvent.commence(), "You pull the trigger. Nothing happens.").build()
+    new Verb.Builder("fire")
+      .withOnSuccess(() => {
+        fireEvent.reset();
+        fireEvent.commence();
+      }, "You pull the trigger. Nothing happens.")
+      .build()
   );
 
   strangeDevice.addVerb(

@@ -18,7 +18,6 @@ import { moveItem } from "../utils/itemFunctions";
 import { changeRoom, loadSnapshot, recordChanges } from "./gameActions";
 import { getPersistor, getStore, unregisterStore } from "./storeRegistry";
 import { SequentialText, RandomText, ManagedText } from "../game/interactions/text";
-import { processEvent } from "../utils/eventUtils";
 import { STATE_RUNNING } from "../game/events/schedule";
 
 jest.mock("../utils/consoleIO");
@@ -435,6 +434,8 @@ describe("deserializing snapshots", () => {
     afterEach(() => {
       testEvent.cancel();
       snapshot?.events[0]?.cancel();
+      testSchedule.cancel();
+      snapshot?.schedules[0].cancel();
     });
 
     it("gives a revived event a new timeout ID", async () => {
