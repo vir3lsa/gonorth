@@ -20,7 +20,7 @@ export const DecisionBar = ({ options }: Props) => {
 
   // Focus the first option, or the already focused one.
   useEffect(() => {
-    const indexToFocus = focusedIndex > -1 ? focusedIndex : 0;
+    const indexToFocus = focusedIndex > -1 && actionRefs.current.length > focusedIndex ? focusedIndex : 0;
     actionRefs.current[indexToFocus]?.focusVisible();
   });
 

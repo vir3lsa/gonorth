@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-# Unreleased
+# 7.0.0
 
+* 2024-10-11 Fixed bug where option buttons lost focus when the number of buttons shrank.
 * 2024-10-02 Events and Schedules stored in save game state.
 * 2024-09-24 Schedules may have conditions or be triggered manually. Schedules require IDs.
 * 2024-09-24 Route extends Schedule and schedules are stored in Redux state.
