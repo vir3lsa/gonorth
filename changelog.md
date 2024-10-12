@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2024-10-12 Keywords use builders, addKeyword accepts a builder, VerbBuilder has doNotList() method.
+
 # 7.0.0
 
 * 2024-10-11 Fixed bug where option buttons lost focus when the number of buttons shrank.

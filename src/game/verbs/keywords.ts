@@ -1,4 +1,4 @@
-import { Verb, newVerb } from "./verb";
+import { Verb, newVerb, Builder as VerbBuilder } from "./verb";
 import { selectInventory, selectKeywords } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
 import { getHelp, giveHint } from "../../gonorth";
@@ -17,10 +17,8 @@ export function createKeywords() {
     "Your hands are empty."
   );
 
-  const inventoryVerb = new Verb(
-    "inventory",
-    true,
-    () => {
+  const inventoryVerb = new Verb.Builder("inventory")
+    .withOnSuccess(() => {
       const inventory = selectInventory();
 
       if (!inventory.itemArray.filter((item) => !item.doNotList).length) {
@@ -28,64 +26,47 @@ export function createKeywords() {
       }
 
       return `You're carrying ${inventory.basicItemList}.`;
-    },
-    null,
-    ["i", "holding", "carrying"],
-    true,
-    "Inspect the items you're carrying."
-  );
+    })
+    .withAliases("i", "holding", "carrying")
+    .isKeyword()
+    .withDescription("Inspect the items you're carrying.");
 
   const waitGraph = createWaitGraph();
-  const wait = new Verb("wait", true, () => waitGraph.commence(), [], [], true, "Allow time to pass.");
+  const wait = new Verb.Builder("wait")
+    .withOnSuccess(() => waitGraph.commence())
+    .isKeyword()
+    .withDescription("Allow time to pass.");
 
-  const help = new Verb(
-    "help",
-    true,
-    getHelp(),
-    null,
-    ["assist", "h", "instructions", "instruct", "welcome"],
-    true,
-    "Display help pages."
-  );
+  const help = new Verb.Builder("help")
+    .withOnSuccess(getHelp())
+    .withAliases("assist", "h", "instructions", "instruct", "welcome")
+    .isKeyword()
+    .withDescription("Display help pages.");
 
-  const keywordsVerb = new Verb(
-    "keywords",
-    true,
-    () => getKeywordsTable(),
-    null,
-    ["keyword", "key word", "key words"],
-    true,
-    "Display keywords list."
-  );
+  const keywordsVerb = new Verb.Builder("keywords")
+    .withOnSuccess(() => getKeywordsTable())
+    .withAliases("keyword", "key word", "key words")
+    .isKeyword()
+    .withDescription("Display keywords list.");
 
-  const hint = new Verb(
-    "hint",
-    true,
-    () => giveHint(),
-    null,
-    ["hints", "clue", "clues"],
-    true,
-    "Get a hint on how to proceed."
-  );
+  const hint = new Verb.Builder("hint")
+    .withOnSuccess(() => giveHint())
+    .withAliases("hints", "clue", "clues")
+    .isKeyword()
+    .withDescription("Get a hint on how to proceed.");
 
-  const clear = new Verb(
-    "clear",
-    true,
-    () => clearPage("###### `>` clear"),
-    null,
-    ["clr"],
-    true,
-    "Start a fresh page."
-  );
+  const clear = new Verb.Builder("clear")
+    .withOnSuccess(() => clearPage("###### `>` clear"))
+    .withAliases("clr")
+    .isKeyword()
+    .withDescription("Start a fresh page.");
 
-  const debug = newVerb({
-    name: "debug",
-    onSuccess: ({ operation, args }) => handleDebugOperations(operation as string, ...(args as string[])),
-    isKeyword: true,
-    doNotList: true,
-    expectsArgs: true,
-    expectedArgs: ["operation", "args"]
-  });
+  const debug = new Verb.Builder("debug")
+    .withOnSuccess(({ operation, args }) => handleDebugOperations(operation as string, ...(args as string[])))
+    .isKeyword()
+    .doNotList()
+    .expectsArgs()
+    .withExpectedArgs("operation", "args");
 
   const hideScene = new Verb.Builder("hide scene")
     .withDescription("Hide the scene image.")
@@ -93,8 +74,7 @@ export function createKeywords() {
     .isKeyword()
     .withOnSuccess(() => {
       getStore().dispatch(revealScene(false));
-    })
-    .build();
+    });
 
   const showScene = new Verb.Builder("show scene")
     .withDescription("Reveal the scene image.")
@@ -102,8 +82,7 @@ export function createKeywords() {
     .isKeyword()
     .withOnSuccess(() => {
       getStore().dispatch(revealScene(true));
-    })
-    .build();
+    });
 
   addKeyword(inventoryVerb);
   addKeyword(wait);
@@ -116,7 +95,8 @@ export function createKeywords() {
   addKeyword(showScene);
 }
 
-export function addKeyword(keyword: VerbT) {
+export function addKeyword(keywordOrBuilder: VerbT | VerbBuilder) {
+  const keyword = keywordOrBuilder instanceof VerbBuilder ? keywordOrBuilder.build() : keywordOrBuilder;
   const keywordMap = keyword.aliases.reduce(
     (acc, alias) => {
       acc[alias] = keyword;

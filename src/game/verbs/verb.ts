@@ -401,6 +401,11 @@ export class Builder {
     return this;
   }
 
+  doNotList(doNotList = true) {
+    this.config.doNotList = doNotList;
+    return this;
+  }
+
   build() {
     return newVerb(this.config);
   }
