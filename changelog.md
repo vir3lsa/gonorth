@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-# Unreleased
+# 8.0.0
 
+* 2024-10-15 Fixed bug where triggered Events could carry over into new games
 * 2024-10-15 Breaking change: Events may only be constructed with Builders, Events may have additional trigger conditions, OptionsGraphs indicate when they're running.
 * 2024-10-12 Keywords use builders, addKeyword accepts a builder, VerbBuilder has doNotList() method.
 

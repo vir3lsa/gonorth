@@ -135,12 +135,17 @@ export function play() {
         options: {
           play: {
             condition: () => !saveExists,
-            actions: () => game.introActions.chain(),
+            actions: () => {
+              getStore().dispatch(recordChanges());
+              return game.introActions.chain();
+            },
             exit: true
           },
           continue: {
             condition: () => saveExists,
             actions: () => {
+              getStore().dispatch(recordChanges());
+              loadSave(); // This must be after we start recording changes.
               getStore().dispatch(gameStarted());
               goToRoom(selectRoom()).chain();
             },
@@ -161,6 +166,7 @@ export function play() {
           yes: {
             actions: () => {
               deleteSave();
+              getStore().dispatch(recordChanges());
               game.introActions.chain();
             },
             exit: true
@@ -171,8 +177,6 @@ export function play() {
     )
     .build();
 
-  getStore().dispatch(recordChanges());
-  loadSave(); // This must be after we start recording changes.
   return titleScreenGraph.commence().chain();
 }
 
