@@ -142,7 +142,7 @@ function setUp() {
 
   const fireEvent = new Event.Builder("fire")
     .withAction(() => {
-      laserHoleEvent.commence();
+      laserHoleEvent.startCountdown();
       return "There's a loud *bang* and a thin line of blinding white light briefly emits from the nozzle of the device.";
     })
     .withCondition(false)
@@ -175,7 +175,7 @@ function setUp() {
     new Verb.Builder("fire")
       .withOnSuccess(() => {
         fireEvent.reset();
-        fireEvent.commence();
+        fireEvent.startCountdown();
       }, "You pull the trigger. Nothing happens.")
       .build()
   );

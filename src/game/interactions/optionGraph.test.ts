@@ -186,8 +186,10 @@ test("optionGraph displays options", async () => {
 });
 
 test("optionGraph exits if a node has no options", async () => {
+  expect(optionGraph.isRunning()).toBe(true);
   await selectOptions()[1].action();
   expect(selectOptions()).toBeUndefined();
+  expect(optionGraph.isRunning()).toBe(false);
 });
 
 test("optionGraph displays text two levels deep", async () => {
@@ -245,6 +247,7 @@ test("start node can be set by id", () => {
 test("optionGraph exits if a node attempts a verb but has no options", async () => {
   await selectOptions()[3].action();
   expect(selectOptions()).toBeUndefined();
+  expect(optionGraph.isRunning()).toBe(false);
 });
 
 test("optionGraph repeats nodes by default", async () => {
@@ -357,6 +360,7 @@ test("options can explicitly exit the graph", async () => {
   await createGraph(exitOptionNodes);
   await selectOptions()[0].action();
   expect(selectOptions()).toBeUndefined();
+  expect(graph.isRunning()).toBe(false);
 });
 
 test("options can specify a room to go to", async () => {
@@ -366,6 +370,7 @@ test("options can specify a room to go to", async () => {
   expect(selectOptions()).toBeUndefined();
   expect(selectCurrentPage()).toInclude("turret");
   expect(selectRoom()).toBe(room);
+  expect(graph.isRunning()).toBe(false);
 });
 
 test("options can choose not to perform the actions of linked nodes", async () => {
@@ -411,10 +416,12 @@ test("can be resumed", async () => {
   // Switch node and then exit.
   await selectOptions()[0].action();
   await selectOptions()[3].action();
+  expect(graph.isRunning()).toBe(false);
 
   // Start the OptionGraph again and we should be at the same node.
   clearPage();
   await graph.resume().chain();
+  expect(graph.isRunning()).toBe(true);
   expect(selectCurrentPage()).not.toInclude("hello");
   expect(selectCurrentPage()).toInclude("question");
 });

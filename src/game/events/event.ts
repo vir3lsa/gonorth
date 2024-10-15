@@ -9,44 +9,39 @@ import {
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
 export const DORMANT = "DORMANT";
-export const PENDING = "PENDING";
+export const AWAITING_COUNTDOWN = "AWAITING_COUNTDOWN";
+export const AWAITING_TIMER = "AWAITING_TIMER";
 export const ACTIVE = "ACTIVE";
 export const SUCCEEDED = "SUCCEEDED";
 export const FAILED = "FAILED";
 export const CANCELLED = "CANCELLED";
 
 export class Event {
+  private _action!: ActionChain;
+  private _condition!: Condition;
+  private _triggerCondition!: Condition;
+  private _onComplete!: ActionChain;
   name;
-  _action!: ActionChain;
-  _condition!: Condition;
   timeout;
   timeoutType: TimeoutType;
   executionCount;
   timeoutId?: NodeJS.Timeout;
   state;
-  _onComplete!: ActionChain;
   recurring;
   countdown?: number;
 
-  constructor(
-    name: string,
-    action: Action = [],
-    condition: boolean | Condition = true,
-    timeout = 0,
-    timeoutType: TimeoutType = TIMEOUT_TURNS,
-    onComplete: Action = [],
-    recurring = false
-  ) {
-    this.name = name;
-    this.action = action;
-    this.condition = condition;
-    this.timeout = timeout;
-    this.timeoutType = timeoutType;
+  constructor(builder: EventBuilder) {
+    this.name = builder.name!;
+    this.action = builder.actions;
+    this.condition = builder.condition ?? true;
+    this.triggerCondition = builder.triggerCondition ?? true;
+    this.timeout = builder.timeout;
+    this.timeoutType = builder.timeoutType ?? TIMEOUT_TURNS;
     this.executionCount = 0;
     this.timeoutId = undefined;
     this.state = DORMANT;
-    this.onComplete = onComplete;
-    this.recurring = recurring;
+    this.onComplete = builder.onComplete ?? [];
+    this.recurring = builder.recurring ?? false;
   }
 
   set action(action: Action) {
@@ -72,25 +67,43 @@ export class Event {
   }
 
   set condition(condition: boolean | undefined | Condition) {
+    this._condition = this.normaliseCondition(condition);
+  }
+
+  get triggerCondition(): Condition {
+    return this._triggerCondition;
+  }
+
+  set triggerCondition(condition: boolean | undefined | Condition) {
+    this._triggerCondition = this.normaliseCondition(condition);
+  }
+
+  private normaliseCondition(condition: boolean | undefined | Condition) {
     if (typeof condition === "undefined") {
-      this._condition = () => true;
+      return () => true;
     } else if (typeof condition === "boolean") {
-      this._condition = () => condition;
+      return () => condition;
     } else if (typeof condition === "function") {
-      this._condition = condition;
+      return condition;
     } else {
-      throw Error("Event condition must be boolean or function.");
+      throw Error("Event condition and trigger condition must be boolean or function.");
     }
   }
 
   manualCommence() {
     if (this.state === DORMANT) {
-      this.commence();
+      this.startCountdown();
     }
   }
 
-  commence() {
-    this.state = PENDING;
+  tryStartCountdown() {
+    if (this.condition()) {
+      return this.startCountdown();
+    }
+  }
+
+  startCountdown() {
+    this.state = this.timeoutType === TIMEOUT_TURNS ? AWAITING_COUNTDOWN : AWAITING_TIMER;
     const timeoutOverride = selectEventTimeoutOverride();
     const turnsOverride = selectEventTurnsOverride();
     let timeout = this.timeout;
@@ -103,7 +116,7 @@ export class Event {
 
     if (this.timeout) {
       if (this.timeoutType === TIMEOUT_MILLIS) {
-        this.timeoutId = setTimeout(() => this.trigger(), timeout);
+        this.timeoutId = setTimeout(() => this.tryTrigger(), timeout);
 
         if (typeof process === "object") {
           // We're running in NodeJS
@@ -114,7 +127,7 @@ export class Event {
       }
     } else {
       // No timeout therefore trigger immediately
-      return this.trigger();
+      return this.tryTrigger();
     }
   }
 
@@ -123,12 +136,29 @@ export class Event {
       this.countdown--;
 
       if (this.countdown <= 0) {
-        return this.trigger();
+        return this.tryTrigger();
       }
-    } else if (this.timeoutType === TIMEOUT_MILLIS && !this.timeoutId) {
-      // Event has likely been revived from storage and needs a new timer.
-      this.commence();
     }
+  }
+
+  private checkTimer() {
+    if (!this.timeoutId) {
+      // Event has likely been revived from storage and needs a new timer.
+      return this.startCountdown();
+    }
+  }
+
+  /**
+   * Check any trigger condition and then trigger the Event. If the trigger condition isn't
+   * met, the Event is reset and the countdown must be restarted.
+   * @returns Promise or undefined
+   */
+  tryTrigger() {
+    if (this.triggerCondition && !this.triggerCondition()) {
+      return this.reset();
+    }
+
+    return this.trigger();
   }
 
   async trigger() {
@@ -170,9 +200,25 @@ export class Event {
 
   reset() {
     this.state = DORMANT;
+    this.countdown = undefined;
 
     if (this.timeoutId) {
       clearTimeout(this.timeoutId);
+      this.timeoutId = undefined;
+    }
+  }
+
+  async lifecycle() {
+    switch (this.state) {
+      case DORMANT:
+        await this.tryStartCountdown();
+        break;
+      case AWAITING_COUNTDOWN:
+        await this.tick();
+        break;
+      case AWAITING_TIMER:
+        await this.checkTimer();
+        break;
     }
   }
 
@@ -185,6 +231,7 @@ export class EventBuilder {
   name;
   actions?: Action[];
   condition: boolean | Condition = true;
+  triggerCondition: boolean | Condition = true;
   timeout?: number;
   timeoutType?: TimeoutType;
   onComplete?: Action[];
@@ -218,6 +265,11 @@ export class EventBuilder {
 
   withCondition(condition: boolean | Condition) {
     this.condition = condition;
+    return this;
+  }
+
+  withTriggerCondition(condition: boolean | Condition) {
+    this.triggerCondition = condition;
     return this;
   }
 
@@ -256,14 +308,6 @@ export class EventBuilder {
       throw Error("Must provide a name for each Event.");
     }
 
-    return new Event(
-      this.name,
-      this.actions,
-      this.condition,
-      this.timeout,
-      this.timeoutType,
-      this.onComplete,
-      this.recurring
-    );
+    return new Event(this);
   }
 }

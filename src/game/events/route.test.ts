@@ -66,15 +66,15 @@ test("routes can be built", () => {
 
 test("NPCs can follow routes", async () => {
   createRoute(gran, true, false, undefined, "s", "e", "n", "w");
-  expect(gran.container).toBe(nw);
+  expect(gran.container?.name).toBe(nw.name);
   await handleTurnEnd();
-  expect(gran.container).toBe(sw);
+  expect(gran.container?.name).toBe(sw.name);
   await handleTurnEnd();
-  expect(gran.container).toBe(se);
+  expect(gran.container?.name).toBe(se.name);
   await handleTurnEnd();
-  expect(gran.container).toBe(ne);
+  expect(gran.container?.name).toBe(ne.name);
   await handleTurnEnd();
-  expect(gran.container).toBe(nw);
+  expect(gran.container?.name).toBe(nw.name);
 });
 
 test("Movement can produce text", async () => {

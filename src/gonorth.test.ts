@@ -14,7 +14,7 @@ import { Item } from "./game/items/item";
 import { Room } from "./game/items/room";
 import { ActionChain } from "./utils/actionChain";
 import { Verb } from "./game/verbs/verb";
-import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event } from "./game/events/event";
+import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event, EventBuilder } from "./game/events/event";
 import { handleTurnEnd } from "./utils/lifecycle";
 import { Parser } from "./game/input/parser";
 import { selectInventory, selectRoom, selectTurn } from "./utils/selectors";
@@ -29,7 +29,8 @@ const consoleIO = require("./utils/consoleIO");
 
 let game, x: number, y: number, room: Room;
 
-const eventTest = async (event: Event, expectation: () => boolean) => {
+const eventTest = async (builder: EventBuilder, expectation: () => boolean) => {
+  const event = builder.build();
   addEvent(event);
   await handleTurnEnd();
   expect(expectation()).toBeTruthy();
@@ -91,44 +92,50 @@ describe("Game class", () => {
 
   describe("events", () => {
     it("triggers events with no condition and no timeout immediately", () => {
-      eventTest(new Event("", () => x++), () => x === 1);
+      eventTest(
+        new Event.Builder("1").withAction(() => x++),
+        () => x === 1
+      );
     });
 
     it("triggers events with no timeout when the condition is met", () => {
       x = 10;
       eventTest(
-        new Event(
-          "",
-          () => x++,
-          () => x === 10
-        ),
+        new Event.Builder("2").withAction(() => x++).withCondition(() => x === 10),
         () => x === 11
       );
     });
 
     it("does not trigger events when the condition is not met", () => {
       eventTest(
-        new Event(
-          "",
-          () => x++,
-          () => x === 10
-        ),
+        new Event.Builder("3").withAction(() => x++).withCondition(() => x === 10),
         () => x === 0
       );
     });
 
     it("does not trigger timed events immediately", () => {
-      const event = new Event("", () => x++, true, 1000, TIMEOUT_MILLIS);
+      const event = new Event.Builder("4")
+        .withAction(() => x++)
+        .withTimeout(1000)
+        .withTimeoutType(TIMEOUT_MILLIS);
       eventTest(event, () => x === 0);
     });
 
     it("does not trigger count down events immediately", () => {
-      const event = new Event("", () => x++, true, 5, TIMEOUT_TURNS);
+      const event = new Event.Builder("5")
+        .withAction(() => x++)
+        .withTimeout(5)
+        .withTimeoutType(TIMEOUT_TURNS);
       eventTest(event, () => x === 0);
     });
 
     it("triggers timed events after the timeout has passed", () => {
-      addEvent(new Event("", () => x++, true, 10, TIMEOUT_MILLIS));
+      addEvent(
+        new Event.Builder("6")
+          .withAction(() => x++)
+          .withTimeout(10)
+          .withTimeoutType(TIMEOUT_MILLIS)
+      );
       handleTurnEnd();
       return new Promise<void>((resolve) =>
         setTimeout(() => {
@@ -139,7 +146,12 @@ describe("Game class", () => {
     });
 
     it("triggers count down events after the required turns have passed", async () => {
-      addEvent(new Event("", () => x++, true, 2, TIMEOUT_TURNS));
+      addEvent(
+        new Event.Builder("7")
+          .withAction(() => x++)
+          .withTimeout(2)
+          .withTimeoutType(TIMEOUT_TURNS)
+      );
       await handleTurnEnd();
       await handleTurnEnd();
       await handleTurnEnd();
@@ -147,14 +159,20 @@ describe("Game class", () => {
     });
 
     it("chains events", () => {
-      const event = new Event("", [() => x++, () => y++]);
+      const event = new Event.Builder("8").withActions(
+        () => x++,
+        () => y++
+      );
       eventTest(event, () => x === 1 && y === 1);
     });
 
     it("waits for a chain to finish before triggering", async () => {
       let eventPromise = Promise.resolve();
       setTimeout(() => {
-        eventPromise = new Event("", () => x++).trigger();
+        eventPromise = new Event.Builder("9")
+          .withAction(() => x++)
+          .build()
+          .trigger();
         expect(x).toBe(0);
         clickNext();
       });
@@ -168,8 +186,14 @@ describe("Game class", () => {
       let p2 = Promise.resolve();
       x = 1;
       setTimeout(() => {
-        p1 = new Event("", () => x++).trigger();
-        p2 = new Event("", () => (x *= 3)).trigger();
+        p1 = new Event.Builder("11")
+          .withAction(() => x++)
+          .build()
+          .trigger();
+        p2 = new Event.Builder("22")
+          .withAction(() => (x *= 3))
+          .build()
+          .trigger();
         expect(x).toBe(1);
         clickNext();
       });
@@ -180,8 +204,7 @@ describe("Game class", () => {
     });
 
     it("calls onComplete when the event completes", async () => {
-      const event = new Event("", () => x++);
-      event.onComplete = async () => x++;
+      const event = new Event.Builder("33").withAction(() => x++).withOnComplete(async () => x++);
       addEvent(event);
       await handleTurnEnd();
       expect(x).toBe(2);

@@ -1,4 +1,3 @@
-import { processEvent } from "./eventUtils";
 import { getPersistor, getStore } from "../redux/storeRegistry";
 import { selectConfig, selectEvents, selectGame, selectItem, selectRoom, selectSchedules } from "./selectors";
 import {
@@ -25,7 +24,7 @@ export async function handleTurnEnd() {
   const events = selectEvents();
 
   for (let i in events) {
-    await processEvent(events[i]);
+    await events[i].lifecycle();
   }
 
   for (let i in selectSchedules()) {
@@ -36,7 +35,7 @@ export async function handleTurnEnd() {
     }
 
     if (schedule.state === STATE_RUNNING) {
-      await processEvent(schedule.currentEvent);
+      await schedule.currentEvent.lifecycle();
     }
   }
 

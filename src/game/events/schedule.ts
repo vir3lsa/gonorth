@@ -1,4 +1,3 @@
-import { processEvent } from "../../utils/eventUtils";
 import { Event, SUCCEEDED, EventBuilder } from "./event";
 
 export class ScheduleBuilder {
@@ -94,7 +93,7 @@ export class Schedule {
         event.onComplete.addAction(async () => {
           if ((event.state === SUCCEEDED || this.continueOnFail) && !this.cancelled) {
             this.stage++;
-            processEvent(nextInChain);
+            nextInChain.lifecycle();
           }
         });
       }

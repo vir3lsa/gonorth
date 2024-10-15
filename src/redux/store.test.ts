@@ -441,7 +441,7 @@ describe("deserializing snapshots", () => {
     it("gives a revived event a new timeout ID", async () => {
       testEvent.timeoutType = TIMEOUT_MILLIS;
       testEvent.timeout = 10000; // Long enough not to complete.
-      testEvent.commence();
+      testEvent.startCountdown();
 
       const timeoutIdBefore = testEvent.timeoutId;
       snapshot = persistSnapshotAndLoad(() => {
@@ -463,7 +463,7 @@ describe("deserializing snapshots", () => {
       const event = testSchedule.currentEvent;
       event.timeoutType = TIMEOUT_MILLIS;
       event.timeout = 10000; // Long enough not to complete.
-      event.commence();
+      event.startCountdown();
 
       const timeoutIdBefore = event.timeoutId;
       snapshot = persistSnapshotAndLoad(() => {

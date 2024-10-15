@@ -1,4 +1,4 @@
-import { Event, TIMEOUT_TURNS } from "./event";
+import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { addEvent, initGame } from "../../gonorth";
 import { changeInteraction } from "../../redux/gameActions";
@@ -24,7 +24,7 @@ beforeEach(() => {
 });
 
 test("events execute at turn end when timeout is reached", async () => {
-  addEvent(new Event("test", () => x++, true, 0, TIMEOUT_TURNS));
+  addEvent(new Event.Builder("test").withAction(() => x++));
   await handleTurnEnd();
   expect(x).toBe(2);
 });
@@ -62,7 +62,7 @@ test("builders may add multiple actions at once", async () => {
 test("options return after an event adds text", async () => {
   await getStore().dispatch(changeInteraction(new Interaction("some text", [new Option("one")])) as AnyAction);
   expect(selectOptions()[0].label).toBe("one");
-  addEvent(new Event("test", "hello", true, 0, TIMEOUT_TURNS));
+  addEvent(new Event.Builder("test").withAction("hello"));
   await handleTurnEnd();
   expect(selectCurrentPage()).toInclude("hello");
   expect(selectOptions()[0].label).toBe("one");
@@ -71,7 +71,7 @@ test("options return after an event adds text", async () => {
 test("options return after an event adds a next button", async () => {
   await getStore().dispatch(changeInteraction(new Interaction("hello", [new Option("one")])) as AnyAction);
   expect(selectOptions()[0].label).toBe("one");
-  addEvent(new Event("test", new SequentialText("alpha", "beta"), true, 0, TIMEOUT_TURNS));
+  addEvent(new Event.Builder("test").withAction(new SequentialText("alpha", "beta")));
   const turnEndPromise = handleTurnEnd();
   setTimeout(async () => await clickNextAndWait());
   await turnEndPromise;
@@ -143,4 +143,52 @@ test("events may perform additional actions after completing", async () => {
   );
   await handleTurnEnd();
   expect(x).toBe(11);
+});
+
+test("trigger conditions cause events to reset when not met", async () => {
+  let z = 0;
+  let y = 1;
+  let triggered = false;
+  addEvent(
+    new Event.Builder("triggerCondition")
+      .withAction(() => (triggered = true))
+      .withCondition(() => z === 0)
+      .withTriggerCondition(() => y === 0)
+  );
+  await handleTurnEnd(); // Event commences but does not trigger.
+  expect(triggered).toBe(false);
+  z = 1;
+  y = 0;
+  await handleTurnEnd(); // Event can't commence.
+  expect(triggered).toBe(false);
+  z = 0;
+  await handleTurnEnd(); // Event commences and triggers.
+  expect(triggered).toBe(true);
+});
+
+test("trigger conditions cause timer-style events to reset when not met", async () => {
+  let y = 1;
+  let triggered = false;
+  const event = new Event.Builder("timerTriggerCondition")
+    .withAction(() => (triggered = true))
+    .withCondition(true)
+    .withTriggerCondition(() => y === 0)
+    .withTimeout(250)
+    .withTimeoutType(TIMEOUT_MILLIS)
+    .build();
+  addEvent(event);
+  await handleTurnEnd(); // Event commences but does not trigger.
+  expect(triggered).toBe(false);
+  expect(event.timeoutId).toBeDefined();
+  expect(event.state).toBe("AWAITING_TIMER");
+
+  // Wait for the timer to finish and the state to change.
+  while (event.state === "AWAITING_TIMER") {
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+
+  // Event has now reset.
+  expect(event.state).toBe("DORMANT");
+  expect(event.timeoutId).toBeUndefined();
+  expect(triggered).toBe(false);
 });

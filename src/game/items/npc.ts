@@ -3,7 +3,6 @@ import { Room } from "./room";
 import { Event } from "../events/event";
 import { getStore } from "../../redux/storeRegistry";
 import { addEvent } from "../../redux/gameActions";
-import { processEvent } from "../../utils/eventUtils";
 import { selectRoom } from "../../utils/selectors";
 
 export class Npc extends Item {
@@ -48,7 +47,7 @@ export class Npc extends Item {
         // Check encounters
         for (let i in this.encounters) {
           const encounter = this.encounters[i];
-          processEvent(encounter); // Don't await to avoid deadlock
+          encounter.lifecycle(); // Don't await to avoid deadlock
         }
 
         return true;
@@ -63,8 +62,11 @@ export class Npc extends Item {
   }
 
   addEncounterWithCondition(condition: Condition, ...actions: Action[]) {
-    const encounter = new Event(`${this.name} encounter`, actions, condition);
-    encounter.recurring = true;
+    const encounter = new Event.Builder(`${this.name} encounter`)
+      .withActions(...actions)
+      .withCondition(condition)
+      .isRecurring()
+      .build();
     this.encounters.push(encounter);
     getStore().dispatch(addEvent(encounter));
   }

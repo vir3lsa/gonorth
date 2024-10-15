@@ -22,6 +22,7 @@ export class OptionGraph {
   promise;
   resolve!: Resolve;
   persist: boolean;
+  running = false;
   _allowRepeats!: boolean;
   _image?: string;
   _resumable!: boolean;
@@ -149,6 +150,7 @@ export class OptionGraph {
       getStore().dispatch(changeImage(this.image));
     }
 
+    this.running = true;
     return this.activateNode(node);
   }
 
@@ -166,11 +168,7 @@ export class OptionGraph {
     let optionObjects: Option[] | undefined = undefined;
     let graphOptions;
 
-    actions = performNodeActions
-      ? Array.isArray(actions)
-        ? actions
-        : [actions]
-      : [""];
+    actions = performNodeActions ? (Array.isArray(actions) ? actions : [actions]) : [""];
 
     if (typeof options === "function") {
       // If options is a function, evaluate it to get the options object.
@@ -183,24 +181,14 @@ export class OptionGraph {
       optionObjects = Object.entries(graphOptions)
         .map(([choice, value]) => {
           const graphOption = value as GraphOption;
-          if (
-            graphOption &&
-            graphOption.condition &&
-            !graphOption.condition()
-          ) {
+          if (graphOption && graphOption.condition && !graphOption.condition()) {
             // Condition not met for this option to appear.
             return undefined;
           }
 
           let optionId: string | undefined =
-            typeof value === "string"
-              ? value
-              : graphOption
-              ? graphOption.node
-              : undefined;
-          let optionNode = (optionId && this.flattened[optionId]) as
-            | GraphNode
-            | undefined;
+            typeof value === "string" ? value : graphOption ? graphOption.node : undefined;
+          let optionNode = (optionId && this.flattened[optionId]) as GraphNode | undefined;
           let optionActions: Action[] = [];
           const skipNodeActions = graphOption?.skipNodeActions;
           const exit = !value || graphOption.exit || graphOption.room;
@@ -212,9 +200,7 @@ export class OptionGraph {
           if (graphOption?.actions) {
             // The option is an object rather than a simple node reference.
             // Get any actions associated with the option.
-            optionActions = Array.isArray(graphOption.actions)
-              ? [...graphOption.actions]
-              : [graphOption.actions];
+            optionActions = Array.isArray(graphOption.actions) ? [...graphOption.actions] : [graphOption.actions];
           } else if (graphOption?.inventoryAction) {
             // We'll create a pseudo-node where we show the player's inventory items.
             const inventoryNodeId: string = `${node.id}-${choice}-inventory`;
@@ -228,10 +214,7 @@ export class OptionGraph {
                     node: node.id,
                     skipNodeActions: true,
                     // Perform the inventory action and don't render a 'Next' button.
-                    actions: new ActionClass(
-                      () => graphOption.inventoryAction?.(item),
-                      false
-                    )
+                    actions: new ActionClass(() => graphOption.inventoryAction?.(item), false)
                   }
                 }),
                 {}
@@ -249,9 +232,7 @@ export class OptionGraph {
               optionNode = inventoryNode;
 
               // Delete the temporary node after selecting one of its options.
-              optionActions.push(() =>
-                this.deleteFlattenedNode(inventoryNodeId)
-              );
+              optionActions.push(() => this.deleteFlattenedNode(inventoryNodeId));
             } else {
               optionActions.push("You're not carrying anything.");
             }
@@ -270,13 +251,12 @@ export class OptionGraph {
             // Return to the same node without repeating its actions.
             optionActions.push(() => this.activateNode(node, false));
           } else if (graphOption?.room) {
+            optionActions.unshift(() => this.handleExit());
             optionActions.push(() => goToRoom(graphOption.room as RoomT));
           } else if (optionId) {
-            optionActions.push(() =>
-              this.activateNode(optionNode as GraphNode, !skipNodeActions)
-            );
+            optionActions.push(() => this.activateNode(optionNode as GraphNode, !skipNodeActions));
           } else if (exit) {
-            optionActions.unshift(() => this._resetImage());
+            optionActions.unshift(() => this.handleExit());
           }
 
           if (
@@ -285,11 +265,7 @@ export class OptionGraph {
             optionNode.allowRepeats ||
             (this.allowRepeats && optionNode.allowRepeats === undefined)
           ) {
-            return new Option(
-              choice,
-              optionActions,
-              !optionId || !optionNode?.noEndTurn
-            );
+            return new Option(choice, optionActions, !optionId || !optionNode?.noEndTurn);
           }
 
           // No option
@@ -302,16 +278,16 @@ export class OptionGraph {
     chain.options = optionObjects;
 
     if (!optionObjects) {
-      this._resetImage();
       chain.propagateOptions = false; // Allow the graph to exit
-      this.resolve();
+      this.handleExit();
     }
 
     return chain;
   }
 
-  // Return to the room image, if there is one.
-  _resetImage() {
+  private handleExit() {
+    this.resolve();
+    this.running = false;
     const room = selectRoom();
 
     // Return to room image if we're in a room.
@@ -323,6 +299,10 @@ export class OptionGraph {
    */
   deleteFlattenedNode(nodeId: string) {
     delete this.flattened[nodeId];
+  }
+
+  isRunning() {
+    return this.running;
   }
 
   static get Builder() {
