@@ -14,7 +14,16 @@ import { Room } from "./game/items/room";
 import { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 import { newVerb } from "./game/verbs/verb";
 import { ActionChain } from "./utils/actionChain";
-import { createPlayer, goToRoom, initAutoActions, gameOver, theEnd, play, addAutoAction } from "./utils/lifecycle";
+import {
+  createPlayer,
+  goToRoom,
+  initAutoActions,
+  gameOver,
+  theEnd,
+  play,
+  addAutoAction,
+  checkpoint
+} from "./utils/lifecycle";
 import { getHelpGraph, getHintGraph } from "./utils/defaultHelp";
 import {
   selectRoom,
@@ -193,6 +202,7 @@ const gonorth = {
   addSchedule,
   attach,
   bulletPointList,
+  checkpoint,
   englishList,
   forget,
   gameOver,
@@ -237,7 +247,7 @@ const gonorth = {
   TIMEOUT_MILLIS,
   TIMEOUT_TURNS,
   toTitleCase,
-  update,
+  update
 };
 
 export default gonorth;

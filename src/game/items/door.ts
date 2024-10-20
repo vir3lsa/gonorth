@@ -81,7 +81,6 @@ export class Door extends Item {
           .withOnSuccess(() => {
             this.open = true;
           }, openSuccessText ?? `The ${name} open${addS()} relatively easily.`)
-          .build()
       );
 
       this.addVerb(
@@ -90,7 +89,6 @@ export class Door extends Item {
           .withOnSuccess(() => {
             this.open = false;
           }, config?.onCloseSuccess ?? `You close the ${name}.`)
-          .build()
       );
 
       this.addVerb(
@@ -118,7 +116,6 @@ export class Door extends Item {
               unlockSuccessText ??
               (door.key ? "The key turns easily in the lock." : `The ${name} unlock${addS()} with a soft *click*.`)
           ])
-          .build()
       );
     }
 
