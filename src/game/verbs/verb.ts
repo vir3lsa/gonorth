@@ -423,7 +423,7 @@ export class GoVerb extends Verb {
         },
         {
           test: () => getAdjacent(name)!.test!(),
-          onFailure: () => getAdjacent(name)!.failureText
+          onFailure: () => getAdjacent(name)!.onFailure
         }
       ],
       [

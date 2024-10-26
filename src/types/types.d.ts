@@ -487,7 +487,7 @@ interface DirectionObject {
   room?: RoomT | SimpleAction;
   test?: () => boolean;
   onSuccess?: ContextAction | ContextAction[];
-  failureText?: string;
+  onFailure?: Action;
   directionName?: DirectionName;
   door?: DoorT;
 }

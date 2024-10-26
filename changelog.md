@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-# Unreleased
+# 8.2.0
 
+* 2024-10-26 Room direction onFailures may be Actions.
 * 2024-10-26 Fixed bug where rooms with description functions did not cause a page change.
 
 # 8.1.0

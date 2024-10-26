@@ -3,7 +3,7 @@ import { Door } from "./door";
 import { GoVerb, Verb } from "../verbs/verb";
 import { Item, Builder as ItemBuilder, customiseVerbs, omitAliases } from "./item";
 import { itemsRevealed, changeImage, addRoom } from "../../redux/gameActions";
-import { preferPaged } from "../../utils/dynamicDescription";
+import { createDynamicText, preferPaged } from "../../utils/dynamicDescription";
 import { ActionChain } from "../../utils/actionChain";
 import { goToRoom } from "../../gonorth";
 import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
@@ -16,7 +16,7 @@ const directionAliases = {
   east: ["e", "right"],
   west: ["w", "left"],
   up: ["u", "upward", "upwards"],
-  down: ["d", "downward", "downwards"],
+  down: ["d", "downward", "downwards"]
 } as {
   [name: string]: string[] | undefined;
 };
@@ -75,10 +75,10 @@ export class Room extends Item {
     directionName?: DirectionName,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
-    failureText?: string
+    onFailure?: Action
   ) {
     let test: Test | Door | undefined = navigable;
-    let failText = failureText;
+    let onFail = onFailure;
 
     if (typeof navigable === "undefined") {
       test = () => true;
@@ -86,7 +86,7 @@ export class Room extends Item {
       test = () => navigable;
     } else if (navigable instanceof Door) {
       test = () => navigable.open;
-      failText = failText || `The ${navigable.name} is closed.`;
+      onFail = onFailure || `The ${navigable.name} is closed.`;
     }
 
     const onSuccessArray = !onSuccess || Array.isArray(onSuccess) ? onSuccess : [onSuccess];
@@ -94,8 +94,8 @@ export class Room extends Item {
       room,
       test,
       onSuccess: onSuccessArray,
-      failureText: failText,
-      directionName,
+      onFailure: onFail,
+      directionName
     } as DirectionObject;
 
     this.setDirection(directionObject);
@@ -138,14 +138,14 @@ export class Room extends Item {
     room?: RoomT,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
-    failureText?: string,
+    onFailure?: Action,
     addInverse = true
   ) {
-    this.addAdjacentRoom(room, "north", navigable, onSuccess, failureText);
+    this.addAdjacentRoom(room, "north", navigable, onSuccess, onFailure);
 
     if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
-      room.setSouth(this, navigable, onSuccess, failureText, false);
+      room.setSouth(this, navigable, onSuccess, onFailure, false);
     }
   }
 
@@ -157,14 +157,14 @@ export class Room extends Item {
     room?: RoomT,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
-    failureText?: string,
+    onFailure?: Action,
     addInverse = true
   ) {
-    this.addAdjacentRoom(room, "south", navigable, onSuccess, failureText);
+    this.addAdjacentRoom(room, "south", navigable, onSuccess, onFailure);
 
     if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
-      room.setNorth(this, navigable, onSuccess, failureText, false);
+      room.setNorth(this, navigable, onSuccess, onFailure, false);
     }
   }
 
@@ -176,14 +176,14 @@ export class Room extends Item {
     room?: RoomT,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
-    failureText?: string,
+    onFailure?: Action,
     addInverse = true
   ) {
-    this.addAdjacentRoom(room, "east", navigable, onSuccess, failureText);
+    this.addAdjacentRoom(room, "east", navigable, onSuccess, onFailure);
 
     if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
-      room.setWest(this, navigable, onSuccess, failureText, false);
+      room.setWest(this, navigable, onSuccess, onFailure, false);
     }
   }
 
@@ -195,14 +195,14 @@ export class Room extends Item {
     room?: RoomT,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
-    failureText?: string,
+    onFailure?: Action,
     addInverse = true
   ) {
-    this.addAdjacentRoom(room, "west", navigable, onSuccess, failureText);
+    this.addAdjacentRoom(room, "west", navigable, onSuccess, onFailure);
 
     if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
-      room.setEast(this, navigable, onSuccess, failureText, false);
+      room.setEast(this, navigable, onSuccess, onFailure, false);
     }
   }
 
@@ -214,14 +214,14 @@ export class Room extends Item {
     room?: RoomT,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
-    failureText?: string,
+    onFailure?: Action,
     addInverse = true
   ) {
-    this.addAdjacentRoom(room, "up", navigable, onSuccess, failureText);
+    this.addAdjacentRoom(room, "up", navigable, onSuccess, onFailure);
 
     if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
-      room.setDown(this, navigable, onSuccess, failureText, false);
+      room.setDown(this, navigable, onSuccess, onFailure, false);
     }
   }
 
@@ -233,14 +233,14 @@ export class Room extends Item {
     room?: RoomT,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
-    failureText?: string,
+    onFailure?: Action,
     addInverse = true
   ) {
-    this.addAdjacentRoom(room, "down", navigable, onSuccess, failureText);
+    this.addAdjacentRoom(room, "down", navigable, onSuccess, onFailure);
 
     if (addInverse && room && room instanceof Room) {
       // Adjacent rooms are bidirectional by default
-      room.setUp(this, navigable, onSuccess, failureText, false);
+      room.setUp(this, navigable, onSuccess, onFailure, false);
     }
   }
 

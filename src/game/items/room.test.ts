@@ -3,7 +3,7 @@ import { Room } from "./room";
 import { changeInteraction, changeRoom, recordChanges } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
 import { Item } from "./item";
-import { initGame } from "../../gonorth";
+import { initGame, SequentialText } from "../../gonorth";
 import { Parser } from "../input/parser";
 import { selectInteraction, selectCurrentPage } from "../../utils/testSelectors";
 import { clickNext, deferAction } from "../../utils/testFunctions";
@@ -190,6 +190,26 @@ describe("Room", () => {
       setTimeout(() => clickNext());
       await new Parser("up").parse();
       expect(selectCurrentPage()).toBe("the belfry");
+    });
+
+    it("can have a Text object on direction failure", async () => {
+      hall.setWest(undefined, false, undefined, new SequentialText("wall"));
+      await new Parser("west").parse();
+      expect(selectCurrentPage()).toInclude("wall");
+    });
+
+    it("can have a function on direction failure", async () => {
+      hall.setWest(undefined, false, undefined, () => "wall func");
+      await new Parser("west").parse();
+      expect(selectCurrentPage()).toInclude("wall func");
+    });
+
+    it("can have multiple actions on direction failure", async () => {
+      hall.setWest(undefined, false, undefined, ["one", () => "two"]);
+      setTimeout(() => clickNext());
+      await new Parser("west").parse();
+      expect(selectCurrentPage()).toInclude("one");
+      expect(selectCurrentPage()).toInclude("two");
     });
   });
 
