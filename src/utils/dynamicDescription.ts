@@ -1,7 +1,7 @@
 import { Text, CyclicText, PagedText, ManagedText } from "../game/interactions/text";
 
 export const preferPaged = (text: UnknownText) => {
-  if (typeof text === "string") {
+  if (typeof text === "string" || typeof text === "function") {
     return new PagedText(text);
   } else if (Array.isArray(text)) {
     return new PagedText(...text);

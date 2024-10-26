@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2024-10-26 Fixed bug where rooms with description functions did not cause a page change.
+
 # 8.1.0
 
 * 2024-10-20 Checkpoint function available on the default exported object.

@@ -9,7 +9,7 @@ import { OptionGraph } from "../game/interactions/optionGraph";
 import { selectCurrentPage } from "./testSelectors";
 import packageJson from "../../package.json";
 import { getItem } from "./itemFunctions";
-import { clickOption, clickOptionAndWait } from "./testFunctions";
+import { clickOption } from "./testFunctions";
 import { clearPage } from "./sharedFunctions";
 
 jest.mock("../utils/consoleIO");

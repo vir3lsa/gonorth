@@ -16,19 +16,15 @@ const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-const clickNextAndWait = async () => {
-  await clickNext();
-  return selectInteraction().promise;
-};
-
-let hall: RoomT, north: RoomT, south: RoomT, east: RoomT, west: RoomT;
+let hall: RoomT, north: RoomT, south: RoomT, east: RoomT, west: RoomT, up: RoomT;
 
 const initRooms = () => {
-  hall = new Room("Hall", "");
-  north = new Room("Garden", "");
-  south = new Room("Kitchen", "");
-  east = new Room("Scullery", "");
+  hall = new Room.Builder("Hall").withDescription("").build();
+  north = new Room.Builder("Garden").withDescription("").build();
+  south = new Room.Builder("Kitchen").withDescription("").build();
+  east = new Room.Builder("Scullery").withDescription("").build();
   west = new Room.Builder("Pantry").withDescription("the pantry").build();
+  up = new Room.Builder("Belfry").withDescription(() => "the belfry").build();
 };
 
 beforeEach(() => {
@@ -182,11 +178,18 @@ describe("Room", () => {
       return deferAction(() => expect(selectCurrentPage().includes("Going west.")).toBeTruthy());
     });
 
-    it("prints new room text", async () => {
+    it("prints new room text, clearing previous text", async () => {
       hall.setWest(west);
       setTimeout(() => clickNext());
       await new Parser("west").parse();
       expect(selectCurrentPage()).toBe("the pantry");
+    });
+
+    it("prints new room text, clearing previous text when room has description function", async () => {
+      hall.setUp(up);
+      setTimeout(() => clickNext());
+      await new Parser("up").parse();
+      expect(selectCurrentPage()).toBe("the belfry");
     });
   });
 
