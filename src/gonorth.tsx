@@ -203,6 +203,7 @@ const gonorth = {
   attach,
   bulletPointList,
   checkpoint,
+  clearPage,
   englishList,
   forget,
   gameOver,

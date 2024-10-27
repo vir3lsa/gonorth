@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 8.3.0
+
+* 2024-10-27 The GoNorth export now includes the clearPage function.
+
 # 8.2.0
 
 * 2024-10-26 Room direction onFailures may be Actions.
