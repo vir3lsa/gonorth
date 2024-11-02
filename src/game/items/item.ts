@@ -26,9 +26,6 @@ export function newItem(config: ItemConfig, typeConstructor = Item) {
   // Run any verb modification functions.
   customiseVerbs(config.verbCustomisations, item);
 
-  // Remove any unwanted aliases.
-  omitAliases(config.omitAliases, item);
-
   return item;
 }
 
@@ -37,10 +34,6 @@ export function customiseVerbs(verbModifications: VerbCustomisations = {}, item:
     const verb = item.getVerb(verbName);
     modifyFunction(verb);
   });
-}
-
-export function omitAliases(aliases: string[] = [], item: Item) {
-  item.aliases = item.aliases.filter((alias) => !aliases?.includes(alias));
 }
 
 export class Item {
@@ -126,6 +119,7 @@ export class Item {
       );
     }
 
+    this.config = config;
     this._alteredProperties = new Set();
     this.aliases = [];
     this.name = name;
@@ -147,7 +141,6 @@ export class Item {
     this.doNotList = false;
     this.properties = {};
     this.properNoun = "";
-    this.config = config;
 
     aliases.forEach((alias) => this.createAliases(alias));
 
@@ -779,9 +772,14 @@ export class Item {
     const lcAlias = alias.toLowerCase();
     const aliases = lcAlias
       .split(/\s/)
+      // Token mustn't be zero length
       .filter((token) => token.length)
+      // Token mustn't be one of our existing aliases
       .filter((token) => !this.aliases.some((word) => word === token))
-      .filter((token) => !commonWords.some((word) => word === token));
+      // Token mustn't be a common word
+      .filter((token) => !commonWords.some((word) => word === token))
+      // Token mustn't be an alias we want to omit
+      .filter((token) => !this.config?.omitAliases?.some((omit) => omit === token));
 
     // Only add if the alias has actually been split
     if (aliases[0] !== lcAlias) {

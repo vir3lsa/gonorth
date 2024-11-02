@@ -1,4 +1,4 @@
-import { Item, customiseVerbs, omitAliases } from "./item";
+import { Item, customiseVerbs } from "./item";
 import { Room } from "./room";
 import { Event } from "../events/event";
 import { getStore } from "../../redux/storeRegistry";
@@ -23,9 +23,6 @@ export class Npc extends Item {
 
     // Apply any verb modifications.
     customiseVerbs(remainingConfig.verbCustomisations, this);
-
-    // Remove any unwanted aliases.
-    omitAliases(remainingConfig.omitAliases, this);
   }
 
   roomIsRoom(room: any): room is Room {

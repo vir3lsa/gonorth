@@ -1,4 +1,4 @@
-import { Item, customiseVerbs, omitAliases } from "./item";
+import { Item, customiseVerbs } from "./item";
 import { Verb } from "../verbs/verb";
 import { inRoom, normaliseTest } from "../../utils/sharedFunctions";
 import { goToRoom } from "../../utils/lifecycle";
@@ -40,9 +40,6 @@ export function newDoor(config: DoorConfig & ItemConfig) {
   Object.entries(remainingConfig).forEach(([key, value]) => (door[key] = value));
 
   customiseVerbs(config.verbCustomisations, door);
-
-  // Remove any unwanted aliases.
-  omitAliases(config.omitAliases, door);
 
   return door;
 }
@@ -155,7 +152,7 @@ export class Door extends Item {
             if (traversalVerb) {
               return traversalVerb?.attemptWithContext({
                 ...context,
-                verb: traversalVerb,
+                verb: traversalVerb
               });
             } else if (alias && goThroughAllAliases.includes(alias)) {
               return "You can't go that way.";
@@ -373,7 +370,7 @@ class TraversalBuilder {
     aliases: [],
     tests: [],
     onSuccess: [],
-    onFailure: [],
+    onFailure: []
   };
 
   withAliases(...aliases: string[]) {
@@ -404,7 +401,7 @@ class TraversalBuilder {
   withDoorOpenTest(onFailure?: Action) {
     this.config.doorOpenTest = {
       test: ({ item: door }) => Boolean(door.open),
-      onFailure: onFailure || (({ item: door }) => `The ${door!.name} is closed.`),
+      onFailure: onFailure || (({ item: door }) => `The ${door!.name} is closed.`)
     };
     return this;
   }
@@ -439,7 +436,7 @@ class TraversalBuilder {
       onSuccess,
       onFailure,
       onPeekSuccess,
-      destination,
+      destination
     } = this.config;
     let originFunc: TestFunction = () => (origin ? inRoom(origin) : true);
     let activationConditionFunc: TestFunction = originFunc;
@@ -466,7 +463,7 @@ class TraversalBuilder {
       doorOpenTest,
       onSuccess: [...onSuccess, () => goToRoom(destination)],
       onFailure,
-      onPeekSuccess,
+      onPeekSuccess
     } as Traversal;
   }
 }

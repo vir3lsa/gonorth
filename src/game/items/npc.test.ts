@@ -5,6 +5,7 @@ import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Npc } from "./npc";
 import { Item } from "./item";
 import { selectCurrentPage } from "../../utils/testSelectors";
+import { selectItem } from "../../utils/selectors";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -56,6 +57,15 @@ describe("NPC tests", () => {
   test("NPC aliases can be omitted", () => {
     const npc = new Npc.Builder("Prof Cloud").omitAliases("prof").build();
     expect(npc.aliases).toEqual(["cloud"]);
+    expect(selectItem("cloud")).toBeDefined();
+    expect(selectItem("prof")).toBeUndefined();
+  });
+
+  test("NPC clone aliases are also omitted", () => {
+    const npc = new Npc.Builder("Prof Cloud").omitAliases("prof").build();
+    expect(npc.clone().aliases).toEqual(["cloud"]);
+    expect(selectItem("cloud")).toBeDefined();
+    expect(selectItem("prof")).toBeUndefined();
   });
 
   test("Non-hidden items may be added via the builder", () => {

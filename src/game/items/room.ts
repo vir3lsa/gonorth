@@ -1,9 +1,9 @@
 import { getStore } from "../../redux/storeRegistry";
 import { Door } from "./door";
 import { GoVerb, Verb } from "../verbs/verb";
-import { Item, Builder as ItemBuilder, customiseVerbs, omitAliases } from "./item";
+import { Item, Builder as ItemBuilder, customiseVerbs } from "./item";
 import { itemsRevealed, changeImage, addRoom } from "../../redux/gameActions";
-import { createDynamicText, preferPaged } from "../../utils/dynamicDescription";
+import { preferPaged } from "../../utils/dynamicDescription";
 import { ActionChain } from "../../utils/actionChain";
 import { goToRoom } from "../../gonorth";
 import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
@@ -23,7 +23,7 @@ const directionAliases = {
 
 const newRoom = (config: RoomConfig & ItemConfig) => {
   const { name, description, checkpoint, verbs, aliases, items, ...remainingConfig } = config;
-  const room = new Room(name, description, checkpoint, aliases);
+  const room = new Room(name, description, checkpoint, aliases, config);
 
   if (verbs) {
     room.addVerbs(...verbs);
@@ -34,9 +34,6 @@ const newRoom = (config: RoomConfig & ItemConfig) => {
   Object.entries(remainingConfig).forEach(([key, value]) => (room[key] = value));
   customiseVerbs(config.verbCustomisations, room);
 
-  // Remove unwanted aliases.
-  omitAliases(config.omitAliases, room);
-
   return room;
 };
 
@@ -45,8 +42,14 @@ export class Room extends Item {
   private _image?: string;
   private _checkpoint!: boolean;
 
-  constructor(name: string, description: UnknownText = "placeholder", checkpoint = true, aliases?: string[]) {
-    super(name, preferPaged(description), false, -1, undefined, aliases);
+  constructor(
+    name: string,
+    description: UnknownText = "placeholder",
+    checkpoint = true,
+    aliases?: string[],
+    config?: RoomConfig & ItemConfig
+  ) {
+    super(name, preferPaged(description), false, -1, undefined, aliases, undefined, config);
     this.adjacentRooms = {};
     this.canHoldItems = true;
     this.aliases = [...this.aliases, "room", "floor"];

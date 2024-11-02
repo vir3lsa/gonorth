@@ -1,5 +1,13 @@
 import { getPersistor, getStore } from "../redux/storeRegistry";
-import { selectConfig, selectEvents, selectGame, selectItem, selectRoom, selectSchedules } from "./selectors";
+import {
+  selectConfig,
+  selectEvents,
+  selectGame,
+  selectItem,
+  selectOptionGraph,
+  selectRoom,
+  selectSchedules
+} from "./selectors";
 import {
   nextTurn,
   changeRoom,
@@ -43,16 +51,29 @@ export async function handleTurnEnd() {
   return getStore().dispatch(nextTurn());
 }
 
-export function goToRoom(room: Room | Item | string) {
-  let roomObj = typeof room === "string" ? [...selectItem(room)] : room;
+export function goToRoom(roomOrGraph: Room | OptionGraph | Item | string) {
+  if (roomOrGraph instanceof OptionGraph) {
+    return roomOrGraph.commence();
+  }
+
+  let roomObj = typeof roomOrGraph === "string" ? [...(selectItem(roomOrGraph) || [])] : roomOrGraph;
 
   if (Array.isArray(roomObj)) {
     roomObj = roomObj[0];
+
+    if (!roomObj) {
+      // Maybe it's an option graph.
+      const optionGraph = selectOptionGraph(roomOrGraph as string);
+
+      if (optionGraph) {
+        return optionGraph.commence();
+      }
+    }
   }
 
   if (!roomObj?.isRoom) {
     throw Error(
-      `Tried to change room but the object provided is not a Room. Its name field (if any) is: ${roomObj?.name}`
+      `Tried to change room but the object provided is neither a Room nor an OptionGraph. Its name field (if any) is: ${roomObj?.name}`
     );
   }
 

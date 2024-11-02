@@ -1,7 +1,7 @@
 import { createDynamicText } from "../../utils/dynamicDescription";
 import { normaliseTest } from "../../utils/sharedFunctions";
 import { Verb } from "../verbs/verb";
-import { Item, Builder as ItemBuilder, customiseVerbs, omitAliases } from "./item";
+import { Item, Builder as ItemBuilder, customiseVerbs } from "./item";
 
 export function newContainer(config: ContainerConfig & ItemConfig) {
   const {
@@ -47,9 +47,6 @@ export function newContainer(config: ContainerConfig & ItemConfig) {
 
   Object.entries(remainingConfig).forEach(([key, value]) => (container[key] = value));
   customiseVerbs(config.verbCustomisations, container);
-
-  // Remove unwanted aliases.
-  omitAliases(config.omitAliases, container);
 
   return container;
 }

@@ -8,6 +8,7 @@ import { selectCurrentPage } from "../../utils/testSelectors";
 import { Key } from "./door";
 import { clearPage } from "../../utils/sharedFunctions";
 import { deferAction } from "../../utils/testFunctions";
+import { selectItem } from "../../utils/selectors";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -172,6 +173,9 @@ describe("container", () => {
       .omitAliases("trouser", "cloth")
       .build();
     expect(pocket.aliases).toEqual(["pocket", "pouch", "cloth pouch"]);
+    expect(selectItem("pocket")).toBeDefined();
+    expect(selectItem("trouser")).toBeUndefined();
+    expect(selectItem("cloth")).toBeUndefined();
   });
 
   test("cloned aliases are also omitted", () => {
@@ -180,6 +184,9 @@ describe("container", () => {
       .omitAliases("trouser", "cloth")
       .build();
     expect(pocket.clone().aliases).toEqual(["pocket", "pouch", "cloth pouch"]);
+    expect(selectItem("pocket")).toBeDefined();
+    expect(selectItem("trouser")).toBeUndefined();
+    expect(selectItem("cloth")).toBeUndefined();
   });
 
   test("can be closed", async () => {

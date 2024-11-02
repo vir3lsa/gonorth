@@ -1,5 +1,10 @@
 # goNORTH Changelog
 
+# 8.4.0
+
+* 2024-11-02 goToRoom function now accepts OptionGraph IDs.
+* 2024-10-29 Fixed bug where omitted aliases were still recorded in the store, can also now omit room aliases.
+
 # 8.3.0
 
 * 2024-10-27 The GoNorth export now includes the clearPage function.

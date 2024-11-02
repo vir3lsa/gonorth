@@ -7,7 +7,7 @@ import { initGame, SequentialText } from "../../gonorth";
 import { Parser } from "../input/parser";
 import { selectInteraction, selectCurrentPage } from "../../utils/testSelectors";
 import { clickNext, deferAction } from "../../utils/testFunctions";
-import { selectRoom } from "../../utils/selectors";
+import { selectItem, selectRoom } from "../../utils/selectors";
 import { Door } from "./door";
 import { AnyAction } from "redux";
 
@@ -35,6 +35,22 @@ beforeEach(() => {
 });
 
 describe("Room", () => {
+  test("NPC aliases can be omitted", () => {
+    const room = new Room.Builder("small study").withAliases("large study").omitAliases("small", "large").build();
+    expect(room.aliases).toEqual(["study", "large study", "room", "floor"]);
+    expect(selectItem("study")).toBeDefined();
+    expect(selectItem("small")).toBeUndefined();
+    expect(selectItem("large")).toBeUndefined();
+  });
+
+  test("NPC clone aliases are also omitted", () => {
+    const room = new Room.Builder("small study").withAliases("large study").omitAliases("small", "large").build();
+    expect(room.clone().aliases).toEqual(["study", "large study", "room", "floor"]);
+    expect(selectItem("study")).toBeDefined();
+    expect(selectItem("small")).toBeUndefined();
+    expect(selectItem("large")).toBeUndefined();
+  });
+
   describe("description", () => {
     it("prints item room listing", () => {
       const item = new Item("candlestick", "ornate silver");

@@ -2,7 +2,7 @@ import { Item, newItem } from "./item";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
 import { newGame, recordChanges } from "../../redux/gameActions";
-import { selectInventory, selectInventoryItems, selectItemNames } from "../../utils/selectors";
+import { selectInventory, selectInventoryItems, selectItem, selectItemNames } from "../../utils/selectors";
 import { Room } from "./room";
 import { initGame, setInventoryCapacity, goToRoom } from "../../gonorth";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
@@ -316,11 +316,17 @@ describe("builder tests", () => {
   test("Aliases may be omitted", () => {
     const numbers = new Item.Builder("one two three").withAliases("four five six").omitAliases("one", "five").build();
     expect(numbers.aliases).toEqual(["two", "three", "four", "six", "four five six"]);
+    expect(selectItem("two")).toBeDefined();
+    expect(selectItem("one")).toBeUndefined();
+    expect(selectItem("five")).toBeUndefined();
   });
 
   test("Cloned items maintain omitted aliases", () => {
     const numbers = new Item.Builder("one two three").withAliases("four five six").omitAliases("one", "five").build();
     expect(numbers.clone().aliases).toEqual(numbers.aliases);
+    expect(selectItem("two")).toBeDefined();
+    expect(selectItem("one")).toBeUndefined();
+    expect(selectItem("five")).toBeUndefined();
   });
 
   test("Items can be given verbs in dribs and drabs", () => {

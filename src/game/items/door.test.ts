@@ -9,6 +9,7 @@ import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors"
 import { AnyAction } from "redux";
 import { clickNextAndWait, deferAction } from "../../utils/testFunctions";
 import { clearPage } from "../../utils/sharedFunctions";
+import { selectItem } from "../../utils/selectors";
 
 let game: Game, room: RoomT, door: DoorT;
 
@@ -194,6 +195,9 @@ describe("Builder", () => {
       .omitAliases("stair", "proof")
       .build();
     expect(stairGate.aliases).toEqual(["gate", "child", "door", "child proof door"]);
+    expect(selectItem("gate")).toBeDefined();
+    expect(selectItem("stair")).toBeUndefined();
+    expect(selectItem("proof")).toBeUndefined();
   });
 
   test("cloned aliases are also omitted", () => {
@@ -202,6 +206,9 @@ describe("Builder", () => {
       .omitAliases("stair", "proof")
       .build();
     expect(stairGate.clone().aliases).toEqual(["gate", "child", "door", "child proof door"]);
+    expect(selectItem("gate")).toBeDefined();
+    expect(selectItem("stair")).toBeUndefined();
+    expect(selectItem("proof")).toBeUndefined();
   });
 
   test("doors may be always open", () => {

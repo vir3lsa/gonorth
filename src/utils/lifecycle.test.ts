@@ -1,6 +1,6 @@
 import { Item } from "../game/items/item";
 import { Room } from "../game/items/room";
-import { initGame, setStartingRoom } from "../gonorth";
+import { initGame, OptionGraph, setStartingRoom } from "../gonorth";
 import { newGame, recordChanges } from "../redux/gameActions";
 import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { moveItem } from "./itemFunctions";
@@ -13,7 +13,7 @@ const consoleIO = require("./consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let mockStorage: Record<string, string>, ball: ItemT, playground: RoomT, house: RoomT;
+let mockStorage: Record<string, string>, ball: ItemT, playground: RoomT, house: RoomT, graph: OptionGraphT;
 
 const initialiser = () => {
   ball = new Item("ball");
@@ -22,6 +22,14 @@ const initialiser = () => {
 
   house = new Room("house");
   playground.setWest(house);
+
+  graph = new OptionGraph.Builder("goToRoomGraph")
+    .withNode(
+      new OptionGraph.NodeBuilder("1")
+        .withActions("goToRoomGraph")
+        .withOption(new OptionGraph.OptionBuilder("a").exit())
+    )
+    .build();
 };
 
 beforeEach(() => {
@@ -77,7 +85,7 @@ test("delete save resets items to initial state", () => {
 test("goToRoom fails if the object is not a room", () => {
   expect(() => goToRoom(ball)).toThrowWithMessage(
     Error,
-    "Tried to change room but the object provided is not a Room. Its name field (if any) is: ball"
+    "Tried to change room but the object provided is neither a Room nor an OptionGraph. Its name field (if any) is: ball"
   );
 });
 
@@ -89,6 +97,18 @@ test("goToRoom succeeds when a room object is passed", () => {
 test("goToRoom succeeds when a room name is passed", () => {
   goToRoom("house");
   expect(selectRoom()).toBe(house);
+});
+
+test("goToRoom succeeds when an OptionGraph object is passed", async () => {
+  await goToRoom(graph).chain();
+  expect(selectCurrentPage()).toInclude("goToRoomGraph");
+  expect(graph.isRunning()).toBe(true);
+});
+
+test("goToRoom succeeds when an OptionGraph name is passed", async () => {
+  await goToRoom("goToRoomGraph").chain();
+  expect(selectCurrentPage()).toInclude("goToRoomGraph");
+  expect(graph.isRunning()).toBe(true);
 });
 
 // Had a defect where auto actions were lost - check it's fixed.
