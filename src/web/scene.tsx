@@ -45,7 +45,9 @@ const SceneInner: React.FC<Props> = ({ location, image, gameStarted }) => {
             display: "flex"
           }}
         >
-          <Box sx={{ flex: 1 }}>{location}</Box>
+          <Box sx={{ flex: 1 }} data-testid="scene-location">
+            {location}
+          </Box>
           {image && (
             <a
               style={{ textDecoration: "underline", cursor: "pointer" }}
@@ -83,7 +85,7 @@ const SceneInner: React.FC<Props> = ({ location, image, gameStarted }) => {
 const mapStateToProps = (state: StoreState) => {
   return {
     image: state.image,
-    location: state.room?.name || "", // TODO Need a separate state var for this.
+    location: state.roomName || "",
     gameStarted: state.gameStarted
   };
 };

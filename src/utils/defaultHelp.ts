@@ -16,7 +16,6 @@ const optionNodes = [
   {
     id: "help",
     actions: [
-      () => clearPage(),
       () =>
         `The game you're playing, ${
           selectGame().title
@@ -109,25 +108,32 @@ const optionNodes = [
   }
 ];
 
-export const getHelpGraph = () => new OptionGraph("defaultHelp", ...optionNodes);
+export const getHelpGraph = () =>
+  new OptionGraph.Builder("defaultHelp")
+    .withNodes(...optionNodes)
+    .clearPage()
+    .clearImage()
+    .withRoomName("Help")
+    .build();
 
 export const getHintGraph = () =>
-  new OptionGraph(
-    "hints",
-    {
-      id: "default",
-      actions: "I'm afraid you're on your own on this one. I can't help you.",
-      options: {
-        okay,
-        next
+  new OptionGraph.Builder("hints")
+    .withNodes(
+      {
+        id: "default",
+        actions: "I'm afraid you're on your own on this one. I can't help you.",
+        options: {
+          okay,
+          next
+        }
+      },
+      {
+        id: "default2",
+        actions: "No, I'm afraid I really don't know anything. You'll just have to use the old noggin.",
+        options: {
+          okay,
+          previous
+        }
       }
-    },
-    {
-      id: "default2",
-      actions: "No, I'm afraid I really don't know anything. You'll just have to use the old noggin.",
-      options: {
-        okay,
-        previous
-      }
-    }
-  );
+    )
+    .build();

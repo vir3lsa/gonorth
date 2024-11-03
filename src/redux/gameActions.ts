@@ -175,6 +175,11 @@ export const changeRoom = (room: RoomT) => ({
   room
 });
 
+export const changeRoomName = (roomName: string) => ({
+  type: type.CHANGE_ROOM_NAME,
+  roomName
+});
+
 export const recordChanges = () => ({
   type: type.RECORD_CHANGES
 });

@@ -119,7 +119,9 @@ export default function (state = initialState, action: ReduxAction) {
     case type.LOAD_SNAPSHOT:
       return { ...state, ...action.snapshot };
     case type.CHANGE_ROOM:
-      return { ...state, room: action.room };
+      return { ...state, room: action.room, roomName: action.room.name };
+    case type.CHANGE_ROOM_NAME:
+      return { ...state, roomName: action.roomName };
     case type.RECORD_CHANGES:
       return { ...state, recordChanges: true };
     case type.SET_PLAYER:

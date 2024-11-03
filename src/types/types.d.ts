@@ -195,6 +195,7 @@ interface StoreState {
   gameStarted: boolean;
   sceneRevealed: boolean;
   feedbackOpen: boolean;
+  roomName?: string;
 }
 
 interface Dict {
@@ -246,6 +247,7 @@ interface ReduxAction {
   gameStarted: boolean;
   sceneRevealed: boolean;
   feedbackOpen: boolean;
+  roomName: string;
 }
 
 type GetState = () => StoreState;

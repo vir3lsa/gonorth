@@ -16,6 +16,7 @@ export const ADD_ITEM = "ADD_ITEM";
 export const ADD_OPTION_GRAPH = "ADD_OPTION_GRAPH";
 export const LOAD_SNAPSHOT = "LOAD_SNAPSHOT";
 export const CHANGE_ROOM = "CHANGE_ROOM";
+export const CHANGE_ROOM_NAME = "CHANGE_ROOM_NAME";
 export const RECORD_CHANGES = "RECORD_CHANGES";
 export const SET_PLAYER = "SET_PLAYER";
 export const ADD_VALUE = "ADD_VALUE";

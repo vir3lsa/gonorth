@@ -2,12 +2,9 @@ import { ActionClass, ActionChain } from "../../utils/actionChain";
 import { Option } from "./option";
 import { goToRoom } from "../../utils/lifecycle";
 import { getStore } from "../../redux/storeRegistry";
-import { addOptionGraph, changeImage } from "../../redux/gameActions";
-import {
-  selectInventoryItems,
-  selectRecordChanges,
-  selectRoom,
-} from "../../utils/selectors";
+import { addOptionGraph, changeImage, changeRoomName } from "../../redux/gameActions";
+import { selectInventoryItems, selectRecordChanges, selectRoom } from "../../utils/selectors";
+import { clearPage } from "../../utils/sharedFunctions";
 
 export const next = "OptionGraph_next";
 export const previous = "OptionGraph_previous";
@@ -26,6 +23,9 @@ export class OptionGraph {
   _allowRepeats!: boolean;
   _image?: string;
   _resumable!: boolean;
+  roomName?: string;
+  clearPage = false;
+  clearImage = false;
 
   constructor(id: string, ...nodes: GraphNode[]) {
     if (typeof id !== "string") {
@@ -131,9 +131,6 @@ export class OptionGraph {
   }
 
   commence(id?: string) {
-    if (this.image) {
-      getStore().dispatch(changeImage(this.image));
-    }
     return this._start((id && this.getNode(id)) || this.startNode);
   }
 
@@ -148,6 +145,18 @@ export class OptionGraph {
   _start(node: GraphNode) {
     if (this.image) {
       getStore().dispatch(changeImage(this.image));
+    }
+
+    if (this.roomName) {
+      getStore().dispatch(changeRoomName(this.roomName));
+    }
+
+    if (this.clearPage) {
+      clearPage();
+    }
+
+    if (this.clearImage) {
+      getStore().dispatch(changeImage(undefined));
     }
 
     this.running = true;
@@ -323,6 +332,9 @@ class OptionGraphBuilder {
   private image?: string;
   private resumable = true;
   private nodes: GraphNode[] = [];
+  private roomName?: string;
+  private clearPageBool = false;
+  private clearImageBool = false;
 
   constructor(id: string) {
     this.id = id;
@@ -349,10 +361,28 @@ class OptionGraphBuilder {
     return this;
   }
 
+  withRoomName(roomName: string) {
+    this.roomName = roomName;
+    return this;
+  }
+
+  clearPage(clearPage = true) {
+    this.clearPageBool = clearPage;
+    return this;
+  }
+
+  clearImage(clearImage = true) {
+    this.clearImageBool = clearImage;
+    return this;
+  }
+
   build() {
     const optionGraph = new OptionGraph(this.id, ...this.nodes);
     optionGraph.image = this.image;
     optionGraph.resumable = this.resumable;
+    optionGraph.roomName = this.roomName;
+    optionGraph.clearPage = this.clearPageBool;
+    optionGraph.clearImage = this.clearImageBool;
 
     return optionGraph;
   }

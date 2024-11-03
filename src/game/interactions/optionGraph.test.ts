@@ -1,7 +1,7 @@
 import { unregisterStore } from "../../redux/storeRegistry";
 import { initGame } from "../../gonorth";
 import { OptionGraph } from "./optionGraph";
-import { selectCurrentPage, selectImage, selectOptions } from "../../utils/testSelectors";
+import { selectCurrentPage, selectImage, selectOptions, selectRoomName } from "../../utils/testSelectors";
 import { selectRoom, selectTurn, selectInventory } from "../../utils/selectors";
 import { Verb } from "../verbs/verb";
 import { Room } from "../items/room";
@@ -13,7 +13,7 @@ const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let game: Game, optionGraph: OptionGraphT, x: number, doIt: VerbT;
+let optionGraph: OptionGraphT, x: number, doIt: VerbT;
 
 const graphNodes = [
   {
@@ -169,7 +169,7 @@ beforeEach(async () => {
   unregisterStore();
 
   // Pretend we're in the browser
-  game = initGame("Jolly Capers", "", { debugMode: false });
+  initGame("Jolly Capers", "", { debugMode: false });
   optionGraph = new OptionGraph("jollyCapers", ...graphNodes);
   doIt = new Verb("do it", true, () => x++);
   x = 0;
@@ -441,10 +441,7 @@ test("can be built with a builder a node at a time", () => {
   const graphy = new OptionGraph.Builder("graphy")
     .withNode(new OptionGraph.NodeBuilder("1"))
     .withNode(new OptionGraph.NodeBuilder("2"))
-    .withNodes(
-      new OptionGraph.NodeBuilder("3"),
-      new OptionGraph.NodeBuilder("4")
-    )
+    .withNodes(new OptionGraph.NodeBuilder("3"), new OptionGraph.NodeBuilder("4"))
     .build();
   expect(graphy.getNode("1").id).toBe("1");
   expect(graphy.getNode("2").id).toBe("2");
@@ -479,17 +476,32 @@ test("options can be build with a builder", () => {
 
 test("options can be added with a label and a builder", () => {
   const graph = new OptionGraph.Builder("gr2")
-    .withNode(
-      new OptionGraph.NodeBuilder("1").withOption(
-        "a",
-        new OptionGraph.OptionBuilder().withNode("c")
-      )
-    )
+    .withNode(new OptionGraph.NodeBuilder("1").withOption("a", new OptionGraph.OptionBuilder().withNode("c")))
     .build();
   const options = graph.getNode("1").options as GraphOptions;
   const option = options["a"] as GraphOption;
   expect(option).toBeDefined();
   expect(option.node).toBe("c");
+});
+
+test("can clear page", async () => {
+  expect(selectCurrentPage().length > 0).toBe(true);
+  const newGraph = new OptionGraph.Builder("123")
+    .withNodes(...speechNodes)
+    .clearPage()
+    .build();
+  await newGraph.commence().chain();
+  expect(selectCurrentPage()).toBe("hello");
+});
+
+test("can change room name", () => {
+  expect(selectRoomName()).toBeUndefined();
+  const newGraph = new OptionGraph.Builder("123")
+    .withNodes(...speechNodes)
+    .withRoomName("one23")
+    .build();
+  newGraph.commence();
+  expect(selectRoomName()).toBe("one23");
 });
 
 describe("images", () => {
@@ -515,6 +527,17 @@ describe("images", () => {
     await iGraph.commence().chain();
     await selectOptions()[0].action();
     await selectOptions()[3].action();
+    expect(selectImage()).toBeUndefined();
+  });
+
+  test("can clear previous image", async () => {
+    await iGraph.commence().chain();
+    expect(selectImage()).toBe("test-image");
+    const newGraph = new OptionGraph.Builder("456")
+      .withNodes(...speechNodes)
+      .clearImage()
+      .build();
+    await newGraph.commence().chain();
     expect(selectImage()).toBeUndefined();
   });
 });

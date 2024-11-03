@@ -4,3 +4,4 @@ export const selectCurrentPage = () => getStore().getState().interaction.current
 export const selectOptions = () => getStore().getState().interaction.options;
 export const selectInteraction = () => getStore().getState().interaction;
 export const selectImage = () => getStore().getState().image;
+export const selectRoomName = () => getStore().getState().roomName;

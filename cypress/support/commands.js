@@ -113,6 +113,7 @@ Cypress.Commands.add("newGame", () => {
 Cypress.Commands.add("getSceneBar", () => cy.get('[data-testid="scene-bar"]'));
 Cypress.Commands.add("getSceneImage", () => cy.get('[data-testid="scene-image"]'));
 Cypress.Commands.add("getImageToggle", () => cy.get('[data-testid="image-toggle"]'));
+Cypress.Commands.add("getSceneLocation", () => cy.get('[data-testid="scene-location"]'));
 
 const imageUrlRegex = /url\((.+?)\)/;
 Cypress.Commands.add("getImageUrl", () => {

@@ -1,0 +1,21 @@
+/// <reference types="cypress" />
+
+describe("Help", () => {
+  it("sets scene components", () => {
+    cy.startGame();
+    cy.getSceneLocation().contains("White Room");
+    cy.getSceneImage().should("exist");
+
+    // Enter help pages.
+    cy.say("help", "The game you're playing", { global: true });
+
+    // The image has cleared.
+    cy.getSceneImage().should("not.exist");
+
+    // The page has cleared.
+    cy.doesNotShow("nearly perfect cube");
+
+    // The room name has changed.
+    cy.getSceneLocation().contains("Help");
+  });
+});
