@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 8.4.1
+
+* 2024-11-08 OptionGraph resets the scene at the correct time.
+
 # 8.4.0
 
 * 2024-11-02 goToRoom function now accepts OptionGraph IDs.

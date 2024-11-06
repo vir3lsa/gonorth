@@ -29,6 +29,7 @@ import {
 import "./index.css";
 import whiteRoomImage from "./whiteRoom.gif";
 import whiteRoomTitle from "./whiteRoomTitle.gif";
+import greenRoomImage from "./greenRoom.gif";
 
 initGame(
   "The White Room",
@@ -63,11 +64,12 @@ function setUp() {
     true
   );
 
-  const greenRoom = new Room(
-    "Green Room",
-    "The room's a beautiful forest green. The white room's to the east. There's a panelled door in the wall in front of you.",
-    true
-  );
+  const greenRoom = new Room.Builder("Green Room")
+    .withDescription(
+      "The room's a beautiful forest green. The white room's to the east. There's a panelled door in the wall in front of you."
+    )
+    .withImage(greenRoomImage)
+    .build();
 
   greenRoom.addItems(
     new Door.Builder("panelled door")
@@ -237,6 +239,25 @@ function setUp() {
     .withImage(whiteRoomTitle)
     .build();
   whiteRoom.addVerb(new Verb.Builder("shout").withOnSuccess(() => shoutGraph.commence()).build());
+
+  const travelGraph = new OptionGraph.Builder("travel")
+    .clearPage()
+    .withRoomName("Travel Tubes")
+    .withImage(whiteRoomTitle)
+    .withNode(
+      new OptionGraph.NodeBuilder("1")
+        .withActions("You enter the travel tubes. Where would you like to go?")
+        .withOption(
+          new OptionGraph.OptionBuilder("green room")
+            .withAction("You travel to the green room.")
+            .withRoom(greenRoom)
+            .build()
+        )
+        .withOption(new OptionGraph.OptionBuilder("exit").exit().withActions("About to exit.", "Exiting now.").build())
+    )
+    .build();
+
+  whiteRoom.addVerb(new Verb.Builder("travel").withOnSuccess(() => travelGraph.commence()).build());
 
   whiteRoom.addItems(strangeDevice, redButton, greenButton, table, apple, orange, largeObject, cursedDoll);
   setInventoryCapacity(10);

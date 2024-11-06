@@ -252,20 +252,14 @@ export class OptionGraph {
           }
 
           if (!optionId && !exit) {
-            // We're going to add another action - ensure the one before that doesn't create a next button.
-            const lastAction = optionActions.pop();
-            const nonNextLastAction = new ActionClass(lastAction, false);
-            optionActions.push(nonNextLastAction);
-
-            // Return to the same node without repeating its actions.
-            optionActions.push(() => this.activateNode(node, false));
+            this.addActionNoNext(optionActions, () => this.activateNode(node, false));
           } else if (graphOption?.room) {
-            optionActions.unshift(() => this.handleExit());
-            optionActions.push(() => goToRoom(graphOption.room as RoomT));
+            optionActions.push(new ActionClass(() => goToRoom(graphOption.room as RoomT), false));
+            optionActions.push(() => this.handleExit());
           } else if (optionId) {
             optionActions.push(() => this.activateNode(optionNode as GraphNode, !skipNodeActions));
           } else if (exit) {
-            optionActions.unshift(() => this.handleExit());
+            this.addActionNoNext(optionActions, () => this.handleExit());
           }
 
           if (
@@ -283,24 +277,38 @@ export class OptionGraph {
         .filter((option) => option) as Option[];
     }
 
+    if (!optionObjects) {
+      this.addActionNoNext(actions, () => this.handleExit());
+    }
+
     const chain = new ActionChain(...actions);
     chain.options = optionObjects;
-
-    if (!optionObjects) {
-      chain.propagateOptions = false; // Allow the graph to exit
-      this.handleExit();
-    }
 
     return chain;
   }
 
+  /*
+   * Adds an action to the list of actions and modifies the current last action to not render a Next button.
+   */
+  private addActionNoNext(actions: Action[], action: Action) {
+    // We're going to add another action - ensure the one before that doesn't create a next button.
+    const lastAction = actions.pop();
+    const nonNextLastAction = new ActionClass(lastAction, false);
+    actions.push(nonNextLastAction);
+    actions.push(action);
+  }
+
+  /*
+   * Tidies up the exiting OptionGraph and returns the scene to its previous state.
+   */
   private handleExit() {
     this.resolve();
     this.running = false;
     const room = selectRoom();
 
-    // Return to room image if we're in a room.
+    // Return to room name and image if we're in a room.
     getStore().dispatch(changeImage(room?.image));
+    getStore().dispatch(changeRoomName(room?.name));
   }
 
   /*
@@ -408,10 +416,7 @@ class NodeBuilder {
     return this;
   }
 
-  withOption(
-    labelOrValue: string | GraphOption | OptionBuilder,
-    value?: SomeGraphOption | OptionBuilder
-  ) {
+  withOption(labelOrValue: string | GraphOption | OptionBuilder, value?: SomeGraphOption | OptionBuilder) {
     if (!this.options) {
       this.options = {};
     }
@@ -426,10 +431,7 @@ class NodeBuilder {
     if (typeof labelOrValue === "string") {
       this.options[labelOrValue] = graphOption;
     } else {
-      graphOption =
-        labelOrValue instanceof OptionBuilder
-          ? labelOrValue.build()
-          : labelOrValue;
+      graphOption = labelOrValue instanceof OptionBuilder ? labelOrValue.build() : labelOrValue;
       let id = graphOption.id;
 
       if (!id) {
@@ -466,7 +468,7 @@ class OptionBuilder {
   private skipNodeActionsBool?: boolean;
   private exitBool?: boolean;
   private room?: RoomT;
-  private action?: Action;
+  private actions?: Action[];
   private inventoryAction?: InventoryAction;
 
   constructor(id?: string) {
@@ -504,7 +506,16 @@ class OptionBuilder {
   }
 
   withAction(action: Action) {
-    this.action = action;
+    if (!this.actions) {
+      this.actions = [];
+    }
+
+    this.actions.push(action);
+    return this;
+  }
+
+  withActions(...actions: Action[]) {
+    this.actions = [...(this.actions || []), ...actions];
     return this;
   }
 
@@ -521,7 +532,7 @@ class OptionBuilder {
       skipNodeActions: this.skipNodeActionsBool,
       exit: this.exitBool,
       room: this.room,
-      actions: this.action,
+      actions: this.actions,
       inventoryAction: this.inventoryAction
     };
   }

@@ -58,11 +58,16 @@ describe("Scene", () => {
   });
 
   let lastImageUrl;
-  const checkImageChanged = () => {
+  const checkImageChanged = (changed = true) => {
     cy.getImageUrl().then((url) => {
       expect(lastImageUrl).not.to.be.undefined;
       expect(url).not.to.be.undefined;
-      expect(url).not.to.eq(lastImageUrl);
+
+      if (changed) {
+        expect(url).not.to.eq(lastImageUrl);
+      } else {
+        expect(url).to.eq(lastImageUrl);
+      }
       lastImageUrl = url;
     });
   };
@@ -88,5 +93,46 @@ describe("Scene", () => {
     checkImageChanged();
     cy.choose("Squeal", "Here come the lights");
     checkImageChanged();
+  });
+
+  it("Reverts an OptionGraphs scene settings back to the room's at the correct time", () => {
+    lastImageUrl = undefined;
+    cy.startGame();
+
+    // Start an OptionGraph that changes the image and room name.
+    cy.say("travel", "You enter the travel tubes.", { global: true });
+    cy.getImageUrl().then((url) => (lastImageUrl = url));
+    cy.getSceneLocation().contains("Travel Tubes");
+
+    // Trigger an 'exit' option with an action chain.
+    cy.choose("exit", "About to exit");
+
+    // Scene should not have reverted after the first action.
+    cy.getSceneLocation().contains("Travel Tubes");
+    checkImageChanged(false);
+
+    // Scene should change after the final action.
+    cy.choose("Next", "Exiting now");
+    cy.getSceneLocation().contains("White Room");
+    checkImageChanged();
+
+    // Start the option graph again.
+    cy.say("travel", "You enter the travel tubes.", { global: true });
+    cy.getImageUrl().then((url) => (lastImageUrl = url));
+
+    // Choose a 'room' option that also has an action chain.
+    cy.choose("green room", "You travel to the green room");
+
+    // Scene should not have reverted after the first action.
+    cy.getSceneLocation().contains("Travel Tubes");
+    checkImageChanged(false);
+
+    // Scene should change after the final action.
+    cy.choose("Next", "The room's a beautiful forest", { global: true });
+    cy.getSceneLocation().contains("Green Room");
+    checkImageChanged();
+
+    // The third way of exiting an OptionGraph - by choosing a node with no options - is covered
+    // in the Help tests.
   });
 });

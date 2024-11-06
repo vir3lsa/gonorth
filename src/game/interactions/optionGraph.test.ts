@@ -1,5 +1,5 @@
 import { unregisterStore } from "../../redux/storeRegistry";
-import { initGame } from "../../gonorth";
+import { goToRoom, initGame } from "../../gonorth";
 import { OptionGraph } from "./optionGraph";
 import { selectCurrentPage, selectImage, selectOptions, selectRoomName } from "../../utils/testSelectors";
 import { selectRoom, selectTurn, selectInventory } from "../../utils/selectors";
@@ -494,14 +494,20 @@ test("can clear page", async () => {
   expect(selectCurrentPage()).toBe("hello");
 });
 
-test("can change room name", () => {
-  expect(selectRoomName()).toBeUndefined();
+test("can change room name", async () => {
+  setupRoomOptionNodes();
+  goToRoom(room);
+  expect(selectRoomName()).toBe("room");
   const newGraph = new OptionGraph.Builder("123")
     .withNodes(...speechNodes)
     .withRoomName("one23")
     .build();
   newGraph.commence();
   expect(selectRoomName()).toBe("one23");
+
+  // Exit the graph
+  await selectOptions()[2].action();
+  expect(selectRoomName()).toBe("room");
 });
 
 describe("images", () => {

@@ -13,7 +13,7 @@ import {
 import { Room } from "./game/items/room";
 import { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
 import { newVerb } from "./game/verbs/verb";
-import { ActionChain } from "./utils/actionChain";
+import { ActionChain, ActionClass } from "./utils/actionChain";
 import {
   createPlayer,
   goToRoom,
@@ -111,7 +111,7 @@ function setIntro(intro: string | string[] | Intro) {
     },
     intro,
     () => clearPage(),
-    () => getHelp(),
+    new ActionClass(() => getHelp(), false),
     () => {
       getStore().dispatch(gameStarted());
     },
