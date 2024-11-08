@@ -31,10 +31,7 @@ const expectedFeedbackObj = {
     },
     {
       input: "[cancel help]",
-      output: [
-        'To view these help pages again, type "help".\n\nGood luck, and have fun.\n\nChoose: Next',
-        "Choose: Next"
-      ]
+      output: ['To view these help pages again, type "help".\n\nGood luck, and have fun.\n\nChoose: Next']
     },
     {
       input: "[Next]",
@@ -51,10 +48,7 @@ const expectedRollingFeedback = {
   logs: [
     {
       input: "[cancel help]",
-      output: [
-        'To view these help pages again, type "help".\n\nGood luck, and have fun.\n\nChoose: Next',
-        "Choose: Next"
-      ]
+      output: ['To view these help pages again, type "help".\n\nGood luck, and have fun.\n\nChoose: Next']
     },
     {
       input: "[Next]",
@@ -103,6 +97,10 @@ const expectedRollingFeedback = {
   ]
 };
 
+/**
+ * When this breaks, it's much easier to see what went wrong if you click the error in the Cypress command log so it prints
+ * it to the console, where you can expand the full expected and actual logged objects.
+ */
 describe("feedback component", () => {
   beforeEach(() => {
     cy.startGame({ monitorConsole: true });

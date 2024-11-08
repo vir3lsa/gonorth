@@ -1,4 +1,4 @@
-import { AnyAction, Dispatch } from "redux";
+import { Dispatch } from "redux";
 import * as type from "./gameActionTypes";
 import { output, getOptionsString } from "../utils/consoleIO";
 import { Parser } from "../game/input/parser";

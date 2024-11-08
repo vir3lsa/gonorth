@@ -449,7 +449,7 @@ test("can be built with a builder a node at a time", () => {
   expect(graphy.getNode("4").id).toBe("4");
 });
 
-test("options can be build with a builder", () => {
+test("options can be built with a builder", () => {
   const graph = new OptionGraph.Builder("gr1")
     .withNode(
       new OptionGraph.NodeBuilder("1").withOption(
@@ -466,7 +466,7 @@ test("options can be build with a builder", () => {
   expect(graph.getNode("1").options).toBeDefined();
   const options = graph.getNode("1").options as GraphOptions;
   const option = options["a"] as GraphOption;
-  expect(option.actions).toBe("b");
+  expect(option.actions).toEqual(["b"]);
   expect(option.exit).toBe(true);
   expect(option.skipNodeActions).toBe(true);
   expect(option.condition).toBeDefined();
