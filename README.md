@@ -10,6 +10,10 @@ A JavaScript interactive fiction engine for rich parser-driven experiences on th
 npm install @vir3lsa/gonorth
 ```
 
+## Documentation
+
+Refer to [the full documentation](https://vir3lsa.github.io/gonorth/) for detailed specifications.
+
 ## Quick Start
 
 Define where you want to embed gonorth in your HTML.
@@ -47,7 +51,7 @@ Initialise the game.
 ```ts
 import gn from "@virelsa/gonorth";
 
-initGame(
+gn.initGame(
   "Clowns From Space",
   "Virelsa",
   {

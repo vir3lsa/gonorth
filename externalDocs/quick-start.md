@@ -35,7 +35,7 @@ Initialise the game.
 ```ts
 import gn from "@virelsa/gonorth";
 
-initGame(
+gn.initGame(
   "Clowns From Space",
   "Virelsa",
   {
