@@ -1,0 +1,40 @@
+name: Docs
+
+on:
+  push:
+    branches: [master, develop]
+
+jobs:
+  build:
+    name: Build Docs
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: npm build docs
+      run: |
+        npm ci
+        npm run build:docs
+    - name: Archive documentation artifacts
+      uses: actions/upload-pages-artifact@v3
+      with:
+        name: github-pages
+        path: docs
+  
+  deploy:
+    name: Publish
+    needs: build
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+    - name: Publish docs
+      id: deployment
+      uses: actions/deploy-pages@v4

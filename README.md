@@ -1,4 +1,4 @@
-![Node CI](https://github.com/vir3lsa/gonorth/workflows/Node%20CI/badge.svg)
+[![Test](https://github.com/vir3lsa/gonorth/actions/workflows/test.yml/badge.svg)](https://github.com/vir3lsa/gonorth/actions/workflows/test.yml)
 
 # gonorth
 
