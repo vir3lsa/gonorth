@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2024-11-10 Added docs generation and first docs, including next, previous and okay functions in default export.
+
 # 8.4.1
 
 * 2024-11-08 OptionGraph resets the scene at the correct time.

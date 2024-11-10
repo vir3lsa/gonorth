@@ -58,7 +58,7 @@ type ActionChainT = import("../utils/actionChain").ActionChain;
 type ActionClassT = import("../utils/actionChain").ActionClass;
 type OptionGraphT = import("../game/interactions/optionGraph").OptionGraph;
 type VerbT = import("../game/verbs/verb").Verb;
-type VerbBuilderT = import("../game/verbs/verb").Builder;
+type VerbBuilderT = import("../game/verbs/verb").VerbBuilder;
 type AutoActionT = import("../game/input/autoAction").AutoAction;
 type OptionT = import("../game/interactions/option").Option;
 type SnaphotPersistorT = import("../redux/snapshotPersistor").SnapshotPersistor;
@@ -384,6 +384,58 @@ type Test = boolean | TestFunction;
 interface SmartTest {
   test: TestFunction;
   onFailure: Action;
+}
+
+interface DecisionTree {
+  input: string;
+  room: RoomT;
+  tokens: string[];
+  verbConstructions: {
+    verbs: {
+      [verbConstruction: string]: VerbConstruction;
+    };
+    notVerbs: {
+      [verbConstruction: string]: VerbConstruction;
+    };
+  };
+  registeredVerbs: string[];
+  registeredItem?: string;
+  registeredVerb?: string;
+  actualVerb?: VerbT;
+  verbSupported: boolean;
+  roomItem?: ItemT;
+  indirectItem?: ItemT;
+  duplicateAliasItems?: ItemT[];
+  duplicateAlias?: string;
+  duplicateItemIsPrimary: boolean;
+  tooManyDuplicates: boolean;
+}
+
+interface VerbConstruction {
+  numWords: number;
+  verbIndex: number;
+  possibleVerb: string;
+  canonicalVerb?: string;
+  endIndex?: number;
+  keyword?: VerbT;
+  roomVerb?: VerbT;
+  itemDetails: ItemDetails[];
+  roomItem?: ItemT;
+  actualVerb?: VerbT;
+  indirectItem?: ItemT;
+  validCombination: boolean;
+  itemConstructions: {
+    [itemConstruction: string]: ItemConstruction;
+  };
+}
+
+interface ItemConstruction {
+  numWords: number;
+  itemIndex: number;
+  endIndex: number;
+  possibleItem: string;
+  itemExists?: boolean;
+  itemsWithName: ItemT[];
 }
 
 /**********/

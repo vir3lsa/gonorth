@@ -40,6 +40,30 @@ export function newVerb(config: VerbConfig) {
 
 const identity = () => undefined;
 
+/**
+ * A Verb represents a thing the player can do. It should generally have a name that's a grammatical verb,
+ * as the player will activate it by typing a command. Verbs may be attached to {@link game/items/room!Room | Rooms} or
+ * {@link game/items/item!Item | Items}, or may be standalone keywords that can be used independently.
+ *
+ * Verbs generally define one or more tests that must pass in order to proceed, as well as actions
+ * to be executed if all the tests pass. Legacy tests are simply functions that
+ * return `true` or `false`. Newer {@link types/types!SmartTest | SmartTests} define both a test function and the
+ * action that's performed if the test fails, which will usually be a response explaining why the failure
+ * occurred.
+ *
+ * All functions passed to {@link types/types!SmartTest | SmartTests } and `onSuccess` and `onFailure` callbacks receive
+ * context objects containing, as a minimum, the {@link Verb} and the {@link game/items/item!Item | Item} it was invoked on.
+ *
+ * Verbs are constructed using a builder.
+ *
+ * ```ts
+ * const throw = new Verb.Builder("throw")
+ *   .withAliases("chuck", "lob", "hurl", "yeet")
+ *   .withSmartTest(({ item }) => playerHasItem(item), `You're not holding the ${item.name}.`)
+ *   .withOnSuccess(({ item }) => `You chuck the ${item.name} as far as you can.`)
+ *   .build();
+ * ```
+ */
 export class Verb {
   [property: string]: unknown;
   isKeyword;
@@ -51,12 +75,12 @@ export class Verb {
   expectsArgs;
   expectedArgs;
   remote;
-  _parent?: ItemT;
-  _tests!: ActionChainT;
-  _name!: string;
-  _onSuccess!: ActionChainT;
-  _onFailure!: ActionChainT;
-  _aliases!: string[];
+  private _parent?: ItemT;
+  private _tests!: ActionChainT;
+  private _name!: string;
+  private _onSuccess!: ActionChainT;
+  private _onFailure!: ActionChainT;
+  private _aliases!: string[];
 
   constructor(
     name: string,
@@ -128,9 +152,9 @@ export class Verb {
   }
 
   /**
-   * Add a test to the end of this verb's test chain.
-   * @param test the test to add.
-   * @param onFailure the onFailure action to execute when the test fails.
+   * Add a test to the end of this Verb's test chain.
+   * @param test The test to add.
+   * @param onFailure The onFailure action to execute when the test fails.
    */
   addTest(test: Test, ...onFailure: Action[]) {
     const chainableTest = this.createChainableTest(test, onFailure);
@@ -138,9 +162,9 @@ export class Verb {
   }
 
   /**
-   * Insert a test at the beginning of this verb's test chain.
-   * @param test the test to add.
-   * @param onFailure the onFailure action to execute when the test fails.
+   * Insert a test at the beginning of this Verb's test chain.
+   * @param test The test to add.
+   * @param onFailure The onFailure action to execute when the test fails.
    */
   insertTest(test: Test, ...onFailure: Action[]) {
     const chainableTest = this.createChainableTest(test, ...onFailure);
@@ -328,11 +352,11 @@ export class Verb {
   }
 
   static get Builder() {
-    return Builder;
+    return VerbBuilder;
   }
 }
 
-export class Builder {
+export class VerbBuilder {
   config: VerbConfig;
   constructor(name: string = "") {
     this.config = { name, tests: [] };

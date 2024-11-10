@@ -261,7 +261,7 @@ export class Door extends Item {
   }
 }
 
-class DoorBuilder extends Item.Builder {
+export class DoorBuilder extends Item.Builder {
   config!: DoorConfig & ItemConfig;
 
   constructor(name: string) {
@@ -363,7 +363,7 @@ class DoorBuilder extends Item.Builder {
   }
 }
 
-class TraversalBuilder {
+export class TraversalBuilder {
   static idCounter = 0;
 
   config: TraversalConfig = {
@@ -482,7 +482,7 @@ export class Key extends Item {
   }
 }
 
-class KeyBuilder extends Item.Builder {
+export class KeyBuilder extends Item.Builder {
   constructor(name: string) {
     super(name);
   }

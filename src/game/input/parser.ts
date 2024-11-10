@@ -15,60 +15,8 @@ import { toTitleCase } from "../../utils/textFunctions";
 import disambiguate from "../../utils/disambiguation";
 import { AnyAction } from "redux";
 
-interface DecisionTree {
-  input: string;
-  room: RoomT;
-  tokens: string[];
-  verbConstructions: {
-    verbs: {
-      [verbConstruction: string]: VerbConstruction;
-    };
-    notVerbs: {
-      [verbConstruction: string]: VerbConstruction;
-    };
-  };
-  registeredVerbs: string[];
-  registeredItem?: string;
-  registeredVerb?: string;
-  actualVerb?: VerbT;
-  verbSupported: boolean;
-  roomItem?: ItemT;
-  indirectItem?: ItemT;
-  duplicateAliasItems?: ItemT[];
-  duplicateAlias?: string;
-  duplicateItemIsPrimary: boolean;
-  tooManyDuplicates: boolean;
-}
-
-interface VerbConstruction {
-  numWords: number;
-  verbIndex: number;
-  possibleVerb: string;
-  canonicalVerb?: string;
-  endIndex?: number;
-  keyword?: VerbT;
-  roomVerb?: VerbT;
-  itemDetails: ItemDetails[];
-  roomItem?: ItemT;
-  actualVerb?: VerbT;
-  indirectItem?: ItemT;
-  validCombination: boolean;
-  itemConstructions: {
-    [itemConstruction: string]: ItemConstruction;
-  };
-}
-
-interface ItemConstruction {
-  numWords: number;
-  itemIndex: number;
-  endIndex: number;
-  possibleItem: string;
-  itemExists?: boolean;
-  itemsWithName: ItemT[];
-}
-
 export class Parser {
-  decisionTree: DecisionTree;
+  private decisionTree: DecisionTree;
 
   constructor(input: string) {
     this.decisionTree = {
@@ -77,7 +25,7 @@ export class Parser {
       tokens: [],
       verbConstructions: {
         verbs: {},
-        notVerbs: {},
+        notVerbs: {}
       },
       registeredVerbs: [],
       registeredItem: undefined,
@@ -89,7 +37,7 @@ export class Parser {
       duplicateAliasItems: undefined,
       duplicateAlias: undefined,
       duplicateItemIsPrimary: true,
-      tooManyDuplicates: false,
+      tooManyDuplicates: false
     };
   }
 
@@ -151,7 +99,7 @@ export class Parser {
       possibleVerb: "",
       itemDetails: [],
       itemConstructions: {},
-      validCombination: false,
+      validCombination: false
     };
     const possibleVerbWords = this.tokens.slice(verbIndex, verbIndex + numWords);
     vc.possibleVerb = possibleVerbWords.join(" ");
@@ -295,7 +243,7 @@ export class Parser {
           itemIndex,
           endIndex,
           possibleItem,
-          itemsWithName: [],
+          itemsWithName: []
         };
         verbConstruction.itemConstructions[possibleItem] = ic;
 

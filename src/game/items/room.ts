@@ -37,6 +37,24 @@ const newRoom = (config: RoomConfig & ItemConfig) => {
   return room;
 };
 
+/**
+ * A Room is a location the player can be in. Rooms may be linked together directly, or via {@link game/items/door!Door | Doors},
+ * and traversed between using directional keywords e.g. `north`, `west`, `s`, `up`, etc.
+ * 
+ * Rooms may contain {@link game/items/item!Item | Items}. If they're `holdable`, they'll automatically be included
+ * in the description. Rooms (indeed, all containers) can also "hide" items, such that the Room must be examined before the items
+ * can be discovered and interacted with by the player.
+ * 
+ * Rooms are constructed using a builder.
+ * 
+ * ```ts
+ * const kitchen = new Room.Builder("kitchen")
+ *   .withDescription("The kitchen is well-stocked and homely.")
+ *   .hasItems(table, oven, sink)
+ *   .hidesItems(cat, book, knife)
+ *   .build();
+ * ```
+ */
 export class Room extends Item {
   private _adjacentRooms!: AdjacentRooms;
   private _image?: string;
@@ -374,11 +392,11 @@ export class Room extends Item {
   }
 
   static get Builder() {
-    return Builder;
+    return RoomBuilder;
   }
 }
 
-class Builder extends ItemBuilder {
+export class RoomBuilder extends ItemBuilder {
   config!: RoomConfig & ItemConfig;
 
   constructor(name?: string) {

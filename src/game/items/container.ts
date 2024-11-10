@@ -323,11 +323,11 @@ export class Container extends Item {
   }
 
   static get Builder() {
-    return Builder;
+    return ContainerBuilder;
   }
 }
 
-class Builder extends ItemBuilder {
+export class ContainerBuilder extends ItemBuilder {
   config!: ContainerConfig & ItemConfig;
 
   constructor(name?: string) {

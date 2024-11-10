@@ -2,7 +2,7 @@ import { Schedule, ScheduleBuilder } from "./schedule";
 import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { selectRoom } from "../../utils/selectors";
 
-class Builder extends ScheduleBuilder {
+export class RouteBuilder extends ScheduleBuilder {
   steps: Step[];
   currentStep?: Step;
   subject?: NpcT;
@@ -61,7 +61,7 @@ class Builder extends ScheduleBuilder {
   }
 }
 
-class Step {
+export class Step {
   direction: string;
   text?: UnknownText;
   delay?: number;
@@ -74,10 +74,10 @@ class Step {
 
 export class Route extends Schedule {
   static get Builder() {
-    return Builder;
+    return RouteBuilder;
   }
 
-  constructor(builder: Builder) {
+  constructor(builder: RouteBuilder) {
     builder.steps.forEach((step) => {
       const getText = () => {
         if (builder.subject?.container === selectRoom() && builder.findPlayerText) {

@@ -4,7 +4,7 @@ export class AutoAction {
   condition;
   inputs;
 
-  constructor(builder: Builder) {
+  constructor(builder: AutoActionBuilder) {
     this.condition = builder.condition || (() => true);
     this.inputs = builder.inputs;
   }
@@ -34,11 +34,11 @@ export class AutoAction {
   }
 
   static get Builder() {
-    return Builder;
+    return AutoActionBuilder;
   }
 }
 
-class Builder {
+export class AutoActionBuilder {
   condition?: TestFunction;
   inputs?: Input[];
 

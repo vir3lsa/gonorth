@@ -8,7 +8,7 @@ import { selectRoom } from "../../utils/selectors";
 export class Npc extends Item {
   encounters: Event[];
 
-  constructor(builder: Builder) {
+  constructor(builder: NpcBuilder) {
     const { name, description, holdable, size, verbs, aliases, hidesItems, items, ...remainingConfig } = builder.config;
     super(name, description || `${name} is unremarkable.`, holdable, size, verbs, aliases, hidesItems, builder.config);
     this._isNpc = true; // Avoids circular dependency in item.js
@@ -69,11 +69,11 @@ export class Npc extends Item {
   }
 
   static get Builder() {
-    return Builder;
+    return NpcBuilder;
   }
 }
 
-class Builder extends Item.Builder {
+export class NpcBuilder extends Item.Builder {
   constructor(name: string) {
     super(name);
   }

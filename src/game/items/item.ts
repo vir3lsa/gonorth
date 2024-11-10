@@ -36,6 +36,28 @@ export function customiseVerbs(verbModifications: VerbCustomisations = {}, item:
   });
 }
 
+/**
+ * An Item is a thing the player can interact with. It can be given {@link game/verbs/verb!Verb | Verbs} to define what interactions may occur.
+ * A number of {@link game/verbs/verb!Verb | Verbs} are given automatically:
+ * - `examine`
+ * - `combine`
+ * 
+ * Several more {@link game/verbs/verb!Verb | Verbs} are added if the Item is `holdable`:
+ * - `take`
+ * - `put`
+ * - `drop`
+ * - `give`
+ * 
+ * Items are constructed using a builder:
+ * 
+ * ```ts
+ * const spade = new Item.Builder("spade")
+ *   .withAliases("shovel", "trowel")
+ *   .withDescription("A shiny metal shovel with a bright red handle.")
+ *   .withVerb(dig)
+ *   .build();
+ * ```
+ */
 export class Item {
   [property: string]: unknown;
   private _name!: string;
@@ -505,7 +527,7 @@ export class Item {
 
   /**
    * Adds an item to this item's roster.
-   * @param item The item to add.
+   * @param itemOrBuilder The item to add.
    */
   addItem(itemOrBuilder: ItemT | Builder) {
     const item = itemOrBuilder instanceof Builder ? itemOrBuilder.build() : itemOrBuilder;

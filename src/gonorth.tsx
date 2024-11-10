@@ -48,6 +48,7 @@ import { newContainer } from "./game/items/container";
 import { newItem } from "./game/items/item";
 import { EventBuilder, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
 import { ScheduleBuilder } from "./game/events/schedule";
+import { next, previous, okay } from "./game/interactions/optionGraph";
 
 const RESUME_HINTS = "RESUME_HINTS";
 const HINT_NODE = "HINT_NODE";
@@ -226,9 +227,12 @@ const gonorth = {
   newDoor,
   newItem,
   newVerb,
+  next,
+  okay,
   play,
   playerCanCarry,
   playerHasItem,
+  previous,
   removeKeyword,
   retrieve,
   selectEffects,
@@ -253,7 +257,7 @@ const gonorth = {
 
 export default gonorth;
 export { Room } from "./game/items/room";
-export { Verb, GoVerb, newVerb } from "./game/verbs/verb";
+export { Verb, GoVerb, newVerb, VerbBuilder as VerbBuilder } from "./game/verbs/verb";
 export { Door, newDoor, Key } from "./game/items/door";
 export { Container, newContainer } from "./game/items/container";
 export { Item, newItem } from "./game/items/item";
@@ -300,5 +304,5 @@ export {
   giveHint,
   addHintNodes,
   setHintNodeId,
-  addEffect,
+  addEffect
 };

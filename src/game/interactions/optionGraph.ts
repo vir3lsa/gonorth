@@ -335,7 +335,7 @@ export class OptionGraph {
   }
 }
 
-class OptionGraphBuilder {
+export class OptionGraphBuilder {
   private id;
   private image?: string;
   private resumable = true;
@@ -396,7 +396,7 @@ class OptionGraphBuilder {
   }
 }
 
-class NodeBuilder {
+export class NodeBuilder {
   private id;
   private actions: Action[] = [];
   private options?: GraphOptions;
@@ -461,7 +461,7 @@ class NodeBuilder {
   }
 }
 
-class OptionBuilder {
+export class OptionBuilder {
   private id?: string;
   private condition?: Condition;
   private node?: string;

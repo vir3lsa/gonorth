@@ -1,4 +1,4 @@
-import { Verb, newVerb, Builder as VerbBuilder } from "./verb";
+import { Verb, VerbBuilder as VerbBuilder } from "./verb";
 import { selectInventory, selectKeywords } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
 import { getHelp, giveHint } from "../../gonorth";

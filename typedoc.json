@@ -1,0 +1,14 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src"],
+  "entryPointStrategy": "expand",
+  "exclude": ["**/*+(test).ts", "**/constants", "**/web/*"],
+  "excludeNotDocumented": true,
+  "excludeNotDocumentedKinds": ["Variable", "Module"],
+  "name": "gonorth",
+  "hideGenerator": true,
+  "useTsLinkResolution": false,
+  "plugin": ["typedoc-github-theme"],
+  "readme": "externalDocs/landing.md",
+  "projectDocuments": ["externalDocs/quick-start.md"]
+}

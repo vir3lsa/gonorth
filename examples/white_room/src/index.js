@@ -1,37 +1,21 @@
-import {
-  attach,
-  initGame,
+import gn, {
   Item,
-  play,
   RandomText,
   Room,
-  setIntro,
-  setInventoryCapacity,
-  setStartingRoom,
   Verb,
   Event,
   TIMEOUT_MILLIS,
   TIMEOUT_TURNS,
-  addEvent,
-  selectInventory,
-  addHintNodes,
-  next,
-  previous,
-  okay,
-  setHintNodeId,
   OptionGraph,
-  gameOver,
   Door,
-  addSchedule,
-  Schedule,
-  playerHasItem
+  Schedule
 } from "../../../lib/src/gonorth";
 import "./index.css";
 import whiteRoomImage from "./whiteRoom.gif";
 import whiteRoomTitle from "./whiteRoomTitle.gif";
 import greenRoomImage from "./greenRoom.gif";
 
-initGame(
+gn.initGame(
   "The White Room",
   "Rich Locke",
   {
@@ -81,7 +65,7 @@ function setUp() {
           .withDestination("red room")
           .withTest(({ item: door }) => door.open, "The door is closed.")
           .withTest(
-            () => Boolean(selectInventory().itemArray.find((item) => item.name === "strange device")),
+            () => Boolean(gn.selectInventory().itemArray.find((item) => item.name === "strange device")),
             "You have to be holding the strange device, for some reason."
           )
           .onSuccess("You step into the green wall, through the door, and find yourself in the red room.")
@@ -96,7 +80,7 @@ function setUp() {
   whiteRoom
     .getVerb("west")
     .addTest(
-      () => Boolean(selectInventory().itemArray.find((item) => item.name === "strange device")),
+      () => Boolean(gn.selectInventory().itemArray.find((item) => item.name === "strange device")),
       "You have to be holding the strange device, for some reason."
     );
 
@@ -153,14 +137,14 @@ function setUp() {
     .isRecurring()
     .build();
 
-  addEvent(laserHoleEvent);
-  addEvent(fireEvent);
+  gn.addEvent(laserHoleEvent);
+  gn.addEvent(fireEvent);
 
   const cursedDoll = new Item.Builder("doll").isHoldable().isDoNotList();
 
-  addSchedule(
+  gn.addSchedule(
     new Schedule.Builder("weirdness")
-      .withCondition(() => playerHasItem("doll"))
+      .withCondition(() => gn.playerHasItem("doll"))
       .addEvent(
         new Event.Builder()
           .withDelay(2, TIMEOUT_TURNS)
@@ -184,7 +168,7 @@ function setUp() {
 
   strangeDevice.addVerb(
     new Verb.Builder("smash")
-      .withOnSuccess("You smash the device on the floor. It explodes. You die.", gameOver)
+      .withOnSuccess("You smash the device on the floor. It explodes. You die.", gn.gameOver)
       .build()
   );
 
@@ -260,48 +244,48 @@ function setUp() {
   whiteRoom.addVerb(new Verb.Builder("travel").withOnSuccess(() => travelGraph.commence()).build());
 
   whiteRoom.addItems(strangeDevice, redButton, greenButton, table, apple, orange, largeObject, cursedDoll);
-  setInventoryCapacity(10);
-  setStartingRoom(whiteRoom);
+  gn.setInventoryCapacity(10);
+  gn.setStartingRoom(whiteRoom);
 
-  setIntro([
+  gn.setIntro([
     "You awaken slowly, as if from the deepest sleep, and gradually become aware that something is very wrong.",
     "You realise you have no idea where you are and no memory of how you got here."
   ]);
 
-  addHintNodes(
+  gn.addHintNodes(
     {
       id: "hint1",
       actions: "Have you seen the device?",
       options: {
-        okay,
-        next
+        okay: gn.okay,
+        next: gn.next
       }
     },
     {
       id: "hint2",
       actions: "Have you tried pressing the button?",
       options: {
-        okay,
-        next,
-        previous
+        okay: gn.okay,
+        next: gn.next,
+        previous: gn.previous
       }
     },
     {
       id: "hint3",
       actions: "Have you walked down the corridor?",
       options: {
-        okay,
-        previous
+        okay: gn.okay,
+        previous: gn.previous
       }
     }
   );
 
-  setHintNodeId("hint1");
+  gn.setHintNodeId("hint1");
 }
 
 if (typeof document !== "undefined") {
   let container = document.querySelector("#container");
-  attach(container);
+  gn.attach(container);
 }
 
-play();
+gn.play();
