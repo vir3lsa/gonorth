@@ -4,7 +4,7 @@ import { Option } from "../game/interactions/option";
 import { Verb } from "../game/verbs/verb";
 import { selectCurrentPage, selectOptions } from "./testSelectors";
 import { changeInteraction } from "../redux/gameActions";
-import { initGame, Interaction, SequentialText } from "../gonorth";
+import gn, { Interaction, SequentialText } from "../gonorth";
 import { deferAction } from "./testFunctions";
 import { AnyAction } from "redux";
 import { clearPage } from "./sharedFunctions";
@@ -15,7 +15,7 @@ const consoleIO = require("../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-initGame("test", "", { debugMode: false });
+gn.init({ title: "test", goToTitleScreen: false });
 
 const clickNext = () => {
   let res: Resolve;

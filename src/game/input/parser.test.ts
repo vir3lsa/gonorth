@@ -4,7 +4,7 @@ import { Parser } from "./parser";
 import { Door } from "../items/door";
 import { Item } from "../items/item";
 import { Verb } from "../verbs/verb";
-import { addEffect, initGame, setInventoryCapacity } from "../../gonorth";
+import gn, { addEffect, setInventoryCapacity } from "../../gonorth";
 import { goToRoom } from "../../utils/lifecycle";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { selectRoom } from "../../utils/selectors";
@@ -56,7 +56,7 @@ const regexTest = async (input: string, ...expectedRegex: RegExp[]) => {
 
 beforeEach(() => {
   unregisterStore();
-  initGame("The Giant's Castle", "", { debugMode: false });
+  gn.init({ title: "The Giant's Castle", goToTitleScreen: false });
 });
 
 describe("parser", () => {

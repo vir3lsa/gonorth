@@ -5,7 +5,7 @@ import { Interaction } from "../interactions/interaction";
 import { CyclicText, SequentialText, RandomText, PagedText, ConcatText } from "../interactions/text";
 import { Option } from "../interactions/option";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
-import { addEffect, initGame, moveItem } from "../../gonorth";
+import gn, { addEffect, moveItem } from "../../gonorth";
 import { clickNext, clickNextAndWait, deferAction } from "../../utils/testFunctions";
 import { selectEffects, selectInventory, selectVerbNames } from "../../utils/selectors";
 import { Item } from "../items/item";
@@ -16,7 +16,7 @@ import { AnyAction } from "redux";
 import { Effect, VerbRelation } from "../../utils/effects";
 
 jest.mock("../input/autoActionExecutor", () => ({
-  checkAutoActions: jest.fn(async () => true),
+  checkAutoActions: jest.fn(async () => true)
 }));
 
 const mockedAutoActionExecutor = jest.mocked(checkAutoActions);
@@ -30,7 +30,7 @@ let verb: Verb;
 const storeHasVerb = (verbName: string) => selectVerbNames()[verbName];
 
 // Prevent console logging
-initGame("test", "", { debugMode: false });
+gn.init({ title: "", debugMode: false, goToTitleScreen: false });
 getStore().dispatch(changeRoom(new Room("hall")));
 
 beforeEach(() => {
@@ -291,7 +291,7 @@ describe("chainable actions", () => {
     const verb = newVerb({
       name: "fly",
       aliases: ["levitate"],
-      isKeyword: false,
+      isKeyword: false
     });
     expect(verb.name).toBe("fly");
     expect(verb.aliases).toStrictEqual(["levitate"]);
@@ -497,7 +497,7 @@ describe("effects", () => {
 
   beforeEach(() => {
     unregisterStore();
-    initGame("test", "", { debugMode: false });
+    gn.init({ title: "test", goToTitleScreen: false });
     selectEffects().effects = {};
 
     egg = new Item.Builder("egg")

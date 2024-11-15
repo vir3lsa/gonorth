@@ -1,4 +1,4 @@
-import { initGame, Item, Room } from "../gonorth";
+import gn, { Item, Room } from "../gonorth";
 import { goToRoom } from "./lifecycle";
 import { selectPlayer } from "./selectors";
 import { inRoom, inSameRoomAs, normaliseTest } from "./sharedFunctions";
@@ -9,7 +9,7 @@ consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
 // Prevent console logging
-initGame("test", "", { debugMode: false });
+gn.init({ title: "test", goToTitleScreen: false });
 
 const parlour = new Room("parlour", "");
 const scullery = new Room("scullery", "");

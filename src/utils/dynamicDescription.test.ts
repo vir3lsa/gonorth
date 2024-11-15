@@ -1,18 +1,14 @@
 import { PagedText } from "@interactions/text";
 import { preferPaged } from "./dynamicDescription";
-import { getStore, unregisterStore } from "../redux/storeRegistry";
-import { initGame } from "../gonorth";
-import { newGame } from "../redux/gameActions";
-
-let game;
+import { unregisterStore } from "../redux/storeRegistry";
+import gn from "../gonorth";
 
 describe("dynamicDescription tests", () => {
   beforeEach(() => {
     unregisterStore();
 
     // Pretend we're in the browser
-    game = initGame("Jolly Capers", "", { debugMode: false });
-    getStore().dispatch(newGame(game, false));
+    gn.init({ title: "test", goToTitleScreen: false });
   });
 
   it("preferPaged creates PagedText from input string", () => {

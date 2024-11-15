@@ -1,5 +1,5 @@
 import { AnyAction } from "redux";
-import { Interaction, Verb, initGame } from "../../gonorth";
+import gn, { Interaction, Verb } from "../../gonorth";
 import { changeInteraction, newGame } from "../../redux/gameActions";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Npc } from "./npc";
@@ -12,12 +12,9 @@ const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let game;
-
 beforeEach(() => {
   unregisterStore();
-  game = initGame("Chopin Underground", "", { debugMode: false });
-  getStore().dispatch(newGame(game, false));
+  gn.init({ title: "Chopin Underground", goToTitleScreen: false });
   getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);
 });
 

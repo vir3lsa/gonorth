@@ -5,7 +5,7 @@ import { Npc } from "../items/npc";
 import { CyclicText } from "../interactions/text";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { changeRoom } from "../../redux/gameActions";
-import { addSchedule, initGame } from "../../gonorth";
+import gn, { addSchedule } from "../../gonorth";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { selectCurrentPage } from "../../utils/testSelectors";
 
@@ -15,7 +15,6 @@ let nw: Room;
 let sw: Room;
 let se: Room;
 let ne: Room;
-let game;
 let gran: Npc;
 
 function createRoute(
@@ -44,7 +43,7 @@ function createRoute(
 
 beforeEach(() => {
   unregisterStore();
-  game = initGame("", "", { debugMode: false });
+  gn.init({ title: "", goToTitleScreen: false });
 
   nw = new Room("nw");
   sw = new Room("sw");

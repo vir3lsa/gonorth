@@ -4,14 +4,14 @@ import { SequentialText } from "../interactions/text";
 import { newGame, recordChanges } from "../../redux/gameActions";
 import { selectInventory, selectInventoryItems, selectItem, selectItemNames } from "../../utils/selectors";
 import { Room } from "./room";
-import { initGame, setInventoryCapacity, goToRoom } from "../../gonorth";
+import gn, { setInventoryCapacity, goToRoom } from "../../gonorth";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { Container } from "./container";
 import { Verb } from "../verbs/verb";
 import { clickNextAndWait, deferAction } from "../../utils/testFunctions";
 import { clearPage } from "../../utils/sharedFunctions";
 
-let game, room: RoomT;
+let room: RoomT;
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -22,9 +22,8 @@ beforeEach(() => {
   unregisterStore();
 
   // Pretend we're in the browser
-  game = initGame("Jolly Capers", "", { debugMode: false });
+  gn.init({ title: "Jolly Capers", goToTitleScreen: false });
   room = new Room("red");
-  getStore().dispatch(newGame(game, false));
   goToRoom(room);
 });
 

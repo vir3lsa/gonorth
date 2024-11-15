@@ -3,7 +3,7 @@ import { Parser } from "../game/input/parser";
 import { Door } from "../game/items/door";
 import { Item } from "../game/items/item";
 import { Verb } from "../game/verbs/verb";
-import { initGame } from "../gonorth";
+import gn from "../gonorth";
 import { goToRoom } from "./lifecycle";
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { selectCurrentPage } from "./testSelectors";
@@ -33,7 +33,7 @@ const inputTest = async (input: string, expectedOutput: string | string[], ...ex
 
 describe("debugFunctions", () => {
   beforeEach(() => {
-    initGame("The Giant's Castle", "", { debugMode: false }, "1.2.3");
+    gn.init({ title: "The Giant's Castle", version: "1.2.3" });
 
     hall = new Room("Hall", "grand");
     north = new Room("Garden", "");

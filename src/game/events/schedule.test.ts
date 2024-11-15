@@ -1,7 +1,7 @@
 import { Schedule, ScheduleBuilder } from "./schedule";
 import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
-import { addSchedule, initGame } from "../../gonorth";
+import gn, { addSchedule } from "../../gonorth";
 import { unregisterStore } from "../../redux/storeRegistry";
 
 jest.mock("../../utils/consoleIO");
@@ -13,7 +13,7 @@ let x: number;
 
 beforeEach(() => {
   unregisterStore();
-  initGame("", "", { debugMode: false });
+  gn.init({ title: "", goToTitleScreen: false });
   x = 1;
 });
 

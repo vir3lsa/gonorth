@@ -3,7 +3,7 @@ import { Door, Key } from "./door";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
 import { Interaction } from "../interactions/interaction";
-import { goToRoom, initGame, selectRoom, Verb } from "../../gonorth";
+import gn, { goToRoom, selectRoom, Verb } from "../../gonorth";
 import { Item } from "./item";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { AnyAction } from "redux";
@@ -11,7 +11,7 @@ import { clickNextAndWait, deferAction } from "../../utils/testFunctions";
 import { clearPage } from "../../utils/sharedFunctions";
 import { selectItem } from "../../utils/selectors";
 
-let game: Game, room: RoomT, door: DoorT;
+let room: RoomT, door: DoorT;
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -20,8 +20,7 @@ consoleIO.showOptions = jest.fn();
 
 beforeEach(() => {
   unregisterStore();
-  game = initGame("The Giant's Castle", "", { debugMode: false });
-  getStore().dispatch(newGame(game, false));
+  gn.init({ title: "The Giant's Castle", goToTitleScreen: false });
   getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);
   room = new Room.Builder("Hall").build();
   room.setEast(new Room.Builder("Pantry").build());

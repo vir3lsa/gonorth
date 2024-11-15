@@ -1,6 +1,6 @@
 import { Item } from "../game/items/item";
 import { Room } from "../game/items/room";
-import { initGame, OptionGraph, setStartingRoom } from "../gonorth";
+import gn, { OptionGraph, setStartingRoom } from "../gonorth";
 import { newGame, recordChanges } from "../redux/gameActions";
 import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { moveItem } from "./itemFunctions";
@@ -46,7 +46,7 @@ beforeEach(() => {
     clear: () => {},
     key: (index: number) => null
   };
-  initGame("Space Auctioneer", "", { debugMode: false }, "1.0.0", initialiser);
+  gn.init({ title: "Space Auctioneer", initialiser, goToTitleScreen: false });
   setStartingRoom(playground);
 });
 
@@ -62,7 +62,7 @@ test("delete save resets items to initial state", () => {
 
   // Destroy and recreate the store as if we're starting a new session.
   unregisterStore();
-  initGame("test", "", { debugMode: false }, "1.0.0", initialiser);
+  gn.init({ title: "test", goToTitleScreen: false, initialiser });
   getStore().dispatch(recordChanges());
 
   // Load the previous save.

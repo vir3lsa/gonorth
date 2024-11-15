@@ -1,12 +1,12 @@
 import { Interaction } from "./interaction";
 import { unregisterStore } from "../../redux/storeRegistry";
-import { initGame } from "../../gonorth";
+import gn from "../../gonorth";
 
 beforeEach(() => {
   unregisterStore();
 
   // Pretend we're in the browser
-  initGame("Jolly Capers", "", { debugMode: false });
+  gn.init({ title: "Jolly Capers", goToTitleScreen: false });
 });
 
 describe("Interaction", () => {

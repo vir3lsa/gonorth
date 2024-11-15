@@ -55,14 +55,26 @@ const HINT_NODE = "HINT_NODE";
 
 let game: Game;
 
-function initGame(title: string, author: string, config: Config, version?: string, initialiser?: Initialiser) {
+function init(config: Config) {
   unregisterStore();
   initStore(config?.storeName);
   createPlayer();
+
+  const {
+    title,
+    author,
+    initialiser,
+    version,
+    randomSeed,
+    debugMode = false,
+    elementSelector,
+    goToTitleScreen = true
+  } = config;
+
   game = {
-    title: title,
-    author: author,
-    config: config,
+    title,
+    author,
+    config,
     introActions: new ActionChain(() => goToStartingRoom()),
     help: getHelpGraph(),
     hintGraph: getHintGraph(),
@@ -71,7 +83,7 @@ function initGame(title: string, author: string, config: Config, version?: strin
   };
 
   // Seed the RNG for testing purposes.
-  seedrandom(config.randomSeed, { global: true });
+  seedrandom(randomSeed, { global: true });
 
   getStore().dispatch(setStartRoom(new Room("Empty Room", "The room is completely devoid of anything interesting.")));
 
@@ -82,9 +94,21 @@ function initGame(title: string, author: string, config: Config, version?: strin
 
   createKeywords();
   initAutoActions();
-  getStore().dispatch(newGame(game, game.config.debugMode));
+  getStore().dispatch(newGame(game, debugMode));
 
-  return game;
+  if (typeof document !== "undefined" && elementSelector) {
+    let container = document.querySelector(elementSelector);
+
+    if (!container) {
+      throw Error(`Couldn't find element ${elementSelector}.`);
+    }
+
+    attach(container);
+  }
+
+  if (goToTitleScreen) {
+    play();
+  }
 }
 
 function attach(container: Element) {
@@ -219,7 +243,7 @@ const gonorth = {
   giveHint,
   goToRoom,
   goToStartingRoom,
-  initGame,
+  init,
   inRoom,
   inSameRoomAs,
   moveItem,
@@ -289,8 +313,6 @@ export * from "./utils/persistentVariableFunctions";
 export * from "./utils/textFunctions";
 export * from "./utils/itemFunctions";
 export {
-  initGame,
-  attach,
   setIntro,
   setStartingRoom,
   goToStartingRoom,

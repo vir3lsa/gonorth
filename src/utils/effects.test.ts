@@ -3,14 +3,14 @@ import { initStore } from "../redux/store";
 import { Item, newItem } from "../game/items/item";
 import { Effect, Effects, VerbRelation } from "./effects";
 import { selectCurrentPage } from "./testSelectors";
-import { initGame } from "../gonorth";
+import gn from "../gonorth";
 
 let effects: EffectsT;
 
 beforeEach(() => {
   unregisterStore();
   initStore();
-  initGame("Jolly Capers", "", { debugMode: false });
+  gn.init({ title: "Jolly Capers", goToTitleScreen: false });
 
   const paint = new Item("paint");
   effects = new Effects();

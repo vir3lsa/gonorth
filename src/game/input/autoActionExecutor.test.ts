@@ -1,4 +1,4 @@
-import { initGame, Item } from "../../gonorth";
+import gn, { Item } from "../../gonorth";
 import { Verb } from "../verbs/verb";
 import { checkAutoActions } from "./autoActionExecutor";
 
@@ -6,7 +6,7 @@ const mock1 = jest.fn();
 const mock2 = jest.fn();
 const mock3 = jest.fn();
 
-initGame("test", "", { debugMode: false });
+gn.init({ title: "test", goToTitleScreen: false });
 
 jest.mock("../../utils/selectors", () => ({
   selectAllItemNames: () => new Set(),

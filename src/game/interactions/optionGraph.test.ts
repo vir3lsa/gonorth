@@ -1,5 +1,5 @@
 import { unregisterStore } from "../../redux/storeRegistry";
-import { goToRoom, initGame } from "../../gonorth";
+import gn, { goToRoom } from "../../gonorth";
 import { OptionGraph } from "./optionGraph";
 import { selectCurrentPage, selectImage, selectOptions, selectRoomName } from "../../utils/testSelectors";
 import { selectRoom, selectTurn, selectInventory } from "../../utils/selectors";
@@ -169,7 +169,7 @@ beforeEach(async () => {
   unregisterStore();
 
   // Pretend we're in the browser
-  initGame("Jolly Capers", "", { debugMode: false });
+  gn.init({ title: "Jolly Capers", goToTitleScreen: false });
   optionGraph = new OptionGraph("jollyCapers", ...graphNodes);
   doIt = new Verb("do it", true, () => x++);
   x = 0;

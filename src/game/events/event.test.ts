@@ -1,6 +1,6 @@
 import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
-import { addEvent, initGame } from "../../gonorth";
+import gn, { addEvent } from "../../gonorth";
 import { changeInteraction } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
 import { Option } from "../interactions/option";
@@ -19,7 +19,7 @@ let x: number;
 
 beforeEach(() => {
   unregisterStore();
-  initGame("", "", { debugMode: false });
+  gn.init({ title: "", goToTitleScreen: false });
   x = 1;
 });
 

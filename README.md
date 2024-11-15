@@ -51,21 +51,9 @@ Initialise the game.
 ```ts
 import gn from "@virelsa/gonorth";
 
-gn.initGame(
-  "Clowns From Space",
-  "Virelsa",
-  {
-    storeName: "space-clowns",
-    referToPlayerAs: "Toby",
-    startScreenImage: clownsTitlesPng
-  },
-  setup
-);
-
-if (typeof document !== "undefined") {
-  let container = document.querySelector("#gonorth-container");
-  gn.attach(container);
-}
-
-gn.play();
+gn.init({
+  title: "Clowns From Space",
+  elementSelector: "#gonorth-container",
+  initialiser: setup
+});
 ```

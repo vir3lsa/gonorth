@@ -3,9 +3,9 @@ import { Room } from "./room";
 import { changeInteraction, changeRoom, recordChanges } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
 import { Item } from "./item";
-import { initGame, SequentialText } from "../../gonorth";
+import gn, { SequentialText } from "../../gonorth";
 import { Parser } from "../input/parser";
-import { selectInteraction, selectCurrentPage } from "../../utils/testSelectors";
+import { selectCurrentPage } from "../../utils/testSelectors";
 import { clickNext, deferAction } from "../../utils/testFunctions";
 import { selectItem, selectRoom } from "../../utils/selectors";
 import { Door } from "./door";
@@ -29,7 +29,7 @@ const initRooms = () => {
 
 beforeEach(() => {
   unregisterStore();
-  initGame("test", "", { debugMode: false });
+  gn.init({ title: "test", debugMode: false, goToTitleScreen: false });
   initRooms();
   getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);
 });
@@ -142,11 +142,9 @@ describe("Room", () => {
   });
 
   describe("changing rooms", () => {
-    let game;
-
     beforeEach(() => {
       unregisterStore();
-      game = initGame("The Giant's Castle", "", { debugMode: false });
+      gn.init({ title: "The Giant's Castle", goToTitleScreen: false });
       initRooms();
       getStore().dispatch(changeRoom(hall));
       getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);

@@ -1,8 +1,6 @@
-import {
-  initGame,
+import gn, {
   play,
   addEvent,
-  attach,
   goToStartingRoom,
   selectOptionGraph,
   setStartingRoom,
@@ -17,7 +15,7 @@ import { Verb } from "./game/verbs/verb";
 import { TIMEOUT_MILLIS, TIMEOUT_TURNS, Event, EventBuilder } from "./game/events/event";
 import { handleTurnEnd } from "./utils/lifecycle";
 import { Parser } from "./game/input/parser";
-import { selectInventory, selectRoom, selectTurn } from "./utils/selectors";
+import { selectGame, selectInventory, selectRoom, selectTurn } from "./utils/selectors";
 import { selectCurrentPage } from "./utils/testSelectors";
 import { clickNext } from "./utils/testFunctions";
 import { OptionGraph } from "./game/interactions/optionGraph";
@@ -27,7 +25,7 @@ const title = "Space Auctioneer 2";
 jest.mock("./utils/consoleIO");
 const consoleIO = require("./utils/consoleIO");
 
-let game, x: number, y: number, room: Room;
+let x: number, y: number, room: Room;
 
 const eventTest = async (builder: EventBuilder, expectation: () => boolean) => {
   const event = builder.build();
@@ -39,7 +37,7 @@ const eventTest = async (builder: EventBuilder, expectation: () => boolean) => {
 
 describe("Game class", () => {
   beforeEach(() => {
-    game = initGame("title", "", { debugMode: false });
+    gn.init({ title: "test", goToTitleScreen: false });
     room = new Room("stairs", "description");
     setStartingRoom(room);
     x = y = 0;
@@ -47,10 +45,6 @@ describe("Game class", () => {
 
   it("defaults output to Loading", () => {
     expect(selectCurrentPage()).toBe("Loading...");
-  });
-
-  it("throws an error if trying to attach with no container", () => {
-    expect(attach).toThrow(Error);
   });
 
   it("goes to the starting room", () => {
@@ -220,19 +214,18 @@ describe("goNORTH", () => {
   });
 
   it("Creates a game with the given title", () => {
-    const game = initGame("The Witch's Grotto", "", { debugMode: false });
-    expect(game.title).toBe("The Witch's Grotto");
+    gn.init({ title: "The Witch's Grotto", debugMode: false, goToTitleScreen: false });
+    expect(selectGame().title).toBe("The Witch's Grotto");
   });
 
   it("Prints the game title", () => {
-    initGame(title, "", { debugMode: true });
-    play();
+    gn.init({ title, debugMode: true });
     expect(consoleIO.output.mock.calls[0][0]).toInclude("# Space Auctioneer 2");
   });
 });
 
 test("getItem can be used to retrieve items from the store", () => {
-  initGame("title", "", { debugMode: false });
+  gn.init({ title: "test", debugMode: false, goToTitleScreen: false });
   new Item.Builder("toolbox").withDescription("red and angular").build();
   expect(getItem("toolbox")?.description).toBe("red and angular");
 });

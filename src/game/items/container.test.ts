@@ -1,13 +1,12 @@
 import { Item } from "./item";
 import { Verb } from "../verbs/verb";
-import { initGame, selectInventory, selectInventoryItems } from "../../gonorth";
+import gn, { selectInventory } from "../../gonorth";
 import { recordChanges } from "../../redux/gameActions";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Container } from "./container";
 import { selectCurrentPage } from "../../utils/testSelectors";
 import { Key } from "./door";
 import { clearPage } from "../../utils/sharedFunctions";
-import { deferAction } from "../../utils/testFunctions";
 import { selectItem } from "../../utils/selectors";
 
 jest.mock("../../utils/consoleIO");
@@ -19,7 +18,7 @@ beforeEach(() => {
   unregisterStore();
 
   // Pretend we're in the browser
-  initGame("Jolly Capers", "", { debugMode: false });
+  gn.init({ title: "Jolly Capers", goToTitleScreen: false });
 });
 
 describe("serialization", () => {

@@ -1,4 +1,4 @@
-import { initGame } from "../../gonorth";
+import gn from "../../gonorth";
 import { Item } from "../items/item";
 import { Verb } from "../verbs/verb";
 import { AutoAction } from "./autoAction";
@@ -14,7 +14,7 @@ jest.mock("./parser", () => ({
 const mockedParser = jest.mocked(Parser);
 beforeEach(() => mockedParser.mockClear());
 
-initGame("test", "", { debugMode: false });
+gn.init({ title: "test", goToTitleScreen: false });
 
 const ball = new Item("ball");
 const context: Context = {

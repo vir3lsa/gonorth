@@ -3,18 +3,16 @@ import { newItem } from "../items/item";
 import { getKeyword, createKeywords } from "./keywords";
 import { selectCurrentPage } from "../../utils/testSelectors";
 import { selectInventory } from "../../utils/selectors";
-import { initGame } from "../../gonorth";
+import gn from "../../gonorth";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
-let game;
-
 beforeEach(() => {
   unregisterStore();
-  game = initGame("Jolly Capers", "", { debugMode: false });
+  gn.init({ title: "Jolly Capers", goToTitleScreen: false });
   createKeywords();
 });
 

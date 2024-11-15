@@ -1,9 +1,8 @@
-import {
+import gn, {
   addEvent,
   addSchedule,
   Event,
   goToRoom,
-  initGame,
   Item,
   OptionGraph,
   retrieve,
@@ -37,7 +36,7 @@ let testSchedule: Schedule;
 
 const setUpStoreTests = (additionalSetup?: () => void) => {
   unregisterStore();
-  initGame("test", "", { debugMode: false }), true, false;
+  gn.init({ title: "test", goToTitleScreen: false });
   room = new Room("Hydroponics");
   getStore().dispatch(changeRoom(room));
   persistor = getPersistor();

@@ -15,23 +15,22 @@ import whiteRoomImage from "./whiteRoom.gif";
 import whiteRoomTitle from "./whiteRoomTitle.gif";
 import greenRoomImage from "./greenRoom.gif";
 
-gn.initGame(
-  "The White Room",
-  "Rich Locke",
-  {
-    storeName: "whiteroom",
-    debugMode: true,
-    skipReactionTimes: true,
-    renderFeedbackBox: true,
-    recordLogs: true,
-    feedbackHandler: (feedback, name, logs) => console.log({ feedback, name, logs }),
-    randomSeed: "white-room.",
-    referToPlayerAs: "Toby",
-    startScreenImage: whiteRoomTitle
-  },
-  "0.0.2",
-  setUp
-);
+gn.init({
+  title: "The White Room",
+  author: "Rich Locke",
+  storeName: "whiteroom",
+  debugMode: true,
+  skipReactionTimes: true,
+  renderFeedbackBox: true,
+  recordLogs: true,
+  feedbackHandler: (feedback, name, logs) => console.log({ feedback, name, logs }),
+  randomSeed: "white-room.",
+  referToPlayerAs: "Toby",
+  startScreenImage: whiteRoomTitle,
+  version: "0.1.0",
+  initialiser: setUp,
+  elementSelector: "#container"
+});
 
 function setUp() {
   const whiteRoom = new Room.Builder("White Room")
@@ -282,10 +281,3 @@ function setUp() {
 
   gn.setHintNodeId("hint1");
 }
-
-if (typeof document !== "undefined") {
-  let container = document.querySelector("#container");
-  gn.attach(container);
-}
-
-gn.play();
