@@ -1,6 +1,6 @@
 # goNORTH Changelog
 
-# Unreleased
+# 9.0.0
 
 * 2024-11-15 Breaking change: improved Gonorth's initialisation mechanism, docs are now built when a version is published.
 * 2024-11-10 Added docs generation and first docs, including next, previous and okay functions in default export.

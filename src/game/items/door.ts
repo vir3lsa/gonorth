@@ -44,6 +44,23 @@ export function newDoor(config: DoorConfig & ItemConfig) {
   return door;
 }
 
+/**
+ * Doors are {@link game/items/item!Item | Items} that can open and close, and may be lockable, with or without
+ * a key. The can exist within {@link game/items/room!Room | Rooms}, or may act as gateways between {@link game/items/room!Room | Rooms}.
+ * When used in the latter way, it's advisable to define the Door in its own file and import it into the files
+ * defining both {@link game/items/room!Room | Rooms}. You'll also
+ * define {@link types/types!Traversal | Traversals} to control movement between the {@link game/items/room!Room | Rooms}.
+ * 
+ * {@link game/verbs/verb!Verb | Verbs} added to Doors:
+ * 
+ * | Name | Added If | Description |
+ * | --- | --- | --- |
+ * | open | `if (!config \|\| !config.alwaysOpen)` | Open the Door. |
+ * | close | `if (!config \|\| !config.alwaysOpen)` | Close the Door. |
+ * | unlock | `if (!config \|\| !config.alwaysOpen)` | Unlock the Door, with or without a key. |
+ * | go through | `if (traversals)` | Traverse the Door to the neighbouring {@link game/items/room!Room | Room}. |
+ * | peek | `if (traversals)` | Peek through the door to the neighbouring {@link game/items/room!Room | Room}. |
+ */
 export class Door extends Item {
   static peekSuccessText: CyclicText;
 

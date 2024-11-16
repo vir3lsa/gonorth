@@ -27,7 +27,7 @@ Define where you want to embed gonorth in your HTML.
 Create a setup function. All of your game's objects should be created here.
 
 ```ts
-import gn from "@virelsa/gonorth";
+import gn, { Room, Item, Verb } from "@virelsa/gonorth";
 
 function setup() {
   const bigTop = new Room.Builder("big top)
@@ -49,8 +49,6 @@ function setup() {
 Initialise the game.
 
 ```ts
-import gn from "@virelsa/gonorth";
-
 gn.init({
   title: "Clowns From Space",
   elementSelector: "#gonorth-container",
