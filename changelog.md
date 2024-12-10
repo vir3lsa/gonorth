@@ -1,5 +1,10 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2024-12-10 Scroll panel fades out at the bottom to indicate there's more to scroll through.
+* 2024-12-10 Very long lists are now displayed as tables.
+
 # 9.0.0
 
 * 2024-11-15 Breaking change: improved Gonorth's initialisation mechanism, docs are now built when a version is published.

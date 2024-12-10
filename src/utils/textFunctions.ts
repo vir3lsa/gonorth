@@ -5,16 +5,18 @@ const vowels = ["a", "e", "i", "o", "u"];
 export function getBasicItemList(items: Item[], definiteArticle: boolean = false) {
   if (items.length < 8) {
     return commaSeparate(items, definiteArticle);
-  } else {
+  } else if (items.length < 14) {
     return bulletPointList(items, definiteArticle);
+  } else {
+    return tableOfItems(items, definiteArticle);
   }
 }
 
-function commaSeparate(items: Item[], definiteArticle: boolean = false) {
+function commaSeparate(items: Item[], definiteArticle = false) {
   let text = "";
 
   items.forEach((item, i) => {
-    const prefix = definiteArticle ? "the " : item.article ? `${item.article} ` : "";
+    const prefix = getPrefix(item, definiteArticle);
     text += `${prefix}${item.name}`;
 
     if (i < items.length - 2) {
@@ -27,17 +29,45 @@ function commaSeparate(items: Item[], definiteArticle: boolean = false) {
   return text;
 }
 
-export function bulletPointList(items: Item[], definiteArticle: boolean = false) {
+export function bulletPointList(items: Item[], definiteArticle = false) {
   return (
     "\n* " +
     items
       .map((item) => {
-        const prefix = definiteArticle ? "the " : item.article ? `${item.article} ` : "";
+        const prefix = getPrefix(item, definiteArticle);
         return `${prefix}${item.name}`;
       })
       .join("\n* ")
   );
 }
+
+export function tableOfItems(items: Item[], definiteArticle = false, numCols = 3) {
+  let table = "|";
+
+  for (let i = 0; i < numCols; i++) {
+    table += " |";
+  }
+
+  table += "\n|";
+
+  for (let i = 0; i < numCols; i++) {
+    table += ":---|";
+  }
+
+  items.forEach((item, index) => {
+    if (index % numCols === 0) {
+      table += "\n|";
+    }
+
+    const prefix = getPrefix(item, definiteArticle);
+    table += `${prefix}${item.name}|`;
+  });
+
+  return table;
+}
+
+const getPrefix = (item: Item, definiteArticle = false) =>
+  definiteArticle ? "the " : item.article ? `${item.article} ` : "";
 
 export function toTitleCase(text: string) {
   return text[0].toUpperCase() + text.slice(1);

@@ -137,15 +137,42 @@ const IODevice = (props: Props) => {
       }}
     >
       <Scene />
-      <Box sx={{ flex: 2, position: "relative", overflow: "auto" }}>
+      <Box
+        sx={{
+          flex: 2,
+          position: "relative",
+          overflow: "auto"
+        }}
+      >
         <Box
           id={SCROLL_ELEMENT_ID}
           ref={scrollPaneRef}
           onScroll={debouncedScrollHandler}
-          sx={{ overflow: "auto", height: "100%", maxHeight: "100%", position: "relative" }}
+          sx={{
+            overflow: "auto",
+            height: "100%",
+            maxHeight: "100%",
+            position: "relative"
+          }}
         >
           {renderedMarkdown}
           <Element name="scrollBottom" />
+          <Fade in={!atBottom} {...(!scrolling ? { timeout: 1000 } : {})}>
+            <Box
+              sx={{
+                content: "''",
+                width: "100%",
+                height: "4em",
+                position: "sticky",
+                margin: "-4em",
+                left: 0,
+                bottom: 0,
+                background: "linear-gradient(transparent, var(--gn-background, #fff))",
+                zIndex: 1,
+                overflow: "visible"
+              }}
+            />
+          </Fade>
         </Box>
         <Fade in={!scrolling && !atBottom} {...(!scrolling ? { timeout: 1000 } : {})}>
           <Fab

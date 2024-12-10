@@ -1,5 +1,9 @@
+:root {
+  --gn-background: #333;
+}
+
 html {
-  background: #333;
+  background: var(--gn-background);
   /* font-family: "masaakiregular"; */
   color: #ccccb1;
   height: 100%;

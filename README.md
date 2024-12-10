@@ -30,16 +30,16 @@ Create a setup function. All of your game's objects should be created here.
 import gn, { Room, Item, Verb } from "@virelsa/gonorth";
 
 function setup() {
-  const bigTop = new Room.Builder("big top)
+  const ride = new Verb.Builder("ride")
+    .withOnSuccess("You swing your leg over the crossbar and start to ride. It's easy!");
+  
+  const tricycle = new Item.Builder("tricycle")
+    .withDescription("A clown's wobbly tricycle.")
+    .withVerb(ride);
+
+  const bigTop = new Room.Builder("big top")
     .withDescription("A big round tent where all the circus fun happens.");
-    .withItem(
-      new Item.Builder("tricycle")
-        .withDescription("A clown's wobbly tricycle.)
-        .withVerb(
-          new Verb.Builder("ride")
-            .withOnSuccess("You swing your leg over the crossbar and start to ride. It's easy!")
-        )
-    )
+    .withItem(tricycle)
     .build();
 
   gn.setStartingRoom(bigTop);

@@ -1,8 +1,14 @@
-import { englishList, getBasicItemList, bulletPointList } from "./textFunctions";
+import { englishList, getBasicItemList, bulletPointList, tableOfItems } from "./textFunctions";
 import { newItem } from "../game/items/item";
 import { initStore } from "../redux/store";
 
 initStore("test");
+
+const items = [
+  newItem({ name: "elephant", article: "an" }),
+  newItem({ name: "screw", article: "a" }),
+  newItem({ name: "porcupine", article: "a" })
+];
 
 test("english list returns a single item", () => {
   expect(englishList(["earth"])).toEqual("earth");
@@ -23,13 +29,27 @@ test("english list returns more items with commas", () => {
   expect(englishList(list)).toEqual("earth, wind, fire and air");
 });
 
-describe("getBasicItemList", () => {
-  const items = [
-    newItem({ name: "elephant", article: "an" }),
-    newItem({ name: "screw", article: "a" }),
-    newItem({ name: "porcupine", article: "a" })
-  ];
+test("returns a bulleted list of items with correct articles", () => {
+  const result = bulletPointList(items);
+  expect(result).toBe("\n* an elephant\n* a screw\n* a porcupine");
+});
 
+test("returns a bulleted list of items with definite articles", () => {
+  const result = bulletPointList(items, true);
+  expect(result).toInclude("the elephant");
+  expect(result).toInclude("the screw");
+  expect(result).toInclude("the porcupine");
+});
+
+test("table of items produces a table", () => {
+  expect(tableOfItems(items, false, 2)).toBe("| | |\n|:---|:---|\n|an elephant|a screw|\n|a porcupine|");
+});
+
+test("table of items produces a table with the correct columns", () => {
+  expect(tableOfItems(items, true, 1)).toBe("| |\n|:---|\n|the elephant|\n|the screw|\n|the porcupine|");
+});
+
+describe("getBasicItemList", () => {
   test("returns a list of items with correct articles", () =>
     expect(getBasicItemList(items)).toEqual("an elephant, a screw, and a porcupine"));
 
@@ -38,16 +58,4 @@ describe("getBasicItemList", () => {
 
   test("returns a list of items with definite articles", () =>
     expect(getBasicItemList(items, true)).toEqual("the elephant, the screw, and the porcupine"));
-
-  test("returns a bulleted list of items with correct articles", () => {
-    const result = bulletPointList(items);
-    expect(result).toBe("\n* an elephant\n* a screw\n* a porcupine");
-  });
-
-  test("returns a bulleted list of items with definite articles", () => {
-    const result = bulletPointList(items, true);
-    expect(result).toInclude("the elephant");
-    expect(result).toInclude("the screw");
-    expect(result).toInclude("the porcupine");
-  });
 });
