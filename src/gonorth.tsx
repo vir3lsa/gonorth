@@ -40,7 +40,14 @@ import { forget, retrieve, store, update } from "./utils/persistentVariableFunct
 import { createKeywords } from "./game/verbs/keywords";
 import { GoNorth } from "./web/GoNorth";
 import seedrandom from "seedrandom";
-import { clearPage, inRoom, inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";
+import {
+  clearPage,
+  inRoom,
+  inSameRoomAs,
+  playerCanCarry,
+  playerHasItem,
+  containerHasItem
+} from "./utils/sharedFunctions";
 import { getBasicItemList, bulletPointList, toTitleCase, getArticle, englishList } from "./utils/textFunctions";
 import { moveItem, getItem as getUniqueItem } from "./utils/itemFunctions";
 import { newDoor } from "./game/items/door";
@@ -229,6 +236,7 @@ const gonorth = {
   bulletPointList,
   checkpoint,
   clearPage,
+  containerHasItem,
   englishList,
   forget,
   gameOver,

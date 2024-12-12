@@ -2,6 +2,7 @@
 
 # Unreleased
 
+* 2024-12-12 Added containerHasItem function, made playerHasItem and Item.removeItem functions more robust.
 * 2024-12-10 Scroll panel fades out at the bottom to indicate there's more to scroll through.
 * 2024-12-10 Very long lists are now displayed as tables.
 

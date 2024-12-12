@@ -14,7 +14,7 @@ import { addItem, itemsRevealed } from "../../redux/gameActions";
 import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 import { moveItem } from "../../utils/itemFunctions";
-import { playerHasItem } from "../../utils/sharedFunctions";
+import { playerHasItem, resolveItem } from "../../utils/sharedFunctions";
 
 export function newItem(config: ItemConfig, typeConstructor = Item) {
   const { name, description, holdable, size, verbs, aliases, hidesItems, items, ...remainingConfig } = config;
@@ -41,15 +41,15 @@ export function customiseVerbs(verbModifications: VerbCustomisations = {}, item:
  * A number of {@link game/verbs/verb!Verb | Verbs} are given automatically:
  * - `examine`
  * - `combine`
- * 
+ *
  * Several more {@link game/verbs/verb!Verb | Verbs} are added if the Item is `holdable`:
  * - `take`
  * - `put`
  * - `drop`
  * - `give`
- * 
+ *
  * Items are constructed using a builder:
- * 
+ *
  * ```ts
  * const spade = new Item.Builder("spade")
  *   .withAliases("shovel", "trowel")
@@ -560,20 +560,28 @@ export class Item {
   }
 
   /**
-   * Remove an item from this item's collection
+   * Remove an item from this item's collection. Does nothing if the item's not present.
    * @param item The item to remove
    * @param alias (Optional) The item alias to remove
    */
-  removeItem(item: ItemT, alias?: string) {
+  removeItem(itemOrName: ItemT | string, alias?: string) {
+    const item = resolveItem(itemOrName);
+
+    if (!item) {
+      return;
+    }
+
     // Use the alias provided or just the item's actual name
     const name = alias ? alias : item.name.toLowerCase();
 
-    // Remove the item from the array of items with its name
-    this.items[name] = this.items[name].filter((itemWithName) => itemWithName !== item);
+    if (this.items[name]) {
+      // Remove the item from the array of items with its name
+      this.items[name] = this.items[name].filter((itemWithName) => itemWithName !== item);
 
-    // Remove the array if it's empty
-    if (!this.items[name].length) {
-      delete this.items[name];
+      // Remove the array if it's empty
+      if (!this.items[name].length) {
+        delete this.items[name];
+      }
     }
 
     if (this.uniqueItems.has(item)) {

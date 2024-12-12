@@ -43,25 +43,57 @@ export function inSameRoomAs(item: Item) {
 }
 
 /**
+ * Gets the item from the store by name or alias, or returns the item if it's an object.
+ * @param itemOrName The name or alias of the item, or the item itself.
+ * @param index (Optional) The index of the item if there are multiple items with the provided alias. Defaults to 0.
+ * @returns an item, if a matching one is found.
+ */
+export function resolveItem(itemOrName: Item | string, index = 0) {
+  return typeof itemOrName === "string" ? [...(selectItem(itemOrName) || [])][index] : itemOrName;
+}
+
+/**
  * Returns true if the player has room in her inventory for the item.
  * @param itemOrName The name or alias of the item, or the item itself.
  * @param index (Optional) The index of the item if there are multiple items with the provided alias. Defaults to 0.
  */
 export function playerCanCarry(itemOrName: Item | string, index = 0) {
-  const item = typeof itemOrName === "string" ? [...selectItem(itemOrName)][index] : itemOrName;
+  const item = resolveItem(itemOrName, index);
   const inventory = selectInventory();
-  return (inventory.capacity === -1 || inventory.free >= item.size) && !inventory.items[item.name.toLowerCase()];
+  return (
+    item && (inventory.capacity === -1 || inventory.free >= item.size) && !inventory.items[item.name.toLowerCase()]
+  );
 }
+
+
 
 /**
  * Returns true if the player is carrying the item.
  * @param itemOrName The name or alias of the item, or the item itself.
  * @param index (Optional) The index of the item if there are multiple items with the provided alias. Defaults to 0.
+ * @returns true if the player is carrying the item.
  */
 export function playerHasItem(itemOrName: Item | string, index = 0) {
-  const item = typeof itemOrName === "string" ? [...selectItem(itemOrName)][index] : itemOrName;
-  const inventory = selectInventory();
-  return inventory.items.hasOwnProperty(item.name.toLowerCase());
+  return containerHasItem(selectInventory(), itemOrName, index);
+}
+
+/**
+ * Returns true if the container item contains the second item.
+ * @param containerOrName The name of alias of the container, or the container itself.
+ * @param itemOrName The name or alias of the item, or the item itself.
+ * @param containerIndex (Optional) The index of the container if there are multiple items with the provided alias. Defaults to 0.
+ * @param itemIndex (Optional) The index of the item if there are multiple items with the provided alias. Defaults to 0.
+ * @returns true if the container item contains the second item.
+ */
+export function containerHasItem(
+  containerOrName: Item | string,
+  itemOrName: Item | string,
+  containerIndex = 0,
+  itemIndex = 0
+) {
+  const container = resolveItem(containerOrName, containerIndex);
+  const item = resolveItem(itemOrName, itemIndex);
+  return Boolean(container && item && container.items.hasOwnProperty(item.name.toLowerCase()));
 }
 
 /*
