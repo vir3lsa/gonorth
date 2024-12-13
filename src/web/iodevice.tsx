@@ -45,6 +45,7 @@ const IODevice = (props: Props) => {
   const renderFeedbackBox = useSelector((state: StoreState) => state.game?.config.renderFeedbackBox);
   const sceneRevealed = useSelector((state: StoreState) => state.sceneRevealed);
   const [scrolling, setScrolling] = useState(false);
+  const [autoScrolling, setAutoScrolling] = useState(false);
   const [atBottom, setAtBottom] = useState(true);
   const scrollPaneRef = useRef<HTMLDivElement>(null);
 
@@ -58,7 +59,10 @@ const IODevice = (props: Props) => {
   };
 
   // Scroll as necessary when current page changes.
-  useEffect(() => debouncedScroll(), [interaction.currentPage]);
+  useEffect(() => {
+    setAutoScrolling(true);
+    debouncedScroll();
+  }, [interaction.currentPage]);
 
   // Check the scroll position when the scene image is hidden or revealed.
   useEffect(checkScrollPosition, [sceneRevealed, scrollPaneRef.current, interaction.currentPage]);
@@ -93,7 +97,10 @@ const IODevice = (props: Props) => {
   // Register scrolling event handlers.
   useEffect(() => {
     Events.scrollEvent.register("begin", () => setScrolling(true));
-    Events.scrollEvent.register("end", () => setScrolling(false));
+    Events.scrollEvent.register("end", () => {
+      setScrolling(false);
+      setAutoScrolling(false);
+    });
 
     scrollSpy.update();
 
@@ -157,7 +164,7 @@ const IODevice = (props: Props) => {
         >
           {renderedMarkdown}
           <Element name="scrollBottom" />
-          <Fade in={!atBottom} {...(!scrolling ? { timeout: 1000 } : {})}>
+          <Fade in={!atBottom && !autoScrolling} timeout={1000}>
             <Box
               sx={{
                 content: "''",
