@@ -52,18 +52,18 @@ export function newContainer(config: ContainerConfig & ItemConfig) {
 }
 
 export class Container extends Item {
-  private _open!: boolean;
-  private _locked!: boolean;
-  private _lockedText!: string;
-  private _openText!: string;
-  private _alreadyOpenText!: string;
-  private _closeText!: string;
-  private _alreadyClosedText!: string;
-  private _wrongKeyText!: string;
-  private _needsKeyText!: string;
-  private _alreadyUnlockedText!: string;
-  private _unlockSuccessText?: string;
-  private _key?: string;
+  private __open!: boolean;
+  private __locked!: boolean;
+  private __onLocked!: Action;
+  private __onOpen!: Action;
+  private __onAlreadyOpen!: Action;
+  private __onClose!: Action;
+  private __onAlreadyClosed!: Action;
+  private __onWrongKey!: Action;
+  private __onNeedsKey!: Action;
+  private __onAlreadyUnlocked!: Action;
+  private __onUnlock?: Action;
+  private __key?: string;
   openVerb?: VerbT;
   closeVerb?: VerbT;
 
@@ -104,25 +104,19 @@ export class Container extends Item {
     this.closeable = closeable;
     this.lockable = lockable;
     this.key = key;
-    this.lockedText = `The ${this.name} ${this.isOrAre} locked.`;
-    this.openText = `The ${this.name} opens easily.`;
-    this.alreadyOpenText = `The ${this.name} ${this.isOrAre} already open.`;
-    this.closeText = `You close the ${this.name} with a soft thud.`;
-    this.alreadyClosedText = `The ${this.name} ${this.isOrAre} already closed.`;
-    this.wrongKeyText = `The key doesn't fit.`;
-    this.needsKeyText = `The ${name} appears to need a key.`;
-    this.alreadyUnlockedText = `The ${name} ${this.isOrAre} already unlocked.`;
+    this.onLocked = config?.onLocked ?? `The ${this.name} ${this.isOrAre} locked.`;
+    this.onOpen = config?.onOpen ?? `The ${this.name} opens easily.`;
+    this.onAlreadyOpen = config?.onAlreadyOpen ?? `The ${this.name} ${this.isOrAre} already open.`;
+    this.onClose = config?.onClose ?? `You close the ${this.name} with a soft thud.`;
+    this.onAlreadyClosed = config?.onAlreadyClosed ?? `The ${this.name} ${this.isOrAre} already closed.`;
+    this.onWrongKey = config?.onWrongKey ?? `The key doesn't fit.`;
+    this.onNeedsKey = config?.onNeedsKey ?? `The ${name} appears to need a key.`;
+    this.onAlreadyUnlocked = config?.onAlreadyUnlocked ?? `The ${name} ${this.isOrAre} already unlocked.`;
 
     if (this.closeable) {
       this.openVerb = new Verb.Builder("open")
-        .withSmartTest(
-          () => !this.open,
-          () => this.alreadyOpenText
-        )
-        .withSmartTest(
-          () => !this.locked,
-          () => this.lockedText
-        )
+        .withSmartTest(() => !this.open, this.onAlreadyOpen)
+        .withSmartTest(() => !this.locked, this.onLocked)
         .withOnSuccess(
           () => {
             this.open = true;
@@ -130,19 +124,13 @@ export class Container extends Item {
           () => {
             this.itemsVisibleFromSelf = true;
           },
-          () => this.openText
+          this.onOpen
         )
         .build();
 
       this.closeVerb = new Verb.Builder("close")
-        .withSmartTest(
-          () => this.open,
-          () => this.alreadyClosedText
-        )
-        .withSmartTest(
-          () => !this.locked,
-          () => this.lockedText
-        )
+        .withSmartTest(() => this.open, this.onAlreadyClosed)
+        .withSmartTest(() => !this.locked, this.onLocked)
         .withOnSuccess(
           () => {
             // Ensure we don't return false to avoid breaking the action chain.
@@ -151,7 +139,7 @@ export class Container extends Item {
           () => {
             this.itemsVisibleFromSelf = false;
           },
-          () => this.closeText
+          this.onClose
         )
         .withAliases("shut")
         .build();
@@ -162,29 +150,16 @@ export class Container extends Item {
     if (this.lockable) {
       this.addVerb(
         new Verb.Builder("unlock")
-          .withSmartTest(
-            () => this.locked,
-            () => this.alreadyUnlockedText
-          )
-          .withSmartTest(
-            ({ other: key }) => !this.key || Boolean(key),
-            () => this.needsKeyText
-          )
+          .withSmartTest(() => this.locked, this.onAlreadyUnlocked)
+          .withSmartTest(({ other: key }) => !this.key || Boolean(key), this.onNeedsKey)
           .withSmartTest(
             ({ other: key }) => !this.key || key!.name === this.key || key!.name === (this.key as KeyT).name,
-            () => this.wrongKeyText
+            this.onWrongKey
           )
-          .withOnSuccess(
-            ({ item: container }) => {
-              // Ensure we don't return false to avoid breaking the action chain.
-              container.locked = false;
-            },
-            ({ item: container }) =>
-              this.unlockSuccessText ||
-              ((container as Container).key
-                ? "The key turns easily in the lock."
-                : `The ${name} unlocks with a soft *click*.`)
-          )
+          .withOnSuccess(({ item: container }) => {
+            // Ensure we don't return false to avoid breaking the action chain.
+            container.locked = false;
+          }, this.onUnlock || (({ item: container }) => ((container as Container).key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)))
           .makePrepositional("with what", true)
           .build()
       );
@@ -213,112 +188,103 @@ export class Container extends Item {
   }
 
   get open() {
-    return this._open;
+    return this.__open;
   }
 
   set open(value) {
     this.recordAlteredProperty("open", value);
-    this._open = value;
+    this.__open = value;
   }
 
   get locked() {
-    return this._locked;
+    return this.__locked;
   }
 
   set locked(value) {
     this.recordAlteredProperty("locked", value);
-    this._locked = value;
+    this.__locked = value;
   }
 
-  get lockedText() {
-    return this._lockedText;
+  get onLocked() {
+    return this.__onLocked;
   }
 
-  set lockedText(text) {
-    this.recordAlteredProperty("lockedText", text);
-    this._lockedText = text;
+  set onLocked(value) {
+    this.__onLocked = value;
   }
 
-  get openText() {
-    return this._openText;
+  get onOpen() {
+    return this.__onOpen;
   }
 
-  set openText(text) {
-    this.recordAlteredProperty("openText", text);
-    this._openText = text;
+  set onOpen(value) {
+    this.__onOpen = value;
   }
 
-  get alreadyOpenText() {
-    return this._alreadyOpenText;
+  get onAlreadyOpen() {
+    return this.__onAlreadyOpen;
   }
 
-  set alreadyOpenText(text) {
-    this.recordAlteredProperty("alreadyOpenText", text);
-    this._alreadyOpenText = text;
+  set onAlreadyOpen(value) {
+    this.__onAlreadyOpen = value;
   }
 
-  get closeText() {
-    return this._closeText;
+  get onClose() {
+    return this.__onClose;
   }
 
-  set closeText(text) {
-    this.recordAlteredProperty("closeText", text);
-    this._closeText = text;
+  set onClose(value) {
+    this.__onClose = value;
   }
 
-  get alreadyClosedText() {
-    return this._alreadyClosedText;
+  get onAlreadyClosed() {
+    return this.__onAlreadyClosed;
   }
 
-  set alreadyClosedText(text) {
-    this.recordAlteredProperty("alreadyClosedText", text);
-    this._alreadyClosedText = text;
+  set onAlreadyClosed(value) {
+    this.__onAlreadyClosed = value;
   }
 
-  get wrongKeyText() {
-    return this._wrongKeyText;
+  get onWrongKey() {
+    return this.__onWrongKey;
   }
 
-  set wrongKeyText(text) {
-    this._wrongKeyText = text;
-    this.recordAlteredProperty("wrongKeyText", text);
+  set onWrongKey(value) {
+    this.__onWrongKey = value;
   }
 
-  get needsKeyText() {
-    return this._needsKeyText;
+  get onNeedsKey() {
+    return this.__onNeedsKey;
   }
 
-  set needsKeyText(text) {
-    this._needsKeyText = text;
-    this.recordAlteredProperty("needsKeyText", text);
+  set onNeedsKey(value) {
+    this.__onNeedsKey = value;
   }
 
-  get alreadyUnlockedText() {
-    return this._alreadyUnlockedText;
+  get onAlreadyUnlocked() {
+    return this.__onAlreadyUnlocked;
   }
 
-  set alreadyUnlockedText(text) {
-    this._alreadyUnlockedText = text;
-    this.recordAlteredProperty("alreadyUnlockedText", text);
+  set onAlreadyUnlocked(value) {
+    this.__onAlreadyUnlocked = value;
   }
 
-  get unlockSuccessText() {
-    return this._unlockSuccessText;
+  get onUnlock() {
+    return this.__onUnlock;
   }
 
-  set unlockSuccessText(text) {
-    this._unlockSuccessText = text;
-    this.recordAlteredProperty("unlockSuccessText", text);
+  set onUnlock(value) {
+    this.__onUnlock = value;
   }
 
   get key(): string | KeyT | undefined {
-    return this._key;
+    return this.__key;
   }
 
   set key(key: string | KeyT | undefined) {
     if (key) {
-      this._key = typeof key === "string" ? key : key.name;
-      this.recordAlteredProperty("key", this._key);
+      this.__key = typeof key === "string" ? key : key.name;
+      this.recordAlteredProperty("key", this.__key);
     }
   }
 
@@ -335,8 +301,8 @@ export class ContainerBuilder extends ItemBuilder {
     this.config.relinquishTests = [];
   }
 
-  withCloseText(closeText: string) {
-    this.config.closeText = closeText;
+  onClose(value: Action) {
+    this.config.onClose = value;
     return this;
   }
 
@@ -345,8 +311,8 @@ export class ContainerBuilder extends ItemBuilder {
     return this;
   }
 
-  withOpenText(openText: string) {
-    this.config.openText = openText;
+  onOpen(value: Action) {
+    this.config.onOpen = value;
     return this;
   }
 
@@ -355,8 +321,8 @@ export class ContainerBuilder extends ItemBuilder {
     return this;
   }
 
-  withLockedText(lockedText: string) {
-    this.config.lockedText = lockedText;
+  onLocked(value: Action) {
+    this.config.onLocked = value;
     return this;
   }
 
@@ -395,33 +361,33 @@ export class ContainerBuilder extends ItemBuilder {
     return this;
   }
 
-  withWrongKeyText(text: string) {
-    this.config.wrongKeyText = text;
+  onWrongKey(value: Action) {
+    this.config.onWrongKey = value;
     return this;
   }
 
-  withNeedsKeyText(text: string) {
-    this.config.needsKeyText = text;
+  onNeedsKey(value: Action) {
+    this.config.onNeedsKey = value;
     return this;
   }
 
-  withAlreadyOpenText(text: string) {
-    this.config.alreadyOpenText = text;
+  onAlreadyOpen(value: Action) {
+    this.config.onAlreadyOpen = value;
     return this;
   }
 
-  withAlreadyClosedText(text: string) {
-    this.config.alreadyClosedText = text;
+  onAlreadyClosed(value: Action) {
+    this.config.onAlreadyClosed = value;
     return this;
   }
 
-  withAlreadyUnlockedText(text: string) {
-    this.config.alreadyUnlockedText = text;
+  onAlreadyUnlocked(value: Action) {
+    this.config.onAlreadyUnlocked = value;
     return this;
   }
 
-  withUnlockSuccessText(text: string) {
-    this.config.unlockSuccessText = text;
+  onUnlock(value: Action) {
+    this.config.onUnlock = value;
     return this;
   }
 

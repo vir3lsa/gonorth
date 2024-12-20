@@ -1,5 +1,10 @@
 # goNORTH Changelog
 
+# Unreleased
+
+* 2024-12-20 Breaking change: Various container texts are now Actions (and hence are not persisted in saved state).
+* 2024-12-19 Containers no longer allow items to be added to them when they're closed.
+
 # 9.1.0
 
 * 2024-12-12 Added containerHasItem function, made playerHasItem and Item.removeItem functions more robust.

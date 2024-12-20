@@ -354,12 +354,15 @@ describe("builder tests", () => {
 });
 
 describe("putting items", () => {
-  let ball: ItemT, table: ItemT, flowers: ItemT;
+  let ball: ItemT, table: ItemT, flowers: ItemT, chest: Container, drawers: Container, greenbear: ItemT;
 
   beforeEach(() => {
     ball = new Item("ball", "red", true, 1);
     table = new Item("table", "mahogany", false);
     flowers = new Item("flowers", "pretty", true);
+    chest = new Container.Builder("chest").isOpen(false).build();
+    drawers = new Container.Builder("drawers").isPlural().isOpen(false).build();
+    greenbear = new Item.Builder("Greenbear").isProperNoun().build();
 
     table.capacity = 10;
     table.preposition = "on";
@@ -398,7 +401,12 @@ describe("putting items", () => {
 
   test("fails if the indirect object isn't a container", async () => {
     await ball.try("put", flowers);
-    expect(selectCurrentPage().includes("can't put the ball")).toBeTruthy();
+    expect(selectCurrentPage().includes("can't put the ball in the flowers")).toBeTruthy();
+  });
+
+  test("fails if the indirect object isn't a container, honouring proper nouns", async () => {
+    await ball.try("put", greenbear);
+    expect(selectCurrentPage()).toInclude("can't put the ball in Greenbear");
   });
 
   test("fails if there's no room left in the container", async () => {
@@ -411,6 +419,16 @@ describe("putting items", () => {
     ball.capacity = 3;
     await ball.try("put", ball);
     expect(selectCurrentPage()).toInclude("nonsensical");
+  });
+
+  test("fails if the container is closed", async () => {
+    await ball.try("put", chest);
+    expect(selectCurrentPage()).toInclude("the chest is closed");
+  });
+
+  test("fails if the container is closed, with the correct cardinality", async () => {
+    await ball.try("put", drawers);
+    expect(selectCurrentPage()).toInclude("the drawers are closed");
   });
 
   test("items can be created with config objects", () => {

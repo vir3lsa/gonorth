@@ -83,6 +83,7 @@ export class Item {
   private _visible!: boolean;
   private _itemsVisibleFromRoom!: boolean;
   private _doNotList!: boolean;
+  private _properNoun!: boolean;
   private _verbCustomisations: VerbCustomisations = {};
   private _config?: ItemConfig;
   private omitAliases: string[] = [];
@@ -162,7 +163,7 @@ export class Item {
     this.itemsVisibleFromSelf = true;
     this.doNotList = false;
     this.properties = {};
-    this.properNoun = "";
+    this.properNoun = false;
 
     aliases.forEach((alias) => this.createAliases(alias));
 
@@ -296,13 +297,21 @@ export class Item {
         .withSmartTest(
           ({ other }) => other !== this,
           ({ other }) =>
-            `You can't put ${this.theOrNone} ${this.name} ${other!.preposition} ${
+            `You can't put ${this.theOrNone}${this.name} ${other!.preposition} ${
               config?.plural ? "themselves" : "itself"
             }. That would be nonsensical.`
         )
         .withSmartTest(
           ({ other }) => other!.canHoldItems,
-          ({ other }) => `You can't put ${this.theOrNone} ${this.name} ${other!.preposition} the ${other!.name}.`
+          ({ other }) =>
+            `You can't put ${this.theOrNone}${this.name} ${other!.preposition} ${other!.theOrNone}${other!.name}.`
+        )
+        .withSmartTest(
+          ({ other }) => other!.open !== false,
+          ({ other }) =>
+            `You can't put ${this.theOrNone}${this.name} ${other!.preposition} ${other!.theOrNone}${
+              other!.name
+            } because ${other!.theOrNone}${other!.name} ${other!.isOrAre} closed.`
         )
         .withSmartTest(
           ({ other }) => other!.free === -1 || this.size <= other!.free,
@@ -312,10 +321,10 @@ export class Item {
           ({ item, other }) => moveItem(item, other!),
           ({ item, other }) => {
             if (other!.isRoom) {
-              return `You put ${item.theOrNone} ${item.name} on the floor.`;
+              return `You put ${item.theOrNone}${item.name} on the floor.`;
             }
 
-            return `You put ${item.theOrNone} ${item.name} ${other!.preposition} the ${other!.name}.`;
+            return `You put ${item.theOrNone}${item.name} ${other!.preposition} the ${other!.name}.`;
           }
         )
         .build();
@@ -333,7 +342,7 @@ export class Item {
               }
             },
             ({ item }) => moveItem(item, selectRoom()),
-            ({ item }) => `You put ${item.theOrNone} ${item.name} on the floor.`
+            ({ item }) => `You put ${item.theOrNone}${item.name} on the floor.`
           )
           .build()
       );
@@ -343,16 +352,16 @@ export class Item {
           .withSmartTest(
             ({ other }) => other !== this,
             () =>
-              `You can't give ${this.theOrNone} ${this.name} to ${config?.plural ? "themselves" : "itself"}. Obviously.`
+              `You can't give ${this.theOrNone}${this.name} to ${config?.plural ? "themselves" : "itself"}. Obviously.`
           )
           .withSmartTest(
             ({ other }) => Boolean(other!._isNpc),
             ({ other }) =>
-              `You know you can't give ${this.theOrNone} ${this.name} to the ${other!.name}. So just stop it.`
+              `You know you can't give ${this.theOrNone}${this.name} to the ${other!.name}. So just stop it.`
           )
           .withSmartTest(
             () => false,
-            ({ other }) => `It doesn't look like ${other!.name} wants ${this.theOrNone} ${this.name}.`
+            ({ other }) => `It doesn't look like ${other!.name} wants ${this.theOrNone}${this.name}.`
           )
           .withOnSuccess(({ item, other }) => moveItem(item, other!))
           .withAliases("offer", "pass", "show")
@@ -664,7 +673,7 @@ export class Item {
     this._capacity = capacity;
     this.free = capacity;
 
-    if (capacity > 0 && !this.canHoldItems) {
+    if (capacity > 0) {
       this.canHoldItems = true;
     }
   }
@@ -875,7 +884,7 @@ export class Item {
   }
 
   get theOrNone() {
-    return this.properNoun ? "" : "the";
+    return this.properNoun ? "" : "the ";
   }
 
   get holdable() {
@@ -948,6 +957,15 @@ export class Item {
   set doNotList(value) {
     this.recordAlteredProperty("doNotList", value);
     this._doNotList = value;
+  }
+
+  get properNoun() {
+    return this._properNoun;
+  }
+
+  set properNoun(value) {
+    this.recordAlteredProperty("properNoun", value);
+    this._properNoun = value;
   }
 
   get takeSuccessText() {
@@ -1169,6 +1187,11 @@ export class Builder {
 
   isDoNotList(doNotList = true) {
     this.config.doNotList = doNotList;
+    return this;
+  }
+
+  isProperNoun(properNoun = true) {
+    this.config.properNoun = properNoun;
     return this;
   }
 

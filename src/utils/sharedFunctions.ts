@@ -79,7 +79,7 @@ export function playerHasItem(itemOrName: Item | string, index = 0) {
 
 /**
  * Returns true if the container item contains the second item.
- * @param containerOrName The name of alias of the container, or the container itself.
+ * @param containerOrName The name or alias of the container, or the container itself.
  * @param itemOrName The name or alias of the item, or the item itself.
  * @param containerIndex (Optional) The index of the container if there are multiple items with the provided alias. Defaults to 0.
  * @param itemIndex (Optional) The index of the item if there are multiple items with the provided alias. Defaults to 0.

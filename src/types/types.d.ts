@@ -668,6 +668,15 @@ interface ContainerConfig {
   lockable: boolean;
   key: string | KeyT;
   relinquishTests: SmartTest[];
+  onOpen: Action;
+  onClose: Action;
+  onUnlock: Action;
+  onLocked: Action;
+  onAlreadyOpen: Action;
+  onAlreadyClosed: Action;
+  onAlreadyUnlocked: Action;
+  onNeedsKey: Action;
+  onWrongKey: Action;
 }
 
 /**************/
