@@ -10,8 +10,8 @@ export function newDoor(config: DoorConfig & ItemConfig) {
     description,
     open,
     locked,
-    openSuccessText,
-    unlockSuccessText,
+    onOpen: openSuccessText,
+    unlock: unlockSuccessText,
     aliases,
     key,
     traversals,
@@ -50,9 +50,9 @@ export function newDoor(config: DoorConfig & ItemConfig) {
  * When used in the latter way, it's advisable to define the Door in its own file and import it into the files
  * defining both {@link game/items/room!Room | Rooms}. You'll also
  * define {@link types/types!Traversal | Traversals} to control movement between the {@link game/items/room!Room | Rooms}.
- * 
+ *
  * {@link game/verbs/verb!Verb | Verbs} added to Doors:
- * 
+ *
  * | Name | Added If | Description |
  * | --- | --- | --- |
  * | open | `if (!config \|\| !config.alwaysOpen)` | Open the Door. |
@@ -73,8 +73,8 @@ export class Door extends Item {
     description: UnknownText,
     open = true,
     locked = false,
-    openSuccessText?: Action,
-    unlockSuccessText?: Action,
+    onOpen?: Action,
+    onUnlock?: Action,
     aliases?: string[],
     key?: KeyT,
     traversals?: Traversal[],
@@ -94,7 +94,7 @@ export class Door extends Item {
           .withSmartTest(() => !this.open, `The ${name} ${this.isOrAre} already open.`)
           .withOnSuccess(() => {
             this.open = true;
-          }, openSuccessText ?? `The ${name} open${addS()} relatively easily.`)
+          }, onOpen ?? `The ${name} open${addS()} relatively easily.`)
       );
 
       this.addVerb(
@@ -102,7 +102,7 @@ export class Door extends Item {
           .withSmartTest(() => this.open, `The ${name} ${this.isOrAre} already closed.`)
           .withOnSuccess(() => {
             this.open = false;
-          }, config?.onCloseSuccess ?? `You close the ${name}.`)
+          }, config?.onClose ?? `You close the ${name}.`)
       );
 
       this.addVerb(
@@ -127,7 +127,7 @@ export class Door extends Item {
               door.locked = false;
             },
             ({ item: door }) =>
-              unlockSuccessText ??
+              onUnlock ??
               (door.key ? "The key turns easily in the lock." : `The ${name} unlock${addS()} with a soft *click*.`)
           ])
       );
@@ -315,28 +315,18 @@ export class DoorBuilder extends Item.Builder {
     return this;
   }
 
-  withOpenSuccessText(onSuccess: Action) {
-    this.config.openSuccessText = onSuccess;
+  onOpen(onSuccess: Action) {
+    this.config.onOpen = onSuccess;
     return this;
   }
 
-  withUnlockSuccessText(onSuccess: Action) {
-    this.config.unlockSuccessText = onSuccess;
+  onClose(onSuccess: Action) {
+    this.config.onClose = onSuccess;
     return this;
   }
 
-  onOpenSuccess(onSuccess: Action) {
-    this.config.openSuccessText = onSuccess;
-    return this;
-  }
-
-  onCloseSuccess(onSuccess: Action) {
-    this.config.onCloseSuccess = onSuccess;
-    return this;
-  }
-
-  onUnlockSuccess(onSuccess: Action) {
-    this.config.unlockSuccessText = onSuccess;
+  onUnlock(onSuccess: Action) {
+    this.config.unlock = onSuccess;
     return this;
   }
 

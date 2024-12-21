@@ -118,14 +118,14 @@ test("shortcut function can be used to close doors", async () => {
 test("openSuccessText can be an Action", async () => {
   const hatch = new Door.Builder("hatch")
     .isOpen(false)
-    .withOpenSuccessText(() => "It pops open")
+    .onOpen(() => "It pops open")
     .build();
   await hatch.tryOpen();
   expect(selectCurrentPage()).toInclude("It pops open");
 });
 
 test("onCloseSuccess can be an Action", async () => {
-  const fireDoor = new Door.Builder("fire door").onCloseSuccess(() => "Safety first.").build();
+  const fireDoor = new Door.Builder("fire door").onClose(() => "Safety first.").build();
   await fireDoor.tryClose();
   expect(selectCurrentPage()).toInclude("Safety first.");
 });
@@ -133,7 +133,7 @@ test("onCloseSuccess can be an Action", async () => {
 test("unlockSuccessText can be an Action", async () => {
   const hatch = new Door.Builder("hatch")
     .isLocked()
-    .withUnlockSuccessText(() => "Click")
+    .onUnlock(() => "Click")
     .build();
   await hatch.tryUnlock();
   expect(selectCurrentPage()).toInclude("Click");
@@ -165,7 +165,7 @@ describe("Builder", () => {
       .withDescription("futuristic")
       .isLocked(false)
       .isOpen(false)
-      .withOpenSuccessText("it irises open")
+      .onOpen("it irises open")
       .build();
     expect(door.name).toBe("iris");
     expect(door.aliases).toContain("door");

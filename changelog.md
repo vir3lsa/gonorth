@@ -2,6 +2,7 @@
 
 # Unreleased
 
+* 2024-12-21 Breaking change: Renamed door actions for consistency.
 * 2024-12-20 Breaking change: Various container texts are now Actions (and hence are not persisted in saved state).
 * 2024-12-19 Containers no longer allow items to be added to them when they're closed.
 
