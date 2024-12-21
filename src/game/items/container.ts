@@ -112,6 +112,7 @@ export class Container extends Item {
     this.onWrongKey = config?.onWrongKey ?? `The key doesn't fit.`;
     this.onNeedsKey = config?.onNeedsKey ?? `The ${name} appears to need a key.`;
     this.onAlreadyUnlocked = config?.onAlreadyUnlocked ?? `The ${name} ${this.isOrAre} already unlocked.`;
+    this.onUnlock = config?.onUnlock;
 
     if (this.closeable) {
       this.openVerb = new Verb.Builder("open")
@@ -333,6 +334,11 @@ export class ContainerBuilder extends ItemBuilder {
 
   isLocked(locked = true) {
     this.config.locked = locked;
+
+    if (locked) {
+      this.config.lockable = true;
+    }
+
     return this;
   }
 
@@ -358,6 +364,7 @@ export class ContainerBuilder extends ItemBuilder {
 
   withKey(key: string | KeyT) {
     this.config.key = key;
+    this.config.lockable = true;
     return this;
   }
 

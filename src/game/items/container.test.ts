@@ -325,4 +325,95 @@ describe("container", () => {
     expect(selectCurrentPage()).not.toInclude("x too big");
     expect(selectCurrentPage()).toInclude("y too big to take ball from box");
   });
+
+  describe("actions", () => {
+    test("onOpen", async () => {
+      const box = new Container.Builder("box")
+        .isOpen(false)
+        .onOpen(({ item, verb }) => `Jack pops out of the ${verb!.name} ${item!.name}.`)
+        .build();
+      await box.try("open");
+      expect(selectCurrentPage()).toInclude("Jack pops out of the open box.");
+    });
+
+    test("onClose", async () => {
+      const box = new Container.Builder("box")
+        .isOpen()
+        .onClose(({ item, verb }) => `The ${item!.name} ${verb!.name}s with a click.`)
+        .build();
+      await box.try("close");
+      expect(selectCurrentPage()).toInclude("The box closes with a click.");
+    });
+
+    test("onLocked", async () => {
+      const box = new Container.Builder("box")
+        .isOpen(false)
+        .isLocked()
+        .onLocked(({ item, verb }) => `The ${item!.name} just won't ${verb!.name}.`)
+        .build();
+      await box.try("open");
+      expect(selectCurrentPage()).toInclude("The box just won't open.");
+    });
+
+    test("onNeedsKey", async () => {
+      const box = new Container.Builder("box")
+        .isOpen(false)
+        .isLocked()
+        .withKey("key")
+        .onNeedsKey(({ item, verb }) => `The ${item!.name} requires a key to be ${verb!.name}ed.`)
+        .build();
+      await box.try("unlock");
+      expect(selectCurrentPage()).toInclude("The box requires a key to be unlocked.");
+    });
+
+    test("onWrongKey", async () => {
+      const box = new Container.Builder("box")
+        .isOpen(false)
+        .isLocked()
+        .withKey("key")
+        .onWrongKey(({ item, verb }) => `The ${item!.name} won't ${verb!.name} with that key.`)
+        .build();
+      await box.try("unlock", new Key.Builder("wrong key").build());
+      expect(selectCurrentPage()).toInclude("The box won't unlock with that key.");
+    });
+
+    test("onAlreadyOpen", async () => {
+      const box = new Container.Builder("box")
+        .isOpen()
+        .onAlreadyOpen(({ item, verb }) => `The ${item!.name} is already ${verb!.name}, silly.`)
+        .build();
+      await box.try("open");
+      expect(selectCurrentPage()).toInclude("The box is already open, silly.");
+    });
+
+    test("onAlreadyClosed", async () => {
+      const box = new Container.Builder("box")
+        .isOpen(false)
+        .onAlreadyClosed(({ item, verb }) => `The ${item!.name} is already ${verb!.name}d, silly.`)
+        .build();
+      await box.try("close");
+      expect(selectCurrentPage()).toInclude("The box is already closed, silly.");
+    });
+
+    test("onUnlock", async () => {
+      const box = new Container.Builder("box")
+        .isOpen(false)
+        .isLocked()
+        .onUnlock(({ item, verb }) => `The ${item!.name} ${verb!.name}s, as expected.`)
+        .build();
+      await box.try("unlock");
+      expect(selectCurrentPage()).toInclude("The box unlocks, as expected.");
+    });
+
+    test("onAlreadyUnlocked", async () => {
+      const box = new Container.Builder("box")
+        .isOpen(false)
+        .isLockable(true)
+        .isLocked(false)
+        .onAlreadyUnlocked(({ item, verb }) => `The ${item!.name} is already ${verb!.name}ed, Barny.`)
+        .build();
+      await box.try("unlock");
+      expect(selectCurrentPage()).toInclude("The box is already unlocked, Barny.");
+    });
+  });
 });
