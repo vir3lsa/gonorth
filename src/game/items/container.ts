@@ -16,13 +16,10 @@ export function newContainer(config: ContainerConfig & ItemConfig) {
     holdable,
     size,
     closeable,
-    verbs,
     lockable,
     key,
-    items,
-    ...remainingConfig
   } = config;
-  const container = new Container(
+  return new Container(
     name,
     aliases,
     closedDescription,
@@ -38,17 +35,6 @@ export function newContainer(config: ContainerConfig & ItemConfig) {
     key,
     config
   );
-
-  if (verbs) {
-    container.addVerbs(...verbs);
-  }
-
-  container.addItems(...(items ?? []));
-
-  Object.entries(remainingConfig).forEach(([key, value]) => (container[key] = value));
-  customiseVerbs(config.verbCustomisations, container);
-
-  return container;
 }
 
 export class Container extends Item {
@@ -85,9 +71,15 @@ export class Container extends Item {
   ) {
     const dynamicOpenDescription = createDynamicText(openDescription);
     const dynamicClosedDescription = createDynamicText(closedDescription);
+    const description = () => (this.open ? dynamicOpenDescription({ item: this }) : dynamicClosedDescription({ item: this }));
+
+    if (config) {
+      config.description = description;
+    }
+
     super(
       name,
-      () => (this.open ? dynamicOpenDescription({ item: this }) : dynamicClosedDescription({ item: this })),
+      description,
       holdable,
       size,
       [],
@@ -98,7 +90,7 @@ export class Container extends Item {
     this.canHoldItems = true;
     this.capacity = capacity;
     this.preposition = preposition;
-    this.itemsVisibleFromSelf = open;
+    this.itemsVisibleFromSelf = open || Boolean(config?.transparent);
     this.open = open;
     this.locked = locked;
     this.closeable = closeable;
@@ -138,7 +130,7 @@ export class Container extends Item {
             this.open = false;
           },
           () => {
-            this.itemsVisibleFromSelf = false;
+            this.itemsVisibleFromSelf = Boolean(config?.transparent);
           },
           this.onClose
         )
@@ -178,6 +170,8 @@ export class Container extends Item {
 
       this.addVerb(relinquish);
     }
+
+    this.customiseVerbs(Container.name);
   }
 
   addOpenAliases(...aliases: string[]) {
@@ -354,6 +348,11 @@ export class ContainerBuilder extends ItemBuilder {
 
   isItemsVisibleFromSelf(itemsVisibleFromSelf = true) {
     this.config.itemsVisibleFromSelf = itemsVisibleFromSelf;
+    return this;
+  }
+
+  isTransparent(transparent = true) {
+    this.config.transparent = transparent;
     return this;
   }
 

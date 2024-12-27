@@ -664,6 +664,7 @@ interface ContainerConfig {
   holdable: boolean;
   size: number;
   closeable: boolean;
+  transparent: boolean;
   verbs: VerbT[];
   lockable: boolean;
   key: string | KeyT;

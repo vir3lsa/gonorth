@@ -278,7 +278,7 @@ describe("parser", () => {
     });
 
     it("can't take items from transparent but closed containers", () => {
-      const glassCabinet = new Container.Builder("glass cabinet").isItemsVisibleFromSelf().isOpen(false).build();
+      const glassCabinet = new Container.Builder("glass cabinet").isTransparent().isOpen(false).build();
       const trophy = new Item.Builder("trophy").isHoldable().build();
 
       glassCabinet.addItem(trophy);

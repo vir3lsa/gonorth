@@ -15,18 +15,11 @@ import { debug } from "../../utils/consoleIO";
 import { commonWords } from "../constants";
 import { moveItem } from "../../utils/itemFunctions";
 import { playerHasItem, resolveItem } from "../../utils/sharedFunctions";
+import { ActionClass } from "../../utils/actionChain";
 
 export function newItem(config: ItemConfig, typeConstructor = Item) {
-  const { name, description, holdable, size, verbs, aliases, hidesItems, items, ...remainingConfig } = config;
-  const item = new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems, config);
-  Object.entries(remainingConfig).forEach(([key, value]) => (item[key] = value));
-
-  item.addItems(...(items ?? []));
-
-  // Run any verb modification functions.
-  customiseVerbs(config.verbCustomisations, item);
-
-  return item;
+  const { name, description, holdable, size, verbs, aliases, hidesItems } = config;
+  return new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems, config);
 }
 
 export function customiseVerbs(verbModifications: VerbCustomisations = {}, item: Item) {
@@ -60,44 +53,44 @@ export function customiseVerbs(verbModifications: VerbCustomisations = {}, item:
  */
 export class Item {
   [property: string]: unknown;
-  private _name!: string;
-  private _description!: TextFunction;
-  private _holdable!: boolean;
-  private _size!: number;
-  private _verbs!: VerbDict;
-  private _verbList!: Verb | Verb[];
-  private _aliases!: Set<string>;
-  private _hidesItems!: ItemT[];
-  private _container?: ItemT;
-  private _itemsVisibleFromSelf!: boolean;
-  private _capacity!: number;
-  private _free!: number;
-  private _takeSuccessText?: string;
-  private _canHoldItems!: boolean;
-  private _items!: ItemItemsDict;
-  private _preposition!: string;
-  private _properties!: ItemProperties;
-  private _alteredProperties: Set<string>;
-  private _article!: string;
-  private _containerListing?: TextFunction;
-  private _visible!: boolean;
-  private _itemsVisibleFromRoom!: boolean;
-  private _doNotList!: boolean;
-  private _properNoun!: boolean;
-  private _verbCustomisations: VerbCustomisations = {};
-  private _config?: ItemConfig;
-  private omitAliases: string[] = [];
+  private __name!: string;
+  private __description: TextFunction = () => "It's fairly ordinary looking.";
+  private __holdable: boolean = false;
+  private __size: number = 1;
+  private __verbs: VerbDict = {};
+  private __verbList: Verb | Verb[] = [];
+  private __aliases: Set<string> = new Set<string>();
+  private __hidesItems: ItemT[] = [];
+  private __container?: ItemT;
+  private __itemsVisibleFromSelf!: boolean;
+  private __capacity!: number;
+  private __free!: number;
+  private __onTake?: Action;
+  private __canHoldItems!: boolean;
+  private __items!: ItemItemsDict;
+  private __preposition!: string;
+  private __properties!: ItemProperties;
+  private __alteredProperties: Set<string>;
+  private __article!: string;
+  private __containerListing?: TextFunction;
+  private __visible!: boolean;
+  private __itemsVisibleFromRoom!: boolean;
+  private __doNotList!: boolean;
+  private __properNoun!: boolean;
+  private __verbCustomisations: VerbCustomisations = {};
+  private __config?: ItemConfig;
+  private __omitAliases: string[] = [];
   protected uniqueItems: Set<ItemT>;
 
   clone(typeConstructor = Item) {
     const copy = newItem(
       {
         name: `${this.name} copy`, // Have to add 'copy' to sidestep uniqueness check.
-        description: this._description,
+        description: this.__description,
         holdable: this.holdable,
         size: this.size,
-        verbs: this._verbList,
-        aliases: [...this._aliases],
+        verbs: this.__verbList,
+        aliases: [...this.__aliases],
         omitAliases: this.omitAliases,
         hidesItems: this.hidesItems.map((item) => item.clone()),
         containerListing: this.containerListing,
@@ -143,16 +136,10 @@ export class Item {
     }
 
     this.config = config;
-    this._alteredProperties = new Set();
+    this.__alteredProperties = new Set();
     this.aliases = [];
-    this.name = name;
-    this.description = description;
-    this.holdable = holdable;
-    this.size = size;
     this.visible = true;
     this.container = undefined;
-    this.verbList = verbs;
-    this.hidesItems = hidesItems;
     this.items = {};
     this.uniqueItems = new Set();
     this.canHoldItems = false;
@@ -165,7 +152,24 @@ export class Item {
     this.properties = {};
     this.properNoun = false;
 
-    aliases.forEach((alias) => this.createAliases(alias));
+    if (config) {
+      const { aliases, verbs, items, ...remainingConfig } = config;
+
+      this.verbList = verbs || [];
+
+      Object.entries(remainingConfig).forEach(([key, value]) => (this[key] = value));
+      aliases?.forEach((alias) => this.createAliases(alias));
+      this.addItems(...(config.items ?? []));
+    } else {
+      this.name = name;
+      this.description = description;
+      this.holdable = holdable;
+      this.size = size;
+      this.verbList = verbs;
+      this.hidesItems = hidesItems;
+
+      aliases.forEach((alias) => this.createAliases(alias));
+    }
 
     this.addVerb(
       new Verb.Builder("examine")
@@ -269,23 +273,22 @@ export class Item {
                 return result;
               }
             },
-            ({ item }) => {
-              const container = item.container;
-              moveItem(config?.producesSingular ?? item, selectInventory());
+            new ActionClass(
+              this.onTake ??
+                (({ item }) => {
+                  const container = item!.container;
 
-              // If we have custom success text, use it.
-              if (this.takeSuccessText) {
-                return this.takeSuccessText;
-              }
+                  // Otherwise, if the item's in a room, take from there.
+                  if (container && !container.isRoom) {
+                    return takeFromContainerText.next(item, container);
+                  }
 
-              // Otherwise, if the item's in a room, take from there.
-              if (container && !container.isRoom) {
-                return takeFromContainerText.next(item, container);
-              }
-
-              // Else, take from generic container.
-              return takeFromRoomText.next(item);
-            }
+                  // Else, take from generic container.
+                  return takeFromRoomText.next(item);
+                }),
+              false
+            ),
+            ({ item }) => moveItem(config?.producesSingular ?? item, selectInventory())
           )
           .isRemote()
           .build()
@@ -394,17 +397,26 @@ export class Item {
       }
     }
 
-    this._constructed = true; // Indicate construction has completed.
+    this.customiseVerbs(Item.name);
+
+    this.__constructed = true; // Indicate construction has completed.
     getStore().dispatch(addItem(this));
   }
 
+  protected customiseVerbs(calledFrom: string) {
+    if (this.config && this.constructor.name === calledFrom) {
+      // Run any verb modification functions.
+      customiseVerbs(this.config.verbCustomisations, this);
+    }
+  }
+
   get name() {
-    return this._name;
+    return this.__name;
   }
 
   set name(name) {
     this.recordAlteredProperty("name", name);
-    this._name = name;
+    this.__name = name;
 
     const article = getArticle(name);
 
@@ -416,21 +428,21 @@ export class Item {
   }
 
   get article() {
-    return this._article;
+    return this.__article;
   }
 
   set article(value) {
     this.recordAlteredProperty("article", value);
-    this._article = value;
+    this.__article = value;
   }
 
   get description() {
-    return this._description ? this._description(this) : "";
+    return this.__description ? this.__description(this) : "";
   }
 
   set description(description: UnknownText) {
     this.recordAlteredProperty("description", description);
-    this._description = createDynamicText(description);
+    this.__description = createDynamicText(description);
   }
 
   addVerbs(...verbs: VerbT[]) {
@@ -440,15 +452,15 @@ export class Item {
   addVerb(verbOrBuilder: VerbT | VerbBuilderT) {
     const verb = verbOrBuilder instanceof Verb.Builder ? verbOrBuilder.build() : verbOrBuilder;
 
-    if (!Array.isArray(this._verbList)) {
-      this._verbList = [this._verbList];
+    if (!Array.isArray(this.__verbList)) {
+      this.__verbList = [this.__verbList];
     }
 
     // Remove any existing instances of the verb.
-    this._verbList = this._verbList.filter((existingVerb) => existingVerb.name !== verb.name);
+    this.__verbList = this.__verbList.filter((existingVerb) => existingVerb.name !== verb.name);
 
-    this._verbList.push(verb);
-    this._verbs[verb.name.toLowerCase()] = verb;
+    this.__verbList.push(verb);
+    this.__verbs[verb.name.toLowerCase()] = verb;
     verb.parent = this;
   }
 
@@ -462,38 +474,38 @@ export class Item {
     return verb;
   }
 
-  _addAliasesToContainer(aliases: string[]) {
-    if (this._container && aliases) {
+  private __addAliasesToContainer(aliases: string[]) {
+    if (this.__container && aliases) {
       aliases.forEach((alias) => {
-        const existing = this._container!.items[alias.toLowerCase()];
+        const existing = this.__container!.items[alias.toLowerCase()];
         if (existing) {
           existing.push(this);
         } else {
-          this._container!.items[alias.toLowerCase()] = [this];
+          this.__container!.items[alias.toLowerCase()] = [this];
         }
       });
     }
   }
 
   get verbs() {
-    return this._verbs;
+    return this.__verbs;
   }
 
   set verbs(verbs) {
-    this._verbs = verbs;
+    this.__verbs = verbs;
   }
 
   set verbList(verbs: Verb | VerbBuilderT | (Verb | VerbBuilderT)[]) {
-    this._verbList = [];
-    this._verbs = {};
+    this.__verbList = [];
+    this.__verbs = {};
     const verbArray = Array.isArray(verbs) ? verbs : [verbs];
     verbArray.forEach((verb) => this.addVerb(verb));
   }
 
   set container(container) {
     this.recordAlteredProperty("container", container);
-    this._container = container;
-    this._addAliasesToContainer(this.aliases);
+    this.__container = container;
+    this.__addAliasesToContainer(this.aliases);
 
     // If recordChanges is true, it indicates the game has started, so we'll reveal items when they move.
     if (selectRecordChanges() && container && !selectItemNames().has(this.name.toLowerCase())) {
@@ -502,18 +514,18 @@ export class Item {
   }
 
   get container() {
-    return this._container;
+    return this.__container;
   }
 
   get aliases(): string[] {
-    return this._aliases ? [...this._aliases] : [];
+    return this.__aliases ? [...this.__aliases] : [];
   }
 
   set aliases(aliases: string | string[]) {
     const aliasArray = Array.isArray(aliases) ? aliases : [aliases];
     this.recordAlteredProperty("aliases", aliasArray);
-    this._aliases = new Set(aliasArray);
-    this._addAliasesToContainer(this.aliases);
+    this.__aliases = new Set(aliasArray);
+    this.__addAliasesToContainer(this.aliases);
   }
 
   /**
@@ -614,11 +626,11 @@ export class Item {
     const array = Array.isArray(hidesItems) ? hidesItems : [hidesItems];
     const hidesItemsArray = array.map((item) => (item instanceof Builder ? item.build() : item));
     this.recordAlteredProperty("hidesItems", hidesItemsArray);
-    this._hidesItems = hidesItemsArray;
+    this.__hidesItems = hidesItemsArray;
   }
 
   get hidesItems(): Item[] {
-    return this._hidesItems;
+    return this.__hidesItems;
   }
 
   /**
@@ -642,22 +654,22 @@ export class Item {
   }
 
   get containerListing() {
-    return this._containerListing?.(this);
+    return this.__containerListing?.(this);
   }
 
   set containerListing(listing: UnknownText | undefined) {
     this.recordAlteredProperty("containerListing", listing);
-    this._containerListing = listing ? createDynamicText(listing) : undefined;
+    this.__containerListing = listing ? createDynamicText(listing) : undefined;
   }
 
   get items() {
-    return this._items;
+    return this.__items;
   }
 
   set items(items) {
-    this._items = items;
+    this.__items = items;
     this.uniqueItems = new Set(
-      Object.values(this._items).reduce((acc, itemsWithName) => {
+      Object.values(this.__items).reduce((acc, itemsWithName) => {
         itemsWithName.forEach((item) => acc.push(item));
         return acc;
       }, [])
@@ -665,12 +677,12 @@ export class Item {
   }
 
   get capacity() {
-    return this._capacity;
+    return this.__capacity;
   }
 
   set capacity(capacity) {
     this.recordAlteredProperty("capacity", capacity);
-    this._capacity = capacity;
+    this.__capacity = capacity;
     this.free = capacity;
 
     if (capacity > 0) {
@@ -679,11 +691,11 @@ export class Item {
   }
 
   get free() {
-    return this._free;
+    return this.__free;
   }
 
   set free(value) {
-    this._free = value;
+    this.__free = value;
   }
 
   get basicItemList() {
@@ -798,7 +810,7 @@ export class Item {
 
   addAliases(...aliases: string[]) {
     const newAliases = aliases.flatMap((alias) => this.createAliases(alias));
-    this._addAliasesToContainer(newAliases);
+    this.__addAliasesToContainer(newAliases);
     getStore().dispatch(addItem(this)); // Use of Sets means doing this again not a problem.
   }
 
@@ -840,7 +852,7 @@ export class Item {
     this.aliases = this.aliases.filter((alias) => !aliases.includes(alias));
   }
 
-  _getActionChain(verbName: string, onFailure: boolean) {
+  private __getActionChain(verbName: string, onFailure: boolean) {
     const verb = this.getVerb(verbName);
     return onFailure ? verb.onFailure : verb.onSuccess;
   }
@@ -850,7 +862,7 @@ export class Item {
    * anything else is added to the end.
    */
   addAction(verbName: string, action: ContextAction, onFailure: boolean, addToEnd: boolean) {
-    const actionChain = this._getActionChain(verbName, onFailure);
+    const actionChain = this.__getActionChain(verbName, onFailure);
 
     if (typeof addToEnd === "undefined") {
       addToEnd = typeof action !== "function";
@@ -867,7 +879,7 @@ export class Item {
    * Adds a postscript to the actions of the specified verb. By default, it's added to the on-success action chain.
    */
   addPostscript(verbName: string, text: PostScript, onFailure = false) {
-    const actionChain = this._getActionChain(verbName, onFailure);
+    const actionChain = this.__getActionChain(verbName, onFailure);
     actionChain.postScript = text;
   }
 
@@ -888,101 +900,108 @@ export class Item {
   }
 
   get holdable() {
-    return this._holdable;
+    return this.__holdable;
   }
 
   set holdable(value) {
     this.recordAlteredProperty("holdable", value);
-    this._holdable = value;
+    this.__holdable = value;
   }
 
   get size() {
-    return this._size;
+    return this.__size;
   }
 
   set size(value) {
     this.recordAlteredProperty("size", value);
-    this._size = value;
+    this.__size = value;
   }
 
   get visible() {
-    return this._visible;
+    return this.__visible;
   }
 
   set visible(value) {
     this.recordAlteredProperty("visible", value);
-    this._visible = value;
+    this.__visible = value;
   }
 
   get canHoldItems() {
-    return this._canHoldItems;
+    return this.__canHoldItems;
   }
 
   set canHoldItems(value) {
     this.recordAlteredProperty("canHoldItems", value);
-    this._canHoldItems = value;
+    this.__canHoldItems = value;
   }
 
   get preposition() {
-    return this._preposition;
+    return this.__preposition;
   }
 
   set preposition(value) {
     this.recordAlteredProperty("preposition", value);
-    this._preposition = value;
+    this.__preposition = value;
   }
 
   get itemsVisibleFromSelf() {
-    return this._itemsVisibleFromSelf;
+    return this.__itemsVisibleFromSelf;
   }
 
   set itemsVisibleFromSelf(value) {
     this.recordAlteredProperty("itemsVisibleFromSelf", value);
-    this._itemsVisibleFromSelf = value;
+    this.__itemsVisibleFromSelf = value;
   }
 
   get itemsVisibleFromRoom() {
-    return this._itemsVisibleFromRoom;
+    return this.__itemsVisibleFromRoom;
   }
 
   set itemsVisibleFromRoom(value) {
     this.recordAlteredProperty("itemsVisibleFromRoom", value);
-    this._itemsVisibleFromRoom = value;
+    this.__itemsVisibleFromRoom = value;
   }
 
   get doNotList() {
-    return this._doNotList;
+    return this.__doNotList;
   }
 
   set doNotList(value) {
     this.recordAlteredProperty("doNotList", value);
-    this._doNotList = value;
+    this.__doNotList = value;
   }
 
   get properNoun() {
-    return this._properNoun;
+    return this.__properNoun;
   }
 
   set properNoun(value) {
     this.recordAlteredProperty("properNoun", value);
-    this._properNoun = value;
+    this.__properNoun = value;
   }
 
-  get takeSuccessText() {
-    return this._takeSuccessText;
+  get onTake() {
+    return this.__onTake;
   }
 
-  set takeSuccessText(value) {
-    this.recordAlteredProperty("takeSuccessText", value);
-    this._takeSuccessText = value;
+  set onTake(value) {
+    this.__onTake = value;
   }
 
   get verbCustomisations() {
-    return this._verbCustomisations;
+    return this.__verbCustomisations;
   }
 
   set verbCustomisations(value) {
-    this._verbCustomisations = value;
+    this.__verbCustomisations = value;
+  }
+
+  get omitAliases() {
+    return this.__omitAliases;
+  }
+
+  set omitAliases(value) {
+    this.__omitAliases = value;
   }
 
   get(property: string) {
@@ -999,24 +1018,24 @@ export class Item {
   }
 
   get properties() {
-    return this._properties;
+    return this.__properties;
   }
 
   set properties(value) {
     this.recordAlteredProperty("properties", value);
-    this._properties = value;
+    this.__properties = value;
   }
 
   get config() {
-    return this._config;
+    return this.__config;
   }
 
   set config(value) {
-    this._config = value;
+    this.__config = value;
   }
 
   toJSON() {
-    return [...this._alteredProperties]
+    return [...this.__alteredProperties]
       .map((propertyName): [string, Serializable] => {
         const propertyValue = this[propertyName];
 
@@ -1043,14 +1062,14 @@ export class Item {
 
   // Records an altered property.
   recordAlteredProperty(propertyName: string, newValue?: Serializable | TextFunction) {
-    if (this._cloned || !this._constructed) {
+    if (this.__cloned || !this.__constructed) {
       // We won't serialize cloned objects, or objects constructed after recording began, so won't record their changes.
       return;
     }
 
     // If the new value being set is a Text, add an onChange callback so we know about internal changes.
     if (newValue instanceof Text || newValue instanceof ManagedText) {
-      this._handleTextPropertyPersistence(propertyName, newValue);
+      this.__handleTextPropertyPersistence(propertyName, newValue);
     }
 
     const recordChanges = selectRecordChanges();
@@ -1061,15 +1080,15 @@ export class Item {
     }
 
     if (recordChanges) {
-      this._alteredProperties.add(propertyName);
+      this.alteredProperties.add(propertyName);
     }
   }
 
   get alteredProperties() {
-    return this._alteredProperties;
+    return this.__alteredProperties;
   }
 
-  _handleTextPropertyPersistence(propertyName: string, value: TextT | ManagedTextT) {
+  private __handleTextPropertyPersistence(propertyName: string, value: TextT | ManagedTextT) {
     value.onChange = () => this.recordAlteredProperty(propertyName);
 
     if (selectRecordChanges()) {
@@ -1205,8 +1224,8 @@ export class Builder {
     return this;
   }
 
-  withTakeSuccessText(text: string) {
-    this.config.takeSuccessText = text;
+  onTake(value: Action) {
+    this.config.onTake = value;
     return this;
   }
 

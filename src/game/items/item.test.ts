@@ -134,7 +134,7 @@ describe("basic item tests", () => {
     const onions = new Item.Builder("onions")
       .isHoldable()
       .isManyAndProduces(new Item.Builder("onion").isHoldable())
-      .withTakeSuccessText("you take an onion")
+      .onTake("you take an onion")
       .build();
     await onions.try("put", room);
     expect(selectCurrentPage()).toInclude("you take an onion");
@@ -147,7 +147,7 @@ describe("basic item tests", () => {
       .isManyAndProduces(
         new Item.Builder("onion").withVerb(new Verb.Builder("smell").isRemote().withOnSuccess("smells strongly"))
       )
-      .withTakeSuccessText("you take an onion")
+      .onTake("you take an onion")
       .build();
     await onions.try("smell");
     expect(selectCurrentPage()).not.toInclude("you take an onion");
@@ -173,9 +173,18 @@ describe("basic item tests", () => {
   });
 
   test("items may have custom take success text", async () => {
-    const pipe = new Item.Builder("pipe").isHoldable().withTakeSuccessText("be careful").build();
+    const pipe = new Item.Builder("pipe").isHoldable().onTake("be careful").build();
     await pipe.try("take");
     expect(selectCurrentPage()).toInclude("be careful");
+  });
+
+  test("items may have custom take success actions", async () => {
+    const pipe = new Item.Builder("pipe")
+      .isHoldable()
+      .onTake(() => "from a function")
+      .build();
+    await pipe.try("take");
+    expect(selectCurrentPage()).toInclude("from a function");
   });
 
   test("verbs can be acquired using getVerb", () => {
@@ -191,7 +200,7 @@ describe("basic item tests", () => {
   });
 
   test("correct plurality used for singular item", async () => {
-    const gift = new Item.Builder("gift").isHoldable().withTakeSuccessText("For me?").build();
+    const gift = new Item.Builder("gift").isHoldable().onTake("For me?").build();
     await gift.try("take");
     expect(selectCurrentPage()).toInclude("For me?");
     return deferAction(async () => {
@@ -203,7 +212,7 @@ describe("basic item tests", () => {
   });
 
   test("correct plurality used for plural item", async () => {
-    const gifts = new Item.Builder("gifts").isHoldable().isPlural().withTakeSuccessText("For me?").build();
+    const gifts = new Item.Builder("gifts").isHoldable().isPlural().onTake("For me?").build();
     await gifts.try("take");
     expect(selectCurrentPage()).toInclude("For me?");
     return deferAction(async () => {
@@ -251,7 +260,7 @@ describe("builder tests", () => {
       .withSize(1)
       .withAliases("pope")
       .withArticle("thy")
-      .withTakeSuccessText("yoink")
+      .onTake("yoink")
       .withProperty("appearance", "pipelike")
       .withProperty("length", 12)
       .itemsVisibleFromSelf(false)
@@ -263,7 +272,7 @@ describe("builder tests", () => {
     expect(pipe.size).toBe(1);
     expect(pipe.aliases).toInclude("pope");
     expect(pipe.article).toBe("thy");
-    expect(pipe.takeSuccessText).toBe("yoink");
+    expect(pipe.onTake).toBe("yoink");
     expect(pipe.get("appearance")).toBe("pipelike");
     expect(pipe.get("length")).toBe(12);
     expect(pipe.itemsVisibleFromSelf).toBe(false);
@@ -677,11 +686,6 @@ describe("serialization", () => {
       expectRecordedProperties(ball, "article");
     });
 
-    test("changes to takeSuccessText are recorded", () => {
-      ball.takeSuccessText = "yoink";
-      expectRecordedProperties(ball, "takeSuccessText");
-    });
-
     test("new items aren't recorded", () => {
       const bat = new Item("bat", "the wooden kind");
       expectRecordedProperties(bat);
@@ -737,7 +741,7 @@ describe("serialization", () => {
       .withVerbs(new Verb("drive"))
       .withAliases("motor")
       .hidesItems(new Item("seat"))
-      .withTakeSuccessText("yoink")
+      .onTake("yoink")
       .build();
     expectRecordedProperties(car);
   });

@@ -1,4 +1,4 @@
-import { Item, customiseVerbs } from "./item";
+import { Item } from "./item";
 import { Room } from "./room";
 import { Event } from "../events/event";
 import { getStore } from "../../redux/storeRegistry";
@@ -9,20 +9,15 @@ export class Npc extends Item {
   encounters: Event[];
 
   constructor(builder: NpcBuilder) {
-    const { name, description, holdable, size, verbs, aliases, hidesItems, items, ...remainingConfig } = builder.config;
+    const { name, description, holdable, size, verbs, aliases, hidesItems } = builder.config;
     super(name, description || `${name} is unremarkable.`, holdable, size, verbs, aliases, hidesItems, builder.config);
     this._isNpc = true; // Avoids circular dependency in item.js
     this.encounters = [];
     this.article = "";
     this.preposition = "to";
 
-    this.addItems(...(items ?? []));
-
-    // Set each remaining config value on the NPC.
-    Object.entries(remainingConfig).forEach(([key, value]) => (this[key] = value));
-
     // Apply any verb modifications.
-    customiseVerbs(remainingConfig.verbCustomisations, this);
+    this.customiseVerbs(Npc.name);
   }
 
   roomIsRoom(room: any): room is Room {

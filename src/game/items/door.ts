@@ -15,11 +15,8 @@ export function newDoor(config: DoorConfig & ItemConfig) {
     aliases,
     key,
     traversals,
-    verbs,
-    items,
-    ...remainingConfig
   } = config;
-  const door = new Door(
+  return new Door(
     name,
     description,
     open,
@@ -31,17 +28,6 @@ export function newDoor(config: DoorConfig & ItemConfig) {
     traversals,
     config
   );
-
-  if (verbs) {
-    door.addVerbs(...verbs);
-  }
-
-  door.addItems(...(items ?? []));
-  Object.entries(remainingConfig).forEach(([key, value]) => (door[key] = value));
-
-  customiseVerbs(config.verbCustomisations, door);
-
-  return door;
 }
 
 /**
@@ -212,6 +198,8 @@ export class Door extends Item {
           })
       );
     }
+
+    this.customiseVerbs(Door.name);
   }
 
   get open() {

@@ -365,7 +365,7 @@ describe("deserializing snapshots", () => {
     expect(revivedVase.get("circumference")).toBe(20);
 
     // Check the revived Item still recognises the custom properties have changed.
-    expect(revivedVase._alteredProperties.has("properties")).toBe(true);
+    expect(revivedVase.__alteredProperties.has("properties")).toBe(true);
   });
 
   it("revives option graphs to their previous state", () => {
