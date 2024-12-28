@@ -1,13 +1,13 @@
 import { englishList, getBasicItemList, bulletPointList, tableOfItems } from "./textFunctions";
-import { newItem } from "../game/items/item";
+import { Item } from "../game/items/item";
 import { initStore } from "../redux/store";
 
 initStore("test");
 
 const items = [
-  newItem({ name: "elephant", article: "an" }),
-  newItem({ name: "screw", article: "a" }),
-  newItem({ name: "porcupine", article: "a" })
+  new Item.Builder("elephant").build(),
+  new Item.Builder("screw").build(),
+  new Item.Builder("porcupine").build()
 ];
 
 test("english list returns a single item", () => {

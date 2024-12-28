@@ -21,11 +21,6 @@ const directionAliases = {
   [name: string]: string[] | undefined;
 };
 
-const newRoom = (config: RoomConfig & ItemConfig) => {
-  const { name, description, checkpoint, aliases } = config;
-  return new Room(name, description, checkpoint, aliases, config);
-};
-
 /**
  * A Room is a location the player can be in. Rooms may be linked together directly, or via {@link game/items/door!Door | Doors},
  * and traversed between using directional keywords e.g. `north`, `west`, `s`, `up`, etc.
@@ -54,9 +49,9 @@ export class Room extends Item {
     description: UnknownText = "placeholder",
     checkpoint = true,
     aliases?: string[],
-    config?: RoomConfig & ItemConfig
+    builder?: RoomBuilder
   ) {
-    super(name, preferPaged(description), false, -1, undefined, aliases, undefined, config);
+    super(name, preferPaged(description), false, -1, undefined, aliases, undefined, builder);
     this.adjacentRooms = {};
     this.canHoldItems = true;
     this.aliases = [...this.aliases, "room", "floor"];
@@ -392,6 +387,9 @@ export class RoomBuilder extends ItemBuilder {
 
   constructor(name?: string) {
     super(name);
+    this.config.description = "placeholder";
+    this.config.checkpoint = true;
+    this.config.size = -1;
   }
 
   withDescription(description: UnknownText) {
@@ -410,6 +408,7 @@ export class RoomBuilder extends ItemBuilder {
   }
 
   build() {
-    return newRoom(this.config);
+    const { name, description, checkpoint, aliases } = this.config;
+    return new Room(name, description, checkpoint, aliases, this);
   }
 }

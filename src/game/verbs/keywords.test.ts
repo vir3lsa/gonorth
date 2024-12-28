@@ -1,9 +1,8 @@
 import { unregisterStore } from "../../redux/storeRegistry";
-import { newItem } from "../items/item";
 import { getKeyword, createKeywords } from "./keywords";
 import { selectCurrentPage } from "../../utils/testSelectors";
 import { selectInventory } from "../../utils/selectors";
-import gn from "../../gonorth";
+import gn, { Item } from "../../gonorth";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -17,39 +16,39 @@ beforeEach(() => {
 });
 
 test("inventory lists a single item", async () => {
-  selectInventory().addItem(newItem({ name: "spoon", holdable: true }));
+  selectInventory().addItem(new Item.Builder("spoon").isHoldable());
   await getKeyword("inventory").attempt();
   expect(selectCurrentPage()).toInclude("You're carrying a spoon.");
 });
 
 test("inventory lists a single item using the correct indefinite article", async () => {
-  selectInventory().addItem(newItem({ name: "apron", holdable: true }));
+  selectInventory().addItem(new Item.Builder("apron").isHoldable());
   await getKeyword("inventory").attempt();
   expect(selectCurrentPage()).toInclude("You're carrying an apron.");
 });
 
 test("inventory lists two items", async () => {
-  selectInventory().addItem(newItem({ name: "spoon", holdable: true }));
-  selectInventory().addItem(newItem({ name: "apron", holdable: true }));
+  selectInventory().addItem(new Item.Builder("spoon").isHoldable());
+  selectInventory().addItem(new Item.Builder("apron").isHoldable());
   await getKeyword("inventory").attempt();
   const expectedText = "You're carrying a spoon and an apron.";
   expect(selectCurrentPage()).toInclude(expectedText);
 });
 
 test("inventory lists three items", async () => {
-  selectInventory().addItem(newItem({ name: "spoon", holdable: true }));
-  selectInventory().addItem(newItem({ name: "apron", holdable: true }));
-  selectInventory().addItem(newItem({ name: "screwdriver", holdable: true }));
+  selectInventory().addItem(new Item.Builder("spoon").isHoldable());
+  selectInventory().addItem(new Item.Builder("apron").isHoldable());
+  selectInventory().addItem(new Item.Builder("screwdriver").isHoldable());
   await getKeyword("inventory").attempt();
   const expectedText = "You're carrying a spoon, an apron, and a screwdriver.";
   expect(selectCurrentPage()).toInclude(expectedText);
 });
 
 test("inventory lists four items", async () => {
-  selectInventory().addItem(newItem({ name: "spoon", holdable: true }));
-  selectInventory().addItem(newItem({ name: "apron", holdable: true }));
-  selectInventory().addItem(newItem({ name: "screwdriver", holdable: true }));
-  selectInventory().addItem(newItem({ name: "teddy bear", holdable: true }));
+  selectInventory().addItem(new Item.Builder("spoon").isHoldable());
+  selectInventory().addItem(new Item.Builder("apron").isHoldable());
+  selectInventory().addItem(new Item.Builder("screwdriver").isHoldable());
+  selectInventory().addItem(new Item.Builder("teddy bear").isHoldable());
   await getKeyword("inventory").attempt();
   const expectedText = "You're carrying a spoon, an apron, a screwdriver, and a teddy bear.";
   expect(selectCurrentPage()).toInclude(expectedText);

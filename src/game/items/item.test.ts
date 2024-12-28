@@ -1,7 +1,7 @@
-import { Item, newItem } from "./item";
+import { Item } from "./item";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { SequentialText } from "../interactions/text";
-import { newGame, recordChanges } from "../../redux/gameActions";
+import { recordChanges } from "../../redux/gameActions";
 import { selectInventory, selectInventoryItems, selectItem, selectItemNames } from "../../utils/selectors";
 import { Room } from "./room";
 import gn, { setInventoryCapacity, goToRoom } from "../../gonorth";
@@ -440,15 +440,8 @@ describe("putting items", () => {
     expect(selectCurrentPage()).toInclude("the drawers are closed");
   });
 
-  test("items can be created with config objects", () => {
-    const item = newItem({ name: "Dave", description: "Man", holdable: false });
-    expect(item.name).toBe("Dave");
-    expect(item.description).toBe("Man");
-    expect(item.holdable).toBe(false);
-  });
-
   test("accessible items can share aliases", () => {
-    room.addItems(new Item("cat"), new Item("dog"), newItem({ name: "black dog", aliases: ["dog"] }));
+    room.addItems(new Item("cat"), new Item("dog"), new Item.Builder("black dog").withAliases("dog"));
     const items = room.accessibleItems;
     expect(items["cat"].length).toBe(1);
     expect(items["dog"].length).toBe(2);
@@ -711,24 +704,6 @@ describe("serialization", () => {
   test("creating an item with the constructor doesn't record changes", () => {
     const car = new Item("car", "fast", false, 50, [new Verb("drive")], ["motor"], [new Item("seat")]);
     expect(car.alteredProperties).toEqual(new Set());
-    expectRecordedProperties(car);
-  });
-
-  test("creating an item with newItem doesn't record changes", () => {
-    const car = newItem({
-      name: "car",
-      description: "fast",
-      holdable: false,
-      size: 50,
-      verbs: [new Verb("drive")],
-      aliases: ["motor"],
-      hidesItems: [new Item("seat")],
-      visible: false,
-      container: new Item("garage"),
-      containerListing: "there's a car",
-      canHoldItems: true,
-      capacity: 20
-    });
     expectRecordedProperties(car);
   });
 

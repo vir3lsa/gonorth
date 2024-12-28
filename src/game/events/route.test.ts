@@ -45,10 +45,10 @@ beforeEach(() => {
   unregisterStore();
   gn.init({ title: "", goToTitleScreen: false });
 
-  nw = new Room("nw");
-  sw = new Room("sw");
-  se = new Room("se");
-  ne = new Room("ne");
+  nw = new Room.Builder("nw").build();
+  sw = new Room.Builder("sw").build();
+  se = new Room.Builder("se").build();
+  ne = new Room.Builder("ne").build();
 
   nw.setSouth(sw);
   sw.setEast(se);

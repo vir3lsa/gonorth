@@ -17,11 +17,6 @@ import { moveItem } from "../../utils/itemFunctions";
 import { playerHasItem, resolveItem } from "../../utils/sharedFunctions";
 import { ActionClass } from "../../utils/actionChain";
 
-export function newItem(config: ItemConfig, typeConstructor = Item) {
-  const { name, description, holdable, size, verbs, aliases, hidesItems } = config;
-  return new typeConstructor(name, description, holdable, size, verbs, aliases, hidesItems, config);
-}
-
 export function customiseVerbs(verbModifications: VerbCustomisations = {}, item: Item) {
   Object.entries(verbModifications).forEach(([verbName, modifyFunction]) => {
     const verb = item.getVerb(verbName);
@@ -81,30 +76,32 @@ export class Item {
   private __config?: ItemConfig;
   private __omitAliases: string[] = [];
   protected uniqueItems: Set<ItemT>;
+  isRoom = false;
 
   clone(typeConstructor = Item) {
-    const copy = newItem(
-      {
-        name: `${this.name} copy`, // Have to add 'copy' to sidestep uniqueness check.
-        description: this.__description,
-        holdable: this.holdable,
-        size: this.size,
-        verbs: this.__verbList,
-        aliases: [...this.__aliases],
-        omitAliases: this.omitAliases,
-        hidesItems: this.hidesItems.map((item) => item.clone()),
-        containerListing: this.containerListing,
-        canHoldItems: this.canHoldItems,
-        capacity: this.capacity,
-        preposition: this.preposition,
-        itemsVisibleFromRoom: this.itemsVisibleFromRoom,
-        itemsVisibleFromSelf: this.itemsVisibleFromSelf,
-        doNotList: this.doNotList,
-        verbCustomisations: this.verbCustomisations || {},
-        _cloned: true
-      },
-      typeConstructor
-    );
+    const builder = new Item.Builder();
+
+    builder.config = {
+      name: `${this.name} copy`, // Have to add 'copy' to sidestep uniqueness check.
+      description: this.__description,
+      holdable: this.holdable,
+      size: this.size,
+      verbs: this.__verbList,
+      aliases: [...this.__aliases],
+      omitAliases: this.omitAliases,
+      hidesItems: this.hidesItems.map((item) => item.clone()),
+      containerListing: this.containerListing,
+      canHoldItems: this.canHoldItems,
+      capacity: this.capacity,
+      preposition: this.preposition,
+      itemsVisibleFromRoom: this.itemsVisibleFromRoom,
+      itemsVisibleFromSelf: this.itemsVisibleFromSelf,
+      doNotList: this.doNotList,
+      verbCustomisations: this.verbCustomisations || {},
+      _cloned: true
+    };
+
+    const copy = new typeConstructor(undefined, undefined, false, 0, undefined, undefined, undefined, builder);
 
     // Set the real name - okay for a clone because it won't be serialized.
     copy.name = this.name;
@@ -117,27 +114,33 @@ export class Item {
     return copy;
   }
 
-  isRoom = false;
-
   constructor(
-    name = "item",
+    name?: string,
     description: UnknownText = "It's fairly ordinary looking.",
     holdable = false,
     size = 1,
     verbs: VerbT | VerbBuilderT | (VerbT | VerbBuilderT)[] = [],
     aliases: string[] = [],
     hidesItems: (ItemT | Builder)[] = [],
-    config?: ItemConfig
+    builder?: Builder
   ) {
-    if (selectAllItemNames().has(name)) {
+    const config = builder?.config;
+    this.config = config;
+
+    if (!name && !config?.name) {
+      throw Error("Tried to create an Item without a name. All Items must have names.");
+    }
+
+    this.__alteredProperties = new Set();
+    this.aliases = [];
+    this.name = name ?? config?.name ?? "item";
+
+    if (selectAllItemNames().has(this.name)) {
       throw Error(
-        `Tried to create an item with name "${name}" but an item with that name already exists. Names must be unique - consider making "${name}" an alias instead.`
+        `Tried to create an item with name "${this.name}" but an item with that name already exists. Names must be unique - consider making "${this.name}" an alias instead.`
       );
     }
 
-    this.config = config;
-    this.__alteredProperties = new Set();
-    this.aliases = [];
     this.visible = true;
     this.container = undefined;
     this.items = {};
@@ -151,17 +154,17 @@ export class Item {
     this.doNotList = false;
     this.properties = {};
     this.properNoun = false;
+    this.verbList = verbs || [];
 
     if (config) {
       const { aliases, verbs, items, ...remainingConfig } = config;
 
       this.verbList = verbs || [];
 
-      Object.entries(remainingConfig).forEach(([key, value]) => (this[key] = value));
+      Object.entries(remainingConfig).filter(([key]) => key !== "name").forEach(([key, value]) => (this[key] = value));
       aliases?.forEach((alias) => this.createAliases(alias));
       this.addItems(...(config.items ?? []));
     } else {
-      this.name = name;
       this.description = description;
       this.holdable = holdable;
       this.size = size;
@@ -1267,6 +1270,6 @@ export class Builder {
   }
 
   build() {
-    return newItem(this.config);
+    return new Item(undefined, undefined, false, 0, undefined, undefined, undefined, this);
   }
 }

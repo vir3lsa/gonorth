@@ -50,9 +50,6 @@ import {
 } from "./utils/sharedFunctions";
 import { getBasicItemList, bulletPointList, toTitleCase, getArticle, englishList } from "./utils/textFunctions";
 import { moveItem, getItem as getUniqueItem } from "./utils/itemFunctions";
-import { newDoor } from "./game/items/door";
-import { newContainer } from "./game/items/container";
-import { newItem } from "./game/items/item";
 import { EventBuilder, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
 import { ScheduleBuilder } from "./game/events/schedule";
 import { next, previous, okay } from "./game/interactions/optionGraph";
@@ -255,9 +252,6 @@ const gonorth = {
   inRoom,
   inSameRoomAs,
   moveItem,
-  newContainer,
-  newDoor,
-  newItem,
   newVerb,
   next,
   okay,
@@ -290,9 +284,9 @@ const gonorth = {
 export default gonorth;
 export { Room } from "./game/items/room";
 export { Verb, GoVerb, newVerb, VerbBuilder as VerbBuilder } from "./game/verbs/verb";
-export { Door, newDoor, Key } from "./game/items/door";
-export { Container, newContainer } from "./game/items/container";
-export { Item, newItem } from "./game/items/item";
+export { Door, Key } from "./game/items/door";
+export { Container } from "./game/items/container";
+export { Item } from "./game/items/item";
 export { Interaction, Append } from "./game/interactions/interaction";
 export { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
 export { Option } from "./game/interactions/option";

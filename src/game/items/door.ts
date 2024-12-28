@@ -4,32 +4,6 @@ import { inRoom, normaliseTest } from "../../utils/sharedFunctions";
 import { goToRoom } from "../../utils/lifecycle";
 import { CyclicText } from "../interactions/text";
 
-export function newDoor(config: DoorConfig & ItemConfig) {
-  const {
-    name,
-    description,
-    open,
-    locked,
-    onOpen: openSuccessText,
-    unlock: unlockSuccessText,
-    aliases,
-    key,
-    traversals,
-  } = config;
-  return new Door(
-    name,
-    description,
-    open,
-    locked,
-    openSuccessText,
-    unlockSuccessText,
-    aliases,
-    key,
-    traversals,
-    config
-  );
-}
-
 /**
  * Doors are {@link game/items/item!Item | Items} that can open and close, and may be lockable, with or without
  * a key. The can exist within {@link game/items/room!Room | Rooms}, or may act as gateways between {@link game/items/room!Room | Rooms}.
@@ -64,9 +38,10 @@ export class Door extends Item {
     aliases?: string[],
     key?: KeyT,
     traversals?: Traversal[],
-    config?: DoorConfig
+    builder?: DoorBuilder
   ) {
-    super(name, description, false, -1, [], aliases, undefined, config);
+    const config = builder?.config;
+    super(name, description, false, -1, [], aliases, undefined, builder);
     this.open = open;
     this.locked = locked;
     this.key = key;
@@ -314,7 +289,7 @@ export class DoorBuilder extends Item.Builder {
   }
 
   onUnlock(onSuccess: Action) {
-    this.config.unlock = onSuccess;
+    this.config.onUnlock = onSuccess;
     return this;
   }
 
@@ -354,7 +329,8 @@ export class DoorBuilder extends Item.Builder {
       throw Error(`Door "${this.config.name}" cannot be both always open and closed.`);
     }
 
-    return newDoor(this.config);
+    const { name, description, open, locked, onOpen, onUnlock, aliases, key, traversals } = this.config;
+    return new Door(name, description, open, locked, onOpen, onUnlock, aliases, key, traversals, this);
   }
 }
 

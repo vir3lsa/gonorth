@@ -1,45 +1,11 @@
 import { createDynamicText } from "../../utils/dynamicDescription";
 import { normaliseTest } from "../../utils/sharedFunctions";
 import { Verb } from "../verbs/verb";
-import { Item, Builder as ItemBuilder, customiseVerbs } from "./item";
-
-export function newContainer(config: ContainerConfig & ItemConfig) {
-  const {
-    name,
-    aliases,
-    closedDescription,
-    openDescription,
-    capacity,
-    preposition,
-    locked,
-    open,
-    holdable,
-    size,
-    closeable,
-    lockable,
-    key,
-  } = config;
-  return new Container(
-    name,
-    aliases,
-    closedDescription,
-    openDescription,
-    capacity,
-    preposition,
-    locked,
-    open,
-    holdable,
-    size,
-    closeable,
-    lockable,
-    key,
-    config
-  );
-}
+import { Item, Builder as ItemBuilder } from "./item";
 
 export class Container extends Item {
-  private __open!: boolean;
-  private __locked!: boolean;
+  private __open: boolean = false;
+  private __locked: boolean = false;
   private __onLocked!: Action;
   private __onOpen!: Action;
   private __onAlreadyOpen!: Action;
@@ -67,26 +33,19 @@ export class Container extends Item {
     closeable = true,
     lockable = false,
     key?: string | KeyT,
-    config?: ContainerConfig
+    builder?: ContainerBuilder
   ) {
+    const config = builder?.config;
     const dynamicOpenDescription = createDynamicText(openDescription);
     const dynamicClosedDescription = createDynamicText(closedDescription);
-    const description = () => (this.open ? dynamicOpenDescription({ item: this }) : dynamicClosedDescription({ item: this }));
+    const description = () =>
+      this.open ? dynamicOpenDescription({ item: this }) : dynamicClosedDescription({ item: this });
 
     if (config) {
       config.description = description;
     }
 
-    super(
-      name,
-      description,
-      holdable,
-      size,
-      [],
-      aliases || [],
-      undefined,
-      config
-    );
+    super(name, description, holdable, size, [], aliases ?? [], undefined, builder);
     this.canHoldItems = true;
     this.capacity = capacity;
     this.preposition = preposition;
@@ -293,7 +252,16 @@ export class ContainerBuilder extends ItemBuilder {
 
   constructor(name?: string) {
     super(name);
+
     this.config.relinquishTests = [];
+    this.config.capacity = 5;
+    this.config.preposition = "in";
+    this.config.locked = false;
+    this.config.open = false;
+    this.config.holdable = false;
+    this.config.size = 1;
+    this.config.closeable = true;
+    this.config.lockable = false;
   }
 
   onClose(value: Action) {
@@ -403,6 +371,36 @@ export class ContainerBuilder extends ItemBuilder {
   }
 
   build() {
-    return newContainer(this.config);
+    const {
+      name,
+      aliases,
+      closedDescription,
+      openDescription,
+      capacity,
+      preposition,
+      locked,
+      open,
+      holdable,
+      closeable,
+      lockable,
+      size,
+      key
+    } = this.config;
+    return new Container(
+      name,
+      aliases,
+      closedDescription,
+      openDescription,
+      capacity,
+      preposition,
+      locked,
+      open,
+      holdable,
+      size,
+      closeable,
+      lockable,
+      key,
+      this
+    );
   }
 }

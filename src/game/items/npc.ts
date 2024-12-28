@@ -10,7 +10,7 @@ export class Npc extends Item {
 
   constructor(builder: NpcBuilder) {
     const { name, description, holdable, size, verbs, aliases, hidesItems } = builder.config;
-    super(name, description || `${name} is unremarkable.`, holdable, size, verbs, aliases, hidesItems, builder.config);
+    super(name, description, holdable, size, verbs, aliases, hidesItems, builder);
     this._isNpc = true; // Avoids circular dependency in item.js
     this.encounters = [];
     this.article = "";
@@ -71,6 +71,7 @@ export class Npc extends Item {
 export class NpcBuilder extends Item.Builder {
   constructor(name: string) {
     super(name);
+    this.config.description = `${name} is unremarkable.`;
   }
 
   build() {

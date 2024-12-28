@@ -616,7 +616,7 @@ interface DoorConfig {
   onNeedsKey: Action;
   onOpen: Action;
   onClose: Action;
-  unlock: Action;
+  onUnlock: Action;
   aliases: string[];
   key: KeyT;
   traversals?: Traversal[];

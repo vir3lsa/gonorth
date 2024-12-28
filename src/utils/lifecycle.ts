@@ -120,7 +120,7 @@ export function resetStateToPrePlay() {
 
 export function createPlayer() {
   // Create the player after registering the store as Items need to inspect an existing store.
-  getStore().dispatch(setPlayer(new Item("player", "You look as you normally do.", false)));
+  getStore().dispatch(setPlayer(new Item.Builder("player").withDescription("You look as you normally do.").build()));
 }
 
 export function resetToCheckpoint() {

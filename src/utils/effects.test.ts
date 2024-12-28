@@ -1,6 +1,6 @@
 import { unregisterStore } from "../redux/storeRegistry";
 import { initStore } from "../redux/store";
-import { Item, newItem } from "../game/items/item";
+import { Item } from "../game/items/item";
 import { Effect, Effects, VerbRelation } from "./effects";
 import { selectCurrentPage } from "./testSelectors";
 import gn from "../gonorth";
@@ -104,11 +104,11 @@ test("we can ask whether a wildcard effect will be considered successful", () =>
 });
 
 test("wildcard effects are realised", async () => {
-  await effects.apply("noodle", "pool", "put")!.chain({ item: newItem({ name: "noodle" }) });
+  await effects.apply("noodle", "pool", "put")!.chain({ item: new Item.Builder("noodle" ).build() });
   expect(selectCurrentPage()).toInclude("The noodle hits the water");
 });
 
 test("wildcard effects are realised even when considered unsuccessful", async () => {
-  await effects.apply("bowl", "fire", "put")!.chain({ item: newItem({ name: "bowl" }) });
+  await effects.apply("bowl", "fire", "put")!.chain({ item: new Item.Builder("bowl").build() });
   expect(selectCurrentPage()).toInclude("The bowl doesn't seem to want to catch fire");
 });
