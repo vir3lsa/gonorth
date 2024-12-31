@@ -174,6 +174,16 @@ describe("container", () => {
     expect(selectCurrentPage()).toBe("it's open\n\nthere's a toy nestled at the bottom of the chest.");
   });
 
+  test("gives the basic description whether open or closed", async () => {
+    const shelf = new Container.Builder("shelf").withDescription("A plank with stuff").isOpen().build();
+    await shelf.try("examine");
+    expect(selectCurrentPage()).toInclude("A plank with stuff");
+    await shelf.try("close");
+    clearPage();
+    await shelf.try("examine");
+    expect(selectCurrentPage()).toBe("A plank with stuff");
+  });
+
   test("can't be opened or closed if not closeable", () => {
     const bucket = new Container.Builder().withName("bucket").isCloseable(false).build();
     expect(bucket.verbs.open).toBeUndefined();

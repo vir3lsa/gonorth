@@ -281,12 +281,12 @@ export class Item {
                 (({ item }) => {
                   const container = item!.container;
 
-                  // Otherwise, if the item's in a room, take from there.
+                  // Take from generic container.
                   if (container && !container.isRoom) {
                     return takeFromContainerText.next(item, container);
                   }
 
-                  // Else, take from generic container.
+                  // Otherwise, if the item's in a room, take from there.
                   return takeFromRoomText.next(item);
                 }),
               false
@@ -1260,7 +1260,7 @@ export class Builder {
     return this;
   }
 
-  customiseVerb(verbName: string, customisation: (verb: Verb) => void) {
+  customiseVerb(verbName: string, customisation: (verb: VerbT) => void) {
     if (!this.config.verbCustomisations) {
       this.config.verbCustomisations = {};
     }

@@ -38,10 +38,10 @@ export class Container extends Item {
     const config = builder?.config;
     const dynamicOpenDescription = createDynamicText(openDescription);
     const dynamicClosedDescription = createDynamicText(closedDescription);
-    const description = () =>
-      this.open ? dynamicOpenDescription({ item: this }) : dynamicClosedDescription({ item: this });
+    const description = config?.description ?? (() =>
+      this.open ? dynamicOpenDescription({ item: this }) : dynamicClosedDescription({ item: this }));
 
-    if (config) {
+    if (config && !config.description) {
       config.description = description;
     }
 

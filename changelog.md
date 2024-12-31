@@ -1,9 +1,10 @@
 # goNORTH Changelog
 
-# Unreleased
+# 10.0.0
 
+* 2024-12-31 Resolved defect where generic container descriptions were being ignored.
 * 2024-12-28 Breaking change: Removed newItem, newContainer, and newDoor functions.
-* 2024-12-27 Breaking change: takeSuccessText is now onTake and is an Action. Containers may be transparent.
+* 2024-12-27 Breaking change: takeSuccessText is now onTake and is an Action. Containers may be transparent, which should be used rather than itemsVisibleFromSelf.
 * 2024-12-21 Breaking change: Renamed door actions for consistency.
 * 2024-12-20 Breaking change: Various container texts are now Actions (and hence are not persisted in saved state).
 * 2024-12-19 Containers no longer allow items to be added to them when they're closed.
