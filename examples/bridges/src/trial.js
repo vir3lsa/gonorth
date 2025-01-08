@@ -180,8 +180,8 @@ export const airTerrain = new Terrain("air", true, false, false, "");
 export const yourSigilTerrain = new Terrain("your sigil", true, false, false, "");
 export const tutorSigilTerrain = new Terrain("tutor's sigil", true, false, false, "");
 
-const whiteAnchor = new Item("white anchor");
-const blackAnchor = new Item("black anchor");
+const whiteAnchor = new Item.Builder("white anchor");
+const blackAnchor = new Item.Builder("black anchor");
 let whiteAnchorLocation, blackAnchorLocation;
 
 export class Trial extends Room {
@@ -205,21 +205,18 @@ export class Trial extends Room {
     this.east = new Item.Builder().withName("East").withAliases("e", "eastward", "right").build();
     this.west = new Item.Builder().withName("West").withAliases("w", "westward", "left").build();
 
-    const lookVerb = new Verb("examine", true, (helpers, item) => this.look(item), null, [
-      "ex",
-      "x",
-      "look",
-      "inspect"
-    ]);
+    const lookVerb = new Verb.Builder("examine")
+      .withOnSuccess((helpers, item) => this.look(item))
+      .withAliases("ex", "x", "look", "inspect")
+      .build();
 
-    const dextrum = new Verb("dextrum", true, (helpers, direction) => this.fireWhiteAnchor(direction), null, [
-      "dex",
-      "white"
-    ]);
-    const sinistrum = new Verb("sinistrum", true, (helpers, direction) => this.fireBlackAnchor(direction), null, [
-      "sin",
-      "black"
-    ]);
+    const dextrum = new Verb.Builder("dextrum")
+      .withOnSuccess((helpers, direction) => this.fireWhiteAnchor(direction))
+      .withAliases("dex", "white")
+      .build();
+    const sinistrum = new Verb.Builder("sinistrum")
+      .withOnSuccess((helpers, direction) => this.fireBlackAnchor(direction))
+      .withAliases("sin", "black");
 
     this.north.addVerbs(lookVerb, dextrum, sinistrum);
     this.south.addVerbs(lookVerb, dextrum, sinistrum);
@@ -231,10 +228,26 @@ export class Trial extends Room {
 
     // Set up special directional verbs to move about within the trial. Equivalent keywords will need to  be removed.
     this.addVerbs(
-      new Verb("North", true, () => this.goNorth(), null, ["n", "forward", "straight on"], true),
-      new Verb("South", true, () => this.goSouth(), null, ["s", "backward", "backwards", "back", "reverse"], true),
-      new Verb("East", true, () => this.goEast(), null, ["e", "right", "r"], true),
-      new Verb("West", true, () => this.goWest(), null, ["w", "left", "l"], true)
+      new Verb.Builder("North")
+        .withOnSuccess(() => this.goNorth())
+        .withAliases("n", "forward", "straight on")
+        .isKeyword()
+        .build(),
+      new Verb.Builder("South")
+        .withOnSuccess(() => this.goSouth())
+        .withAliases("s", "backward", "backwards", "back", "reverse")
+        .isKeyword()
+        .build(),
+      new Verb.Builder("East")
+        .withOnSuccess(() => this.goEast())
+        .withAliases("e", "right", "r")
+        .isKeyword()
+        .build(),
+      new Verb.Builder("West")
+        .withOnSuccess(() => this.goWest())
+        .withAliases("w", "left", "l")
+        .isKeyword()
+        .build()
     );
 
     // Remove directional keywords, if present.

@@ -161,7 +161,9 @@ export class Item {
 
       this.verbList = verbs || [];
 
-      Object.entries(remainingConfig).filter(([key]) => key !== "name").forEach(([key, value]) => (this[key] = value));
+      Object.entries(remainingConfig)
+        .filter(([key]) => key !== "name")
+        .forEach(([key, value]) => (this[key] = value));
       aliases?.forEach((alias) => this.createAliases(alias));
       this.addItems(...(config.items ?? []));
     } else {
@@ -303,21 +305,21 @@ export class Item {
         .withSmartTest(
           ({ other }) => other !== this,
           ({ other }) =>
-            `You can't put ${this.theOrNone}${this.name} ${other!.preposition} ${
+            `You can't put ${this.theOrNone + this.name} ${other!.preposition} ${
               config?.plural ? "themselves" : "itself"
             }. That would be nonsensical.`
         )
         .withSmartTest(
           ({ other }) => other!.canHoldItems,
           ({ other }) =>
-            `You can't put ${this.theOrNone}${this.name} ${other!.preposition} ${other!.theOrNone}${other!.name}.`
+            `You can't put ${this.theOrNone + this.name} ${other!.preposition} ${other!.theOrNone + other!.name}.`
         )
         .withSmartTest(
           ({ other }) => other!.open !== false,
           ({ other }) =>
-            `You can't put ${this.theOrNone}${this.name} ${other!.preposition} ${other!.theOrNone}${
-              other!.name
-            } because ${other!.theOrNone}${other!.name} ${other!.isOrAre} closed.`
+            `You can't put ${this.theOrNone + this.name} ${other!.preposition} ${
+              other!.theOrNone + other!.name
+            } because ${other!.theOrNone + other!.name} ${other!.isOrAre} closed.`
         )
         .withSmartTest(
           ({ other }) => other!.free === -1 || this.size <= other!.free,
@@ -327,10 +329,10 @@ export class Item {
           ({ item, other }) => moveItem(item, other!),
           ({ item, other }) => {
             if (other!.isRoom) {
-              return `You put ${item.theOrNone}${item.name} on the floor.`;
+              return `You put ${item.theOrNone + item.name} on the floor.`;
             }
 
-            return `You put ${item.theOrNone}${item.name} ${other!.preposition} the ${other!.name}.`;
+            return `You put ${item.theOrNone + item.name} ${other!.preposition} the ${other!.name}.`;
           }
         )
         .build();
@@ -348,7 +350,7 @@ export class Item {
               }
             },
             ({ item }) => moveItem(item, selectRoom()),
-            ({ item }) => `You put ${item.theOrNone}${item.name} on the floor.`
+            ({ item }) => `You put ${item.theOrNone + item.name} on the floor.`
           )
           .build()
       );
@@ -358,16 +360,16 @@ export class Item {
           .withSmartTest(
             ({ other }) => other !== this,
             () =>
-              `You can't give ${this.theOrNone}${this.name} to ${config?.plural ? "themselves" : "itself"}. Obviously.`
+              `You can't give ${this.theOrNone + this.name} to ${config?.plural ? "themselves" : "itself"}. Obviously.`
           )
           .withSmartTest(
             ({ other }) => Boolean(other!._isNpc),
             ({ other }) =>
-              `You know you can't give ${this.theOrNone}${this.name} to the ${other!.name}. So just stop it.`
+              `You know you can't give ${this.theOrNone + this.name} to the ${other!.name}. So just stop it.`
           )
           .withSmartTest(
             () => false,
-            ({ other }) => `It doesn't look like ${other!.name} wants ${this.theOrNone}${this.name}.`
+            ({ other }) => `It doesn't look like ${other!.name} wants ${this.theOrNone + this.name}.`
           )
           .withOnSuccess(({ item, other }) => moveItem(item, other!))
           .withAliases("offer", "pass", "show")
@@ -638,21 +640,38 @@ export class Item {
 
   /**
    * Adds items this item hides to self.
+   * @param itemsOrNames List of item objects or item names to reveal. Will only reveal items that this item hides.
+   * If none are provided, all hidden items will be revealed.
    */
-  revealItems() {
-    if (this.itemsVisibleFromSelf) {
-      debug(`${this.name}: Revealing items`);
+  revealItems(...itemsOrNames: (Item | string)[]) {
+    if (!this.itemsVisibleFromSelf) {
+      debug(`${this.name}: Not revealing items because they're not visible.`);
+      return;
+    }
 
-      this.hidesItems.forEach((item) => {
-        debug(`${this.name}: Adding item ${item.name} to self`);
-        this.addItem(item);
-      });
+    const itemsToReveal = this.hidesItems.filter(
+      (item) =>
+        !itemsOrNames.length ||
+        itemsOrNames.some((itemOrName) => itemOrName === item || itemOrName === item.name)
+    );
 
-      getStore().dispatch(itemsRevealed(this.hidesItems.flatMap((item) => [item.name, ...item.aliases])));
+    if (!itemsToReveal.length) {
+      debug(`${this.name}: Not revealing items because none match the list to be revealed.`);
+      return;
+    }
 
-      if (this.hidesItems.length) {
-        this.hidesItems = [];
-      }
+    debug(`${this.name}: Revealing items`);
+
+    itemsToReveal.forEach((item) => {
+      debug(`${this.name}: Adding item ${item.name} to self`);
+      this.addItem(item);
+    });
+
+    getStore().dispatch(itemsRevealed(itemsToReveal.flatMap((item) => [item.name, ...item.aliases])));
+
+    if (this.hidesItems.length) {
+      // Remove items that we've revealed from the list of hidden items.
+      this.hidesItems = this.hidesItems.filter((item) => !itemsToReveal.includes(item));
     }
   }
 
@@ -1227,7 +1246,7 @@ export class Builder {
     return this;
   }
 
-  onTake(value: Action) {
+  onTake(...value: Action[]) {
     this.config.onTake = value;
     return this;
   }

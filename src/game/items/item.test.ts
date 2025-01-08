@@ -4,7 +4,7 @@ import { SequentialText } from "../interactions/text";
 import { recordChanges } from "../../redux/gameActions";
 import { selectInventory, selectInventoryItems, selectItem, selectItemNames } from "../../utils/selectors";
 import { Room } from "./room";
-import gn, { setInventoryCapacity, goToRoom } from "../../gonorth";
+import gn, { setInventoryCapacity, goToRoom, ActionClass } from "../../gonorth";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { Container } from "./container";
 import { Verb } from "../verbs/verb";
@@ -166,6 +166,34 @@ describe("basic item tests", () => {
     expect(laptop.items.sticker[0].name).toBe("sticker");
   });
 
+  test("hidden items may be revealed selectively", async () => {
+    const laptop = new Item.Builder("laptop").hidesItems(new Item.Builder("sticker"), new Item.Builder("battery")).build();
+    laptop.revealItems("sticker");
+    // Sticker is revealed, battery is still hidden.
+    expect(laptop.items.sticker[0].name).toBe("sticker");
+    expect(laptop.items.battery).toBeUndefined();
+    expect(laptop.hidesItems.length).toBe(1);
+    expect(laptop.hidesItems[0].name).toBe("battery");
+  });
+
+  test("no items are revealed when nothing matches the list", async () => {
+    const laptop = new Item.Builder("laptop").hidesItems(new Item.Builder("sticker"), new Item.Builder("battery")).build();
+    laptop.revealItems("processor");
+    // Nothing is revealed.
+    expect(laptop.items.sticker).toBeUndefined();
+    expect(laptop.items.battery).toBeUndefined();
+    expect(laptop.hidesItems.length).toBe(2);
+  });
+
+  test("all items are revealed if no list is passed", async () => {
+    const laptop = new Item.Builder("laptop").hidesItems(new Item.Builder("sticker"), new Item.Builder("battery")).build();
+    laptop.revealItems();
+    // Nothing is revealed.
+    expect(laptop.items.sticker[0].name).toBe("sticker");
+    expect(laptop.items.battery[0].name).toBe("battery");
+    expect(laptop.hidesItems.length).toBe(0);
+  });
+
   test("items with no container may be taken programmatically", async () => {
     const dog = new Item.Builder("dog").isHoldable().build();
     await dog.try("take");
@@ -181,10 +209,11 @@ describe("basic item tests", () => {
   test("items may have custom take success actions", async () => {
     const pipe = new Item.Builder("pipe")
       .isHoldable()
-      .onTake(() => "from a function")
+      .onTake(new ActionClass(() => "from a function", false), "You like?")
       .build();
     await pipe.try("take");
     expect(selectCurrentPage()).toInclude("from a function");
+    expect(selectCurrentPage()).toInclude("You like?");
   });
 
   test("verbs can be acquired using getVerb", () => {
@@ -272,7 +301,7 @@ describe("builder tests", () => {
     expect(pipe.size).toBe(1);
     expect(pipe.aliases).toInclude("pope");
     expect(pipe.article).toBe("thy");
-    expect(pipe.onTake).toBe("yoink");
+    expect(pipe.onTake).toStrictEqual(["yoink"]);
     expect(pipe.get("appearance")).toBe("pipelike");
     expect(pipe.get("length")).toBe(12);
     expect(pipe.itemsVisibleFromSelf).toBe(false);

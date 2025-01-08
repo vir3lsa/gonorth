@@ -1,6 +1,6 @@
 import { Item } from "./item";
 import { Verb } from "../verbs/verb";
-import gn, { selectInventory } from "../../gonorth";
+import gn, { ActionClass, selectInventory } from "../../gonorth";
 import { recordChanges } from "../../redux/gameActions";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Container } from "./container";
@@ -102,14 +102,14 @@ describe("container", () => {
     expect(bucket.containerListing).toBe("there's a bucket in here");
     expect(bucket.preposition).toBe("within");
     expect(bucket.locked).toBe(false);
-    expect(bucket.onOpen).toBe("it opens");
-    expect(bucket.onClose).toBe("it closes");
+    expect(bucket.onOpen).toStrictEqual(["it opens"]);
+    expect(bucket.onClose).toStrictEqual(["it closes"]);
     expect(bucket.lockable).toBe(true);
     expect(bucket.key).toBe("key obj");
-    expect(bucket.onWrongKey).toBe("wrong key");
-    expect(bucket.onNeedsKey).toBe("needs key");
-    expect(bucket.onAlreadyUnlocked).toBe("already unlocked");
-    expect(bucket.onUnlock).toBe("unlocked");
+    expect(bucket.onWrongKey).toStrictEqual(["wrong key"]);
+    expect(bucket.onNeedsKey).toStrictEqual(["needs key"]);
+    expect(bucket.onAlreadyUnlocked).toStrictEqual(["already unlocked"]);
+    expect(bucket.onUnlock).toStrictEqual(["unlocked"]);
     expect(bucket.get("material")).toBe("steel");
 
     bucket.verbs.close.remote = true;
@@ -340,10 +340,11 @@ describe("container", () => {
     test("onOpen", async () => {
       const box = new Container.Builder("box")
         .isOpen(false)
-        .onOpen(({ item, verb }) => `Jack pops out of the ${verb!.name} ${item!.name}.`)
+        .onOpen(new ActionClass(({ item, verb }) => `Jack pops out of the ${verb!.name} ${item!.name}.`, false), "Boo!")
         .build();
       await box.try("open");
       expect(selectCurrentPage()).toInclude("Jack pops out of the open box.");
+      expect(selectCurrentPage()).toInclude("Boo!");
     });
 
     test("onClose", async () => {
@@ -359,10 +360,11 @@ describe("container", () => {
       const box = new Container.Builder("box")
         .isOpen(false)
         .isLocked()
-        .onLocked(({ item, verb }) => `The ${item!.name} just won't ${verb!.name}.`)
+        .onLocked(new ActionClass(({ item, verb }) => `The ${item!.name} just won't ${verb!.name}.`, false), "Rats!")
         .build();
       await box.try("open");
       expect(selectCurrentPage()).toInclude("The box just won't open.");
+      expect(selectCurrentPage()).toInclude("Rats!");
     });
 
     test("onNeedsKey", async () => {
@@ -381,10 +383,11 @@ describe("container", () => {
         .isOpen(false)
         .isLocked()
         .withKey("key")
-        .onWrongKey(({ item, verb }) => `The ${item!.name} won't ${verb!.name} with that key.`)
+        .onWrongKey(new ActionClass(({ item, verb }) => `The ${item!.name} won't ${verb!.name} with that key.`, false), "Gah!")
         .build();
       await box.try("unlock", new Key.Builder("wrong key").build());
       expect(selectCurrentPage()).toInclude("The box won't unlock with that key.");
+      expect(selectCurrentPage()).toInclude("Gah!");
     });
 
     test("onAlreadyOpen", async () => {
@@ -399,10 +402,11 @@ describe("container", () => {
     test("onAlreadyClosed", async () => {
       const box = new Container.Builder("box")
         .isOpen(false)
-        .onAlreadyClosed(({ item, verb }) => `The ${item!.name} is already ${verb!.name}d, silly.`)
+        .onAlreadyClosed(new ActionClass(({ item, verb }) => `The ${item!.name} is already ${verb!.name}d, silly.`, false), "Give up.")
         .build();
       await box.try("close");
       expect(selectCurrentPage()).toInclude("The box is already closed, silly.");
+      expect(selectCurrentPage()).toInclude("Give up.");
     });
 
     test("onUnlock", async () => {
@@ -420,10 +424,11 @@ describe("container", () => {
         .isOpen(false)
         .isLockable(true)
         .isLocked(false)
-        .onAlreadyUnlocked(({ item, verb }) => `The ${item!.name} is already ${verb!.name}ed, Barny.`)
+        .onAlreadyUnlocked(new ActionClass(({ item, verb }) => `The ${item!.name} is already ${verb!.name}ed, Barny.`, false), "Open it.")
         .build();
       await box.try("unlock");
       expect(selectCurrentPage()).toInclude("The box is already unlocked, Barny.");
+      expect(selectCurrentPage()).toInclude("Open it.");
     });
   });
 });

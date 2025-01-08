@@ -67,7 +67,7 @@ describe("Game class", () => {
    * though, so using Parser directly, which doesn't increment the turn.
    */
   it("increments the turn at the end of a chain", async () => {
-    room.addVerb(new Verb("shimmy", true, ["one", "two", "three"]));
+    room.addVerb(new Verb.Builder("shimmy").withOnSuccess("one", "two", "three"));
     goToStartingRoom();
     expect(selectTurn()).toBe(1);
     setTimeout(async () => {
@@ -170,7 +170,7 @@ describe("Game class", () => {
         expect(x).toBe(0);
         clickNext();
       });
-      await new Verb("verb", true, ["one", "two"]).attempt();
+      await new Verb.Builder("verb").withOnSuccess("one", "two").build().attempt();
       await eventPromise;
       expect(x).toBe(1);
     });
@@ -191,7 +191,7 @@ describe("Game class", () => {
         expect(x).toBe(1);
         clickNext();
       });
-      await new Verb("verb", true, ["one", "two"]).attempt();
+      await new Verb.Builder("verb").withOnSuccess("one", "two").build().attempt();
       await p1;
       await p2;
       expect(x).toBe(6);

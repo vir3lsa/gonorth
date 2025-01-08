@@ -264,7 +264,7 @@ export class ContainerBuilder extends ItemBuilder {
     this.config.lockable = false;
   }
 
-  onClose(value: Action) {
+  onClose(...value: Action[]) {
     this.config.onClose = value;
     return this;
   }
@@ -274,7 +274,7 @@ export class ContainerBuilder extends ItemBuilder {
     return this;
   }
 
-  onOpen(value: Action) {
+  onOpen(...value: Action[]) {
     this.config.onOpen = value;
     return this;
   }
@@ -284,7 +284,7 @@ export class ContainerBuilder extends ItemBuilder {
     return this;
   }
 
-  onLocked(value: Action) {
+  onLocked(...value: Action[]) {
     this.config.onLocked = value;
     return this;
   }
@@ -335,32 +335,32 @@ export class ContainerBuilder extends ItemBuilder {
     return this;
   }
 
-  onWrongKey(value: Action) {
+  onWrongKey(...value: Action[]) {
     this.config.onWrongKey = value;
     return this;
   }
 
-  onNeedsKey(value: Action) {
+  onNeedsKey(...value: Action[]) {
     this.config.onNeedsKey = value;
     return this;
   }
 
-  onAlreadyOpen(value: Action) {
+  onAlreadyOpen(...value: Action[]) {
     this.config.onAlreadyOpen = value;
     return this;
   }
 
-  onAlreadyClosed(value: Action) {
+  onAlreadyClosed(...value: Action[]) {
     this.config.onAlreadyClosed = value;
     return this;
   }
 
-  onAlreadyUnlocked(value: Action) {
+  onAlreadyUnlocked(...value: Action[]) {
     this.config.onAlreadyUnlocked = value;
     return this;
   }
 
-  onUnlock(value: Action) {
+  onUnlock(...value: Action[]) {
     this.config.onUnlock = value;
     return this;
   }

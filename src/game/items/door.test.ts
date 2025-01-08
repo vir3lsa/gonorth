@@ -3,7 +3,7 @@ import { Door, Key } from "./door";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
 import { Interaction } from "../interactions/interaction";
-import gn, { goToRoom, selectRoom, Verb } from "../../gonorth";
+import gn, { ActionClass, goToRoom, selectRoom, Verb } from "../../gonorth";
 import { Item } from "./item";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { AnyAction } from "redux";
@@ -118,10 +118,11 @@ test("shortcut function can be used to close doors", async () => {
 test("openSuccessText can be an Action", async () => {
   const hatch = new Door.Builder("hatch")
     .isOpen(false)
-    .onOpen(() => "It pops open")
+    .onOpen(new ActionClass(() => "It pops open", false), "Hooray!")
     .build();
   await hatch.tryOpen();
   expect(selectCurrentPage()).toInclude("It pops open");
+  expect(selectCurrentPage()).toInclude("Hooray!");
 });
 
 test("onCloseSuccess can be an Action", async () => {
@@ -133,10 +134,11 @@ test("onCloseSuccess can be an Action", async () => {
 test("unlockSuccessText can be an Action", async () => {
   const hatch = new Door.Builder("hatch")
     .isLocked()
-    .onUnlock(() => "Click")
+    .onUnlock(new ActionClass(() => "Click", false), "Hooray!")
     .build();
   await hatch.tryUnlock();
   expect(selectCurrentPage()).toInclude("Click");
+  expect(selectCurrentPage()).toInclude("Hooray!");
 });
 
 test("onLocked can be overridden", async () => {

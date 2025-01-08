@@ -268,27 +268,27 @@ export class DoorBuilder extends Item.Builder {
     return this;
   }
 
-  onLocked(onLocked: Action) {
+  onLocked(...onLocked: Action[]) {
     this.config.onLocked = onLocked;
     return this;
   }
 
-  onNeedsKey(onNeedsKey: Action) {
+  onNeedsKey(...onNeedsKey: Action[]) {
     this.config.onNeedsKey = onNeedsKey;
     return this;
   }
 
-  onOpen(onSuccess: Action) {
+  onOpen(...onSuccess: Action[]) {
     this.config.onOpen = onSuccess;
     return this;
   }
 
-  onClose(onSuccess: Action) {
+  onClose(...onSuccess: Action[]) {
     this.config.onClose = onSuccess;
     return this;
   }
 
-  onUnlock(onSuccess: Action) {
+  onUnlock(...onSuccess: Action[]) {
     this.config.onUnlock = onSuccess;
     return this;
   }

@@ -287,17 +287,6 @@ describe("chainable actions", () => {
     }
   });
 
-  it("can be configured with a config object", () => {
-    const verb = newVerb({
-      name: "fly",
-      aliases: ["levitate"],
-      isKeyword: false
-    });
-    expect(verb.name).toBe("fly");
-    expect(verb.aliases).toStrictEqual(["levitate"]);
-    expect(verb.isKeyword).toBe(false);
-  });
-
   it("can be built with a builder", () => {
     const verb = new Verb.Builder("climb")
       .withAliases("boulder")
