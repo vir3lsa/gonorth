@@ -68,7 +68,7 @@ test("Options are rendered even if chain produces no text", async () => {
 
 test("Options are shown if attempting verb", async () => {
   let x = 1;
-  const doIt = new Verb("do it", true, () => x++);
+  const doIt = new Verb.Builder("do it").onSuccess(() => x++).build();
   const chain = new ActionChain(() => {
     doIt.attempt();
   });

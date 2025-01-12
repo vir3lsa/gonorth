@@ -18,7 +18,7 @@ const directionAliases = {
   up: ["u", "upward", "upwards"],
   down: ["d", "downward", "downwards"]
 } as {
-  [name: string]: string[] | undefined;
+  [name: string]: string[];
 };
 
 /**
@@ -59,12 +59,12 @@ export class Room extends Item {
     this.isRoom = true;
     getStore().dispatch(addRoom(this));
 
-    this.addVerbs(new GoVerb("north", directionAliases["north"] as string[], this));
-    this.addVerbs(new GoVerb("south", directionAliases["south"] as string[], this));
-    this.addVerbs(new GoVerb("east", directionAliases["east"] as string[], this));
-    this.addVerbs(new GoVerb("west", directionAliases["west"] as string[], this));
-    this.addVerbs(new GoVerb("up", directionAliases["up"] as string[], this));
-    this.addVerbs(new GoVerb("down", directionAliases["down"] as string[], this));
+    this.addVerbs(new GoVerb.Builder("north").withAliases(...directionAliases["north"]).withCurrentRoom(this));
+    this.addVerbs(new GoVerb.Builder("south").withAliases(...directionAliases["south"]).withCurrentRoom(this));
+    this.addVerbs(new GoVerb.Builder("east").withAliases(...directionAliases["east"]).withCurrentRoom(this));
+    this.addVerbs(new GoVerb.Builder("west").withAliases(...directionAliases["west"]).withCurrentRoom(this));
+    this.addVerbs(new GoVerb.Builder("up").withAliases(...directionAliases["up"]).withCurrentRoom(this));
+    this.addVerbs(new GoVerb.Builder("down").withAliases(...directionAliases["down"]).withCurrentRoom(this));
 
     this.customiseVerbs(Room.name);
   }
@@ -132,11 +132,11 @@ export class Room extends Item {
         this.addVerb(
           new Verb.Builder(directionName)
             .withAliases(...aliases)
-            .withOnSuccess((context) => goThrough.attemptWithContext({ ...context, item: door!, verb: goThrough }))
+            .onSuccess((context) => goThrough.attemptWithContext({ ...context, item: door!, verb: goThrough }))
             .build()
         );
       } else {
-        this.addVerb(new GoVerb(directionName, [], this));
+        this.addVerb(new GoVerb.Builder(directionName).withCurrentRoom(this));
       }
     }
   }

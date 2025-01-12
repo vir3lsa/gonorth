@@ -171,7 +171,7 @@ beforeEach(async () => {
   // Pretend we're in the browser
   gn.init({ title: "Jolly Capers", goToTitleScreen: false });
   optionGraph = new OptionGraph("jollyCapers", ...graphNodes);
-  doIt = new Verb("do it", true, () => x++);
+  doIt = new Verb.Builder("do it").onSuccess(() => x++).build();
   x = 0;
   await optionGraph.commence().chain();
 });

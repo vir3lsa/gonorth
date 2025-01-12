@@ -8,36 +8,6 @@ import { VerbRelation } from "../../utils/effects";
 
 const { Before, Instead, After } = VerbRelation;
 
-export function newVerb(config: VerbConfig) {
-  const {
-    name,
-    tests,
-    onSuccess,
-    onFailure,
-    aliases,
-    isKeyword,
-    prepositional,
-    interrogative,
-    prepositionOptional,
-    description,
-    expectedArgs,
-    ...remainingConfig
-  } = config;
-
-  if (!name) {
-    throw Error("You must at least set the verb name.");
-  }
-
-  const verb = new Verb(name, tests, onSuccess, onFailure, aliases, isKeyword, description, expectedArgs);
-
-  if (prepositional) {
-    verb.makePrepositional(interrogative as string, Boolean(prepositionOptional));
-  }
-
-  Object.entries(remainingConfig).forEach(([key, value]) => (verb[key] = value));
-  return verb;
-}
-
 const identity = () => undefined;
 
 /**
@@ -82,16 +52,22 @@ export class Verb {
   private _onFailure!: ActionChainT;
   private _aliases!: string[];
 
-  constructor(
-    name: string,
-    test: Test | SmartTest | (Test | SmartTest)[] = true,
-    onSuccess: ContextAction | ContextAction[] = [],
-    onFailure: ContextAction | ContextAction[] = [],
-    aliases: string[] = [],
-    isKeyword = false,
-    description = "",
-    expectedArgs = ["item", "other", "alias"]
-  ) {
+  constructor(builder: VerbBuilder) {
+    const {
+      name,
+      tests = [],
+      onSuccess,
+      onFailure,
+      aliases,
+      isKeyword,
+      prepositional,
+      interrogative,
+      prepositionOptional,
+      description,
+      expectedArgs = ["item", "other", "alias"],
+      ...remainingConfig
+    } = builder.config;
+
     this.name = name;
     this.isKeyword = isKeyword;
     this.doNotList = !isKeyword;
@@ -106,7 +82,7 @@ export class Verb {
     this.remote = false;
 
     // Call test setter
-    this.test = test;
+    this.test = tests;
 
     // Call the onSuccess setter
     this.onSuccess = onSuccess;
@@ -115,10 +91,22 @@ export class Verb {
     this.onFailure = onFailure;
 
     // The player must be holding holdable items in order to use them.
-    this.addTest(({ item }) => !item || this.remote || !item.holdable || playerHasItem(item));
+    this.insertTest(
+      ({ item }) => !item || this.remote || !item.holdable || playerHasItem(item),
+      ({ item }) => `You're not holding ${item!.theOrNone}${item!.name}.`
+    );
 
     // The player must be holding holdable indirect items in order to use them.
-    this.addTest(({ other }) => !other || this.remote || !other.holdable || playerHasItem(other));
+    this.insertTest(
+      ({ other }) => !other || this.remote || !other.holdable || playerHasItem(other),
+      ({ other }) => `You're not holding ${other!.theOrNone}${other!.name}.`
+    );
+
+    if (prepositional) {
+      this.makePrepositional(interrogative as string, Boolean(prepositionOptional));
+    }
+
+    Object.entries(remainingConfig).forEach(([key, value]) => (this[key] = value));
   }
 
   get name() {
@@ -194,15 +182,8 @@ export class Verb {
 
   set onFailure(onFailure: ContextAction | ContextAction[]) {
     const onFailureArray = Array.isArray(onFailure) ? onFailure : [onFailure];
-    onFailureArray.unshift(({ item, fail }) => {
-      if (!this.remote && item?.holdable && !playerHasItem(item)) {
-        fail!(); // You can't do this verb without holding the item, so we'll say that and go no further.
-        const article = item.properNoun ? "" : "the ";
-        return `You're not holding ${article}${item.name}.`;
-      }
-
-      return false; // Indicate the verb failure to the action chain.
-    });
+    // Indicate the verb failure to the action chain.
+    onFailureArray.unshift(() => false);
     this._onFailure = new ActionChain(...(onFailureArray as Action[]));
   }
 
@@ -388,12 +369,12 @@ export class VerbBuilder {
     return this;
   }
 
-  withOnSuccess(...onSuccess: ContextAction[]) {
+  onSuccess(...onSuccess: ContextAction[]) {
     this.config.onSuccess = onSuccess;
     return this;
   }
 
-  withOnFailure(...onFailure: ContextAction[]) {
+  onFailure(...onFailure: ContextAction[]) {
     this.config.onFailure = onFailure;
     return this;
   }
@@ -431,36 +412,64 @@ export class VerbBuilder {
   }
 
   build() {
-    return newVerb(this.config);
+    if (!this.config.name) {
+      throw Error("You must at least set the verb name.");
+    }
+
+    return new Verb(this);
   }
 }
 
 export class GoVerb extends Verb {
-  constructor(name: string, aliases: string[], currentRoom: RoomT) {
+  constructor(builder: GoVerbBuilder) {
+    super(builder);
+  }
+
+  static get Builder() {
+    return GoVerbBuilder;
+  }
+}
+
+export class GoVerbBuilder extends VerbBuilder {
+  constructor(name: string = "") {
+    super(name);
+    this.config.description = `Travel ${name}.`;
+  }
+
+  withCurrentRoom(currentRoom: RoomT) {
+    this.config.currentRoom = currentRoom;
+
+    const { name } = this.config;
     const getAdjacent = (name: string) => currentRoom.adjacentRooms[name.toLowerCase()];
-    super(
-      name,
-      [
-        {
-          test: () => Boolean(getAdjacent(name)?.test),
-          onFailure: "You can't go that way."
-        },
-        {
-          test: () => getAdjacent(name)!.test!(),
-          onFailure: () => getAdjacent(name)!.onFailure
-        }
-      ],
-      [
-        () => {
-          const adjacentRoom = getAdjacent(name);
-          return adjacentRoom?.onSuccess || `Going ${name}.`;
-        },
-        () => selectRoom().go(name)
-      ],
-      [],
-      aliases,
-      false,
-      `Travel ${name}.`
+
+    this.withSmartTest(() => Boolean(getAdjacent(name)?.test), "You can't go that way.");
+    this.withSmartTest(
+      () => getAdjacent(name)!.test!(),
+      () => getAdjacent(name)!.onFailure
     );
+
+    this.onSuccess(
+      () => {
+        const adjacentRoom = getAdjacent(name);
+        return adjacentRoom?.onSuccess || `Going ${name}.`;
+      },
+      () => selectRoom().go(name)
+    );
+
+    return this;
+  }
+
+  build() {
+    const { name, currentRoom } = this.config;
+
+    if (!name) {
+      throw Error("You must at least set the verb name.");
+    }
+
+    if (!currentRoom) {
+      console.error("Tried to build a GoVerb without a current room. Current room must be supplied.");
+    }
+
+    return new GoVerb(this);
   }
 }

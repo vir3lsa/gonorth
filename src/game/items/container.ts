@@ -69,7 +69,7 @@ export class Container extends Item {
       this.openVerb = new Verb.Builder("open")
         .withSmartTest(() => !this.open, this.onAlreadyOpen)
         .withSmartTest(() => !this.locked, this.onLocked)
-        .withOnSuccess(
+        .onSuccess(
           () => {
             this.open = true;
           },
@@ -83,7 +83,7 @@ export class Container extends Item {
       this.closeVerb = new Verb.Builder("close")
         .withSmartTest(() => this.open, this.onAlreadyClosed)
         .withSmartTest(() => !this.locked, this.onLocked)
-        .withOnSuccess(
+        .onSuccess(
           () => {
             // Ensure we don't return false to avoid breaking the action chain.
             this.open = false;
@@ -108,7 +108,7 @@ export class Container extends Item {
             ({ other: key }) => !this.key || key!.name === this.key || key!.name === (this.key as KeyT).name,
             this.onWrongKey
           )
-          .withOnSuccess(({ item: container }) => {
+          .onSuccess(({ item: container }) => {
             // Ensure we don't return false to avoid breaking the action chain.
             container.locked = false;
           }, this.onUnlock || (({ item: container }) => ((container as Container).key ? "The key turns easily in the lock." : `The ${name} unlocks with a soft *click*.`)))

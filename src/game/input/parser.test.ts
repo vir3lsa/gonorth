@@ -62,18 +62,18 @@ beforeEach(() => {
 describe("parser", () => {
   describe("directions", () => {
     beforeEach(() => {
-      hall = new Room("Hall", "grand");
-      north = new Room("Garden", "");
-      south = new Room("Kitchen", "");
-      east = new Room("Scullery", "");
-      west = new Room("Pantry", "");
-      door = new Door("trapdoor", "", false);
-      chair = new Item("chair", "comfy", false, 0, new Verb("sit in"));
-      redBall = new Item("red ball", "It's a rouge ball", true);
-      blueBall = new Item("blue ball", "It's an azure ball", true);
-      redBox = new Item("red box", "red", true);
-      blueBox = new Item("blue box", "blue", true, 20);
-      pillar = new Item("pillar");
+      hall = new Room.Builder("Hall").withDescription("grand").build();
+      north = new Room.Builder("Garden").build();
+      south = new Room.Builder("Kitchen").build();
+      east = new Room.Builder("Scullery").build();
+      west = new Room.Builder("Pantry").build();
+      door = new Door.Builder("trapdoor").isOpen(false).build();
+      chair = new Item.Builder("chair").withDescription("comfy").withVerb(new Verb.Builder("sit in")).build();
+      redBall = new Item.Builder("red ball").withDescription("It's a rouge ball").isHoldable().build();
+      blueBall = new Item.Builder("blue ball").withDescription("It's an azure ball").isHoldable().build();
+      redBox = new Item.Builder("red box").withDescription("red").isHoldable().build();
+      blueBox = new Item.Builder("blue box").withDescription("blue").isHoldable().withSize(20).build();
+      pillar = new Item.Builder("pillar").build();
       redBall.aliases = "ball";
       blueBall.aliases = "ball";
       redBox.aliases = "box";
@@ -86,13 +86,13 @@ describe("parser", () => {
       chairman.aliases = [];
       chairman.capacity = 5;
       cushion = new Item("cushion", "plush", true, 2);
-      new Verb("jump on"); // Should add verb to global registry
+      new Verb.Builder("jump on").build(); // Should add verb to global registry
       door.aliases = ["hatch", "trap door", "door"];
       door.getVerb("open").addAliases("give a shove to");
       pillar.addVerb(
         new Verb.Builder("take")
           .withTest(false)
-          .withOnFailure("It's too big")
+          .onFailure("It's too big")
           .withAliases("grab, snatch")
           .isRemote()
           .build()
@@ -102,13 +102,13 @@ describe("parser", () => {
       redBall.addVerb(
         new Verb.Builder("throw")
           .makePrepositional("at what")
-          .withOnSuccess(({ item, other }) => `The ${item.name} hits the ${other!.name}.`)
+          .onSuccess(({ item, other }) => `The ${item.name} hits the ${other!.name}.`)
           .build()
       );
-      redBall.addVerb(new Verb.Builder("hide").makePrepositional("from whom").withOnSuccess("It's hidden.").build());
+      redBall.addVerb(new Verb.Builder("hide").makePrepositional("from whom").onSuccess("It's hidden.").build());
       // Verb with alias "put" to verify that canonical verb names are no longer used in feedback.
       blueBall.addVerb(
-        new Verb.Builder("club").withAliases("put").withOnSuccess("You hit the ball into the hole.").build()
+        new Verb.Builder("club").withAliases("put").onSuccess("You hit the ball into the hole.").build()
       );
       addEffect(
         new Effect.Builder()
@@ -151,7 +151,7 @@ describe("parser", () => {
       redBox.addVerb(
         new Verb.Builder("store")
           .makePrepositional("store what in the red box?")
-          .withOnSuccess(({ other }) => `You store the ${other!.name} in the red box`)
+          .onSuccess(({ other }) => `You store the ${other!.name} in the red box`)
       );
 
       hall.setNorth(north);
@@ -244,7 +244,7 @@ describe("parser", () => {
       beforeEach(() => {
         apple1 = new Item("nice apple", "nice and crunchy", true);
         apple2 = new Item("rotten apple", "squishy and gross", true);
-        apple2.addVerb(new Verb("squish", true, "gross juice squeezes out"));
+        apple2.addVerb(new Verb.Builder("squish").onSuccess("gross juice squeezes out"));
         hall.addItems(apple1, apple2);
       });
 

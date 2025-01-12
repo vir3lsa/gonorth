@@ -28,7 +28,7 @@ describe("NPC tests", () => {
   test("NPCs can be given aliases and verbs", async () => {
     const npc = new Npc.Builder("cleaner")
       .withDescription("Burly")
-      .withVerb(new Verb.Builder("clean").withOnSuccess("John cleans"))
+      .withVerb(new Verb.Builder("clean").onSuccess("John cleans"))
       .build();
     await npc.try("clean");
     expect(selectCurrentPage()).toInclude("John cleans");

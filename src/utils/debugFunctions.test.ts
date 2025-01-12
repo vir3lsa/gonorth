@@ -35,14 +35,14 @@ describe("debugFunctions", () => {
   beforeEach(() => {
     gn.init({ title: "The Giant's Castle", version: "1.2.3" });
 
-    hall = new Room("Hall", "grand");
-    north = new Room("Garden", "");
-    door = new Door("trapdoor", "", false);
-    chair = new Item("chair", "comfy", false, 0, new Verb("sit in"));
-    redBall = new Item("red ball", "It's a rouge ball", true);
-    blueBall = new Item("blue ball", "It's an azure ball", true);
-    redBox = new Item("red box");
-    blueBox = new Item("blue box");
+    hall = new Room.Builder("Hall").withDescription("grand").build();
+    north = new Room.Builder("Garden").build();
+    door = new Door.Builder("trapdoor").isOpen(false).build();
+    chair = new Item.Builder("chair").withDescription("comfy").withVerb(new Verb.Builder("sit in")).build();
+    redBall = new Item.Builder("red ball").withDescription("It's a rouge ball").isHoldable().build();
+    blueBall = new Item.Builder("blue ball").withDescription("It's an azure ball").isHoldable().build();
+    redBox = new Item.Builder("red box").build();
+    blueBox = new Item.Builder("blue box").build();
     redBall.aliases = "ball";
     blueBall.aliases = "ball";
     redBox.aliases = "box";
@@ -54,14 +54,14 @@ describe("debugFunctions", () => {
     chairman = new Item("chair man", "impressive");
     chairman.aliases = [];
     cushion = new Item("cushion", "plush", true, 2);
-    new Verb("jump on"); // Should add verb to global registry
+    new Verb.Builder("jump on").build(); // Should add verb to global registry
     door.aliases = ["hatch", "trap door", "door"];
     door.getVerb("open").addAliases("give a shove to");
 
     hall.setNorth(north);
     hall.addItem(blueBall);
     north.addItems(door, chair, chairman, cushion, redBall, redBox, blueBox);
-    north.setNorth(new Room("Orangery", "Light and airy"));
+    north.setNorth(new Room.Builder("Orangery").withDescription("Light and airy").build());
 
     goToRoom(hall);
     door.open = false;

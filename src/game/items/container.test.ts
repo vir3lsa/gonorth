@@ -75,8 +75,8 @@ describe("container", () => {
       .isLocked(false)
       .isCloseable()
       .isHoldable()
-      .withVerbs(new Verb("swing"))
-      .hidesItems(new Item("crab"))
+      .withVerbs(new Verb.Builder("swing"))
+      .hidesItems(new Item.Builder("crab"))
       .withContainerListing("there's a bucket in here")
       .withClosedDescription("closed")
       .withOpenDescription("open")
@@ -331,9 +331,9 @@ describe("container", () => {
       .isOpen()
       .build();
     await ball.try("take");
-    expect(selectInventory().items.ball).not.toBeDefined();
     expect(selectCurrentPage()).not.toInclude("x too big");
     expect(selectCurrentPage()).toInclude("y too big to take ball from box");
+    expect(selectInventory().items.ball).not.toBeDefined();
   });
 
   describe("actions", () => {

@@ -53,7 +53,7 @@ export class Door extends Item {
         new Verb.Builder("open")
           .withSmartTest(() => !this.locked, config?.onLocked || `The ${name} ${this.isOrAre} locked.`)
           .withSmartTest(() => !this.open, `The ${name} ${this.isOrAre} already open.`)
-          .withOnSuccess(() => {
+          .onSuccess(() => {
             this.open = true;
           }, onOpen ?? `The ${name} open${addS()} relatively easily.`)
       );
@@ -61,7 +61,7 @@ export class Door extends Item {
       this.addVerb(
         new Verb.Builder("close")
           .withSmartTest(() => this.open, `The ${name} ${this.isOrAre} already closed.`)
-          .withOnSuccess(() => {
+          .onSuccess(() => {
             this.open = false;
           }, config?.onClose ?? `You close the ${name}.`)
       );
@@ -82,7 +82,7 @@ export class Door extends Item {
             ({ other: key }) => (this.key ? this.key.name === key!.name : true),
             ({ other: key }) => `The ${key!.name} doesn't fit.`
           )
-          .withOnSuccess([
+          .onSuccess([
             ({ item: door }) => {
               // Ensure we don't return false to avoid breaking the action chain.
               door.locked = false;
@@ -101,8 +101,8 @@ export class Door extends Item {
         acc[traversal.id] = new Verb.Builder()
           .withName(`${name}-traversal-${traversal.id}`)
           .withTest(...tests)
-          .withOnSuccess(traversal.onSuccess)
-          .withOnFailure(traversal.onFailure)
+          .onSuccess(traversal.onSuccess)
+          .onFailure(traversal.onFailure)
           .isRemote()
           .build();
         return acc;
@@ -117,7 +117,7 @@ export class Door extends Item {
       this.addVerb(
         new Verb.Builder("go through")
           .withAliases(...goThroughAliases, ...traversalAliases)
-          .withOnSuccess((context) => {
+          .onSuccess((context) => {
             const { alias } = context;
             const traversal = traversals.find(
               (traversal) =>
@@ -151,7 +151,7 @@ export class Door extends Item {
         acc[traversal.id] = new Verb.Builder()
           .withName(`${name}-peek-${traversal.id}`)
           .withTest(...tests)
-          .withOnSuccess(traversal.onPeekSuccess ?? (() => Door.peekText.next(name, traversal.destination)))
+          .onSuccess(traversal.onPeekSuccess ?? (() => Door.peekText.next(name, traversal.destination)))
           .isRemote()
           .build();
         return acc;
@@ -160,7 +160,7 @@ export class Door extends Item {
       this.addVerb(
         new Verb.Builder("peek")
           .withAliases("peer", "look through", "look beyond", "look past")
-          .withOnSuccess((context) => {
+          .onSuccess((context) => {
             const traversal = traversals.find((traversal) => traversal.activationCondition(context));
             const traversalId = traversal ? traversal.id : -1;
             const traversalPeekVerb = traversalToPeekVerb[traversalId];

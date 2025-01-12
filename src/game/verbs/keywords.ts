@@ -18,7 +18,7 @@ export function createKeywords() {
   );
 
   const inventoryVerb = new Verb.Builder("inventory")
-    .withOnSuccess(() => {
+    .onSuccess(() => {
       const inventory = selectInventory();
 
       if (!inventory.itemArray.filter((item) => !item.doNotList).length) {
@@ -33,36 +33,36 @@ export function createKeywords() {
 
   const waitGraph = createWaitGraph();
   const wait = new Verb.Builder("wait")
-    .withOnSuccess(() => waitGraph.commence())
+    .onSuccess(() => waitGraph.commence())
     .isKeyword()
     .withDescription("Allow time to pass.");
 
   const help = new Verb.Builder("help")
-    .withOnSuccess(getHelp())
+    .onSuccess(getHelp())
     .withAliases("assist", "h", "instructions", "instruct", "welcome")
     .isKeyword()
     .withDescription("Display help pages.");
 
   const keywordsVerb = new Verb.Builder("keywords")
-    .withOnSuccess(() => getKeywordsTable())
+    .onSuccess(() => getKeywordsTable())
     .withAliases("keyword", "key word", "key words")
     .isKeyword()
     .withDescription("Display keywords list.");
 
   const hint = new Verb.Builder("hint")
-    .withOnSuccess(() => giveHint())
+    .onSuccess(() => giveHint())
     .withAliases("hints", "clue", "clues")
     .isKeyword()
     .withDescription("Get a hint on how to proceed.");
 
   const clear = new Verb.Builder("clear")
-    .withOnSuccess(() => clearPage("###### `>` clear"))
+    .onSuccess(() => clearPage("###### `>` clear"))
     .withAliases("clr")
     .isKeyword()
     .withDescription("Start a fresh page.");
 
   const debug = new Verb.Builder("debug")
-    .withOnSuccess(({ operation, args }) => handleDebugOperations(operation as string, ...(args as string[])))
+    .onSuccess(({ operation, args }) => handleDebugOperations(operation as string, ...(args as string[])))
     .isKeyword()
     .doNotList()
     .expectsArgs()
@@ -72,7 +72,7 @@ export function createKeywords() {
     .withDescription("Hide the scene image.")
     .withAliases("close scene", "hide image")
     .isKeyword()
-    .withOnSuccess(() => {
+    .onSuccess(() => {
       getStore().dispatch(revealScene(false));
     });
 
@@ -80,7 +80,7 @@ export function createKeywords() {
     .withDescription("Reveal the scene image.")
     .withAliases("reveal scene", "open scene", "show image", "reveal image", "open image")
     .isKeyword()
-    .withOnSuccess(() => {
+    .onSuccess(() => {
       getStore().dispatch(revealScene(true));
     });
 

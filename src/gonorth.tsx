@@ -12,7 +12,6 @@ import {
 } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
-import { newVerb } from "./game/verbs/verb";
 import { ActionChain, ActionClass } from "./utils/actionChain";
 import {
   createPlayer,
@@ -252,7 +251,6 @@ const gonorth = {
   inRoom,
   inSameRoomAs,
   moveItem,
-  newVerb,
   next,
   okay,
   play,
@@ -283,7 +281,7 @@ const gonorth = {
 
 export default gonorth;
 export { Room } from "./game/items/room";
-export { Verb, GoVerb, newVerb, VerbBuilder as VerbBuilder } from "./game/verbs/verb";
+export { Verb, GoVerb, VerbBuilder, GoVerbBuilder } from "./game/verbs/verb";
 export { Door, Key } from "./game/items/door";
 export { Container } from "./game/items/container";
 export { Item } from "./game/items/item";

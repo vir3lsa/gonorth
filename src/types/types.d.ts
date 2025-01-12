@@ -412,7 +412,7 @@ interface VerbNameDict {
 interface VerbConfig {
   [property: string]: unknown;
   name: string;
-  tests?: (Test | SmartTest)[];
+  tests: (Test | SmartTest)[];
   onSuccess?: ContextAction | ContextAction[];
   onFailure?: ContextAction | ContextAction[];
   aliases?: string[];

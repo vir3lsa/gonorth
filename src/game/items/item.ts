@@ -179,7 +179,7 @@ export class Item {
     this.addVerb(
       new Verb.Builder("examine")
         .withAliases("ex", "x", "look", "inspect")
-        .withOnSuccess(
+        .onSuccess(
           ({ item }) => item.revealItems(),
           ({ item }) => item.getFullDescription()
         )
@@ -266,7 +266,7 @@ export class Item {
             },
             ({ item }) => `You don't have enough room for ${item!.properNoun ? "" : "the "}${item!.name}.`
           )
-          .withOnSuccess(
+          .onSuccess(
             async (context) => {
               const container = context.item.container;
               const relinquish = container?.verbs["__relinquish"];
@@ -325,7 +325,7 @@ export class Item {
           ({ other }) => other!.free === -1 || this.size <= other!.free,
           ({ other }) => `There's no room ${other!.preposition} the ${other!.name}.`
         )
-        .withOnSuccess(
+        .onSuccess(
           ({ item, other }) => moveItem(item, other!),
           ({ item, other }) => {
             if (other!.isRoom) {
@@ -342,7 +342,7 @@ export class Item {
         new Verb.Builder("drop")
           .withAliases("discard", "put down")
           .makePrepositional("where", true)
-          .withOnSuccess(
+          .onSuccess(
             ({ item, other, abort }) => {
               if (other) {
                 abort!(); // Defer to put verb instead.
@@ -371,7 +371,7 @@ export class Item {
             () => false,
             ({ other }) => `It doesn't look like ${other!.name} wants ${this.theOrNone + this.name}.`
           )
-          .withOnSuccess(({ item, other }) => moveItem(item, other!))
+          .onSuccess(({ item, other }) => moveItem(item, other!))
           .withAliases("offer", "pass", "show")
           .makePrepositional("to whom")
       );
@@ -383,7 +383,7 @@ export class Item {
             const parentVerb = new Verb.Builder(verb.name)
               .withAliases(...verb.aliases)
               .isRemote()
-              .withOnSuccess(
+              .onSuccess(
                 ({ item }) => {
                   if (!verb.remote) {
                     return item.try("take");
@@ -450,7 +450,7 @@ export class Item {
     this.__description = createDynamicText(description);
   }
 
-  addVerbs(...verbs: VerbT[]) {
+  addVerbs(...verbs: (VerbT | VerbBuilderT)[]) {
     verbs.forEach((verb) => this.addVerb(verb));
   }
 

@@ -145,7 +145,7 @@ describe("basic item tests", () => {
     const onions = new Item.Builder("onions")
       .isHoldable()
       .isManyAndProduces(
-        new Item.Builder("onion").withVerb(new Verb.Builder("smell").isRemote().withOnSuccess("smells strongly"))
+        new Item.Builder("onion").withVerb(new Verb.Builder("smell").isRemote().onSuccess("smells strongly"))
       )
       .onTake("you take an onion")
       .build();
@@ -167,7 +167,9 @@ describe("basic item tests", () => {
   });
 
   test("hidden items may be revealed selectively", async () => {
-    const laptop = new Item.Builder("laptop").hidesItems(new Item.Builder("sticker"), new Item.Builder("battery")).build();
+    const laptop = new Item.Builder("laptop")
+      .hidesItems(new Item.Builder("sticker"), new Item.Builder("battery"))
+      .build();
     laptop.revealItems("sticker");
     // Sticker is revealed, battery is still hidden.
     expect(laptop.items.sticker[0].name).toBe("sticker");
@@ -177,7 +179,9 @@ describe("basic item tests", () => {
   });
 
   test("no items are revealed when nothing matches the list", async () => {
-    const laptop = new Item.Builder("laptop").hidesItems(new Item.Builder("sticker"), new Item.Builder("battery")).build();
+    const laptop = new Item.Builder("laptop")
+      .hidesItems(new Item.Builder("sticker"), new Item.Builder("battery"))
+      .build();
     laptop.revealItems("processor");
     // Nothing is revealed.
     expect(laptop.items.sticker).toBeUndefined();
@@ -186,7 +190,9 @@ describe("basic item tests", () => {
   });
 
   test("all items are revealed if no list is passed", async () => {
-    const laptop = new Item.Builder("laptop").hidesItems(new Item.Builder("sticker"), new Item.Builder("battery")).build();
+    const laptop = new Item.Builder("laptop")
+      .hidesItems(new Item.Builder("sticker"), new Item.Builder("battery"))
+      .build();
     laptop.revealItems();
     // Nothing is revealed.
     expect(laptop.items.sticker[0].name).toBe("sticker");
@@ -309,7 +315,7 @@ describe("builder tests", () => {
   });
 
   test("items built with a builder have the correct verbs", () => {
-    const pipe = new Item.Builder().withName("pipe").isHoldable().withVerbs(new Verb("smoke")).build();
+    const pipe = new Item.Builder().withName("pipe").isHoldable().withVerbs(new Verb.Builder("smoke")).build();
     expect(pipe.name).toBe("pipe");
     expect(pipe.holdable).toBe(true);
     expect(pipe.getVerb("examine")).not.toBeUndefined();
@@ -345,7 +351,7 @@ describe("builder tests", () => {
   });
 
   test("Single verbs may be added", async () => {
-    const blah = new Item.Builder("blah").withVerb(new Verb.Builder("bleh").withOnSuccess("bleeeh").build()).build();
+    const blah = new Item.Builder("blah").withVerb(new Verb.Builder("bleh").onSuccess("bleeeh").build()).build();
     await blah.try("bleh");
     expect(selectCurrentPage()).toInclude("bleeeh");
   });
@@ -726,12 +732,18 @@ describe("serialization", () => {
     ball.visible = false;
     ball.size = 12;
     room.addItem(ball);
-    ball.hidesItems = new Item("air");
+    ball.hidesItems = new Item.Builder("air").build();
     expectRecordedProperties(ball);
   });
 
   test("creating an item with the constructor doesn't record changes", () => {
-    const car = new Item("car", "fast", false, 50, [new Verb("drive")], ["motor"], [new Item("seat")]);
+    const car = new Item.Builder("car")
+      .withDescription("fast")
+      .withSize(50)
+      .withVerb(new Verb.Builder("drive"))
+      .withAliases("motor")
+      .hidesItem(new Item("seat"))
+      .build();
     expect(car.alteredProperties).toEqual(new Set());
     expectRecordedProperties(car);
   });
@@ -742,7 +754,7 @@ describe("serialization", () => {
       .withDescription("fast")
       .isHoldable()
       .withSize(50)
-      .withVerbs(new Verb("drive"))
+      .withVerbs(new Verb.Builder("drive"))
       .withAliases("motor")
       .hidesItems(new Item("seat"))
       .onTake("yoink")

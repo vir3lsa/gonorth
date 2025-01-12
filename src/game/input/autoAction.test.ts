@@ -18,7 +18,7 @@ gn.init({ title: "test", goToTitleScreen: false });
 
 const ball = new Item("ball");
 const context: Context = {
-  verb: new Verb("boing"),
+  verb: new Verb.Builder("boing").build(),
   item: ball
 };
 

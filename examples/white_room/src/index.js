@@ -100,7 +100,7 @@ function setUp() {
 
   dial.addVerb(
     new Verb.Builder("turn")
-      .withOnSuccess(() => {
+      .onSuccess(() => {
         let setting = strangeDevice.get("setting");
 
         if (setting === "stun") {
@@ -158,7 +158,7 @@ function setUp() {
 
   strangeDevice.addVerb(
     new Verb.Builder("fire")
-      .withOnSuccess(() => {
+      .onSuccess(() => {
         fireEvent.reset();
         fireEvent.startCountdown();
       }, "You pull the trigger. Nothing happens.")
@@ -166,9 +166,7 @@ function setUp() {
   );
 
   strangeDevice.addVerb(
-    new Verb.Builder("smash")
-      .withOnSuccess("You smash the device on the floor. It explodes. You die.", gn.gameOver)
-      .build()
+    new Verb.Builder("smash").onSuccess("You smash the device on the floor. It explodes. You die.", gn.gameOver).build()
   );
 
   const apple = new Item.Builder("apple").isHoldable().withSize(1).withDescription("A juicy red apple.").build();
@@ -191,13 +189,13 @@ function setUp() {
 
   const redButton = new Item.Builder("red button")
     .withDescription("It's extremely tempting to press it.")
-    .withVerbs(new Verb.Builder("press").withOnSuccess(buttonActions).build())
+    .withVerbs(new Verb.Builder("press").onSuccess(buttonActions).build())
     .build();
 
   const greenButton = new Item.Builder("green button")
     .withDescription("Your fingers itch to press it.")
     .withVerbs(
-      new Verb.Builder("press").withOnSuccess("## CONSIDER\n\nThis is the message that appears before you.").build()
+      new Verb.Builder("press").onSuccess("## CONSIDER\n\nThis is the message that appears before you.").build()
     )
     .build();
 
@@ -221,7 +219,7 @@ function setUp() {
     )
     .withImage(whiteRoomTitle)
     .build();
-  whiteRoom.addVerb(new Verb.Builder("shout").withOnSuccess(() => shoutGraph.commence()).build());
+  whiteRoom.addVerb(new Verb.Builder("shout").onSuccess(() => shoutGraph.commence()).build());
 
   const travelGraph = new OptionGraph.Builder("travel")
     .clearPage()
@@ -240,7 +238,7 @@ function setUp() {
     )
     .build();
 
-  whiteRoom.addVerb(new Verb.Builder("travel").withOnSuccess(() => travelGraph.commence()).build());
+  whiteRoom.addVerb(new Verb.Builder("travel").onSuccess(() => travelGraph.commence()).build());
 
   whiteRoom.addItems(strangeDevice, redButton, greenButton, table, apple, orange, largeObject, cursedDoll);
   gn.setInventoryCapacity(10);
