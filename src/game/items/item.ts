@@ -191,7 +191,7 @@ export class Item {
       new Verb.Builder("combine")
         .withAliases("join", "meld", "insert")
         .makePrepositional("with what")
-        .withSmartTest(
+        .withTest(
           false,
           ({ item, other }) => `You can't see a way to combine the ${item!.name} and the ${other!.name}.`
         )
@@ -226,23 +226,23 @@ export class Item {
       this.addVerb(
         new Verb.Builder("take")
           .withAliases("pick up", "steal", "grab", "hold")
-          .withSmartTest(
+          .withTest(
             ({ item }) => item.container !== selectInventory(),
             ({ item }) => `You're already carrying ${item!.properNoun ? "" : "the "}${item!.name}!`
           )
-          .withSmartTest(
+          .withTest(
             () => !config?.producesSingular || !playerHasItem(config.producesSingular),
             ({ item }) => `You've already got ${item!.article} ${config?.producesSingular!.name}.`
           )
-          .withSmartTest(
+          .withTest(
             ({ item }) => Boolean(!item.container || item.container.itemsVisibleFromSelf),
             "You can't see that."
           )
-          .withSmartTest(
+          .withTest(
             ({ item }) => Boolean(!item.container || item.container.open !== false),
             ({ item }) => `You can't get at it inside the ${item!.container!.name}.`
           )
-          .withSmartTest(
+          .withTest(
             ({ item }) => {
               const inventory = selectInventory();
               const capacity = inventory.capacity;
@@ -250,7 +250,7 @@ export class Item {
             },
             ({ item }) => `The ${item!.name} ${this.isOrAre} far too large to pick up.`
           )
-          .withSmartTest(
+          .withTest(
             ({ item }) => {
               const inventory = selectInventory();
               const capacity = inventory.capacity;
@@ -258,7 +258,7 @@ export class Item {
             },
             ({ item }) => `The ${item!.name} ${this.isOrAre} too big to pick up.`
           )
-          .withSmartTest(
+          .withTest(
             ({ item }) => {
               const inventory = selectInventory();
               const capacity = inventory.capacity;
@@ -302,26 +302,26 @@ export class Item {
       const putVerb = new Verb.Builder("put")
         .withAliases("place", "add")
         .makePrepositional("where")
-        .withSmartTest(
+        .withTest(
           ({ other }) => other !== this,
           ({ other }) =>
             `You can't put ${this.theOrNone + this.name} ${other!.preposition} ${
               config?.plural ? "themselves" : "itself"
             }. That would be nonsensical.`
         )
-        .withSmartTest(
+        .withTest(
           ({ other }) => other!.canHoldItems,
           ({ other }) =>
             `You can't put ${this.theOrNone + this.name} ${other!.preposition} ${other!.theOrNone + other!.name}.`
         )
-        .withSmartTest(
+        .withTest(
           ({ other }) => other!.open !== false,
           ({ other }) =>
             `You can't put ${this.theOrNone + this.name} ${other!.preposition} ${
               other!.theOrNone + other!.name
             } because ${other!.theOrNone + other!.name} ${other!.isOrAre} closed.`
         )
-        .withSmartTest(
+        .withTest(
           ({ other }) => other!.free === -1 || this.size <= other!.free,
           ({ other }) => `There's no room ${other!.preposition} the ${other!.name}.`
         )
@@ -357,17 +357,17 @@ export class Item {
 
       this.addVerb(
         new Verb.Builder("give")
-          .withSmartTest(
+          .withTest(
             ({ other }) => other !== this,
             () =>
               `You can't give ${this.theOrNone + this.name} to ${config?.plural ? "themselves" : "itself"}. Obviously.`
           )
-          .withSmartTest(
+          .withTest(
             ({ other }) => Boolean(other!._isNpc),
             ({ other }) =>
               `You know you can't give ${this.theOrNone + this.name} to the ${other!.name}. So just stop it.`
           )
-          .withSmartTest(
+          .withTest(
             () => false,
             ({ other }) => `It doesn't look like ${other!.name} wants ${this.theOrNone + this.name}.`
           )

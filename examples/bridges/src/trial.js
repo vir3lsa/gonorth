@@ -206,16 +206,16 @@ export class Trial extends Room {
     this.west = new Item.Builder().withName("West").withAliases("w", "westward", "left").build();
 
     const lookVerb = new Verb.Builder("examine")
-      .withOnSuccess((helpers, item) => this.look(item))
+      .onSuccess((helpers, item) => this.look(item))
       .withAliases("ex", "x", "look", "inspect")
       .build();
 
     const dextrum = new Verb.Builder("dextrum")
-      .withOnSuccess((helpers, direction) => this.fireWhiteAnchor(direction))
+      .onSuccess((helpers, direction) => this.fireWhiteAnchor(direction))
       .withAliases("dex", "white")
       .build();
     const sinistrum = new Verb.Builder("sinistrum")
-      .withOnSuccess((helpers, direction) => this.fireBlackAnchor(direction))
+      .onSuccess((helpers, direction) => this.fireBlackAnchor(direction))
       .withAliases("sin", "black");
 
     this.north.addVerbs(lookVerb, dextrum, sinistrum);
@@ -229,22 +229,22 @@ export class Trial extends Room {
     // Set up special directional verbs to move about within the trial. Equivalent keywords will need to  be removed.
     this.addVerbs(
       new Verb.Builder("North")
-        .withOnSuccess(() => this.goNorth())
+        .onSuccess(() => this.goNorth())
         .withAliases("n", "forward", "straight on")
         .isKeyword()
         .build(),
       new Verb.Builder("South")
-        .withOnSuccess(() => this.goSouth())
+        .onSuccess(() => this.goSouth())
         .withAliases("s", "backward", "backwards", "back", "reverse")
         .isKeyword()
         .build(),
       new Verb.Builder("East")
-        .withOnSuccess(() => this.goEast())
+        .onSuccess(() => this.goEast())
         .withAliases("e", "right", "r")
         .isKeyword()
         .build(),
       new Verb.Builder("West")
-        .withOnSuccess(() => this.goWest())
+        .onSuccess(() => this.goWest())
         .withAliases("w", "left", "l")
         .isKeyword()
         .build()

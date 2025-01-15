@@ -29,8 +29,8 @@ const identity = () => undefined;
  * ```ts
  * const throw = new Verb.Builder("throw")
  *   .withAliases("chuck", "lob", "hurl", "yeet")
- *   .withSmartTest(({ item }) => playerHasItem(item), `You're not holding the ${item.name}.`)
- *   .withOnSuccess(({ item }) => `You chuck the ${item.name} as far as you can.`)
+ *   .withTest(({ item }) => playerHasItem(item), `You're not holding the ${item.name}.`)
+ *   .onSuccess(({ item }) => `You chuck the ${item.name} as far as you can.`)
  *   .build();
  * ```
  */
@@ -348,12 +348,12 @@ export class VerbBuilder {
     return this;
   }
 
-  withTest(...tests: (Test | SmartTest)[]) {
+  withTests(...tests: SmartTest[]) {
     this.config.tests = [...this.config.tests!, ...tests];
     return this;
   }
 
-  withSmartTest(test: Test, ...onFailure: Action[]) {
+  withTest(test: Test, ...onFailure: Action[]) {
     const smartTest: SmartTest = { test: normaliseTest(test), onFailure };
     this.config.tests = [...this.config.tests!, smartTest];
     return this;
@@ -442,8 +442,8 @@ export class GoVerbBuilder extends VerbBuilder {
     const { name } = this.config;
     const getAdjacent = (name: string) => currentRoom.adjacentRooms[name.toLowerCase()];
 
-    this.withSmartTest(() => Boolean(getAdjacent(name)?.test), "You can't go that way.");
-    this.withSmartTest(
+    this.withTest(() => Boolean(getAdjacent(name)?.test), "You can't go that way.");
+    this.withTest(
       () => getAdjacent(name)!.test!(),
       () => getAdjacent(name)!.onFailure
     );

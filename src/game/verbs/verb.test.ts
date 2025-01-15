@@ -35,7 +35,7 @@ getStore().dispatch(changeRoom(new Room("hall")));
 
 beforeEach(() => {
   verb = new Verb.Builder("twirl")
-    .withSmartTest(({ x }) => (x as number) > 2)
+    .withTest(({ x }) => (x as number) > 2)
     .onSuccess(({ x }) => (y = (x as number) + 1), "You twirl beautifully")
     .onFailure("You fall over")
     .withAliases("spin", "rotate")
@@ -88,13 +88,10 @@ it("may have multiple tests", async () => {
     y = 2,
     z = 3;
   const thwart = new Verb.Builder("thwart")
-    .withTest(
-      () => x > 0,
-      () => y < 3
-    )
-    .withTest(() => z > 2)
+    .withTest(() => x > 0, "no")
+    .withTest(() => y < 3, "no")
+    .withTest(() => z > 2, "no")
     .onSuccess("yes")
-    .onFailure("no")
     .build();
 
   await thwart.attempt();
@@ -291,9 +288,9 @@ describe("chainable actions", () => {
     const verb = new Verb.Builder("climb")
       .withAliases("boulder")
       .withDescription("up rocks")
-      .withTest(true)
+      .withTest(true, "no")
       .onSuccess("yes")
-      .onFailure("no")
+      .onFailure("no again")
       .isKeyword()
       .isRemote()
       .expectsArgs()
@@ -312,9 +309,9 @@ describe("chainable actions", () => {
 
   it("succeeds with multiple tests", async () => {
     const verb = new Verb.Builder("jump")
-      .withSmartTest(() => "yes".length > 1, "you fall")
-      .withSmartTest(() => true, "you fall")
-      .withSmartTest(({ x }) => (x as number) > 0, "you fall")
+      .withTest(() => "yes".length > 1, "you fall")
+      .withTest(() => true, "you fall")
+      .withTest(({ x }) => (x as number) > 0, "you fall")
       .onSuccess("you jump")
       .withExpectedArgs("x")
       .build();
@@ -324,9 +321,9 @@ describe("chainable actions", () => {
 
   it("fails if just one test fails", async () => {
     const verb = new Verb.Builder("jump")
-      .withSmartTest(() => "yes".length > 1, "you fall")
-      .withSmartTest(() => true, "you fall")
-      .withSmartTest(({ z }) => (z as number) > 0, "you fall")
+      .withTest(() => "yes".length > 1, "you fall")
+      .withTest(() => true, "you fall")
+      .withTest(({ z }) => (z as number) > 0, "you fall")
       .onSuccess("you jump")
       .withExpectedArgs("x", "y", "z")
       .build();
@@ -340,13 +337,13 @@ describe("chainable actions", () => {
   });
 
   it("returns false when unsuccessful", async () => {
-    const verb = new Verb.Builder("frown").withSmartTest(false, "You just can't do it").build();
+    const verb = new Verb.Builder("frown").withTest(false, "You just can't do it").build();
     expect(await verb.attempt()).toBe(false);
   });
 
   it("gives a default message if the verb fails and the player doesn't have a holdable item", async () => {
     // The auto actions are mocked to return true here
-    const verb = new Verb.Builder("squeeze").withSmartTest(false, "won't happen").build();
+    const verb = new Verb.Builder("squeeze").withTest(false, "won't happen").build();
     verb.attempt(new Item.Builder("ball").isHoldable().build());
     return deferAction(() => {
       expect(selectCurrentPage()).toInclude("not holding the ball");
@@ -356,7 +353,10 @@ describe("chainable actions", () => {
 
   it("gives a default message if a prepositional verb fails and the player doesn't have a holdable indirect item", async () => {
     // The auto actions are mocked to return true here
-    const verb = new Verb.Builder("squeeze").withSmartTest(false, "won't happen").makePrepositional("with what").build();
+    const verb = new Verb.Builder("squeeze")
+      .withTest(false, "won't happen")
+      .makePrepositional("with what")
+      .build();
     const plushie = new Item.Builder("plushie").isHoldable().build();
     selectInventory().addItem(plushie);
     verb.attempt(plushie, new Item.Builder("tongs").isHoldable().build());
@@ -369,7 +369,7 @@ describe("chainable actions", () => {
   it("doesn't continue if auto actions fail", async () => {
     // Mock the auto actions to return false for this test.
     mockedAutoActionExecutor.mockImplementationOnce(async () => false);
-    const verb = new Verb.Builder("throw").withSmartTest(false, "won't happen").build();
+    const verb = new Verb.Builder("throw").withTest(false, "won't happen").build();
     verb.attempt(new Item.Builder("beanbag").isHoldable().build());
     return deferAction(() => {
       expect(selectCurrentPage()).not.toInclude("not holding the beanbag");
@@ -384,7 +384,7 @@ describe("smart tests", () => {
   beforeEach(() => {
     x = 0;
     alpha = new Verb.Builder("alpha")
-      .withTest({ test: () => x < 10, onFailure: "fail" })
+      .withTest(() => x < 10, "fail")
       .onSuccess("succeed")
       .build();
   });
@@ -402,8 +402,8 @@ describe("smart tests", () => {
 
   it("may be added one at a time", async () => {
     const beta = new Verb.Builder("beta")
-      .withSmartTest(() => x < 1, "fail1")
-      .withSmartTest(() => x < -1, "fail2")
+      .withTest(() => x < 1, "fail1")
+      .withTest(() => x < -1, "fail2")
       .onSuccess("success")
       .build();
     await beta.attempt();
@@ -412,8 +412,8 @@ describe("smart tests", () => {
 
   it("does not run additional tests after one fails", async () => {
     const gamma = new Verb.Builder("gamma")
-      .withSmartTest(() => x > 1, "fail1")
-      .withSmartTest(() => (x = 100) < 1, "fail2")
+      .withTest(() => x > 1, "fail1")
+      .withTest(() => (x = 100) < 1, "fail2")
       .onSuccess("success")
       .build();
     await gamma.attempt();
@@ -436,7 +436,7 @@ describe("smart tests", () => {
 
   it("can receive context in the test function", async () => {
     const delta = new Verb.Builder("delta")
-      .withSmartTest(({ y }) => x < (y as number), "fail")
+      .withTest(({ y }) => x < (y as number), "fail")
       .onSuccess("success")
       .withExpectedArgs("y")
       .build();
@@ -448,7 +448,7 @@ describe("smart tests", () => {
 
   it("can receive context in the failure function", async () => {
     const epsilon = new Verb.Builder("epsilon")
-      .withSmartTest(
+      .withTest(
         () => x > 1,
         ({ y }) => `fail-${y}`
       )
@@ -463,7 +463,7 @@ describe("smart tests", () => {
     const onFail = new ActionChain(({ y }) => `fail-${y}`, "apple", new ConcatText("b", "c"));
     onFail.renderNexts = false;
     const zeta = new Verb.Builder("zeta")
-      .withSmartTest(() => x > 1, onFail)
+      .withTest(() => x > 1, onFail)
       .onSuccess("success")
       .withExpectedArgs("y")
       .build();
@@ -474,7 +474,7 @@ describe("smart tests", () => {
   it("can be passed any number of failure actions", async () => {
     let x = 0;
     const impossible = new Verb.Builder("impossible")
-      .withSmartTest(
+      .withTest(
         false,
         () => x++,
         () => "done"
@@ -488,7 +488,7 @@ describe("smart tests", () => {
   it("can be passed failure actions as an array", async () => {
     let x = 0;
     const impossible = new Verb.Builder("impossible")
-      .withSmartTest(false, [() => x++, () => x++, () => x++, () => "done"])
+      .withTest(false, [() => x++, () => x++, () => x++, () => "done"])
       .build();
     await impossible.attempt();
     expect(x).toBe(3);
@@ -510,7 +510,7 @@ describe("effects", () => {
       .isHoldable()
       .withVerbs(
         new Verb.Builder("hit")
-          .withSmartTest(() => verbSuccess, "verb not successful")
+          .withTest(() => verbSuccess, "verb not successful")
           .makePrepositional("with what")
           .onSuccess("hit it good")
           .onFailure("missed it")

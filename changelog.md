@@ -1,8 +1,9 @@
 # goNORTH Changelog
 
-# Unreleased
+# 11.0.0
 
-- 2025-01-11 Breaking change: newVerb function removed, verb constructor accepts a VerbBuilder only, withOnSuccess and withOnFailure become onSuccess and onFailure.
+- 2025-01-15 Breaking change: VerbBuilder.withSmartTest renamed to VerbBuilder.withTest.
+- 2025-01-11 Breaking change: newVerb function removed, verb constructor accepts a VerbBuilder only, onSuccess and withOnFailure become onSuccess and onFailure.
 - 2025-01-08 Added Husky for Prettier formatting on commit.
 - 2025-01-08 Removed internal uses of the newVerb function in preparation for its future removal.
 - 2025-01-04 Items may be revealed selectively.

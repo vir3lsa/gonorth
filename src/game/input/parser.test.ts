@@ -91,8 +91,7 @@ describe("parser", () => {
       door.getVerb("open").addAliases("give a shove to");
       pillar.addVerb(
         new Verb.Builder("take")
-          .withTest(false)
-          .onFailure("It's too big")
+          .withTest(false, "It's too big")
           .withAliases("grab, snatch")
           .isRemote()
           .build()

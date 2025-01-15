@@ -67,8 +67,8 @@ export class Container extends Item {
 
     if (this.closeable) {
       this.openVerb = new Verb.Builder("open")
-        .withSmartTest(() => !this.open, this.onAlreadyOpen)
-        .withSmartTest(() => !this.locked, this.onLocked)
+        .withTest(() => !this.open, this.onAlreadyOpen)
+        .withTest(() => !this.locked, this.onLocked)
         .onSuccess(
           () => {
             this.open = true;
@@ -81,8 +81,8 @@ export class Container extends Item {
         .build();
 
       this.closeVerb = new Verb.Builder("close")
-        .withSmartTest(() => this.open, this.onAlreadyClosed)
-        .withSmartTest(() => !this.locked, this.onLocked)
+        .withTest(() => this.open, this.onAlreadyClosed)
+        .withTest(() => !this.locked, this.onLocked)
         .onSuccess(
           () => {
             // Ensure we don't return false to avoid breaking the action chain.
@@ -102,9 +102,9 @@ export class Container extends Item {
     if (this.lockable) {
       this.addVerb(
         new Verb.Builder("unlock")
-          .withSmartTest(() => this.locked, this.onAlreadyUnlocked)
-          .withSmartTest(({ other: key }) => !this.key || Boolean(key), this.onNeedsKey)
-          .withSmartTest(
+          .withTest(() => this.locked, this.onAlreadyUnlocked)
+          .withTest(({ other: key }) => !this.key || Boolean(key), this.onNeedsKey)
+          .withTest(
             ({ other: key }) => !this.key || key!.name === this.key || key!.name === (this.key as KeyT).name,
             this.onWrongKey
           )
@@ -124,7 +124,7 @@ export class Container extends Item {
       config.relinquishTests.forEach((smartTest) => {
         let onFailure = (smartTest as SmartTest).onFailure as Action[];
         onFailure = Array.isArray(onFailure) ? onFailure : [onFailure];
-        relinquish.withSmartTest(smartTest.test, ...onFailure);
+        relinquish.withTest(smartTest.test, ...onFailure);
       });
 
       this.addVerb(relinquish);

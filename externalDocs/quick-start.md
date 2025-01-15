@@ -15,8 +15,8 @@ import gn, { Room, Item, Verb } from "@virelsa/gonorth";
 
 function setup() {
   const ride = new Verb.Builder("ride")
-    .withOnSuccess("You swing your leg over the crossbar and start to ride. It's easy!");
-  
+    .onSuccess("You swing your leg over the crossbar and start to ride. It's easy!");
+
   const tricycle = new Item.Builder("tricycle")
     .withDescription("A clown's wobbly tricycle.")
     .withVerb(ride);

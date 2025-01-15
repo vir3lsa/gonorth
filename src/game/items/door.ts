@@ -51,8 +51,8 @@ export class Door extends Item {
     if (!config || !config.alwaysOpen) {
       this.addVerb(
         new Verb.Builder("open")
-          .withSmartTest(() => !this.locked, config?.onLocked || `The ${name} ${this.isOrAre} locked.`)
-          .withSmartTest(() => !this.open, `The ${name} ${this.isOrAre} already open.`)
+          .withTest(() => !this.locked, config?.onLocked || `The ${name} ${this.isOrAre} locked.`)
+          .withTest(() => !this.open, `The ${name} ${this.isOrAre} already open.`)
           .onSuccess(() => {
             this.open = true;
           }, onOpen ?? `The ${name} open${addS()} relatively easily.`)
@@ -60,7 +60,7 @@ export class Door extends Item {
 
       this.addVerb(
         new Verb.Builder("close")
-          .withSmartTest(() => this.open, `The ${name} ${this.isOrAre} already closed.`)
+          .withTest(() => this.open, `The ${name} ${this.isOrAre} already closed.`)
           .onSuccess(() => {
             this.open = false;
           }, config?.onClose ?? `You close the ${name}.`)
@@ -69,16 +69,16 @@ export class Door extends Item {
       this.addVerb(
         new Verb.Builder("unlock")
           .makePrepositional("with what", true)
-          .withSmartTest(() => this.locked, `The ${name} ${this.isOrAre} already unlocked.`)
-          .withSmartTest(
+          .withTest(() => this.locked, `The ${name} ${this.isOrAre} already unlocked.`)
+          .withTest(
             ({ other: key }) => !Boolean(this.key) || Boolean(key),
             config?.onNeedsKey ?? `The ${name} appear${addS()} to need a key.`
           )
-          .withSmartTest(
+          .withTest(
             ({ other: key }) => !Boolean(key) || Boolean(this.key),
             `The ${name} can't be unlocked with a key.`
           )
-          .withSmartTest(
+          .withTest(
             ({ other: key }) => (this.key ? this.key.name === key!.name : true),
             ({ other: key }) => `The ${key!.name} doesn't fit.`
           )
@@ -100,7 +100,7 @@ export class Door extends Item {
         const tests = [...traversal.tests, traversal.doorOpenTest].filter((test) => test) as SmartTest[];
         acc[traversal.id] = new Verb.Builder()
           .withName(`${name}-traversal-${traversal.id}`)
-          .withTest(...tests)
+          .withTests(...tests)
           .onSuccess(traversal.onSuccess)
           .onFailure(traversal.onFailure)
           .isRemote()
@@ -150,7 +150,7 @@ export class Door extends Item {
 
         acc[traversal.id] = new Verb.Builder()
           .withName(`${name}-peek-${traversal.id}`)
-          .withTest(...tests)
+          .withTests(...tests)
           .onSuccess(traversal.onPeekSuccess ?? (() => Door.peekText.next(name, traversal.destination)))
           .isRemote()
           .build();
