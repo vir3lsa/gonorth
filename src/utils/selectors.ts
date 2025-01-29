@@ -22,7 +22,7 @@ export const selectItems = (): ItemAliasDict => getStore().getState().items;
 export const selectAllItems = (): Set<ItemT> => getStore().getState().allItems;
 export const selectOptionGraphs = (): OptionGraphDict => getStore().getState().optionGraphs;
 export const selectOptionGraph = (name: string): OptionGraphT => getStore().getState().optionGraphs[name];
-export const selectConfig = (): Config => getStore().getState().game.config;
+export const selectConfig = (): Config => getStore().getState().game?.config;
 export const selectActionChainPromise = (): Promise<string> => getStore().getState().actionChainPromise;
 export const selectEvents = (): EventT[] => getStore().getState().events;
 export const selectSchedules = (): ScheduleT[] => getStore().getState().schedules;

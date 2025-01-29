@@ -3,6 +3,7 @@ import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
 import {
   selectAllItemNames,
+  selectConfig,
   selectInventory,
   selectItemNames,
   selectRecordChanges,
@@ -23,6 +24,9 @@ export function customiseVerbs(verbModifications: VerbCustomisations = {}, item:
     modifyFunction(verb);
   });
 }
+
+/* The temporary suffix added to item names when cloning them. */
+export const COPY_SUFFIX = "$copy";
 
 /**
  * An Item is a thing the player can interact with. It can be given {@link game/verbs/verb!Verb | Verbs} to define what interactions may occur.
@@ -82,7 +86,7 @@ export class Item {
     const builder = new Item.Builder();
 
     builder.config = {
-      name: `${this.name} copy`, // Have to add 'copy' to sidestep uniqueness check.
+      name: `${this.name} ${COPY_SUFFIX}`, // Have to add 'copy' to sidestep uniqueness check.
       description: this.__description,
       holdable: this.holdable,
       size: this.size,
@@ -98,7 +102,8 @@ export class Item {
       itemsVisibleFromSelf: this.itemsVisibleFromSelf,
       doNotList: this.doNotList,
       verbCustomisations: this.verbCustomisations || {},
-      _cloned: true
+      notPersisted: true,
+      __cloned: true
     };
 
     const copy = new typeConstructor(undefined, undefined, false, 0, undefined, undefined, undefined, builder);
@@ -108,7 +113,7 @@ export class Item {
 
     // Remove unwanted aliases added due to our 'sidestep' above.
     copy.aliases = copy.aliases.filter(
-      (alias) => alias !== copy.name && alias !== "copy" && !this.omitAliases.includes(alias)
+      (alias) => alias !== copy.name && alias !== COPY_SUFFIX && !this.omitAliases.includes(alias)
     );
 
     return copy;
@@ -134,6 +139,12 @@ export class Item {
     this.__alteredProperties = new Set();
     this.aliases = [];
     this.name = name ?? config?.name ?? "item";
+
+    if (!selectConfig()?.skipPersistence && selectRecordChanges() && !this.config?.notPersisted && !this.config?.__cloned) {
+      throw Error(
+        `Created item "${this.name}" after the game started. This will cause saved game corruption as the setup function doesn't create this item and the persistor therefore won't be able to find an item to modify when loading the save file. To resolve this, ensure the item "${this.name}" is created in the game's setup function - if it shouldn't be immediately accessible, don't add it to any room and then move it later.\n\nCheck also that the builder's 'build()' function has been called within the setup function.`
+      );
+    }
 
     if (selectAllItemNames().has(this.name)) {
       throw Error(
@@ -651,8 +662,7 @@ export class Item {
 
     const itemsToReveal = this.hidesItems.filter(
       (item) =>
-        !itemsOrNames.length ||
-        itemsOrNames.some((itemOrName) => itemOrName === item || itemOrName === item.name)
+        !itemsOrNames.length || itemsOrNames.some((itemOrName) => itemOrName === item || itemOrName === item.name)
     );
 
     if (!itemsToReveal.length) {
@@ -1084,7 +1094,7 @@ export class Item {
 
   // Records an altered property.
   recordAlteredProperty(propertyName: string, newValue?: Serializable | TextFunction) {
-    if (this.__cloned || !this.__constructed) {
+    if (this.__cloned || !this.__constructed || this.config?.notPersisted) {
       // We won't serialize cloned objects, or objects constructed after recording began, so won't record their changes.
       return;
     }
@@ -1263,6 +1273,11 @@ export class Builder {
 
   isPlural(plural = true) {
     this.config.plural = plural;
+    return this;
+  }
+
+  isNotPersisted(notPersisted = true) {
+    this.config.notPersisted = notPersisted;
     return this;
   }
 

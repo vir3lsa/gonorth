@@ -85,13 +85,13 @@ export function goToRoom(roomOrGraph: Room | OptionGraph | Item | string) {
 
 // Saves game state to local storage.
 export function checkpoint() {
-  if (!selectConfig().skipPersistence) {
+  if (!selectConfig()?.skipPersistence) {
     getPersistor().persistSnapshot();
   }
 }
 
 export function loadSave() {
-  if (!selectConfig().skipPersistence) {
+  if (!selectConfig()?.skipPersistence) {
     const snapshot = getPersistor().loadSnapshot();
     getStore().dispatch(loadSnapshot(snapshot));
   }
@@ -100,7 +100,7 @@ export function loadSave() {
 export function deleteSave() {
   const game = selectGame();
 
-  if (!game.config.skipPersistence) {
+  if (!game?.config.skipPersistence) {
     getPersistor().purgeSnapshot();
   }
 
@@ -144,7 +144,7 @@ export function play() {
     titlePage += `\n### By ${game.author}`;
   }
 
-  const saveExists = !selectConfig().skipPersistence && getPersistor().hasSnapshot();
+  const saveExists = !selectConfig()?.skipPersistence && getPersistor().hasSnapshot();
 
   const titleScreenGraph = new OptionGraph.Builder("titleScreen")
     .withImage(game.config.startScreenImage)

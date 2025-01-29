@@ -564,6 +564,7 @@ interface ItemConfig {
   verbCustomisations?: VerbCustomisations;
   producesSingular?: ItemT;
   plural?: boolean;
+  notPersisted?: boolean;
 }
 
 interface ItemItemsDict {

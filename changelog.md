@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 12.0.0
+
+- 2025-01-26 Breaking change: throws an error when items are created outside of the intial setup function to prevent save game corruption.
+
 # 11.0.0
 
 - 2025-01-15 Breaking change: VerbBuilder.withSmartTest renamed to VerbBuilder.withTest.

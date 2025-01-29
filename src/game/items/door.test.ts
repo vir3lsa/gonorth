@@ -20,7 +20,7 @@ consoleIO.showOptions = jest.fn();
 
 beforeEach(() => {
   unregisterStore();
-  gn.init({ title: "The Giant's Castle", goToTitleScreen: false });
+  gn.init({ title: "The Giant's Castle", goToTitleScreen: false, skipPersistence: true });
   getStore().dispatch(changeInteraction(new Interaction("")) as AnyAction);
   room = new Room.Builder("Hall").build();
   room.setEast(new Room.Builder("Pantry").build());

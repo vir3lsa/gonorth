@@ -11,6 +11,7 @@ gn.init({ title: "test", goToTitleScreen: false });
 jest.mock("../../utils/selectors", () => ({
   selectAllItemNames: () => new Set(),
   selectRecordChanges: () => false,
+  selectConfig: () => undefined,
   selectAutoActions: jest.fn(() => [
     {
       check: (({ verb }) => {

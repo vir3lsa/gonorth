@@ -52,6 +52,7 @@ import { moveItem, getItem as getUniqueItem } from "./utils/itemFunctions";
 import { EventBuilder, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
 import { ScheduleBuilder } from "./game/events/schedule";
 import { next, previous, okay } from "./game/interactions/optionGraph";
+import { COPY_SUFFIX } from "./game/items/item";
 
 const RESUME_HINTS = "RESUME_HINTS";
 const HINT_NODE = "HINT_NODE";
@@ -233,6 +234,7 @@ const gonorth = {
   checkpoint,
   clearPage,
   containerHasItem,
+  COPY_SUFFIX,
   englishList,
   forget,
   gameOver,

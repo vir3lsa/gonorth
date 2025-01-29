@@ -22,7 +22,7 @@ beforeEach(() => {
   unregisterStore();
 
   // Pretend we're in the browser
-  gn.init({ title: "Jolly Capers", goToTitleScreen: false });
+  gn.init({ title: "Jolly Capers", goToTitleScreen: false, skipPersistence: true });
   room = new Room("red");
   goToRoom(room);
 });
