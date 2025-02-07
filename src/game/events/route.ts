@@ -33,17 +33,21 @@ export class RouteBuilder extends ScheduleBuilder {
     return this;
   }
 
-  withDelay(delay: number, type: TimeoutType) {
-    if (type !== TIMEOUT_MILLIS && type !== TIMEOUT_TURNS) {
-      throw Error("Delay type must be one of 'TIMEOUT_MILLIS' and 'TIMEOUT_TURNS'");
-    }
-
+  withDelayTurns(delay: number) {
     if (!this.currentStep) {
       throw Error("Tried to add a delay, but no step has been added. Use 'go()' to add a step.");
     }
 
-    this.currentStep.delay = delay;
-    this.currentStep.delayType = type;
+    this.currentStep.delayTurns = delay;
+    return this;
+  }
+
+  withDelayMillis(delay: number) {
+    if (!this.currentStep) {
+      throw Error("Tried to add a delay, but no step has been added. Use 'go()' to add a step.");
+    }
+
+    this.currentStep.delayMillis = delay;
     return this;
   }
 
@@ -64,8 +68,8 @@ export class RouteBuilder extends ScheduleBuilder {
 export class Step {
   direction: string;
   text?: UnknownText;
-  delay?: number;
-  delayType?: TimeoutType;
+  delayTurns?: number;
+  delayMillis?: number;
 
   constructor(direction: string) {
     this.direction = direction;
@@ -87,12 +91,17 @@ export class Route extends Schedule {
         return step.text;
       };
 
-      builder.addEvent(
-        new Event.Builder()
-          .withActions(() => builder.subject?.go(step.direction), getText)
-          .withTimeout(step.delay || 0)
-          .withTimeoutType(step.delayType || TIMEOUT_TURNS)
-      );
+      const stepEvent = new Event.Builder().withActions(() => builder.subject?.go(step.direction), getText);
+
+      if (step.delayTurns !== undefined) {
+        stepEvent.withDelayTurns(step.delayTurns);
+      }
+
+      if (step.delayMillis !== undefined) {
+        stepEvent.withDelayMillis(step.delayMillis);
+      }
+
+      builder.addEvent(stepEvent);
     });
 
     super(builder);

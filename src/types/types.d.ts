@@ -691,4 +691,5 @@ type Input = (context: Context) => string;
 /* Event */
 /*********/
 
-type TimeoutType = "TIMEOUT_MILLIS" | "TIMEOUT_TURNS";
+type NumberFunction = () => number;
+type NumberResolve = NumberFunction | number;

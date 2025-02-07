@@ -21,13 +21,12 @@ function createBuilder(condition: boolean | Condition, continueOnFail: boolean) 
   return new Schedule.Builder("scheduleTest").withCondition(condition).withContinueOnFail(continueOnFail);
 }
 
-function addEvent(builder: ScheduleBuilder, delay: number, delayType: TimeoutType, ...actions: Action[]) {
-  builder.addEvent(
-    new Event.Builder()
-      .withActions(...actions)
-      .withTimeout(delay)
-      .withTimeoutType(delayType)
-  );
+function addTurnsEvent(builder: ScheduleBuilder, delayTurns: number, ...actions: Action[]) {
+  builder.addEvent(new Event.Builder().withActions(...actions).withDelayTurns(delayTurns));
+}
+
+function addTimeEvent(builder: ScheduleBuilder, delayMillis: number, ...actions: Action[]) {
+  builder.addEvent(new Event.Builder().withActions(...actions).withDelayMillis(delayMillis));
 }
 
 function buildAndExecute(builder: ScheduleBuilder) {
@@ -38,51 +37,51 @@ function buildAndExecute(builder: ScheduleBuilder) {
 
 test("schedule can be built", () => {
   const builder = createBuilder(true, false);
-  addEvent(builder, 10, TIMEOUT_MILLIS, () => x++);
+  addTimeEvent(builder, 10, () => x++);
   builder.build();
 });
 
 test("schedule executes", async () => {
   const builder = createBuilder(true, false);
-  addEvent(builder, 0, TIMEOUT_MILLIS, () => x++);
+  addTimeEvent(builder, 0, () => x++);
   await buildAndExecute(builder);
   expect(x).toBe(2);
 });
 
 test("multiple events execute", async () => {
   const builder = createBuilder(true, false);
-  addEvent(builder, 0, TIMEOUT_MILLIS, () => x++);
-  addEvent(builder, 0, TIMEOUT_TURNS, () => (x *= 3));
+  addTimeEvent(builder, 0, () => x++);
+  addTurnsEvent(builder, 0, () => (x *= 3));
   await buildAndExecute(builder);
   expect(x).toBe(6);
 });
 
 test("failed action stops schedule", async () => {
   const builder = createBuilder(true, false);
-  addEvent(builder, 0, TIMEOUT_MILLIS, () => {
+  addTimeEvent(builder, 0, () => {
     x++;
     return false; // Indicates fail
   });
-  addEvent(builder, 0, TIMEOUT_TURNS, () => (x *= 3));
+  addTurnsEvent(builder, 0, () => (x *= 3));
   await buildAndExecute(builder);
   expect(x).toBe(2);
 });
 
 test("failed action does not stop schedule if configured", async () => {
   const builder = createBuilder(true, true);
-  addEvent(builder, 0, TIMEOUT_MILLIS, () => {
+  addTimeEvent(builder, 0, () => {
     x++;
     return false; // Indicates fail
   });
-  addEvent(builder, 0, TIMEOUT_TURNS, () => (x *= 3));
+  addTurnsEvent(builder, 0, () => (x *= 3));
   await buildAndExecute(builder);
   expect(x).toBe(6);
 });
 
 test("schedule can be cancelled", async () => {
   const builder = createBuilder(true, false);
-  addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
-  addEvent(builder, 1, TIMEOUT_TURNS, () => (x *= 3));
+  addTurnsEvent(builder, 0, () => x++);
+  addTurnsEvent(builder, 1, () => (x *= 3));
   const schedule = builder.build();
   addSchedule(schedule);
   await handleTurnEnd();
@@ -94,8 +93,8 @@ test("schedule can be cancelled", async () => {
 test("schedules can recur", async () => {
   const builder = createBuilder(true, false);
   builder.recurring();
-  addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
-  addEvent(builder, 0, TIMEOUT_TURNS, () => (x *= 2));
+  addTurnsEvent(builder, 0, () => x++);
+  addTurnsEvent(builder, 0, () => (x *= 2));
   addSchedule(builder.build());
   await handleTurnEnd();
   await handleTurnEnd();
@@ -104,7 +103,7 @@ test("schedules can recur", async () => {
 
 test("schedules don't reset by default", async () => {
   const builder = createBuilder(true, false);
-  addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
+  addTurnsEvent(builder, 0, () => x++);
   await buildAndExecute(builder);
   expect(x).toBe(2);
   await handleTurnEnd();
@@ -113,7 +112,7 @@ test("schedules don't reset by default", async () => {
 
 test("schedules may be manually reset", async () => {
   const builder = createBuilder(true, false);
-  addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
+  addTurnsEvent(builder, 0, () => x++);
   const schedule = builder.build();
   addSchedule(schedule);
   await handleTurnEnd();
@@ -125,7 +124,7 @@ test("schedules may be manually reset", async () => {
 
 test("schedules may triggered and reset manually", async () => {
   const builder = createBuilder(false, false);
-  addEvent(builder, 0, TIMEOUT_TURNS, () => x++);
+  addTurnsEvent(builder, 0, () => x++);
   const schedule = builder.build();
   addSchedule(schedule);
   await schedule.commence();

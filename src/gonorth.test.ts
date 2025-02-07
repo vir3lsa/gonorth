@@ -110,16 +110,14 @@ describe("Game class", () => {
     it("does not trigger timed events immediately", () => {
       const event = new Event.Builder("4")
         .withAction(() => x++)
-        .withTimeout(1000)
-        .withTimeoutType(TIMEOUT_MILLIS);
+        .withDelayMillis(1000);
       eventTest(event, () => x === 0);
     });
 
     it("does not trigger count down events immediately", () => {
       const event = new Event.Builder("5")
         .withAction(() => x++)
-        .withTimeout(5)
-        .withTimeoutType(TIMEOUT_TURNS);
+        .withDelayTurns(5);
       eventTest(event, () => x === 0);
     });
 
@@ -127,8 +125,7 @@ describe("Game class", () => {
       addEvent(
         new Event.Builder("6")
           .withAction(() => x++)
-          .withTimeout(10)
-          .withTimeoutType(TIMEOUT_MILLIS)
+          .withDelayMillis(10)
       );
       handleTurnEnd();
       return new Promise<void>((resolve) =>
@@ -143,8 +140,7 @@ describe("Game class", () => {
       addEvent(
         new Event.Builder("7")
           .withAction(() => x++)
-          .withTimeout(2)
-          .withTimeoutType(TIMEOUT_TURNS)
+          .withDelayTurns(2)
       );
       await handleTurnEnd();
       await handleTurnEnd();

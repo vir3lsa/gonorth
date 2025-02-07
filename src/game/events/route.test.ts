@@ -32,7 +32,7 @@ function createRoute(
   directions.forEach((direction, index) => {
     routeBuilder
       .go(direction)
-      .withDelay(index === 0 ? 0 : 1, TIMEOUT_TURNS) // No delay to start, then delay of 1 turn
+      .withDelayTurns(index === 0 ? 0 : 1) // No delay to start, then delay of 1 turn
       .withText(text);
   });
 

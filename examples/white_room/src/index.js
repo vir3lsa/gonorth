@@ -119,8 +119,7 @@ function setUp() {
 
   const laserHoleEvent = new Event.Builder("laserHole")
     .withAction("Belatedly, a hole appears in the wall where the white beam hit it.")
-    .withTimeout(5)
-    .withTimeoutType(TIMEOUT_TURNS)
+    .withDelayTurns(5)
     .withCondition(false)
     .isRecurring()
     .build();
@@ -131,8 +130,7 @@ function setUp() {
       return "There's a loud *bang* and a thin line of blinding white light briefly emits from the nozzle of the device.";
     })
     .withCondition(false)
-    .withTimeout(1000)
-    .withTimeoutType(TIMEOUT_MILLIS)
+    .withDelayMillis(1000)
     .isRecurring()
     .build();
 
@@ -146,12 +144,12 @@ function setUp() {
       .withCondition(() => gn.playerHasItem("doll"))
       .addEvent(
         new Event.Builder()
-          .withDelay(2, TIMEOUT_TURNS)
+          .withDelayTurns(2)
           .withAction("A strange sound behind you makes the hairs on your neck stand on end.")
       )
       .addEvent(
         new Event.Builder()
-          .withDelay(1500, TIMEOUT_MILLIS)
+          .withDelayMillis(1500)
           .withAction("The lights blink. It was pitch black for the briefest moment.")
       )
   );

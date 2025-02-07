@@ -8,9 +8,11 @@ import {
 
 export const TIMEOUT_MILLIS = "TIMEOUT_MILLIS";
 export const TIMEOUT_TURNS = "TIMEOUT_TURNS";
+export const TIMEOUT_MILLIS_OR_TURNS = "TIMEOUT_MILLIS_OR_TURNS";
 export const DORMANT = "DORMANT";
 export const AWAITING_COUNTDOWN = "AWAITING_COUNTDOWN";
 export const AWAITING_TIMER = "AWAITING_TIMER";
+export const AWAITING_COUNTDOWN_AND_TIMER = "AWAITING_COUNTDOWN_AND_TIMER";
 export const ACTIVE = "ACTIVE";
 export const SUCCEEDED = "SUCCEEDED";
 export const FAILED = "FAILED";
@@ -22,8 +24,8 @@ export class Event {
   private _triggerCondition!: Condition;
   private _onComplete!: ActionChain;
   name;
-  timeout;
-  timeoutType: TimeoutType;
+  delayMillis?: NumberFunction;
+  delayTurns?: NumberFunction;
   executionCount;
   timeoutId?: NodeJS.Timeout;
   state;
@@ -35,8 +37,8 @@ export class Event {
     this.action = builder.actions;
     this.condition = builder.condition ?? true;
     this.triggerCondition = builder.triggerCondition ?? true;
-    this.timeout = builder.timeout;
-    this.timeoutType = builder.timeoutType ?? TIMEOUT_TURNS;
+    this.delayMillis = builder.delayMillis;
+    this.delayTurns = builder.delayTurns;
     this.executionCount = 0;
     this.timeoutId = undefined;
     this.state = DORMANT;
@@ -102,28 +104,54 @@ export class Event {
     }
   }
 
-  startCountdown() {
-    this.state = this.timeoutType === TIMEOUT_TURNS ? AWAITING_COUNTDOWN : AWAITING_TIMER;
-    const timeoutOverride = selectEventTimeoutOverride();
-    const turnsOverride = selectEventTurnsOverride();
-    let timeout = this.timeout;
+  async startCountdown() {
+    if (this.delayMillis !== undefined && this.delayTurns !== undefined) {
+      this.state = AWAITING_COUNTDOWN_AND_TIMER;
+    } else {
+      this.state = this.delayMillis === undefined ? AWAITING_COUNTDOWN : AWAITING_TIMER;
+    }
 
-    if (this.timeoutType === TIMEOUT_MILLIS && typeof timeoutOverride !== "undefined") {
-      timeout = timeoutOverride;
-    } else if (this.timeoutType === TIMEOUT_TURNS && typeof turnsOverride !== "undefined") {
+    if (this.delayMillis !== undefined) {
+      await this.startTimeCountdown();
+    }
+
+    if (this.delayTurns !== undefined || this.delayMillis === undefined) { // Default
+      await this.startTurnsCountdown();
+    }
+  }
+
+  private startTurnsCountdown() {
+    const turnsOverride = selectEventTurnsOverride();
+    const delayTurnsValue = this.delayTurns?.();
+    let timeout = delayTurnsValue;
+
+    if (turnsOverride !== undefined) {
       timeout = turnsOverride;
     }
 
-    if (this.timeout) {
-      if (this.timeoutType === TIMEOUT_MILLIS) {
-        this.timeoutId = setTimeout(() => this.tryTrigger(), timeout);
+    if (delayTurnsValue) {
+      this.countdown = timeout;
+    } else {
+      // No timeout therefore trigger immediately
+      return this.tryTrigger();
+    }
+  }
 
-        if (typeof process === "object") {
-          // We're running in NodeJS
-          this.timeoutId.unref(); // Allow process to exit even when timer is still running (useful for tests).
-        }
-      } else {
-        this.countdown = timeout;
+  private startTimeCountdown() {
+    const timeoutOverride = selectEventTimeoutOverride();
+    const delayMillisValue = this.delayMillis?.();
+    let timeout = delayMillisValue;
+
+    if (timeoutOverride !== undefined) {
+      timeout = timeoutOverride;
+    }
+
+    if (delayMillisValue) {
+      this.timeoutId = setTimeout(() => this.tryTrigger(), timeout);
+
+      if (typeof process === "object") {
+        // We're running in NodeJS
+        this.timeoutId.unref(); // Allow process to exit even when timer is still running (useful for tests).
       }
     } else {
       // No timeout therefore trigger immediately
@@ -132,7 +160,7 @@ export class Event {
   }
 
   tick() {
-    if (this.timeoutType === TIMEOUT_TURNS && typeof this.countdown !== "undefined") {
+    if (this.delayTurns !== undefined && this.countdown !== undefined) {
       this.countdown--;
 
       if (this.countdown <= 0) {
@@ -144,7 +172,7 @@ export class Event {
   private checkTimer() {
     if (!this.timeoutId) {
       // Event has likely been revived from storage and needs a new timer.
-      return this.startCountdown();
+      return this.startTimeCountdown();
     }
   }
 
@@ -163,6 +191,15 @@ export class Event {
 
   async trigger() {
     let chainPromise;
+
+    if (this.state === ACTIVE) {
+      // Don't want to trigger more than once.
+      return;
+    }
+
+    // Tidy up
+    clearTimeout(this.timeoutId);
+    this.countdown = undefined;
 
     while ((chainPromise = selectActionChainPromise())) {
       // Don't start the event until no action chains are running
@@ -192,20 +229,15 @@ export class Event {
 
   cancel() {
     this.state = CANCELLED;
-
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-    }
+    clearTimeout(this.timeoutId);
   }
 
   reset() {
     this.state = DORMANT;
     this.countdown = undefined;
 
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-      this.timeoutId = undefined;
-    }
+    clearTimeout(this.timeoutId);
+    this.timeoutId = undefined;
   }
 
   async lifecycle() {
@@ -219,6 +251,9 @@ export class Event {
       case AWAITING_TIMER:
         await this.checkTimer();
         break;
+      case AWAITING_COUNTDOWN_AND_TIMER:
+        await this.checkTimer();
+        await this.tick();
     }
   }
 
@@ -232,8 +267,8 @@ export class EventBuilder {
   actions?: Action[];
   condition: boolean | Condition = true;
   triggerCondition: boolean | Condition = true;
-  timeout?: number;
-  timeoutType?: TimeoutType;
+  delayMillis?: NumberFunction;
+  delayTurns?: NumberFunction;
   onComplete?: Action[];
   recurring: boolean = false;
 
@@ -273,19 +308,13 @@ export class EventBuilder {
     return this;
   }
 
-  withDelay(delay: number, timeoutType: TimeoutType) {
-    this.withTimeout(delay);
-    this.withTimeoutType(timeoutType);
+  withDelayMillis(delay: NumberResolve) {
+    this.delayMillis = typeof delay === "number" ? () => delay : delay;
     return this;
   }
 
-  withTimeout(timeout: number) {
-    this.timeout = timeout;
-    return this;
-  }
-
-  withTimeoutType(timeoutType: TimeoutType) {
-    this.timeoutType = timeoutType;
+  withDelayTurns(delay: NumberResolve) {
+    this.delayTurns = typeof delay === "number" ? () => delay : delay;
     return this;
   }
 

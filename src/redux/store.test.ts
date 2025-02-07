@@ -438,14 +438,12 @@ describe("deserializing snapshots", () => {
     });
 
     it("gives a revived event a new timeout ID", async () => {
-      testEvent.timeoutType = TIMEOUT_MILLIS;
-      testEvent.timeout = 10000; // Long enough not to complete.
+      testEvent.delayMillis = () => 10000; // Long enough not to complete.
       testEvent.startCountdown();
 
       const timeoutIdBefore = testEvent.timeoutId;
       snapshot = persistSnapshotAndLoad(() => {
-        testEvent.timeoutType = TIMEOUT_MILLIS;
-        testEvent.timeout = 10000;
+        testEvent.delayMillis = () => 10000;
       });
 
       // When the event next ticks the timer restarts.
@@ -460,15 +458,13 @@ describe("deserializing snapshots", () => {
     it("gives a revived schedule event a new timeout ID", async () => {
       testSchedule.state = STATE_RUNNING;
       const event = testSchedule.currentEvent;
-      event.timeoutType = TIMEOUT_MILLIS;
-      event.timeout = 10000; // Long enough not to complete.
+      event.delayMillis = () => 10000; // Long enough not to complete.
       event.startCountdown();
 
       const timeoutIdBefore = event.timeoutId;
       snapshot = persistSnapshotAndLoad(() => {
         const newEvent = testSchedule.currentEvent;
-        newEvent.timeoutType = TIMEOUT_MILLIS;
-        newEvent.timeout = 10000;
+        newEvent.delayMillis = () => 10000;
       });
 
       // When the event next ticks the timer restarts.

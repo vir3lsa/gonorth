@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+- 2025-02-02 Breaking change: Events may have both time-based and turn-based countdowns, builder function names changed.
+
 # 12.0.0
 
 - 2025-01-26 Breaking change: throws an error when items are created outside of the intial setup function to prevent save game corruption.

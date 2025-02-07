@@ -1,4 +1,4 @@
-import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
+import { AWAITING_COUNTDOWN_AND_TIMER, AWAITING_TIMER, DORMANT, Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import gn, { addEvent } from "../../gonorth";
 import { changeInteraction } from "../../redux/gameActions";
@@ -35,9 +35,7 @@ test("events may be built with a builder and multiple actions may be added", asy
       .withAction(() => x++)
       .withAction(() => x++)
       .withCondition(true)
-      .withTimeout(0)
-      .withTimeoutType(TIMEOUT_TURNS)
-      .build()
+      .withDelayTurns(0)
   );
   await handleTurnEnd();
   expect(x).toBe(3);
@@ -51,9 +49,7 @@ test("builders may add multiple actions at once", async () => {
         () => x++
       )
       .withCondition(true)
-      .withTimeout(0)
-      .withTimeoutType(TIMEOUT_TURNS)
-      .build()
+      .withDelayTurns(0)
   );
   await handleTurnEnd();
   expect(x).toBe(3);
@@ -83,8 +79,7 @@ test("options return after an event adds a next button", async () => {
 test("events may be reset", async () => {
   const event = new Event.Builder("test")
     .withAction(() => x++)
-    .withTimeout(1)
-    .withTimeoutType(TIMEOUT_TURNS)
+    .withDelayTurns(1)
     .build();
   addEvent(event);
   await handleTurnEnd();
@@ -99,8 +94,7 @@ test("events may be reset", async () => {
 test("events may be cancelled", async () => {
   const event = new Event.Builder("test")
     .withAction(() => x++)
-    .withTimeout(1)
-    .withTimeoutType(TIMEOUT_TURNS)
+    .withDelayTurns(1)
     .build();
   addEvent(event);
   await handleTurnEnd();
@@ -115,8 +109,7 @@ test("events may be cancelled", async () => {
 test("events may be reset after being cancelled", async () => {
   const event = new Event.Builder("test")
     .withAction(() => x++)
-    .withTimeout(1)
-    .withTimeoutType(TIMEOUT_TURNS)
+    .withDelayTurns(1)
     .build();
   addEvent(event);
   await handleTurnEnd();
@@ -173,22 +166,80 @@ test("trigger conditions cause timer-style events to reset when not met", async 
     .withAction(() => (triggered = true))
     .withCondition(true)
     .withTriggerCondition(() => y === 0)
-    .withTimeout(250)
-    .withTimeoutType(TIMEOUT_MILLIS)
+    .withDelayMillis(250)
     .build();
   addEvent(event);
   await handleTurnEnd(); // Event commences but does not trigger.
   expect(triggered).toBe(false);
   expect(event.timeoutId).toBeDefined();
-  expect(event.state).toBe("AWAITING_TIMER");
+  expect(event.state).toBe(AWAITING_TIMER);
 
   // Wait for the timer to finish and the state to change.
-  while (event.state === "AWAITING_TIMER") {
+  while (event.state === AWAITING_TIMER) {
     await new Promise((resolve) => setTimeout(resolve, 50));
   }
 
   // Event has now reset.
-  expect(event.state).toBe("DORMANT");
+  expect(event.state).toBe(DORMANT);
   expect(event.timeoutId).toBeUndefined();
   expect(triggered).toBe(false);
+});
+
+test("events with both delay types may trigger from a timer", async () => {
+  let x = 0;
+  const event = new Event.Builder("both1")
+    .withAction(() => x++)
+    .withDelayMillis(50)
+    .withDelayTurns(1)
+    .build();
+  addEvent(event);
+  await handleTurnEnd(); // Event commences but does not trigger'
+  expect(x).toBe(0);
+
+  // Wait for the timer to finish and the state to change.
+  while (event.state === AWAITING_COUNTDOWN_AND_TIMER) {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+
+  expect(x).toBe(1);
+
+  // Even doesn't trigger a second time.
+  await handleTurnEnd();
+  expect(x).toBe(1);
+});
+
+test("events with both delay types may trigger from a countdown", async () => {
+  let x = 0;
+  addEvent(
+    new Event.Builder("both2")
+      .withAction(() => x++)
+      .withDelayMillis(50)
+      .withDelayTurns(1)
+  );
+  await handleTurnEnd(); // Event commences but does not trigger'
+  expect(x).toBe(0);
+
+  await handleTurnEnd();
+  expect(x).toBe(1);
+
+  // Even doesn't trigger a second time.
+  await handleTurnEnd();
+  await new Promise((resolve) => setTimeout(resolve, 60));
+  expect(x).toBe(1);
+});
+
+test("turn delays may be functions", async () => {
+  addEvent(new Event.Builder("funcTurns").withAction(() => x++).withDelayTurns(() => 1));
+  await handleTurnEnd(); // Event commences but does not trigger
+  expect(x).toBe(1);
+  await handleTurnEnd();
+  expect(x).toBe(2);
+});
+
+test("time delays may be functions", async () => {
+  addEvent(new Event.Builder("funcTime").withAction(() => x++).withDelayMillis(() => 1));
+  await handleTurnEnd(); // Event commences but does not trigger
+  expect(x).toBe(1);
+  await new Promise((resolve) => setTimeout(resolve, 2));
+  expect(x).toBe(2);
 });
