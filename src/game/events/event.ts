@@ -1,4 +1,5 @@
 import { ActionChain } from "../../utils/actionChain";
+import { debug } from "../../utils/consoleIO";
 import {
   selectActionChainPromise,
   selectEventTimeoutOverride,
@@ -18,6 +19,19 @@ export const SUCCEEDED = "SUCCEEDED";
 export const FAILED = "FAILED";
 export const CANCELLED = "CANCELLED";
 
+/**
+ * An Event defines an action or actions that might occur at some point in the future. They may optionallly be given a condition
+ * that will cause them to commence their countdown, or they may be started manually. Delays may be in the form of time (i.e.
+ * milliseconds), or turns, or both (whichever comes sooner).
+ *
+ * Events may be recurring, in which case they may trigger more than once. In this case, care should be taken to ensure they have
+ * non-zero delays or conditions that prevent them triggering in an infinite loop. Both commencement (i.e. countdown) delays and
+ * trigger delays may be provided.
+ *
+ * Events may be used within {@link game/events/schedule!Schedule | Schedules}, in which case they are automatically invoked when
+ * the previous Event in the Schedule has completed. Within Schedules, Events may optionally be given addition conditions for
+ * their activation.
+ */
 export class Event {
   private _action!: ActionChain;
   private _condition!: Condition;
@@ -115,19 +129,38 @@ export class Event {
       await this.startTimeCountdown();
     }
 
-    if (this.delayTurns !== undefined || this.delayMillis === undefined) { // Default
+    if (this.delayTurns !== undefined || this.delayMillis === undefined) {
+      // Default
       await this.startTurnsCountdown();
+    }
+  }
+
+  private checkSafety(delay?: number) {
+    if (this.recurring && delay === 0) {
+      if (!this.condition && !this.triggerCondition) {
+        throw Error(
+          `Event ${this.name} is recurring, has no conditions, and has a delay of zero. This will cause an infinite loop.`
+        );
+      } else {
+        debug(
+          `Event ${this.name} is recurring and has a delay of zero. This could cause an infinite loop if not properly restricted by conditions.`,
+          false,
+          true
+        );
+      }
     }
   }
 
   private startTurnsCountdown() {
     const turnsOverride = selectEventTurnsOverride();
-    const delayTurnsValue = this.delayTurns?.();
+    const delayTurnsValue = this.delayTurns?.({ event: this });
     let timeout = delayTurnsValue;
 
     if (turnsOverride !== undefined) {
       timeout = turnsOverride;
     }
+
+    this.checkSafety(timeout);
 
     if (delayTurnsValue) {
       this.countdown = timeout;
@@ -139,12 +172,14 @@ export class Event {
 
   private startTimeCountdown() {
     const timeoutOverride = selectEventTimeoutOverride();
-    const delayMillisValue = this.delayMillis?.();
+    const delayMillisValue = this.delayMillis?.({ event: this });
     let timeout = delayMillisValue;
 
     if (timeoutOverride !== undefined) {
       timeout = timeoutOverride;
     }
+
+    this.checkSafety(timeout);
 
     if (delayMillisValue) {
       this.timeoutId = setTimeout(() => this.tryTrigger(), timeout);
@@ -207,6 +242,7 @@ export class Event {
     }
 
     this.state = ACTIVE;
+    this.executionCount++;
 
     // Ensure the original options are restored after the interruption
     const currentOptions = selectOptions();
@@ -223,7 +259,11 @@ export class Event {
     await this.onComplete.chain();
 
     if (this.recurring) {
-      this.state = DORMANT;
+      this.reset();
+
+      if (this.delayTurns !== undefined || this.delayMillis !== undefined) {
+        this.tryStartCountdown();
+      }
     }
   }
 
@@ -335,6 +375,15 @@ export class EventBuilder {
   build() {
     if (!this.name) {
       throw Error("Must provide a name for each Event.");
+    }
+
+    if (!this.actions) {
+      this.actions = [];
+    }
+
+    if (!this.actions.length) {
+      // Add a do-nothing action so that, for example, this Event can be used as a delay in a Schedule.
+      this.actions.push(() => undefined);
     }
 
     return new Event(this);

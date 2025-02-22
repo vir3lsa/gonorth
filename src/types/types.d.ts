@@ -691,5 +691,9 @@ type Input = (context: Context) => string;
 /* Event */
 /*********/
 
-type NumberFunction = () => number;
+interface NumberFunctionContext {
+  event: EventT;
+}
+
+type NumberFunction = (contex: NumberFunctionContext) => number;
 type NumberResolve = NumberFunction | number;

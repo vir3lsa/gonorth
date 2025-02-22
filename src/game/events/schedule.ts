@@ -80,7 +80,15 @@ export class Schedule {
     this.events = builder.events.reverse().map((event, index) => {
       if (index === 0 && builder.isRecurring) {
         // Reset the schedule when it completes
-        event.onComplete.addAction(() => this.reset());
+        event.onComplete.addAction(() => {
+          this.reset();
+
+          // Current event is the first event after resetting.
+          if (this.currentEvent.delayMillis !== undefined || this.currentEvent.delayTurns !== undefined) {
+            this.commence();
+            this.currentEvent.lifecycle();
+          }
+        });
       } else if (index === 0) {
         event.onComplete.addAction(() => {
           this.state = STATE_COMPLETED;

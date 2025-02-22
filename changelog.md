@@ -1,7 +1,9 @@
 # goNORTH Changelog
 
-# Unreleased
+# 13.0.0
 
+- 2025-02-22 Breaking change: Recurring Events and Schedules automatically restart their countdowns on completion.
+- 2025-02-08 IODevice scrolls when events occur, but only if currently scrolled to the bottom.
 - 2025-02-02 Breaking change: Events may have both time-based and turn-based countdowns, builder function names changed.
 
 # 12.0.0

@@ -93,15 +93,16 @@ test("schedule can be cancelled", async () => {
 test("schedules can recur", async () => {
   const builder = createBuilder(true, false);
   builder.recurring();
-  addTurnsEvent(builder, 0, () => x++);
+  addTurnsEvent(builder, 1, () => x++);
   addTurnsEvent(builder, 0, () => (x *= 2));
   addSchedule(builder.build());
+  await handleTurnEnd();
   await handleTurnEnd();
   await handleTurnEnd();
   expect(x).toBe(10);
 });
 
-test("schedules don't reset by default", async () => {
+test("schedules don't recur by default", async () => {
   const builder = createBuilder(true, false);
   addTurnsEvent(builder, 0, () => x++);
   await buildAndExecute(builder);
@@ -146,12 +147,11 @@ test("individual events may have conditions", async () => {
 });
 
 test("multiple events may be added at once", async () => {
-  let x = 0;
   const builder = createBuilder(true, false);
   builder.addEvents(
     new Event.Builder().withAction(() => x++),
     new Event.Builder().withAction(() => x++)
   );
   await buildAndExecute(builder);
-  expect(x).toBe(2);
+  expect(x).toBe(3);
 });

@@ -1,4 +1,4 @@
-import { AWAITING_COUNTDOWN_AND_TIMER, AWAITING_TIMER, DORMANT, Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
+import { AWAITING_COUNTDOWN_AND_TIMER, AWAITING_TIMER, DORMANT, Event, SUCCEEDED, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import gn, { addEvent } from "../../gonorth";
 import { changeInteraction } from "../../redux/gameActions";
@@ -229,17 +229,28 @@ test("events with both delay types may trigger from a countdown", async () => {
 });
 
 test("turn delays may be functions", async () => {
-  addEvent(new Event.Builder("funcTurns").withAction(() => x++).withDelayTurns(() => 1));
+  addEvent(new Event.Builder("funcTurns").withAction(() => x++).withDelayTurns(({ event }) => event.executionCount ? 5 : 1).isRecurring());
   await handleTurnEnd(); // Event commences but does not trigger
   expect(x).toBe(1);
+  await handleTurnEnd();
+  expect(x).toBe(2);
   await handleTurnEnd();
   expect(x).toBe(2);
 });
 
 test("time delays may be functions", async () => {
-  addEvent(new Event.Builder("funcTime").withAction(() => x++).withDelayMillis(() => 1));
+  addEvent(new Event.Builder("funcTime").withAction(() => x++).withDelayMillis(({ event }) => event.executionCount ? 500 : 1).isRecurring());
   await handleTurnEnd(); // Event commences but does not trigger
   expect(x).toBe(1);
   await new Promise((resolve) => setTimeout(resolve, 2));
   expect(x).toBe(2);
+  await new Promise((resolve) => setTimeout(resolve, 2));
+  expect(x).toBe(2);
+});
+
+test("events may be created with no actions", async () => {
+  const noop = new Event.Builder("noop").build();
+  addEvent(noop);
+  await handleTurnEnd();
+  expect(noop.state).toBe(SUCCEEDED);
 });

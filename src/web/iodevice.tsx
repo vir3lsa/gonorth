@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { connect, useSelector } from "react-redux";
@@ -11,10 +11,13 @@ import { Box } from "@mui/system";
 import Feedback from "./Feedback";
 import { Fab, Fade } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import usePrevious from "../hooks/usePrevious";
+import useAddedContent from "../hooks/useAddedContent";
 
 const SCROLL_MARGIN_OF_ERROR = 5;
 const SCROLL_ELEMENT_ID = "scrollPane";
 const SCROLL_DISTANCE = 50;
+const H6_MARKDOWN = "######";
 
 let scrollIndex = 0;
 
@@ -48,6 +51,10 @@ const IODevice = (props: Props) => {
   const [autoScrolling, setAutoScrolling] = useState(false);
   const [atBottom, setAtBottom] = useState(true);
   const scrollPaneRef = useRef<HTMLDivElement>(null);
+  const { previousDifferent } = usePrevious(interaction.currentPage);
+  const addition = useAddedContent({ older: previousDifferent, newer: interaction.currentPage });
+  const previousLastLine = previousDifferent?.substring(previousDifferent.lastIndexOf("\n") + 1);
+  const isUserAction = addition?.startsWith(`\n\n${H6_MARKDOWN}`) || previousLastLine?.startsWith(H6_MARKDOWN);
 
   const checkScrollPosition = () => {
     const scrollPane = scrollPaneRef.current;
@@ -60,8 +67,10 @@ const IODevice = (props: Props) => {
 
   // Scroll as necessary when current page changes.
   useEffect(() => {
-    setAutoScrolling(true);
-    debouncedScroll();
+    if (atBottom || autoScrolling || isUserAction) {
+      setAutoScrolling(true);
+      debouncedScroll();
+    }
   }, [interaction.currentPage]);
 
   // Check the scroll position when the scene image is hidden or revealed.
@@ -113,12 +122,48 @@ const IODevice = (props: Props) => {
   // Render markdown if page has changed. Set scrollIndex as we go.
   const renderedMarkdown = useMemo(() => {
     scrollIndex = 0;
+    let eventScrollPointAddedToLine: string;
+
+    /* Function that renders a component, possibly adding a scroll point. */
+    const renderComponent = (children: (ReactNode & ReactNode[]) | undefined, Tag: keyof JSX.IntrinsicElements) => {
+      let addEventScrollPoint = false;
+
+      if (!isUserAction) {
+        // New text was added by an event, so we want to add a scroll point at the top of the new content.
+        const firstString = children?.find((child) => typeof child === "string") as string | undefined;
+
+        if (
+          firstString &&
+          (!eventScrollPointAddedToLine || firstString === eventScrollPointAddedToLine) &&
+          addition?.includes(firstString)
+        ) {
+          addEventScrollPoint = true;
+          eventScrollPointAddedToLine = firstString;
+          scrollIndex++;
+        }
+      }
+
+      return (
+        <>
+          {addEventScrollPoint && <Element name={`scrollPoint-${scrollIndex}`} />}
+          <Tag>{children}</Tag>
+        </>
+      );
+    };
+
     return (
       <ReactMarkdown
         children={interaction.currentPage}
         remarkPlugins={[remarkGfm] as ReactMarkdown.PluggableList}
         className="gonorth"
         components={{
+          p({ children }) { return renderComponent(children, "p") },
+          blockquote({ children }) { return renderComponent(children, "blockquote") },
+          em({ children }) { return renderComponent(children, "em") },
+          li({ children }) { return renderComponent(children, "li") },
+          strong({ children }) { return renderComponent(children, "strong") },
+          td({ children }) { return renderComponent(children, "td") },
+          th({ children }) { return renderComponent(children, "th") },
           h6({ children }) {
             scrollIndex++;
             return (
