@@ -1,6 +1,6 @@
 # goNORTH Changelog
 
-# Unreleased
+# 13.1.0
 
 - 2025-03-08 OptionGraphs may dynamically execute a function after they exit.
 - 2025-03-08 Fixed bug where the start screen image didn't replace the previous room's image after a game over.
