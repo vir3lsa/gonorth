@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+- 2025-03-08 Fixed bug where the start screen image didn't replace the previous room's image after a game over.
+
 # 13.0.0
 
 - 2025-02-22 Breaking change: Recurring Events and Schedules automatically restart their countdowns on completion.

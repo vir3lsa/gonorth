@@ -55,6 +55,14 @@ export const STATE_READY = "READY";
 export const STATE_RUNNING = "RUNNING";
 const STATE_COMPLETED = "COMPLETED";
 
+/**
+ * Schedules represent sequences of Events that occur one after another.
+ * 
+ * Schedules may be triggered by to a condition being met, or, if no condition is provided,
+ * they must be triggered manually.
+ * 
+ * The Events within the Schedule may have their own conditions and delays.
+ */
 export class Schedule {
   static get Builder() {
     return ScheduleBuilder;

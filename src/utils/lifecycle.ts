@@ -1,5 +1,6 @@
 import { getPersistor, getStore } from "../redux/storeRegistry";
 import {
+  selectActionChainPromise,
   selectConfig,
   selectEvents,
   selectGame,
@@ -206,38 +207,48 @@ export function gameOver() {
 }
 
 export function theEnd() {
-  return endGame("THE END");
+  return endGame("THE END", false);
 }
 
-function endGame(message: string) {
+async function endGame(message: string, showReload = true) {
   const resurrectionText = new RandomText(
     "Groggily, you get to your feet.",
     "Had it been a premonition or just a bad dream? You shiver and try to forget it.",
     "Why are your eyes closed? You open them and find yourself back where you were before."
   );
 
-  const gameOverGraph = new OptionGraph("gameOver", {
-    id: "root",
-    actions: new PagedText(`# ${message}`),
-    options: {
-      "Reload checkpoint": {
-        actions: [
-          () => clearPage(),
-          resurrectionText,
-          resetToCheckpoint,
-          () => getStore().dispatch(gameStarted()),
-          () => goToRoom(selectRoom())
-        ],
-        exit: true
-      },
-      "Return to main menu": {
-        actions: play,
-        exit: true
-      }
-    }
-  });
+  const gameOverGraph: OptionGraph = new OptionGraph.Builder("gameOver")
+    .clearPage()
+    .withRoomName(message)
+    .withNode(
+      new OptionGraph.NodeBuilder("root")
+        .withActions(new PagedText(`# ${message}`))
+        .withOption(
+          "Reload checkpoint",
+          new OptionGraph.OptionBuilder()
+            .withCondition(() => showReload)
+            .withActions(
+              () => clearPage(),
+              resurrectionText,
+              resetToCheckpoint,
+              () => goToRoom(selectRoom())
+            )
+            .exit()
+        )
+        .withOption(
+          "Return to main menu",
+          new OptionGraph.OptionBuilder()
+            .withActions(
+              () => void getStore().dispatch(gameStarted(false)),
+              /* Wait on the gameOverGraph (but don't return the Promise) to ensure it's tidied up
+                 before starting the next OptionGraph. Ensures images are correct. */
+              () => void gameOverGraph.promise.then(play)
+            )
+            .exit()
+        )
+    )
+    .build();
 
-  getStore().dispatch(gameStarted(false));
   selectEvents().forEach((event: EventT) => event.cancel());
   return gameOverGraph.commence().chain();
 }

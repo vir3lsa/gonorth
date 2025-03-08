@@ -16,7 +16,7 @@
     "build:cypress": "npm run build && npm run build:whiteroom",
     "build:docs": "typedoc",
     "test": "jest",
-    "test:cypress": "cypress open",
+    "test:cypress": "cypress open --e2e -b chrome",
     "coverage": "jest --coverage",
     "start": "npm run start:whiteroom",
     "start:bridges": "webpack-dev-server --config 'examples/bridges/webpack.config.web.js'",
