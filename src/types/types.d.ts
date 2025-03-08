@@ -697,3 +697,11 @@ interface NumberFunctionContext {
 
 type NumberFunction = (contex: NumberFunctionContext) => number;
 type NumberResolve = NumberFunction | number;
+
+/***************/
+/* OptionGraph */
+/***************/
+
+interface GraphContext {
+  optionGraph: OptionGraphT;
+}

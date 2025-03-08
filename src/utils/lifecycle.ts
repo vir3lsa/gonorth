@@ -240,9 +240,10 @@ async function endGame(message: string, showReload = true) {
           new OptionGraph.OptionBuilder()
             .withActions(
               () => void getStore().dispatch(gameStarted(false)),
+              resetStateToPrePlay,
               /* Wait on the gameOverGraph (but don't return the Promise) to ensure it's tidied up
                  before starting the next OptionGraph. Ensures images are correct. */
-              () => void gameOverGraph.promise.then(play)
+              () => void gameOverGraph.awaitExitThen(play)
             )
             .exit()
         )

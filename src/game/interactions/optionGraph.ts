@@ -298,7 +298,7 @@ export class OptionGraph {
     actions.push(action);
   }
 
-  /*
+  /**
    * Tidies up the exiting OptionGraph and returns the scene to its previous state.
    */
   private handleExit() {
@@ -311,11 +311,22 @@ export class OptionGraph {
     getStore().dispatch(changeRoomName(room?.name));
   }
 
-  /*
+  /**
    * Deletes a node from the flattened nodes object. Used when we've added a temporary node and would like to remove it.
    */
   deleteFlattenedNode(nodeId: string) {
     delete this.flattened[nodeId];
+  }
+
+  /**
+   * Waits for this OptionGraph's Promise to resolve (i.e. for the graph to exit), then runs the provided function.
+   * Note that this method does not itself cause the graph to exit.
+   * 
+   * @param onExit the function to run when the graph exits.
+   */
+  async awaitExitThen(onExit: (context: GraphContext) => unknown) {
+    await this.promise;
+    return onExit({ optionGraph: this });
   }
 
   isRunning() {

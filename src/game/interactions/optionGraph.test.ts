@@ -510,6 +510,26 @@ test("can change room name", async () => {
   expect(selectRoomName()).toBe("room");
 });
 
+test("can invoke functions on exit", async () => {
+  let result;
+  let resolve: (value: unknown) => void;
+  const promise = new Promise((res) => resolve = res);
+  const newGraph: OptionGraph = new OptionGraph.Builder("onExit")
+    .withNode(
+      new OptionGraph.NodeBuilder("1").withActions(
+        () => void newGraph.awaitExitThen(({ optionGraph }) => {
+          result = `Invoked when OptionGraph ${optionGraph.id} exited`;
+          resolve(null);
+        }),
+      )
+    )
+    .clearPage()
+    .build();
+  await newGraph.commence().chain();
+  await promise;
+  expect(result).toBe("Invoked when OptionGraph onExit exited");
+});
+
 describe("images", () => {
   let iGraph: OptionGraph;
 
