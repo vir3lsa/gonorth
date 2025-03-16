@@ -205,7 +205,7 @@ function setUp() {
 
   const shoutGraph = new OptionGraph.Builder("shout")
     .withNodes(
-      new OptionGraph.NodeBuilder("shout1").withActions("The lights go out.").withOptions({
+      new OptionGraph.NodeBuilder("shout1").withActions("The lights go out.").withOptionsObject({
         "Stop shouting": {
           actions: "To your relief, the lights turn back on.",
           exit: true

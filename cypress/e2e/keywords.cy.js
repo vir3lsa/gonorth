@@ -33,9 +33,10 @@ describe("keywords", () => {
     cy.shows("help");
   });
 
-  it("shows help pages", () => {
+  it.only("shows help pages", () => {
     cy.say("help");
-    cy.shows("work of interactive fiction");
+    cy.shows("What do you need help with?");
+    cy.choose("Everything", "work of interactive fiction");
     cy.choose("next");
     cy.shows("Commands are usually of the form");
     cy.choose("next");

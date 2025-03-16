@@ -83,8 +83,6 @@ Cypress.Commands.add("startGame", (options = {}) => {
   cy.choose("play");
   cy.shows("You awaken slowly");
   cy.choose("next", "no idea where you are");
-  cy.choose("next", "The game you're playing", { global: true });
-  cy.choose("cancel help", "Good luck");
   cy.choose("next", "a nearly perfect cube", { global: true });
 });
 
@@ -105,8 +103,6 @@ Cypress.Commands.add("newGame", () => {
   cy.choose("new game", "want to continue?", { global: true });
   cy.choose("yes", "You awaken slowly", { global: true });
   cy.choose("next", "no idea where you are");
-  cy.choose("next", "The game you're playing", { global: true });
-  cy.choose("cancel help", "Good luck");
   cy.choose("next", "a nearly perfect cube", { global: true });
 });
 

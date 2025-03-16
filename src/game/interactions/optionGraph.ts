@@ -8,7 +8,7 @@ import { clearPage } from "../../utils/sharedFunctions";
 
 export const next = "OptionGraph_next";
 export const previous = "OptionGraph_previous";
-export const okay = "OpyionGraph_okay";
+export const okay = "OptionGraph_okay";
 
 export class OptionGraph {
   id;
@@ -84,11 +84,11 @@ export class OptionGraph {
     if (node && node.options && typeof node.options !== "function") {
       const options = node.options as GraphOptions;
       Object.entries(options).forEach(([label, value]) => {
-        if (value === next) {
+        if (value === next || (value as GraphOption)?.node === next) {
           options[label] = nodes[index + 1].id;
-        } else if (value === previous) {
+        } else if (value === previous || (value as GraphOption)?.node === previous) {
           options[label] = nodes[index - 1].id;
-        } else if (value === okay) {
+        } else if (value === okay || (value as GraphOption)?.node === okay) {
           options[label] = null;
         }
       });
@@ -422,8 +422,13 @@ export class NodeBuilder {
     return this;
   }
 
-  withOptions(options: GraphOptions) {
+  withOptionsObject(options: GraphOptions) {
     this.options = options;
+    return this;
+  }
+
+  withOptions(...options: (OptionBuilder | GraphOption)[]) {
+    options.forEach((option) => this.withOption(option));
     return this;
   }
 
@@ -548,3 +553,7 @@ export class OptionBuilder {
     };
   }
 }
+
+export const okayOption = new OptionBuilder("okay").withNode(okay).build();
+export const nextOption = new OptionBuilder("next").withNode(next).build();
+export const previousOption = new OptionBuilder("previous").withNode(previous).build();

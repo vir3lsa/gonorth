@@ -1,6 +1,16 @@
 import { unregisterStore } from "../../redux/storeRegistry";
-import gn, { goToRoom } from "../../gonorth";
-import { OptionGraph } from "./optionGraph";
+import gn, { addHintNodes, giveHint, goToRoom, setHintNodeId } from "../../gonorth";
+import {
+  next,
+  nextOption,
+  NodeBuilder,
+  okay,
+  okayOption,
+  OptionBuilder,
+  OptionGraph,
+  previous,
+  previousOption
+} from "./optionGraph";
 import { selectCurrentPage, selectImage, selectOptions, selectRoomName } from "../../utils/testSelectors";
 import { selectRoom, selectTurn, selectInventory } from "../../utils/selectors";
 import { Verb } from "../verbs/verb";
@@ -100,14 +110,13 @@ const nullOptionNodes = [
 ];
 
 const optionalOptionsNodes = [
-  {
-    id: "start",
-    actions: "test",
-    options: {
-      one: { condition: () => x < 5, actions: "one" },
-      two: { condition: () => x > 0, actions: "two" }
-    }
-  }
+  new NodeBuilder("start")
+    .withActions("test")
+    .withOptions(
+      new OptionBuilder("one").withCondition(() => x < 5).withActions("one"),
+      new OptionBuilder("two").withCondition(() => x > 0).withActions("two")
+    )
+    .build()
 ];
 
 const exitOptionNodes = [
@@ -513,14 +522,15 @@ test("can change room name", async () => {
 test("can invoke functions on exit", async () => {
   let result;
   let resolve: (value: unknown) => void;
-  const promise = new Promise((res) => resolve = res);
+  const promise = new Promise((res) => (resolve = res));
   const newGraph: OptionGraph = new OptionGraph.Builder("onExit")
     .withNode(
       new OptionGraph.NodeBuilder("1").withActions(
-        () => void newGraph.awaitExitThen(({ optionGraph }) => {
-          result = `Invoked when OptionGraph ${optionGraph.id} exited`;
-          resolve(null);
-        }),
+        () =>
+          void newGraph.awaitExitThen(({ optionGraph }) => {
+            result = `Invoked when OptionGraph ${optionGraph.id} exited`;
+            resolve(null);
+          })
       )
     )
     .clearPage()
@@ -565,5 +575,25 @@ describe("images", () => {
       .build();
     await newGraph.commence().chain();
     expect(selectImage()).toBeUndefined();
+  });
+});
+
+const hintNodes = [
+  new NodeBuilder("apoth1")
+    .withActions("So, you're trapped in the apothecary. Can you see any ways out?")
+    .withOptions(okayOption, nextOption),
+  new NodeBuilder("apoth2")
+    .withActions("Make sure you have a close look at the gate, if you haven't already.")
+    .withOptions(okayOption, previousOption)
+];
+
+describe("hints", () => {
+  test("hint nodes may be constructed using builders", async () => {
+    addHintNodes(...hintNodes);
+    setHintNodeId("apoth1");
+    await giveHint().chain();
+    const options = selectOptions();
+    expect(options[0].label).toBe("okay");
+    expect(options[1].label).toBe("next");
   });
 });

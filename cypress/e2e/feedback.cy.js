@@ -24,18 +24,6 @@ const expectedFeedbackObj = {
     {
       input: "[Next]",
       output: [
-        "",
-        "",
-        'The game you\'re playing, The White Room, is a work of interactive fiction, meaning that for much of the game you will be presented with a text box asking "What do you want to do?" You should answer that question by typing commands into the box and pressing `Enter`. The game will do its best to interpret what you typed and act accordingly.\n\nChoose: next, cancel help'
-      ]
-    },
-    {
-      input: "[cancel help]",
-      output: ['To view these help pages again, type "help".\n\nGood luck, and have fun.\n\nChoose: Next']
-    },
-    {
-      input: "[Next]",
-      output: [
         "The room you find yourself in is a nearly perfect cube. It gleams a futuristic white, each surface emitting a soft, uniform glow. There are no shadows at all.\n\nIn front of you, there's a pedestal topped by a single red button. To your right, there's an almost identical green one.\n\nThere's a flat object at about waist height that could be a table.\n\nCorridors to the east and west lead to other rooms.\n\nYou also see a strange device, an apple, an orange, and a large object."
       ]
     }
@@ -47,8 +35,8 @@ const expectedRollingFeedback = {
   name: "John",
   logs: [
     {
-      input: "[cancel help]",
-      output: ['To view these help pages again, type "help".\n\nGood luck, and have fun.\n\nChoose: Next']
+      input: "[Next]",
+      output: ["You realise you have no idea where you are and no memory of how you got here.", "Choose: Next"]
     },
     {
       input: "[Next]",

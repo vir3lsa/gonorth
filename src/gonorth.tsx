@@ -51,7 +51,7 @@ import { getBasicItemList, bulletPointList, toTitleCase, getArticle, englishList
 import { moveItem, getItem as getUniqueItem } from "./utils/itemFunctions";
 import { EventBuilder, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./game/events/event";
 import { ScheduleBuilder } from "./game/events/schedule";
-import { next, previous, okay } from "./game/interactions/optionGraph";
+import { next, previous, okay, NodeBuilder, nextOption, okayOption, previousOption } from "./game/interactions/optionGraph";
 import { COPY_SUFFIX } from "./game/items/item";
 
 const RESUME_HINTS = "RESUME_HINTS";
@@ -139,8 +139,6 @@ function setIntro(intro: string | string[] | Intro) {
       getStore().dispatch(changeImage(undefined));
     },
     intro,
-    () => clearPage(),
-    new ActionClass(() => getHelp(), false),
     () => {
       getStore().dispatch(gameStarted());
     },
@@ -194,8 +192,9 @@ function giveHint() {
   }
 }
 
-function addHintNodes(...nodes: GraphNode[]) {
-  game.hintGraph.addNodes(...nodes);
+function addHintNodes(...nodes: (GraphNode | NodeBuilder)[]) {
+  const graphNodes = nodes.map((nodeOrBuilder) => nodeOrBuilder instanceof NodeBuilder ? nodeOrBuilder.build() : nodeOrBuilder);
+  game.hintGraph.addNodes(...graphNodes);
 }
 
 function setHintNodeId(nodeId: string) {
@@ -254,11 +253,14 @@ const gonorth = {
   inSameRoomAs,
   moveItem,
   next,
+  nextOption,
   okay,
+  okayOption,
   play,
   playerCanCarry,
   playerHasItem,
   previous,
+  previousOption,
   removeKeyword,
   retrieve,
   selectEffects,

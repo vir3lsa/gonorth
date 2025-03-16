@@ -12,7 +12,29 @@ export const getKeywordsTable = () => {
   return keywordsTable;
 };
 
+const controlsTable = `Action | Controls
+:---|:---
+Submit command | \`[Enter]\` or \`[Space]\`
+Select next option | \`[Tab]\`
+Select previous option | \`[Shift + Tab]\`
+Choose highlighted option | \`[Enter]\` or \`[Space]\`
+Scroll Down | \`[Enter]\``;
+
 const optionNodes = [
+  {
+    id: "helpIndex",
+    actions: "What do you need help with?",
+    options: {
+      "Everything": "help",
+      "Commands": "help2",
+      "Verbs": "verbsAndAliases",
+      "Synonyms": "verbsAndAliases3",
+      "Keywords": "keywords",
+      "Hints": "hints",
+      "Controls": "controls",
+      "Cancel Help": "haveFun"
+    }
+  },
   {
     id: "help",
     actions: [
@@ -23,16 +45,18 @@ const optionNodes = [
     ],
     options: {
       next: "help2",
-      "cancel help": "haveFun"
+      "cancel help": "haveFun",
+      "index": "helpIndex"
     }
   },
   {
     id: "help2",
-    actions: `Commands are usually of the form "\`verb\` \`noun\`" e.g. "pick up ball" or "open door". The game is fairly forgiving of extra words around the verb and noun (or item name) so you could write those commands as "now you should pick up that little ball from the floor" or "I want you to open that really obvious door in front of you" and they'll work exactly as before.`,
+    actions: `Commands are usually of the form "\`verb\` \`noun\`" e.g. "pick up ball" or "open door". The game is fairly forgiving of extra words around the verb and noun (or item name) but it's generally a good idea to keep your commands short and concise to avoid being misinterpreted. The parser doesn't use AI and can easily be confused if your instructions aren't clear.`,
     options: {
       next: "help3",
       previous: "help",
-      "cancel help": "haveFun"
+      "cancel help": "haveFun",
+      "index": "helpIndex"
     }
   },
   {
@@ -41,7 +65,8 @@ const optionNodes = [
     options: {
       next: "help4",
       previous: "help2",
-      "cancel help": "haveFun"
+      "cancel help": "haveFun",
+      "index": "helpIndex"
     }
   },
   {
@@ -50,7 +75,8 @@ const optionNodes = [
     options: {
       "red ball": "verbsAndAliases",
       "blue ball": "verbsAndAliases",
-      "cancel help": "haveFun"
+      "cancel help": "haveFun",
+      "index": "helpIndex"
     }
   },
   {
@@ -59,7 +85,8 @@ const optionNodes = [
     options: {
       next: "verbsAndAliases2",
       previous: "help3",
-      "cancel help": "haveFun"
+      "cancel help": "haveFun",
+      "index": "helpIndex"
     }
   },
   {
@@ -68,7 +95,8 @@ const optionNodes = [
     options: {
       next: "verbsAndAliases3",
       previous: "verbsAndAliases",
-      "cancel help": "haveFun"
+      "cancel help": "haveFun",
+      "index": "helpIndex"
     }
   },
   {
@@ -77,7 +105,8 @@ const optionNodes = [
     options: {
       next: "keywords",
       previous: "verbsAndAliases2",
-      "cancel help": "haveFun"
+      "cancel help": "haveFun",
+      "index": "helpIndex"
     }
   },
   {
@@ -87,16 +116,28 @@ const optionNodes = [
     options: {
       next: "hints",
       previous: "verbsAndAliases3",
-      "cancel help": "haveFun"
+      "cancel help": "haveFun",
+      "index": "helpIndex"
     }
   },
   {
     id: "hints",
     actions: () =>
-      `The aim of the game is to experiment, think logically and explore. If you find that you're stuck I recommend that you consider what your current objective is, what's standing in the way of you achieving it, and logically how that obstacle might be removed. If you've tried everything you can think of and you're still stuck you can get a hint with the "hint" keyword. This will also eventually give you the solution if you really want it, but I urge you to try to find it yourself. It'll be far more satisfying that way.`,
+      `The aim of the game is to experiment, think logically and explore. If you find that you're stuck I recommend that you consider what your current objective is, what's standing in the way of you achieving it, and logically how that obstacle might be removed. If you've tried everything you can think of and you're still stuck you can get a hint with the \`[hint]\` keyword. This will also eventually give you the solution if you really want it, but I urge you to try to find it yourself. It'll be far more satisfying that way.`,
     options: {
-      okay: "haveFun",
-      previous: "keywords"
+      next: "controls",
+      previous: "keywords",
+      "cancel help": "haveFun",
+      "index": "helpIndex"
+    }
+  },
+  {
+    id: "controls",
+    actions: controlsTable,
+    options: {
+      previous: "hints",
+      "cancel help": "haveFun",
+      "index": "helpIndex"
     }
   },
   {

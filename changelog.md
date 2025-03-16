@@ -1,5 +1,12 @@
 # goNORTH Changelog
 
+# Unreleased
+
+- 2025-03-16 Added help index and controls pages.
+- 2025-03-16 The help pages are no longer automatically shown after the game's intro.
+- 2025-03-13 Breaking change: renamed NodeBuilder.withOptions -> withOptionsObject and added varargs withOptions function.
+- 2025-03-12 May add hint notes as builders or nodes.
+
 # 13.1.0
 
 - 2025-03-08 OptionGraphs may dynamically execute a function after they exit.

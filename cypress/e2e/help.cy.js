@@ -7,7 +7,7 @@ describe("Help", () => {
     cy.getSceneImage().should("exist");
 
     // Enter help pages.
-    cy.say("help", "The game you're playing", { global: true });
+    cy.say("help", "What do you need help with?", { global: true });
 
     // The image has cleared.
     cy.getSceneImage().should("not.exist");
@@ -19,7 +19,7 @@ describe("Help", () => {
     cy.getSceneLocation().contains("Help");
 
     // Close help
-    cy.choose("cancel help", "To view these help pages");
+    cy.choose("Cancel Help", "To view these help pages");
 
     // Room name and image shouldn't be back until we click Next.
     cy.getSceneImage().should("not.exist");
