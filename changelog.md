@@ -1,6 +1,6 @@
 # goNORTH Changelog
 
-# Unreleased
+# 14.0.0
 
 - 2025-03-16 Added help index and controls pages.
 - 2025-03-16 The help pages are no longer automatically shown after the game's intro.
