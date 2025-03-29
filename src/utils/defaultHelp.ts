@@ -18,7 +18,7 @@ Submit command | \`[Enter]\` or \`[Space]\`
 Select next option | \`[Tab]\`
 Select previous option | \`[Shift + Tab]\`
 Choose highlighted option | \`[Enter]\` or \`[Space]\`
-Scroll Down | \`[Enter]\``;
+Scroll Down | \`[Enter] (with empty command box)\``;
 
 const optionNodes = [
   {
