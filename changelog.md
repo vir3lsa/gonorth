@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 14.1.0
+
+- 2025-03-29 Added the save keyword.
+
 # 14.0.1
 
 - 2025-03-29 Minor tweak to controls help page.

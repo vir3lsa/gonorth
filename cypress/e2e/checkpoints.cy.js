@@ -100,4 +100,11 @@ describe("basic checkpoint tests", () => {
     cy.say("x device");
     cy.say("x device", "a hole appears");
   });
+
+  it("Saves via the save keyword", () => {
+    cy.say("take device");
+    cy.say("save", "Game saved");
+    cy.reloadGame();
+    cy.say("i", "strange device");
+  });
 });

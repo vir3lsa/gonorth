@@ -32,6 +32,7 @@ const optionNodes = [
       "Keywords": "keywords",
       "Hints": "hints",
       "Controls": "controls",
+      "Saving": "saving",
       "Cancel Help": "haveFun"
     }
   },
@@ -135,7 +136,17 @@ const optionNodes = [
     id: "controls",
     actions: controlsTable,
     options: {
+      next: "saving",
       previous: "hints",
+      "cancel help": "haveFun",
+      "index": "helpIndex"
+    }
+  },
+  {
+    id: "saving",
+    actions: "Your progress will be auto-saved upon entering most rooms. You can also save manually via the `save` keyword.",
+    options: {
+      previous: "controls",
       "cancel help": "haveFun",
       "index": "helpIndex"
     }

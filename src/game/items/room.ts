@@ -40,9 +40,9 @@ const directionAliases = {
  * ```
  */
 export class Room extends Item {
-  private _adjacentRooms!: AdjacentRooms;
-  private _image?: string;
-  private _checkpoint!: boolean;
+  private __adjacentRooms!: AdjacentRooms;
+  private __image?: string;
+  private __checkpoint!: boolean;
 
   constructor(
     name: string,
@@ -70,11 +70,11 @@ export class Room extends Item {
   }
 
   set image(image) {
-    this._image = image;
+    this.__image = image;
   }
 
   get image() {
-    return this._image;
+    return this.__image;
   }
 
   addAdjacentRoom(
@@ -360,21 +360,21 @@ export class Room extends Item {
   }
 
   get adjacentRooms() {
-    return this._adjacentRooms;
+    return this.__adjacentRooms;
   }
 
   set adjacentRooms(value) {
     this.recordAlteredProperty("adjacentRooms", value);
-    this._adjacentRooms = value;
+    this.__adjacentRooms = value;
   }
 
   get checkpoint() {
-    return this._checkpoint;
+    return this.__checkpoint;
   }
 
   set checkpoint(value: boolean) {
     this.recordAlteredProperty("checkpoint", value);
-    this._checkpoint = value;
+    this.__checkpoint = value;
   }
 
   static get Builder() {

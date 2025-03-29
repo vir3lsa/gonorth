@@ -33,7 +33,7 @@ describe("keywords", () => {
     cy.shows("help");
   });
 
-  it.only("shows help pages", () => {
+  it("shows help pages", () => {
     cy.say("help");
     cy.shows("What do you need help with?");
     cy.choose("Everything", "work of interactive fiction");

@@ -1,5 +1,5 @@
 import { Verb, VerbBuilder as VerbBuilder } from "./verb";
-import { selectInventory, selectKeywords } from "../../utils/selectors";
+import { selectInventory, selectKeywords, selectRoom } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
 import { getHelp, giveHint } from "../../gonorth";
 import { getKeywordsTable } from "../../utils/defaultHelp";
@@ -8,6 +8,7 @@ import { addKeywords, removeKeywords, revealScene } from "../../redux/gameAction
 import { handleDebugOperations } from "../../utils/debugFunctions";
 import { clearPage } from "../../utils/sharedFunctions";
 import createWaitGraph from "./waitGraph";
+import { checkpoint } from "../../utils/lifecycle";
 
 export function createKeywords() {
   const emptyInventoryText = new RandomText(
@@ -84,6 +85,19 @@ export function createKeywords() {
       getStore().dispatch(revealScene(true));
     });
 
+  const save = new Verb.Builder("save")
+    .withDescription("Save the game.")
+    .withAliases("quicksave", "persist")
+    .isKeyword()
+    .onSuccess(() => {
+      if (selectRoom().checkpoint) {
+        checkpoint();
+        return "Game saved."
+      } else {
+        return "Sorry, but you can't save the game right now!"
+      }
+    });
+
   addKeyword(inventoryVerb);
   addKeyword(wait);
   addKeyword(help);
@@ -93,6 +107,7 @@ export function createKeywords() {
   addKeyword(debug);
   addKeyword(hideScene);
   addKeyword(showScene);
+  addKeyword(save);
 }
 
 export function addKeyword(keywordOrBuilder: VerbT | VerbBuilder) {
