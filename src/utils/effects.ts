@@ -1,4 +1,5 @@
 import { ActionChain } from "./actionChain";
+import { createChainableTest, normaliseTest } from "./sharedFunctions";
 
 const WILDCARD = "__effects:wildcard__";
 
@@ -82,12 +83,29 @@ export class Effects {
   }
 }
 
+/**
+ * An Effect is an action that can occur when {@link game/items/item!Item | Items} interact via a {@link game/verbs/verb!Verb | Verb}.
+ * Rather than hard-coding the special-case interactions of certain Items into the Verb itself, Effects may be added for each pair of
+ * Items. For example, if you have a "break" Verb that usually responds with "You can't break that", Effects could be used to allow
+ * certain items to be broken when using a hammer.
+ * 
+ * When creating an Effect, the primary and secondary items to interact must be specified. However, the Effect may be configured to
+ * accept any primary item e.g. placing any item onto a set of scales could produce an effect.
+ * 
+ * Effects can be configured to execute before, instead of or after the Verb, via a {@link utils/effects!VerbRelation | VerbRelation}.
+ * As with Verbs, Effects may be given tests that must pass before they will execute. Unlike Verbs, the tests are optional - if no
+ * tests are provided, the Effect will definitely execute. Whether the Verb actually executes is dependent on the VerbRelation, the
+ * Effect's tests (if any), the result of the Effect's actions, and the Effect's 'successful' flag. The latter indicates whether the
+ * Effect is considered to be successful when it executes - it's possible for an Effect to execute but still be considered
+ * unsuccessful.
+ */
 export class Effect {
   primaryItem?: ItemOrString;
   secondaryItem: ItemOrString;
   verbName: string;
   successful: boolean;
   verbRelation: VerbRelation;
+  testsChain?: ActionChain;
   actionChain: ActionChain;
 
   constructor(builder: EffectBuilder) {
@@ -96,7 +114,46 @@ export class Effect {
     this.verbName = builder.config.verbName!;
     this.successful = builder.config.successful ?? true;
     this.verbRelation = builder.config.verbRelation ?? VerbRelation.Before;
+    this.testsChain = this.createTestsChain(builder.config.tests);
     this.actionChain = new ActionChain(...(builder.config.actions! as Action[]));
+  }
+
+  /**
+   * Combines all SmartTests to form an ActionChain.
+   *  
+   * @param tests the SmartTests to combine.
+   * @returns ActionChain
+   */
+  private createTestsChain(tests?: SmartTest[]) {
+    if (tests && tests.length) {
+      const testsChain = new ActionChain(
+        ...(tests.map((itest) => {
+          let onFailure = itest.onFailure as Action[];
+          return createChainableTest((itest as SmartTest).test || itest, ...onFailure);
+        }))
+      );
+
+      testsChain.renderNexts = false;
+      return testsChain;
+    }
+  }
+
+  /**
+   * Attempts this Effect by running an SmartTests then, if they're successful, running the ActionChain
+   * representing the effect itself.
+   * 
+   * @param context the Context in which the Effect is running.
+   * @returns Boolean indicating whether the Effect executed successfully (and is considered successful).
+   */
+  async attempt(context: Context) {
+    let result = false;
+    const testsPassed = await this.testsChain?.chain(context) ?? true;
+
+    if (testsPassed) {
+      result = await this.actionChain.chain(context);
+    }
+
+    return result && this.successful;
   }
 
   static get Builder() {
@@ -106,7 +163,7 @@ export class Effect {
 
 export class EffectBuilder {
   config: Partial<EffectConfig> = {
-    actions: [],
+    actions: [], tests: []
   };
 
   withPrimaryItem(primaryItem: ItemOrString) {
@@ -136,6 +193,12 @@ export class EffectBuilder {
 
   withVerbRelation(verbRelation: VerbRelation) {
     this.config.verbRelation = verbRelation;
+    return this;
+  }
+
+  withTest(test: Test, ...onFailure: Action[]) {
+    const smartTest: SmartTest = { test: normaliseTest(test), onFailure };
+    this.config.tests = [...this.config.tests!, smartTest];
     return this;
   }
 

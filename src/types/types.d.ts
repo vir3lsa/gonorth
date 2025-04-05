@@ -368,6 +368,7 @@ interface EffectConfig {
   verbName: string;
   successful: boolean;
   verbRelation: VerbRelation;
+  tests: SmartTest[];
   actions: ContextAction[];
 }
 

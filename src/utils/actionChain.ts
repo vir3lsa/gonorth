@@ -196,7 +196,14 @@ export class ActionChain {
     nextIfNoOptions: boolean,
     paged = false
   ) {
-    await actionChain.chain({ ...context });
+    const result = await actionChain.chain({ ...context });
+
+    if (!result) {
+      // The nested action chain failed, so we should stop this one too.
+      this.failed = true;
+      return false;
+    }
+
     if (nextIfNoOptions && actionChain.lastActionProducedText) {
       // If we're expecting to add options (e.g. Next) and there aren't current options (also e.g. Next), add them.
       return this.dispatchAppend(this.getPostScript() || "", this.options, nextIfNoOptions, paged);

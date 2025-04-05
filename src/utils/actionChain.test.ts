@@ -212,6 +212,20 @@ test("A Next button isn't added after a nested action chain if one isn't require
   await deferAction(() => expect(selectCurrentPage()).toInclude("two"));
 });
 
+test("A nested action chain may cause the outer chain to fail by returning false", async () => {
+  let x = 0;
+  // The nested chain continues to the end in this case.
+  new ActionChain(() => x++, [() => x++, () => false, () => x++], () => x += 10).chain();
+  await deferAction(() => expect(x).toBe(3));
+});
+
+test("A nested action chain may cause the outer chain to fail by explicity failing", async () => {
+  let x = 0;
+  // The nested chain exits immediately in this case.
+  new ActionChain(() => x++, [() => x++, ({ fail }) => fail!(), () => x++], () => x += 10).chain();
+  await deferAction(() => expect(x).toBe(2));
+});
+
 // A function reused by the next series of tests that check a Next button is rendered in various circumstances.
 const nextButtonTest = async (chain: ActionChain) => {
   chain.chain();

@@ -4,6 +4,7 @@ import type { Item } from "../game/items/item";
 import { getStore } from "../redux/storeRegistry";
 import { changeInteraction } from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";
+import { ActionChain } from "./actionChain";
 
 const REACTION_MILLIS = 350;
 
@@ -65,8 +66,6 @@ export function playerCanCarry(itemOrName: Item | string, index = 0) {
   );
 }
 
-
-
 /**
  * Returns true if the player is carrying the item.
  * @param itemOrName The name or alias of the item, or the item itself.
@@ -112,10 +111,11 @@ export function inRoom(roomName: string) {
 
 /**
  * Turns a Test into a TestFunction.
+ * 
  * @param test The input Test
  * @returns TestFunction
  */
-export const normaliseTest = (test?: Test) => {
+export function normaliseTest(test?: Test) {
   if (typeof test === "undefined") {
     return () => true;
   } else if (typeof test === "boolean") {
@@ -123,4 +123,35 @@ export const normaliseTest = (test?: Test) => {
   }
 
   return test;
-};
+}
+
+/**
+ * Turns a Test into a function suitable for an ActionChain.
+ * 
+ * @param test The Test to transform.
+ * @param onFailure Actions to perform if the Test fails.
+ * @returns ActionFunction
+ */
+export function createChainableTest(test: Test, ...onFailure: Action[]) {
+  const normalisedTest = normaliseTest(test);
+  const onFailureChain = new ActionChain(...(onFailure || identity));
+
+  const chainableTest: Action = (context) => {
+    const result = normalisedTest(context as Context);
+
+    if (!result) {
+      context.fail!();
+      return onFailureChain;
+    }
+  };
+
+  return chainableTest;
+}
+
+/**
+ * An identity function, which does nothing.
+ * @returns undefined
+ */
+function identity() {
+  return undefined;
+}

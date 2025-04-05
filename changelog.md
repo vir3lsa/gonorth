@@ -1,5 +1,10 @@
 # goNORTH Changelog
 
+# 14.2.0
+
+- 2025-04-05 Effects may have tests.
+- 2025-04-05 Fixed bug where failed nested ActionChains didn't cause the outer chain to fail.
+
 # 14.1.0
 
 - 2025-03-29 Added the save keyword.

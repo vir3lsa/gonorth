@@ -2,13 +2,11 @@ import { getStore } from "../../redux/storeRegistry";
 import { verbCreated } from "../../redux/gameActions";
 import { ActionChain } from "../../utils/actionChain";
 import { selectEffects, selectRoom } from "../../utils/selectors";
-import { normaliseTest, playerHasItem } from "../../utils/sharedFunctions";
+import { createChainableTest, normaliseTest, playerHasItem } from "../../utils/sharedFunctions";
 import { checkAutoActions } from "../input/autoActionExecutor";
 import { VerbRelation } from "../../utils/effects";
 
 const { Before, Instead, After } = VerbRelation;
-
-const identity = () => undefined;
 
 /**
  * A Verb represents a thing the player can do. It should generally have a name that's a grammatical verb,
@@ -133,7 +131,7 @@ export class Verb {
       ...(tests.map((itest) => {
         let onFailure = (itest as SmartTest).onFailure as Action[];
         onFailure = Array.isArray(onFailure) ? onFailure : [onFailure];
-        return this.createChainableTest((itest as SmartTest).test || itest, ...onFailure);
+        return createChainableTest((itest as SmartTest).test || itest, ...onFailure);
       }) as Action[])
     );
     this._tests.renderNexts = false;
@@ -145,7 +143,7 @@ export class Verb {
    * @param onFailure The onFailure action to execute when the test fails.
    */
   addTest(test: Test, ...onFailure: Action[]) {
-    const chainableTest = this.createChainableTest(test, onFailure);
+    const chainableTest = createChainableTest(test, onFailure);
     this._tests.addAction(chainableTest);
   }
 
@@ -155,24 +153,8 @@ export class Verb {
    * @param onFailure The onFailure action to execute when the test fails.
    */
   insertTest(test: Test, ...onFailure: Action[]) {
-    const chainableTest = this.createChainableTest(test, ...onFailure);
+    const chainableTest = createChainableTest(test, ...onFailure);
     this._tests.insertAction(chainableTest);
-  }
-
-  createChainableTest(test: Test, ...onFailure: Action[]) {
-    const normalisedTest = normaliseTest(test);
-    const onFailureChain = new ActionChain(...(onFailure || identity));
-
-    const chainableTest: Action = (context) => {
-      const result = normalisedTest(context as Context);
-
-      if (!result) {
-        context.fail!();
-        return onFailureChain;
-      }
-    };
-
-    return chainableTest;
   }
 
   set onSuccess(onSuccess: ContextAction | ContextAction[]) {
@@ -258,10 +240,10 @@ export class Verb {
    * @returns A Promise that resolves when the verb's actions have executed.
    */
   async attemptWithContext(context: Partial<Context>, ...args: unknown[]) {
-    const wholeContext = args.length ? this.augmentContext(context, args) : context;
+    const wholeContext = args.length ? this.augmentContext(context, args) : context as Context;
 
     // Check for auto actions that need to run before this verb.
-    const autoActionResult = await checkAutoActions(wholeContext as Context);
+    const autoActionResult = await checkAutoActions(wholeContext);
 
     if (!autoActionResult) {
       return false;
@@ -269,14 +251,13 @@ export class Verb {
 
     const { item, other } = wholeContext;
 
-    const effect = selectEffects().getEffect(item, other, this.name);
-
     // See if there's an effect for this combination of items and verb.
-    const effectChain = effect?.actionChain;
+    const effect = selectEffects().getEffect(item, other, this.name);
+    let effectResult = true;
 
-    if (effect && effectChain && effect.verbRelation !== After) {
+    if (effect && effect.verbRelation !== After) {
       // Effect happens before or instead of the verb.
-      const effectResult = await effectChain.chain(wholeContext);
+      effectResult = await effect.attempt(wholeContext);
 
       if (effect.verbRelation === Instead) {
         // Effect happens instead of the verb.
@@ -285,13 +266,13 @@ export class Verb {
     }
 
     // All tests, or an effect, must be successful for verb to proceed.
-    const success = effect?.verbRelation === Before ? effect.successful : await this._tests.chain(wholeContext);
+    const success = effect?.verbRelation === Before ? effectResult : await this._tests.chain(wholeContext);
     let verbPromise;
 
     if (success) {
       verbPromise = this.onSuccess.chain(wholeContext);
 
-      if (!effect || !effectChain || effect.verbRelation === Before) {
+      if (!effect || effect.verbRelation === Before) {
         // No effect, or it happens before the verb.
         return verbPromise;
       }
@@ -301,7 +282,7 @@ export class Verb {
 
     // Effect happens after the verb.
     await verbPromise;
-    return effectChain.chain(wholeContext);
+    return effect.attempt(wholeContext);
   }
 
   /*
