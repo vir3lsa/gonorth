@@ -530,6 +530,8 @@ interface GraphNode {
   actions?: Action;
   allowRepeats?: boolean;
   noEndTurn?: boolean;
+  /** Don't record this node as the current node to be resumed at. */
+  doNotResume?: boolean;
 }
 
 /********/

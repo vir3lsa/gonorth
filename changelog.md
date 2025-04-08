@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 14.3.0
+
+- 2025-04-08 OptionGraph Nodes may be marked as non-resumable so they're not recorded as the current node.
+
 # 14.2.0
 
 - 2025-04-05 Effects may have tests.

@@ -66,7 +66,7 @@ const speechNodes: GraphNode[] = [
     actions: "compliment",
     options: { question: "question", compliment: "compliment", bye: "bye" }
   },
-  { id: "bye", actions: "bye" }
+  { id: "bye", actions: "bye", doNotResume: true }
 ];
 
 const mazeNodes = [
@@ -445,6 +445,23 @@ test("can be made non-resumable", async () => {
   await selectOptions()[3].action();
   expect(() => nrGraph.resume()).toThrow("Attempted to resume non-resumable OptionGraph 'nr'");
 });
+
+test("particular options can be non-resumable", async () => {
+ await createGraph(speechNodes);
+
+ // Switch node and then exit.
+ await selectOptions()[0].action();
+ await selectOptions()[2].action();
+ expect(selectCurrentPage()).toInclude("bye");
+ expect(graph.isRunning()).toBe(false);
+
+ // Start the OptionGraph again and we should be at the same node.
+ clearPage();
+ await graph.resume().chain();
+ expect(graph.isRunning()).toBe(true);
+ expect(selectCurrentPage()).not.toInclude("bye");
+ expect(selectCurrentPage()).toInclude("question");
+})
 
 test("can be built with a builder a node at a time", () => {
   const graphy = new OptionGraph.Builder("graphy")

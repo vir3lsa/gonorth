@@ -164,7 +164,7 @@ export class OptionGraph {
   }
 
   _recordCurrentNode(node: GraphNode) {
-    if (this.resumable) {
+    if (this.resumable && !node.doNotResume) {
       this.currentNode = node;
     }
   }
@@ -412,6 +412,7 @@ export class NodeBuilder {
   private actions: Action[] = [];
   private options?: GraphOptions;
   private isNoEndTurn?: boolean;
+  private isDoNotResume = false;
 
   constructor(id: string) {
     this.id = id;
@@ -465,6 +466,10 @@ export class NodeBuilder {
     return this;
   }
 
+  doNotResume(doNotResume = true) {
+    this.isDoNotResume = doNotResume;
+  }
+
   build() {
     return {
       id: this.id,
@@ -472,7 +477,8 @@ export class NodeBuilder {
       options: this.options,
       noEndTurn: this.isNoEndTurn,
       visited: false,
-      allowRepeats: true
+      allowRepeats: true,
+      doNotResume: this.isDoNotResume
     } as GraphNode;
   }
 }
