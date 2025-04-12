@@ -66,7 +66,9 @@ export class SnapshotPersistor {
 
     try {
       if (typeof localStorage !== "undefined") {
-        localStorage.setItem(this.key, JSON.stringify(serializableSnapshot));
+        // Stringify the snapshot, converting undefined to null so it's not lost.
+        const serializedSnapshot = JSON.stringify(serializableSnapshot, (_, value) => value === undefined ? null : value);
+        localStorage.setItem(this.key, serializedSnapshot);
       }
     } catch (error) {
       console.error("Failed to save game. Could be that storage is disabled or full.", error);

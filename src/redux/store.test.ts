@@ -44,7 +44,7 @@ const setUpStoreTests = (additionalSetup?: () => void) => {
   transientOptionGraph = new OptionGraph.Builder("transient").build();
   transientOptionGraph.persist = false;
 
-  vase = new Item("vase", "green", true);
+  vase = new Item.Builder("vase").withDescription("green").isHoldable().withContainerListing("a thing").build();
   vase.description = new RandomText("big", "small"); // Ensure changes to this are recorded.
   room.addItems(vase);
 
@@ -85,11 +85,13 @@ it("reveals no snapshot exists", () => {
 });
 
 describe("basic persistor tests", () => {
-  beforeEach(() => {
+  const persist = () => {
     persistor.persistSnapshot();
     const serialized = localStorage.getItem(persistor.key);
     result = JSON.parse(serialized || "");
-  });
+  }
+
+  beforeEach(persist);
 
   it("serializes the game turn", () => {
     expect(result.turn).toBe(1);
@@ -110,7 +112,7 @@ describe("basic persistor tests", () => {
   });
 
   it("serializes option graphs", () => {
-    expect(result.optionGraphs.test99).toEqual<SerializableOptionGraph>({});
+    expect(result.optionGraphs.test99).toEqual({ currentNode: null });
   });
 
   it("doesn't serialize non-persistent option graphs", () => {
@@ -203,6 +205,12 @@ describe("changing items", () => {
     expect(result.allItems.vase.description.phases.length).toBe(2);
     expect(result.allItems.vase.description.phases[0].text.texts).toEqual(["1", "2"]);
     expect(result.allItems.vase.description.phases[1].text.texts).toEqual(["3", "4"]);
+  });
+
+  it("serializes undefined as null", () => {
+    vase.containerListing = undefined;
+    persistSnapshotGetResult();
+    expect(result.allItems.vase.containerListing).toBe(null);
   });
 });
 
@@ -375,6 +383,11 @@ describe("deserializing snapshots", () => {
     expect(snapshot.optionGraphs.test99.currentNode.id).toBe("node1");
   });
 
+  it("revives undefined option graph current node to undefined", () => {
+    const snapshot = persistSnapshotAndLoad();
+    expect(snapshot.optionGraphs.test99.currentNode).toBeUndefined();
+  })
+
   it("doesn't persist a non-resumable OptionGraph's current node", () => {
     optionGraph.resumable = false;
     optionGraph._recordCurrentNode(optionGraph.getNode("node1"));
@@ -426,6 +439,12 @@ describe("deserializing snapshots", () => {
     expect(snapshot.schedules[0].currentEvent.state).toBe("TEST_STATE_2");
     expect(snapshot.schedules[0].currentEvent.countdown).toBe(5);
   });
+
+  it("revives schedule event countdown to undefined", () => {
+    testSchedule.currentEvent.countdown = undefined;
+    const snapshot = persistSnapshotAndLoad();
+    expect(snapshot.schedules[0].countdown).toBeUndefined();
+  })
 
   describe("event timeouts", () => {
     let snapshot: RevivedSnapshot;

@@ -37,7 +37,7 @@ export const initStore = (name?: string) => {
     serializers: {
       itemNames: (value: Set<string>) => [...value],
       room: (room: Room) => room?.name.toLowerCase(),
-      allItems: (items: Item[]) =>
+      allItems: (items: Set<Item>) =>
         [...items]
           .filter((item) => item.alteredProperties.size)
           .reduce((acc, item) => {
@@ -115,7 +115,8 @@ export const initStore = (name?: string) => {
               }
 
               if (property === "container") {
-                moveItem(itemToUpdate, actualItem);
+                // Move item, keeping the container listing. If it's changed, that'll be in the snapshot.
+                moveItem(itemToUpdate, actualItem, true);
               } else {
                 itemToUpdate[property] = actualItem;
               }
@@ -182,12 +183,13 @@ export const initStore = (name?: string) => {
                 itemToUpdate[property] = reconstructText(value as SerializedText);
               }
             } else {
-              itemToUpdate[property] = value;
+              // Set the property value, converting null back to undefined.
+              itemToUpdate[property] = value ?? undefined;
             }
           });
         });
 
-        return stateAllItems;
+        return new Set([...stateAllItems]);
       },
       optionGraphs: (snapshotOptionGraphs) => {
         const stateOptionGraphs = { ...selectOptionGraphs() };
@@ -196,7 +198,7 @@ export const initStore = (name?: string) => {
             const optionGraph = stateOptionGraphs[id];
 
             if (optionGraph) {
-              optionGraph.currentNode = optionGraph.getNode(snapshotOptionGraph.currentNode);
+              optionGraph.currentNode = optionGraph.getNode(snapshotOptionGraph.currentNode ?? undefined);
             }
           }
         });
@@ -212,7 +214,7 @@ export const initStore = (name?: string) => {
             stateSchedule.stage = snapshotSchedule.stage;
             stateSchedule.state = snapshotSchedule.state;
             stateSchedule.currentEvent.state = snapshotSchedule.currentEvent.state;
-            stateSchedule.currentEvent.countdown = snapshotSchedule.currentEvent.countdown;
+            stateSchedule.currentEvent.countdown = snapshotSchedule.currentEvent.countdown ?? undefined;
           }
         });
 
@@ -225,7 +227,7 @@ export const initStore = (name?: string) => {
 
           if (snapshotEvent) {
             stateEvent.state = snapshotEvent.state;
-            stateEvent.countdown = snapshotEvent.countdown;
+            stateEvent.countdown = snapshotEvent.countdown ?? undefined;
           }
         });
 

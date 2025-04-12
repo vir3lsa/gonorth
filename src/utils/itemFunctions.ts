@@ -3,7 +3,7 @@ import { selectItem } from "./selectors";
 /*
  * (Silently) moves an item to a new container.
  */
-export function moveItem(item: ItemOrString, to: ItemRoomOrString) {
+export function moveItem(item: ItemOrString, to: ItemRoomOrString, keepContainerListing = false) {
   let itemObj: ItemT | undefined;
   let toObj: ItemOrRoom | undefined;
 
@@ -32,7 +32,10 @@ export function moveItem(item: ItemOrString, to: ItemRoomOrString) {
   }
 
   toObj?.addItem(itemObj);
-  itemObj.containerListing = undefined;
+
+  if (!keepContainerListing) {
+    itemObj.containerListing = undefined;
+  }
 }
 
 export function getItem(name: string) {
