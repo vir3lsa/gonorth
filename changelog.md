@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+- 2025-04-12 moveItem function may maintain container listing, undefined persisted as null.
+
 # 14.3.0
 
 - 2025-04-08 OptionGraph Nodes may be marked as non-resumable so they're not recorded as the current node.

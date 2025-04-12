@@ -129,3 +129,22 @@ test("play hides the game title", async () => {
   await play();
   expect(selectCurrentPage()).not.toInclude("# Space Auctioneer");
 });
+
+test("moveItem moves an item to a new container", () => {
+  moveItem(ball, house);
+  expect(ball.container).toBe(house);
+  expect(playground.items.ball).toBeUndefined();
+  expect(house.items.ball).toBeDefined();
+});
+
+test("moveItem normally removes containerListing", () => {
+  ball.containerListing = "a ball is on the slide";
+  moveItem(ball, house);
+  expect(ball.containerListing).toBeUndefined();
+});
+
+test("moveItem optionally maintains containerListing", () => {
+  ball.containerListing = "a ball is on the slide";
+  moveItem(ball, house, true);
+  expect(ball.containerListing).toBe("a ball is on the slide");
+});

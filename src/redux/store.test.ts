@@ -355,13 +355,15 @@ describe("deserializing snapshots", () => {
     expect(() => update("cheese", "stilton")).toThrow();
   });
 
-  it("moves moved items to their new containers", () => {
-    moveItem(vase, otherRoom);
+  it("moves moved items to their new containers, maintaining any containerListing", () => {
+    vase.containerListing = "a thing";
+    moveItem(vase, otherRoom, true); // Move, maintaining containerListing
     const snapshot = persistSnapshotAndLoad();
     const revivedVase = [...snapshot.allItems].find((item) => item.name === "vase");
     expect(Object.is(revivedVase.container, otherRoom)).toBe(true);
     expect(room.items.vase).toBeUndefined();
     expect(otherRoom.items.vase).toBeDefined();
+    expect(otherRoom.items.vase[0].containerListing).toBe("a thing");
   });
 
   it("revives custom properties on items", () => {
