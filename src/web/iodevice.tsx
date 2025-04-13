@@ -162,8 +162,6 @@ const IODevice = (props: Props) => {
           em({ children }) { return renderComponent(children, "em") },
           li({ children }) { return renderComponent(children, "li") },
           strong({ children }) { return renderComponent(children, "strong") },
-          td({ children }) { return renderComponent(children, "td") },
-          th({ children }) { return renderComponent(children, "th") },
           h6({ children }) {
             scrollIndex++;
             return (
