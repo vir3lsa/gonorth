@@ -1,7 +1,9 @@
 # goNORTH Changelog
 
-# Unreleased
+# 14.4.0
 
+- 2025-04-14 Added Object Discovery help page, and help page headings.
+- 2025-04-13 Resolved issue with tables sometimes rendering incorrectly.
 - 2025-04-12 moveItem function may maintain container listing, undefined persisted as null.
 
 # 14.3.0

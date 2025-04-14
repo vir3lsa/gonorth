@@ -29,6 +29,7 @@ const optionNodes = [
       "Commands": "help2",
       "Verbs": "verbsAndAliases",
       "Synonyms": "verbsAndAliases3",
+      "Object Discovery": "objectDiscovery",
       "Keywords": "keywords",
       "Hints": "hints",
       "Controls": "controls",
@@ -40,7 +41,7 @@ const optionNodes = [
     id: "help",
     actions: [
       () =>
-        `The game you're playing, ${
+        `## Commands\n\nThe game you're playing, ${
           selectGame().title
         }, is a work of interactive fiction, meaning that for much of the game you will be presented with a text box asking "What do you want to do?" You should answer that question by typing commands into the box and pressing \`Enter\`. The game will do its best to interpret what you typed and act accordingly.`
     ],
@@ -82,7 +83,7 @@ const optionNodes = [
   },
   {
     id: "verbsAndAliases",
-    actions: `Verbs are "doing words" and are a central mechanism of this game, allowing you to interact with the world in varied and interesting ways. No comprehensive list of available verbs will be given - you'll have to figure that out on your own. Experiment! There's no harm in typing a command the game doesn't recognise - it'll indicate this and you can try something else.`,
+    actions: `## Verbs\n\nVerbs are "doing words" and are a central mechanism of this game, allowing you to interact with the world in varied and interesting ways. No comprehensive list of available verbs will be given - you'll have to figure that out on your own. Experiment! There's no harm in typing a command the game doesn't recognise - it'll indicate this and you can try something else.`,
     options: {
       next: "verbsAndAliases2",
       previous: "help3",
@@ -102,10 +103,20 @@ const optionNodes = [
   },
   {
     id: "verbsAndAliases3",
-    actions: `Both verbs and nouns can have various synonyms that the game understands, meaning they can be referred to in a number of different ways. For example, the verb "examine", which is your primary means of investigating the game's world, can also be invoked with "look at", "inspect" or even, since it's such a common command "x". Many items with long names will also be understood using shorter or abbreviated versions e.g. "paring knife" could be referred to as either "paring" or "knife" (though you may be asked to clarify if there are multiple knives).`,
+    actions: `## Synonyms\n\nBoth verbs and nouns can have various synonyms that the game understands, meaning they can be referred to in a number of different ways. For example, the verb "examine", which is your primary means of investigating the game's world, can also be invoked with "look at", "inspect" or even, since it's such a common command "x". Many items with long names will also be understood using shorter or abbreviated versions e.g. "paring knife" could be referred to as either "paring" or "knife" (though you may be asked to clarify if there are multiple knives).`,
+    options: {
+      next: "objectDiscovery",
+      previous: "verbsAndAliases2",
+      "cancel help": "haveFun",
+      "index": "helpIndex"
+    }
+  },
+  {
+    id: "objectDiscovery",
+    actions: `## Object Discovery\n\nYou can only interact with objects after you've discovered them. When you first enter a room you'll notice the largest and most obvious objects, such as furniture. Many of those objects will conceal smaller items, but you'll have to examine the former before you can discover, and hence interact with, the latter. The small items may contain even smaller things, and so on.\n\nFor example, a dining room might have a table, and on the table there might be a box. The box could have a small catch you need to release before you can open it. Inside the box is a locket, and on the back is an inscription that just might be a clue to the safe's combination.\n\nLook closely at everything you find to ensure you don't miss anything!`,
     options: {
       next: "keywords",
-      previous: "verbsAndAliases2",
+      previous: "verbsAndAliases3",
       "cancel help": "haveFun",
       "index": "helpIndex"
     }
@@ -113,10 +124,10 @@ const optionNodes = [
   {
     id: "keywords",
     actions: () =>
-      `The game understands several keywords. Below is a list of these and some of their aliases:\n\n${getKeywordsTable()}\n\nThis is not a complete list - there are more for you to discover.`,
+      `## Keywords\n\nThe game understands several keywords. Below is a list of these and some of their aliases:\n\n${getKeywordsTable()}\n\nThis is not a complete list - there are more for you to discover.`,
     options: {
       next: "hints",
-      previous: "verbsAndAliases3",
+      previous: "objectDiscovery",
       "cancel help": "haveFun",
       "index": "helpIndex"
     }
@@ -124,7 +135,7 @@ const optionNodes = [
   {
     id: "hints",
     actions: () =>
-      `The aim of the game is to experiment, think logically and explore. If you find that you're stuck I recommend that you consider what your current objective is, what's standing in the way of you achieving it, and logically how that obstacle might be removed. If you've tried everything you can think of and you're still stuck you can get a hint with the \`[hint]\` keyword. This will also eventually give you the solution if you really want it, but I urge you to try to find it yourself. It'll be far more satisfying that way.`,
+      `## Hints\n\nThe aim of the game is to experiment, think logically and explore. If you find that you're stuck I recommend that you consider what your current objective is, what's standing in the way of you achieving it, and logically how that obstacle might be removed. If you've tried everything you can think of and you're still stuck you can get a hint with the \`[hint]\` keyword. This will also eventually give you the solution if you really want it, but I urge you to try to find it yourself. It'll be far more satisfying that way.`,
     options: {
       next: "controls",
       previous: "keywords",
@@ -134,7 +145,7 @@ const optionNodes = [
   },
   {
     id: "controls",
-    actions: controlsTable,
+    actions: `## Controls\n\n${controlsTable}`,
     options: {
       next: "saving",
       previous: "hints",
@@ -144,7 +155,7 @@ const optionNodes = [
   },
   {
     id: "saving",
-    actions: "Your progress will be auto-saved upon entering most rooms. You can also save manually via the `save` keyword.",
+    actions: "## Saving\n\nYour progress will be auto-saved upon entering most rooms. You can also save manually via the `save` keyword.",
     options: {
       previous: "controls",
       "cancel help": "haveFun",
