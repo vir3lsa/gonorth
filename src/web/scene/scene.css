@@ -1,0 +1,24 @@
+.gn-scene-bar {
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: #222;
+  background: #eed;
+  opacity: 0.8;
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-weight: 600;
+  display: flex;
+}
+
+.gn-scene-image {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  image-rendering: pixelated;
+  border-radius: 3px;
+}
+
+.gn-scene-image-present {
+  margin-bottom: var(--gn-spacing);
+  aspect-ratio: 2 / 1;
+}

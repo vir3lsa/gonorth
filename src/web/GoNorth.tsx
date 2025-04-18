@@ -3,7 +3,8 @@ import { ThemeProvider } from "@mui/material/styles";
 import React from "react";
 import { Provider } from "react-redux";
 import { getStore } from "../redux/storeRegistry";
-import Iodevice from "./iodevice";
+import Iodevice from "./iodevice/iodevice";
+import "./index.css";
 
 const fonts = ["masaakiregular", '"Roboto"', '"Helvetica"', '"Arial"', "sans-serif"].join(",");
 

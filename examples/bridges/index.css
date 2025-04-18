@@ -25,19 +25,19 @@ h1 {
 }
 
 .gonorth h6 {
-  font-size: 1.3em;
+  font-size: 1.3rem;
   font-style: normal;
   font-weight: normal;
   color: #9be;
-  margin-block-start: 1em;
-  margin-block-end: 1em;
+  margin-block-start: 1rem;
+  margin-block-end: 1rem;
 }
 
 p,
 table,
 ul,
 ol {
-  font-size: 1.3em;
+  font-size: 1.3rem;
 }
 
 table {
@@ -45,11 +45,11 @@ table {
 }
 
 th {
-  padding-bottom: 0.8em;
+  padding-bottom: 0.8rem;
 }
 
 td {
-  padding-right: 0.8em;
+  padding-right: 0.8rem;
 }
 
 button.MuiButton-outlinedPrimary {
@@ -66,7 +66,7 @@ button.MuiButton-outlinedPrimary:hover {
 div.MuiInputBase-root {
   color: #9be;
   font-family: "masaakiregular";
-  font-size: 1.3em;
+  font-size: 1.3rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.42);
 }
 

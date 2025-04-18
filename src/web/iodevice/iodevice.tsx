@@ -4,15 +4,16 @@ import remarkGfm from "remark-gfm";
 import { connect, useSelector } from "react-redux";
 import { Element, animateScroll, scroller, Events, scrollSpy } from "react-scroll";
 import { debounce } from "debounce";
-import { DecisionBar } from "./decisionBar";
-import { ParserBar } from "./parserBar";
-import { Scene } from "./scene";
+import { DecisionBar } from "../decisionBar";
+import { ParserBar } from "../parserBar";
+import { Scene } from "../scene/scene";
 import { Box } from "@mui/system";
-import Feedback from "./Feedback";
+import Feedback from "../Feedback";
 import { Fab, Fade } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import usePrevious from "../hooks/usePrevious";
-import useAddedContent from "../hooks/useAddedContent";
+import usePrevious from "../../hooks/usePrevious";
+import useAddedContent from "../../hooks/useAddedContent";
+import "./iodevice.css";
 
 const SCROLL_MARGIN_OF_ERROR = 5;
 const SCROLL_ELEMENT_ID = "scrollPane";
@@ -157,11 +158,21 @@ const IODevice = (props: Props) => {
         remarkPlugins={[remarkGfm] as ReactMarkdown.PluggableList}
         className="gonorth"
         components={{
-          p({ children }) { return renderComponent(children, "p") },
-          blockquote({ children }) { return renderComponent(children, "blockquote") },
-          em({ children }) { return renderComponent(children, "em") },
-          li({ children }) { return renderComponent(children, "li") },
-          strong({ children }) { return renderComponent(children, "strong") },
+          p({ children }) {
+            return renderComponent(children, "p");
+          },
+          blockquote({ children }) {
+            return renderComponent(children, "blockquote");
+          },
+          em({ children }) {
+            return renderComponent(children, "em");
+          },
+          li({ children }) {
+            return renderComponent(children, "li");
+          },
+          strong({ children }) {
+            return renderComponent(children, "strong");
+          },
           h6({ children }) {
             scrollIndex++;
             return (
@@ -177,51 +188,14 @@ const IODevice = (props: Props) => {
   }, [interaction.currentPage]);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        flex: 1,
-        margin: "8px",
-        maxWidth: "100vh"
-      }}
-    >
+    <div className="gn-io-device">
       <Scene />
-      <Box
-        sx={{
-          flex: 2,
-          position: "relative",
-          overflow: "auto"
-        }}
-      >
-        <Box
-          id={SCROLL_ELEMENT_ID}
-          ref={scrollPaneRef}
-          onScroll={debouncedScrollHandler}
-          sx={{
-            overflow: "auto",
-            height: "100%",
-            maxHeight: "100%",
-            position: "relative"
-          }}
-        >
+      <Box className="gn-content-area">
+        <Box id={SCROLL_ELEMENT_ID} ref={scrollPaneRef} onScroll={debouncedScrollHandler} className="gn-content-scroll">
           {renderedMarkdown}
           <Element name="scrollBottom" />
           <Fade in={!atBottom && !autoScrolling} timeout={1000}>
-            <Box
-              sx={{
-                content: "''",
-                width: "100%",
-                height: "4em",
-                position: "sticky",
-                margin: "-4em",
-                left: 0,
-                bottom: 0,
-                background: "linear-gradient(transparent, var(--gn-background, #fff))",
-                zIndex: 1,
-                overflow: "visible"
-              }}
-            />
+            <Box className="gn-overlay" />
           </Fade>
         </Box>
         <Fade in={!scrolling && !atBottom} {...(!scrolling ? { timeout: 1000 } : {})}>
@@ -236,7 +210,7 @@ const IODevice = (props: Props) => {
           </Fab>
         </Fade>
       </Box>
-      <Box sx={{ display: "flex", gap: 1, alignItems: "end", marginTop: 1 }}>
+      <Box className="gn-input-container">
         <Box sx={{ flex: 1 }}>
           {interaction.options && interaction.options.length ? (
             <DecisionBar options={interaction.options} />

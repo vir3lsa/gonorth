@@ -1,7 +1,8 @@
 import React, { KeyboardEvent, useCallback, useEffect } from "react";
 import { Box } from "@mui/system";
 import { connect, useDispatch, useSelector } from "react-redux";
-import { revealScene } from "../redux/gameActions";
+import { revealScene } from "../../redux/gameActions";
+import "./scene.css";
 
 interface Props {
   image?: string;
@@ -31,20 +32,7 @@ const SceneInner: React.FC<Props> = ({ location, image, gameStarted }) => {
   return (
     <>
       {gameStarted && (
-        <Box
-          data-testid="scene-bar"
-          sx={{
-            marginBottom: "8px",
-            fontSize: "1em",
-            color: "#222",
-            background: "#eed",
-            opacity: 0.8,
-            padding: "1px 4px",
-            borderRadius: "3px",
-            fontWeight: 600,
-            display: "flex"
-          }}
-        >
+        <Box data-testid="scene-bar" className="gn-scene-bar">
           <Box sx={{ flex: 1 }} data-testid="scene-location">
             {location}
           </Box>
@@ -65,17 +53,8 @@ const SceneInner: React.FC<Props> = ({ location, image, gameStarted }) => {
       {image && sceneRevealed && (
         <div
           data-testid="scene-image"
-          style={{
-            backgroundImage: `url(${image})`,
-            backgroundRepeat: "no-repeat",
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            imageRendering: "pixelated",
-            height: image ? "49vw" : 0,
-            maxHeight: "50%",
-            marginBottom: image ? "8px" : 0,
-            borderRadius: "3px"
-          }}
+          className={`gn-scene-image ${image ? "gn-scene-image-present" : ""}`}
+          style={{ backgroundImage: `url(${image})` }}
         ></div>
       )}
     </>

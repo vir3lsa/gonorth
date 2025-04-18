@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+- 2025-04-18 Breaking change: removed default max-width and adjusted styling into overridable CSS classes.
+
 # 14.4.0
 
 - 2025-04-14 Added Object Discovery help page, and help page headings.

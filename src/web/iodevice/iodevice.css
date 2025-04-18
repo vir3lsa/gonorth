@@ -1,0 +1,42 @@
+.gn-io-device {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  margin: var(--gn-spacing);
+}
+
+.gn-content-area {
+  flex: 2;
+  position: relative;
+  overflow: auto;
+}
+
+.gn-content-scroll {
+  overflow: auto;
+  height: 100%;
+  max-height: 100%;
+  position: relative;
+  padding-right: var(--gn-spacing);
+  text-align: justify;
+  word-spacing: 0.05rem;
+}
+
+.gn-overlay {
+  content: "";
+  width: 100%;
+  height: 4rem;
+  position: sticky;
+  margin: -4rem;
+  left: 0;
+  bottom: 0;
+  background: linear-gradient(transparent, var(--gn-background, #fff));
+  z-index: 1;
+  overflow: visible;
+}
+
+.gn-input-container {
+  display: flex;
+  gap: var(--gn-spacing);
+  align-items: end;
+  margin-top: var(--gn-spacing);
+}
