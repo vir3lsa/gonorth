@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 15.0.2
+
+- 2025-04-19 Fixed not scrolling back to top (from part way down) when command submitted in mobile mode.
+
 # 15.0.1
 
 - 2025-04-19 Move back-top-top button to the top in mobile mode, so it's not obscured behind the keyboard.

@@ -74,8 +74,13 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
   const { previous, previousDifferent } = usePrevious(interaction.currentPage);
   const addition = useAddedContent({ older: previousDifferent, newer: interaction.currentPage });
   const recentAddition = useAddedContent({ older: previous, newer: interaction.currentPage });
+
+  // Derived
   const previousLastLine = previousDifferent?.substring(previousDifferent.lastIndexOf("\n") + 1);
-  const isUserAction = addition?.startsWith(`\n\n${H6_MARKDOWN}`) || previousLastLine?.startsWith(H6_MARKDOWN);
+  const previousFirstLine = previousDifferent?.substring(0, previousDifferent.indexOf("\n"));
+  const isUserAction =
+    (mobileMode && (addition?.includes(H6_MARKDOWN) || previousFirstLine?.startsWith(H6_MARKDOWN))) ||
+    (!mobileMode && (addition?.startsWith(`\n\n${H6_MARKDOWN}`) || previousLastLine?.startsWith(H6_MARKDOWN)));
 
   useEffect(() => {
     // Scroll down when text is added in mobile mode, to maintain scroll position.
