@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-# Unreleased
+# 15.0.0
 
+- 2025-04-19 Render output in reverse on smaller devices, with the input box at the top.
 - 2025-04-18 Breaking change: removed default max-width and adjusted styling into overridable CSS classes.
 
 # 14.4.0
