@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# 15.0.1
+
+- 2025-04-19 Move back-top-top button to the top in mobile mode, so it's not obscured behind the keyboard.
+
 # 15.0.0
 
 - 2025-04-19 Render output in reverse on smaller devices, with the input box at the top.

@@ -270,7 +270,8 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
             sx={{
               position: "absolute",
               right: "12px",
-              bottom: "0px"
+              bottom: mobileMode ? undefined : "0px",
+              top: mobileMode ? "0px" : undefined
             }}
             aria-label={mobileMode ? "scroll up" : "scroll down"}
             onClick={handleScrollClick}
