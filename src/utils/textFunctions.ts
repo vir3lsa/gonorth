@@ -2,13 +2,17 @@ import type { Item } from "../game/items/item";
 
 const vowels = ["a", "e", "i", "o", "u"];
 
-export function getBasicItemList(items: Item[], definiteArticle: boolean = false) {
+export function getBasicItemList(items: Item[], definiteArticle = false) {
   if (items.length < 8) {
     return commaSeparate(items, definiteArticle);
-  } else if (items.length < 14) {
+  } else if (items.length < 14 || window.matchMedia("(max-width: 400px)").matches) {
     return bulletPointList(items, definiteArticle);
   } else {
-    return tableOfItems(items, definiteArticle);
+    if (!window.matchMedia("(min-width: 768px)").matches) {
+      return tableOfItems(items, definiteArticle, 2);
+    }
+
+    return tableOfItems(items, definiteArticle, 3);
   }
 }
 

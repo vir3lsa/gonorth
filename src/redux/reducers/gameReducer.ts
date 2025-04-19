@@ -9,6 +9,7 @@ export const initialState = {
   turn: 1,
   debugMode: false,
   interaction: new Interaction("Loading..."),
+  reverseInteraction: new Interaction("Loading..."),
   lastChange: Date.now(),
   verbNames: {},
   // The names of items (including aliases) the player has encountered.
@@ -43,26 +44,39 @@ export default function (state = initialState, action: ReduxAction) {
       return { ...state, ...action.payload };
     case type.CHANGE_INTERACTION:
       const interaction = action.payload;
+      const reverseInteraction = new Interaction(
+        interaction.currentPage,
+        interaction.options,
+        interaction.renderNextButton,
+        interaction.renderOptions
+      );
+
       const updatedState = updateCyCommands(state, interaction.currentPage, !(interaction instanceof Append));
 
       if (interaction instanceof Append && state.interaction.currentPage) {
         interaction.currentPage =
           state.interaction.currentPage + (interaction.currentPage ? "\n\n" + interaction.currentPage : "");
+        reverseInteraction.currentPage += state.reverseInteraction.currentPage
+          ? "\n\n" + state.reverseInteraction.currentPage
+          : "";
 
         if (!interaction.options && interaction.renderOptions && !state.interaction.nextButtonRendered) {
           // Copy concrete options (not 'Next') from previous interaction
           // Required e.g. by Events, which append text at indeterminate times
           interaction.options = state.interaction.options;
+          reverseInteraction.options = state.interaction.options;
         }
 
         if (typeof interaction.renderNextButton === "undefined" && !(interaction instanceof AppendInput)) {
           interaction.renderNextButton = state.interaction.renderNextButton;
+          reverseInteraction.renderNextButton = state.interaction.renderNextButton;
         }
       }
 
       return {
         ...updatedState,
         interaction,
+        reverseInteraction,
         lastChange: Date.now()
       };
     case type.CHANGE_IMAGE:

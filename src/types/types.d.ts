@@ -211,6 +211,7 @@ interface StoreState {
   debugMode: boolean;
   player?: ItemT;
   interaction: InteractionT;
+  reverseInteraction: InteractionT;
   image?: string;
   lastChange: number;
   verbNames: VerbNameDict;

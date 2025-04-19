@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { connect, useSelector } from "react-redux";
@@ -11,6 +11,7 @@ import { Box } from "@mui/system";
 import Feedback from "../Feedback";
 import { Fab, Fade } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import usePrevious from "../../hooks/usePrevious";
 import useAddedContent from "../../hooks/useAddedContent";
 import "./iodevice.css";
@@ -22,8 +23,15 @@ const H6_MARKDOWN = "######";
 
 let scrollIndex = 0;
 
-const debouncedScroll = debounce(() => {
-  if (scrollIndex) {
+const debouncedScroll = debounce((reverse = false) => {
+  if (reverse) {
+    animateScroll.scrollToTop({
+      smooth: "easeInOutQuad",
+      duration: 1000,
+      containerId: SCROLL_ELEMENT_ID,
+      ignoreCancelEvents: true
+    });
+  } else if (scrollIndex) {
     scroller.scrollTo(`scrollPoint-${scrollIndex}`, {
       smooth: "easeInQuad",
       duration: 1500,
@@ -41,36 +49,65 @@ const debouncedScroll = debounce(() => {
 
 interface Props {
   interaction: InteractionT;
-  image?: string;
+  reverseInteraction: InteractionT;
+  mobileMode?: boolean;
 }
 
-const IODevice = (props: Props) => {
-  const { interaction } = props;
+const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInteraction, mobileMode = false }) => {
+  const interaction = mobileMode ? reverseInteraction : forwardInteraction;
+
+  // Redux store state
   const renderFeedbackBox = useSelector((state: StoreState) => state.game?.config.renderFeedbackBox);
   const sceneRevealed = useSelector((state: StoreState) => state.sceneRevealed);
+
+  // Refs
+  const scrollPaneRef = useRef<HTMLDivElement>(null);
+
+  // Local state
   const [scrolling, setScrolling] = useState(false);
   const [autoScrolling, setAutoScrolling] = useState(false);
   const [atBottom, setAtBottom] = useState(true);
-  const scrollPaneRef = useRef<HTMLDivElement>(null);
-  const { previousDifferent } = usePrevious(interaction.currentPage);
+  const [atTop, setAtTop] = useState(true);
+  const [previousScrollHeight, setPreviousScrollHeight] = useState(scrollPaneRef.current?.scrollHeight ?? 0);
+
+  // Misc
+  const { previous, previousDifferent } = usePrevious(interaction.currentPage);
   const addition = useAddedContent({ older: previousDifferent, newer: interaction.currentPage });
+  const recentAddition = useAddedContent({ older: previous, newer: interaction.currentPage });
   const previousLastLine = previousDifferent?.substring(previousDifferent.lastIndexOf("\n") + 1);
   const isUserAction = addition?.startsWith(`\n\n${H6_MARKDOWN}`) || previousLastLine?.startsWith(H6_MARKDOWN);
+
+  useEffect(() => {
+    // Scroll down when text is added in mobile mode, to maintain scroll position.
+    if (mobileMode && recentAddition?.length) {
+      const scrollHeightChange = (scrollPaneRef.current?.scrollHeight ?? 0) - previousScrollHeight;
+      setPreviousScrollHeight(scrollPaneRef.current?.scrollHeight ?? 0);
+
+      if (scrollHeightChange) {
+        animateScroll.scrollMore(scrollHeightChange, {
+          duration: 0,
+          containerId: SCROLL_ELEMENT_ID,
+          ignoreCancelEvents: true
+        });
+      }
+    }
+  }, [scrollPaneRef.current?.scrollHeight, previousScrollHeight, mobileMode, recentAddition]);
 
   const checkScrollPosition = () => {
     const scrollPane = scrollPaneRef.current;
     const scrollHeight = scrollPane?.scrollHeight ?? 0;
     const scrollTop = scrollPane?.scrollTop ?? 0;
     const clientHeight = scrollPane?.clientHeight ?? 0;
-    const pixelsAway = Math.abs(scrollHeight - (scrollTop + clientHeight));
-    setAtBottom(pixelsAway <= SCROLL_MARGIN_OF_ERROR);
+    const pixelsFromBottom = Math.abs(scrollHeight - (scrollTop + clientHeight));
+    setAtBottom(pixelsFromBottom <= SCROLL_MARGIN_OF_ERROR);
+    setAtTop(scrollTop <= SCROLL_MARGIN_OF_ERROR);
   };
 
   // Scroll as necessary when current page changes.
   useEffect(() => {
-    if (atBottom || autoScrolling || isUserAction) {
+    if ((mobileMode && atTop) || (!mobileMode && atBottom) || autoScrolling || isUserAction) {
       setAutoScrolling(true);
-      debouncedScroll();
+      debouncedScroll(mobileMode);
     }
   }, [interaction.currentPage]);
 
@@ -80,14 +117,19 @@ const IODevice = (props: Props) => {
   const handleScrollClick = () => {
     if (!scrolling) {
       setScrolling(true);
-      const distance = scrollPaneRef.current!.clientHeight * 0.9;
 
-      animateScroll.scrollMore(distance, {
-        smooth: "easeInQuad",
+      const scrollProps = {
+        smooth: "easeInOutQuad",
         duration: 750,
         containerId: SCROLL_ELEMENT_ID,
         ignoreCancelEvents: true
-      });
+      };
+
+      if (mobileMode) {
+        animateScroll.scrollToTop(scrollProps);
+      } else {
+        animateScroll.scrollToBottom(scrollProps);
+      }
     }
   };
 
@@ -187,35 +229,14 @@ const IODevice = (props: Props) => {
     );
   }, [interaction.currentPage]);
 
-  return (
-    <div className="gn-io-device">
-      <Scene />
-      <Box className="gn-content-area">
-        <Box id={SCROLL_ELEMENT_ID} ref={scrollPaneRef} onScroll={debouncedScrollHandler} className="gn-content-scroll">
-          {renderedMarkdown}
-          <Element name="scrollBottom" />
-          <Fade in={!atBottom && !autoScrolling} timeout={1000}>
-            <Box className="gn-overlay" />
-          </Fade>
-        </Box>
-        <Fade in={!scrolling && !atBottom} {...(!scrolling ? { timeout: 1000 } : {})}>
-          <Fab
-            size="small"
-            color="primary"
-            sx={{ position: "absolute", right: "12px", bottom: "0px" }}
-            aria-label="scroll down"
-            onClick={handleScrollClick}
-          >
-            <KeyboardArrowDownIcon />
-          </Fab>
-        </Fade>
-      </Box>
-      <Box className="gn-input-container">
+  const createInputBar = useCallback(
+    (className: string) => (
+      <Box className={className}>
         <Box sx={{ flex: 1 }}>
           {interaction.options && interaction.options.length ? (
-            <DecisionBar options={interaction.options} />
+            <DecisionBar options={interaction.options} mobileMode={mobileMode} />
           ) : (
-            <ParserBar onEnterScroll={handleEnterScroll} />
+            <ParserBar onEnterScroll={handleEnterScroll} mobileMode={true} />
           )}
         </Box>
         <div>
@@ -223,6 +244,42 @@ const IODevice = (props: Props) => {
           {renderFeedbackBox && <Feedback />}
         </div>
       </Box>
+    ),
+    [interaction.options, renderFeedbackBox]
+  );
+
+  return (
+    <div className="gn-io-device">
+      <Scene />
+      {mobileMode && createInputBar("gn-input-container-mobile")}
+      <Box className="gn-content-area">
+        <Box id={SCROLL_ELEMENT_ID} ref={scrollPaneRef} onScroll={debouncedScrollHandler} className="gn-content-scroll">
+          {renderedMarkdown}
+          <Element name="scrollBottom" />
+          <Fade in={!atBottom && !autoScrolling && !mobileMode} timeout={1000}>
+            <Box className="gn-overlay" />
+          </Fade>
+        </Box>
+        <Fade
+          in={!scrolling && ((!mobileMode && !atBottom) || (mobileMode && !atTop))}
+          {...(!scrolling ? { timeout: 1000 } : {})}
+        >
+          <Fab
+            size="small"
+            color="primary"
+            sx={{
+              position: "absolute",
+              right: "12px",
+              bottom: "0px"
+            }}
+            aria-label={mobileMode ? "scroll up" : "scroll down"}
+            onClick={handleScrollClick}
+          >
+            {mobileMode ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </Fab>
+        </Fade>
+      </Box>
+      {!mobileMode && createInputBar("gn-input-container")}
     </div>
   );
 };
@@ -230,7 +287,7 @@ const IODevice = (props: Props) => {
 const mapStateToProps = (state: StoreState) => {
   return {
     interaction: state.interaction,
-    image: state.image
+    reverseInteraction: state.reverseInteraction
   };
 };
 

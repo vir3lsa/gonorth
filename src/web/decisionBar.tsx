@@ -12,9 +12,10 @@ function selectOption(option: OptionT) {
 
 interface Props {
   options: OptionT[];
+  mobileMode: boolean;
 }
 
-export const DecisionBar = ({ options }: Props) => {
+export const DecisionBar: React.FC<Props> = ({ options, mobileMode }) => {
   const [focusedIndex, setFocusedIndex] = useState(-1);
   const actionRefs = useRef<Array<ButtonBaseActions | null>>([]);
 
@@ -38,7 +39,7 @@ export const DecisionBar = ({ options }: Props) => {
             onClick={() => selectOption(option)}
             action={(actionObj) => (actionRefs.current[index] = actionObj)}
             onFocus={() => setFocusedIndex(index)}
-            sx={{ marginBottom: 1 }}
+            sx={{ marginTop: mobileMode ? 1 : 0, marginBottom: 1 }}
           >
             {option.label}
           </Button>

@@ -11,7 +11,10 @@ let history: string[] = [];
 
 history[0] = "";
 
-const captureInput = (event: KeyboardEvent<HTMLDivElement>, onEnterScroll: () => void) => {
+const captureInput = (
+  event: KeyboardEvent<HTMLDivElement>,
+  onEnterScroll: () => void,
+) => {
   if (event.key === "Enter" && reactionTimePassed()) {
     const target = event.target as HTMLInputElement;
     const value = target.value;
@@ -73,15 +76,16 @@ const handleArrows = (event: KeyboardEvent<HTMLInputElement>) => {
 
 interface Props {
   onEnterScroll: () => void;
+  mobileMode: boolean;
 }
 
-export const ParserBar: FC<Props> = ({ onEnterScroll }) => {
+export const ParserBar: FC<Props> = ({ onEnterScroll, mobileMode }) => {
   const inputRef = useRef<HTMLInputElement>();
   const feedbackOpen = useSelector((state: StoreState) => state.feedbackOpen);
 
   useEffect(() => {
     // Focus the text field unless feedback box is open.
-    if (!feedbackOpen) {
+    if (!feedbackOpen && !mobileMode) {
       inputRef.current?.focus();
     }
   });
@@ -91,7 +95,7 @@ export const ParserBar: FC<Props> = ({ onEnterScroll }) => {
       id="parserBox"
       placeholder="What do you want to do?"
       fullWidth
-      margin="normal"
+      margin={mobileMode ? "none" : "normal"}
       onKeyDown={handleArrows}
       onKeyUp={(event) => captureInput(event, onEnterScroll)}
       onChange={handleChange}
@@ -99,6 +103,7 @@ export const ParserBar: FC<Props> = ({ onEnterScroll }) => {
       autoComplete="off"
       color="primary"
       sx={{
+        marginTop: mobileMode ? 1 : 0,
         "& .MuiInput-root": {
           borderColor: "#67778f",
           "&:before": {

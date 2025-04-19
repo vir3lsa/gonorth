@@ -8,7 +8,8 @@ const jestConfig: JestConfigWithTsJest = {
   roots: ["<rootDir>/src"],
   moduleNameMapper: {
     "@items/(.*)": "<rootDir>/src/game/items/$1",
-    "@interactions/(.*)": "<rootDir>/src/game/interactions/$1"
+    "@interactions/(.*)": "<rootDir>/src/game/interactions/$1",
+    "\\.css$": "<rootDir>/cssMock.js"
   }
 };
 
