@@ -7,10 +7,11 @@ import { Verb } from "../verbs/verb";
 import gn, { addEffect, setInventoryCapacity } from "../../gonorth";
 import { goToRoom } from "../../utils/lifecycle";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
-import { selectRoom } from "../../utils/selectors";
+import { selectOptions, selectRoom } from "../../utils/selectors";
 import { Container } from "../items/container";
 import { clearPage } from "../../utils/sharedFunctions";
 import { Effect, VerbRelation } from "../../utils/effects";
+import { deferAction } from "../../utils/testFunctions";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");
@@ -60,7 +61,7 @@ beforeEach(() => {
 });
 
 describe("parser", () => {
-  describe("directions", () => {
+  describe("general", () => {
     beforeEach(() => {
       hall = new Room.Builder("Hall").withDescription("grand").build();
       north = new Room.Builder("Garden").build();
@@ -168,16 +169,19 @@ describe("parser", () => {
       }
     });
 
-    it("goes north", () => directionTest("north", "Garden"));
-    it("goes south", () => directionTest("south", "Kitchen"));
-    it("goes east", () => directionTest("east", "Scullery"));
-    it("goes west", () => directionTest("west", "Pantry"));
-    it("ignores case", () => directionTest("NORTH", "Garden"));
-    it("responds to alias", () => directionTest("forward", "Garden"));
-    it("responds to another alias", () => directionTest("left", "Pantry"));
-    it("responds to an item alias", () => openDoorTest("open hatch"));
-    it("responds when the direction verb is the second word", () => directionTest("go north", "Garden"));
-    it("responds when the direction verb is the third word", () => directionTest("now go north", "Garden"));
+    describe("directions", () => {
+      it("goes north", () => directionTest("north", "Garden"));
+      it("goes south", () => directionTest("south", "Kitchen"));
+      it("goes east", () => directionTest("east", "Scullery"));
+      it("goes west", () => directionTest("west", "Pantry"));
+      it("ignores case", () => directionTest("NORTH", "Garden"));
+      it("responds to alias", () => directionTest("forward", "Garden"));
+      it("responds to another alias", () => directionTest("left", "Pantry"));
+      it("responds to an item alias", () => openDoorTest("open hatch"));
+      it("responds when the direction verb is the second word", () => directionTest("go north", "Garden"));
+      it("responds when the direction verb is the third word", () => directionTest("now go north", "Garden"));
+    });
+
     it("responds when there are words between verb and item", () => openDoorTest("now open the heavy trap door"));
     it("responds to multi-word verbs", () => openDoorTest("now give a shove to the trapdoor"));
     it("gives a suitable message if the player types nonsense", () =>
@@ -194,77 +198,81 @@ describe("parser", () => {
       await inputTest("take red ball", "The red ball isn't here");
     });
     it("tries more specific items first", () => inputTest("x chair man", "impressive"));
-    it("handles prepositional verbs", () => inputTest("put the cushion in the chair", "cushion in the chair"));
-    it("allows interaction with items inside other items", async () => {
-      await inputTest("put cushion in chair", "You put the cushion in the chair");
-      await inputTest("take cushion", "the cushion");
-    });
-    it("takes an item before putting it", () => regexTest("put cushion in chair", /(take|grab|pick up) the cushion/));
-    it("takes both items before putting one", () =>
-      regexTest("put cushion in red box", /(take|grab|pick up) the cushion/, /(take|grab|pick up) the red box/));
-    it("allows rooms to be referred to by name", () => inputTest("x hall", "grand"));
-    it("allows rooms to be referred to generically", () => inputTest("x room", "grand"));
-    it("allows items to be put on the floor", () =>
-      inputTest("put cushion on the floor", "You put the cushion on the floor"));
-    it("allows items to be dropped", () => inputTest("drop cushion", "You put the cushion on the floor"));
-    it("asks for clarification of duplicate aliases", () => inputTest("x ball", "Which ball do you mean?"));
-    it("chooses the correct item", () => inputTest("x red ball", "It's a rouge ball"));
-    it("chooses the correct other item", () => inputTest("x blue ball", "It's an azure ball"));
-    it("asks for clarification of duplicate secondary aliases", () =>
-      inputTest("put red ball in box", "Which box do you mean?"));
-    it("chooses correct secondary item", () => inputTest("put red ball in red box", "red ball in the red box"));
-    it("chooses correct other secondary item", () => inputTest("put red ball in blue box", "red ball in the blue box"));
-    it("bails if both items are ambiguous", () => inputTest("put ball in box", "You need to be more specific."));
-    it("mentions primary duplicate if secondary is defined", () =>
-      inputTest("put ball in red box", "Which ball do you mean?"));
-    it("disambiguates when duplicates are in the room and the inventory", async () => {
-      await inputTest("take red ball", "the red ball");
-      await inputTest("x ball", "Which ball do you mean?");
-    });
-    it("allows the use of verbs with duplicate names", () => inputTest("take pillar", "It's too big"));
-    it("uses the interrogative when no indirect item is given", () =>
-      inputTest("throw red ball", "Throw the red ball at what?"));
-    it("performs standard prepositional verb when there's no effect between the items", () =>
-      inputTest("throw red ball at cushion", "The red ball hits the cushion."));
-    it("performs standard prepositional verb when there's no effect for that verb", () =>
-      inputTest("put red ball in chair man", "put the red ball in the chair man"));
-    it("applies an effect when one is registered", () =>
-      inputTest("throw red ball at chair man", "The chair man catches the ball."));
-    it("applies wildcard effects", () =>
-      inputTest("hide red ball from the chair man", "The chair man can't find the red ball."));
-    it("applies a pre-verb effect when one is registered, and continues the verb", () =>
-      inputTest("throw red ball at blue ball", "You take careful aim", "The red ball hits the blue ball"));
-    it("applies wildcard effects", () => inputTest("hide red ball from the blue ball", "You hide it", "It's hidden"));
-    it("performs reversed prepositional verbs", () =>
-      inputTest("store red ball in red box", "You store the red ball in the red box"));
 
-    describe("auto disambiguation", () => {
-      let apple1: Item, apple2: Item;
+    describe("involving cushion", () => {
+      beforeEach(() => inputTest("take cushion", "the cushion"));
+      it("handles prepositional verbs", () => inputTest("put the cushion in the chair", "cushion in the chair"));
+      it("allows interaction with items inside other items", async () => {
+        await inputTest("put cushion in chair", "You put the cushion in the chair");
+        await inputTest("take cushion", "the cushion");
+      });
+      it("allows rooms to be referred to by name", () => inputTest("x hall", "grand"));
+      it("allows rooms to be referred to generically", () => inputTest("x room", "grand"));
+      it("allows items to be put on the floor", () =>
+        inputTest("put cushion on the floor", "You put the cushion on the floor"));
+      it("allows items to be dropped", () => inputTest("drop cushion", "You put the cushion on the floor"));
+    });
+
+    describe("auto actions", () => {
+      const takeCushionRegex = /(take|grab|pick up) the cushion/;
+
+      it("takes an item before putting it", () => {
+        new Parser("put cushion in chair").parse();
+        return deferAction(() => expect(selectCurrentPage()).toMatch(takeCushionRegex));
+      });
+      it("takes both items before putting one", () => {
+        const parserPromise = new Parser("put cushion in red box").parse();
+        return deferAction(async () => {
+          expect(selectCurrentPage()).toMatch(takeCushionRegex);
+          await selectOptions()[0].action(); // Click Next.
+          await parserPromise;
+          expect(selectCurrentPage()).toMatch(/(take|grab|pick up) the red box/);
+          ;
+        })
+      });
+    })
+
+    describe("involving red ball and red box", () => {
       beforeEach(() => {
-        apple1 = new Item("nice apple", "nice and crunchy", true);
-        apple2 = new Item("rotten apple", "squishy and gross", true);
-        apple2.addVerb(new Verb.Builder("squish").onSuccess("gross juice squeezes out"));
-        hall.addItems(apple1, apple2);
+        inputTest("take red ball", "the red ball");
+        inputTest("take blue ball", "the blue ball");
+        inputTest("take red box", "the red box");
       });
-
-      it("auto disambiguates when items are invisible", () => {
-        apple1.visible = false;
-        return inputTest("take apple", "the rotten apple");
+      it("asks for clarification of duplicate aliases", () => inputTest("x ball", "Which ball do you mean?"));
+      it("chooses the correct item", () => inputTest("x red ball", "It's a rouge ball"));
+      it("chooses the correct other item", () => inputTest("x blue ball", "It's an azure ball"));
+      it("asks for clarification of duplicate secondary aliases", () =>
+        inputTest("put red ball in box", "Which box do you mean?"));
+      it("chooses correct secondary item", () => inputTest("put red ball in red box", "red ball in the red box"));
+      it("chooses correct other secondary item", () => {
+        inputTest("take blue box", "the blue box");
+        inputTest("put red ball in blue box", "red ball in the blue box");
       });
-
-      it("auto disambiguates when items don't support the verb", () =>
-        inputTest("squish apple", "gross juice squeezes out"));
-
-      it("auto disambiguates when an item take precedence", () => {
-        apple1.hasParserPrecedence = true;
-        return inputTest("take apple", "the nice apple");
+      it("bails if both items are ambiguous", () => inputTest("put ball in box", "You need to be more specific."));
+      it("mentions primary duplicate if secondary is defined", () =>
+        inputTest("put ball in red box", "Which ball do you mean?"));
+      it("disambiguates when duplicates are in the room and the inventory", async () => {
+        await inputTest("take red ball", "the red ball");
+        await inputTest("x ball", "Which ball do you mean?");
       });
-
-      it("doesn't auto disambiguate if more than one item take precedence", () => {
-        apple1.takeParserPrecedence = true;
-        apple2.takeParserPrecedence = true;
-        return inputTest("take apple", "Which apple");
+      it("allows the use of verbs with duplicate names", () => inputTest("take pillar", "It's too big"));
+      it("uses the interrogative when no indirect item is given", () =>
+        inputTest("throw red ball", "Throw the red ball at what?"));
+      it("performs standard prepositional verb when there's no effect between the items", () => {
+        inputTest("take cushion", "the cushion");
+        inputTest("throw red ball at cushion", "The red ball hits the cushion.")
       });
+      it("performs standard prepositional verb when there's no effect for that verb", () =>
+        inputTest("put red ball in chair man", "put the red ball in the chair man"));
+      it("applies an effect when one is registered", () =>
+        inputTest("throw red ball at chair man", "The chair man catches the ball."));
+      it("applies wildcard effects", () =>
+        inputTest("hide red ball from the chair man", "The chair man can't find the red ball."));
+      it("applies a pre-verb effect when one is registered, and continues the verb", () =>
+        inputTest("throw red ball at blue ball", "You take careful aim", "The red ball hits the blue ball"));
+      it("applies wildcard effects", () => inputTest("hide red ball from the blue ball", "You hide it", "It's hidden"));
+      it("performs reversed prepositional verbs", () =>
+        inputTest("store red ball in red box", "You store the red ball in the red box"));
     });
 
     it("records names and aliases when hidden items are revealed", async () => {
@@ -288,8 +296,8 @@ describe("parser", () => {
 
     it("fails if a holdable secondary item can't be picked up", async () => {
       setInventoryCapacity(21);
-      await regexTest("put cushion in blue box", /(take|grab|pick up) the cushion/);
-      expect(selectCurrentPage()).toInclude("don't have enough room for the blue box");
+      await regexTest("take cushion", /(take|grab|pick up) the cushion/);
+      await inputTest("put cushion in blue box", "don't have enough room for the blue box");
       expect(selectCurrentPage()).not.toMatch(/(take|grab|pick up) the blue box/);
     });
 
@@ -302,13 +310,17 @@ describe("parser", () => {
     });
 
     describe("feedback", () => {
+      beforeEach(async () =>
+        await new Parser("take cushion").parse());
       it("gives feedback when the first item isn't recognised", () =>
         inputTest("put mug in chair", "You can't put that in the chair"));
       it("gives feedback when the second item isn't recognised", () =>
         inputTest("put cushion in sofa", "Put the cushion where?"));
       it("gives feedback when no second item is given", () => inputTest("put cushion", "Put the cushion where?"));
-      it("gives feedback when the second item isn't a container, deferring to verb", () =>
-        inputTest("put cushion in red ball", "can't put the cushion"));
+      it("gives feedback when the second item isn't a container, deferring to verb", async () => {
+        await new Parser("take red ball").parse();
+        inputTest("put cushion in red ball", "can't put the cushion");
+      });
       it("converts x to examine when the item doesn't exist", async () => {
         await inputTest("x flower", "You can't examine that");
         await inputTest("look flower", "You can't examine that");
@@ -317,6 +329,51 @@ describe("parser", () => {
       it("converts x to examine when the item exists elsewhere", () => {
         goToRoom("Pantry");
         inputTest("x red ball", "you can't examine it");
+      });
+    });
+
+    describe("disambiguation", () => {
+      let apple1: Item, apple2: Item;
+      beforeEach(() => {
+        apple1 = new Item("nice apple", "nice and crunchy", true);
+        apple2 = new Item("rotten apple", "squishy and gross", true);
+        apple2.addVerb(new Verb.Builder("squish").isRemote().onSuccess("gross juice squeezes out"));
+        hall.addItems(apple1, apple2);
+      });
+
+      it("auto disambiguates when items are invisible", () => {
+        apple1.visible = false;
+        return inputTest("take apple", "the rotten apple");
+      });
+
+      it("auto disambiguates when items don't support the verb", () =>
+        inputTest("squish apple", "gross juice squeezes out"));
+
+      it("auto disambiguates when an item take precedence", () => {
+        apple1.hasParserPrecedence = true;
+        return inputTest("take apple", "the nice apple");
+      });
+
+      it("doesn't auto disambiguate if more than one item take precedence", () => {
+        apple1.takeParserPrecedence = true;
+        apple2.takeParserPrecedence = true;
+        return inputTest("take apple", "Which apple");
+      });
+
+      it("removes Markdown syntax when disambiguating", async () => {
+        apple1.name = "*nice apple*";
+        apple2.name = "**rotten apple**";
+        await inputTest("take apple", "Which apple");
+        expect(selectOptions()[0].label).toBe("nice apple");
+        expect(selectOptions()[1].label).toBe("rotten apple");
+      });
+
+      it("doesn't remove non-Markdown syntax", async () => {
+        apple1.name = "*nice apple";
+        apple2.name = "++rotten apple++";
+        await inputTest("take apple", "Which apple");
+        expect(selectOptions()[0].label).toBe("*nice apple");
+        expect(selectOptions()[1].label).toBe("++rotten apple++");
       });
     });
   });

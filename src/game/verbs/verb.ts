@@ -88,18 +88,6 @@ export class Verb {
     // Call the onFailure setter
     this.onFailure = onFailure;
 
-    // The player must be holding holdable items in order to use them.
-    this.insertTest(
-      ({ item }) => !item || this.remote || !item.holdable || playerHasItem(item),
-      ({ item }) => `You're not holding ${item!.theOrNone}${item!.name}.`
-    );
-
-    // The player must be holding holdable indirect items in order to use them.
-    this.insertTest(
-      ({ other }) => !other || this.remote || !other.holdable || playerHasItem(other),
-      ({ other }) => `You're not holding ${other!.theOrNone}${other!.name}.`
-    );
-
     if (prepositional) {
       this.makePrepositional(interrogative as string, Boolean(prepositionOptional));
     }

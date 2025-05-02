@@ -42,7 +42,8 @@ describe("basic checkpoint tests", () => {
     cy.say("i", /(holding anything|carrying anything|got nothing|hands are empty)/);
 
     // Check the 'auto take' action still exists (there was a defect where it was erased).
-    cy.say("put strange device on table", "You pick up the strange device", "You put the strange device on the table");
+    cy.say("put strange device on table", "You pick up the strange device");
+    cy.choose("Next", "You put the strange device on the table");
   });
 
   it("maintains the correct inventory size on reload", () => {
@@ -54,6 +55,7 @@ describe("basic checkpoint tests", () => {
     // Start a new game and check we can still pick up the large item.
     cy.newGame();
     cy.say("drop large object on floor", "the large object");
+    cy.choose("Next", "the large object on the floor");
     cy.say("i", "not carrying anything");
     cy.say("take large object", "the large object");
     cy.say("i", "a large object");

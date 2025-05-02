@@ -1,7 +1,7 @@
 import { getStore } from "../redux/storeRegistry";
 
 export const selectCurrentPage = () => getStore().getState().interaction.currentPage;
-export const selectOptions = () => getStore().getState().interaction.options;
+export const selectOptions = (): OptionT[] => getStore().getState().interaction.options;
 export const selectInteraction = () => getStore().getState().interaction;
 export const selectImage = () => getStore().getState().image;
 export const selectRoomName = () => getStore().getState().roomName;

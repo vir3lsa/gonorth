@@ -1,4 +1,10 @@
+import { Option } from "../interactions/option";
+import { Append } from "../interactions/interaction";
+import { ActionChain } from "../../utils/actionChain";
 import { Parser } from "./parser";
+import { getStore } from "../../redux/storeRegistry";
+import { AnyAction } from "redux";
+import { changeInteraction } from "../../redux/gameActions";
 
 export class AutoAction {
   condition;
@@ -23,7 +29,19 @@ export class AutoAction {
     }
 
     for (const input of this.inputs) {
-      const success = await new Parser(input(context)).parse();
+      const success = await new Promise(async (resolve) => {
+        let success = true;
+        const actionChain = new ActionChain(() => new Parser(input(context)).parse());
+        actionChain.options = new Option("Next", () => resolve(true), false);
+        actionChain.propagateOptions = true;
+        success = await actionChain.chain();
+
+        if (!success) {
+          // Set a new interaction to remove the Next button.
+          getStore().dispatch(changeInteraction(new Append("")) as unknown as AnyAction);
+          resolve(false);
+        }
+      });
 
       if (!success) {
         return false;

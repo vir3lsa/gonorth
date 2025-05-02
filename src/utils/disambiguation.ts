@@ -14,7 +14,11 @@ export default function disambiguate(name: string, items: ItemT[], onChoose: Dis
 
   items.forEach((item, i) => {
     const id = `option_${i}`;
-    let displayName = item.name;
+    let displayName = removeSyntax(item.name, "**");
+    displayName = removeSyntax(displayName, "*");
+    displayName = removeSyntax(displayName, "~~");
+    displayName = removeSyntax(displayName, "~~");
+    displayName = removeSyntax(displayName, "==");
 
     if (options[item.name]) {
       // We've already got this name!
@@ -46,4 +50,19 @@ export default function disambiguate(name: string, items: ItemT[], onChoose: Dis
 
   // TODO Bug in ActionChain that means options are rendered even though OptionChain.renderOptions is false
   return optionGraph.commence().chain();
+}
+
+/**
+ * Removes Markdown syntax from a string if the given syntax is found at the beginning and end of the string.
+ * 
+ * @param text The string to modify
+ * @param syntax The syntax characters to remove
+ * @returns String with the syntax removed, or the original string.
+ */
+function removeSyntax(text: string, syntax: string) {
+  if (text.startsWith(syntax) && text.endsWith(syntax)) {
+    return text.substring(syntax.length, text.length - syntax.length);
+  }
+
+  return text;
 }

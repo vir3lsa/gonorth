@@ -210,16 +210,15 @@ export class ActionChain {
     }
   }
 
-  handleOptionGraph(optionGraph: OptionGraphT, context: MaybeChainContext, nextIfNoOptions: boolean) {
-    return optionGraph
+  async handleOptionGraph(optionGraph: OptionGraphT, context: MaybeChainContext, nextIfNoOptions: boolean) {
+    await optionGraph
       .commence()
-      .chain(context)
-      .then(() => optionGraph.promise)
-      .then(() => {
-        if (nextIfNoOptions) {
-          return this.dispatchAppend("", undefined, nextIfNoOptions);
-        }
-      });
+      .chain(context);
+    await optionGraph.promise;
+
+    if (nextIfNoOptions) {
+      return this.dispatchAppend("", undefined, nextIfNoOptions);
+    }
   }
 
   getPostScript() {

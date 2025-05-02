@@ -235,13 +235,13 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
   }, [interaction.currentPage]);
 
   const createInputBar = useCallback(
-    (className: string) => (
-      <Box className={className}>
+    () => (
+      <Box className={"gn-input-container"}>
         <Box sx={{ flex: 1 }}>
           {interaction.options && interaction.options.length ? (
             <DecisionBar options={interaction.options} mobileMode={mobileMode} />
           ) : (
-            <ParserBar onEnterScroll={handleEnterScroll} mobileMode={true} />
+            <ParserBar onEnterScroll={handleEnterScroll} mobileMode={mobileMode} />
           )}
         </Box>
         <div>
@@ -256,7 +256,7 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
   return (
     <div className="gn-io-device">
       <Scene />
-      {mobileMode && createInputBar("gn-input-container-mobile")}
+      {mobileMode && createInputBar()}
       <Box className="gn-content-area">
         <Box id={SCROLL_ELEMENT_ID} ref={scrollPaneRef} onScroll={debouncedScrollHandler} className="gn-content-scroll">
           {renderedMarkdown}
@@ -285,7 +285,7 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
           </Fab>
         </Fade>
       </Box>
-      {!mobileMode && createInputBar("gn-input-container")}
+      {!mobileMode && createInputBar()}
     </div>
   );
 };

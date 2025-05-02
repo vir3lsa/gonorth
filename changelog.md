@@ -1,5 +1,12 @@
 # goNORTH Changelog
 
+# Unreleased
+
+- 2025-04-26 Made input bar fixed height, so it doesn't push text down when displaying buttons in mobile mode.
+- 2025-04-26 Removed unnecessary default must-be-holding tests for non-remote verbs (handled by auto-action).
+- 2025-04-26 Forced Next buttons to appear after auto-actions to indicate correct ordering in mobile mode.
+- 2025-04-20 Fixed disambiguation buttons displaying Markdown syntax for items whose names contain it e.g. itallic names.
+
 # 15.0.2
 
 - 2025-04-19 Fixed not scrolling back to top (from part way down) when command submitted in mobile mode.

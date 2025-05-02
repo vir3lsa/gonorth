@@ -341,28 +341,6 @@ describe("chainable actions", () => {
     expect(await verb.attempt()).toBe(false);
   });
 
-  it("gives a default message if the verb fails and the player doesn't have a holdable item", async () => {
-    // The auto actions are mocked to return true here
-    const verb = new Verb.Builder("squeeze").withTest(false, "won't happen").build();
-    verb.attempt(new Item.Builder("ball").isHoldable().build());
-    return deferAction(() => {
-      expect(selectCurrentPage()).toInclude("not holding the ball");
-      expect(selectCurrentPage()).not.toInclude("won't happen");
-    });
-  });
-
-  it("gives a default message if a prepositional verb fails and the player doesn't have a holdable indirect item", async () => {
-    // The auto actions are mocked to return true here
-    const verb = new Verb.Builder("squeeze").withTest(false, "won't happen").makePrepositional("with what").build();
-    const plushie = new Item.Builder("plushie").isHoldable().build();
-    selectInventory().addItem(plushie);
-    verb.attempt(plushie, new Item.Builder("tongs").isHoldable().build());
-    return deferAction(() => {
-      expect(selectCurrentPage()).toInclude("not holding the tongs");
-      expect(selectCurrentPage()).not.toInclude("won't happen");
-    });
-  });
-
   it("doesn't continue if auto actions fail", async () => {
     // Mock the auto actions to return false for this test.
     mockedAutoActionExecutor.mockImplementationOnce(async () => false);

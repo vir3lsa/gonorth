@@ -34,16 +34,14 @@
   overflow: visible;
 }
 
-.gn-input-container-mobile {
-  display: flex;
-  gap: var(--gn-spacing);
-  align-items: end;
-  margin-bottom: var(--gn-spacing);
-}
-
 .gn-input-container {
   display: flex;
   gap: var(--gn-spacing);
   align-items: end;
   margin-top: var(--gn-spacing);
+  min-height: 3rem;
+}
+
+.gn-input-container button {
+  margin: 0;
 }

@@ -7,7 +7,8 @@ describe("debug functions", () => {
 
   it("sets event timeouts to 0 milliseconds", () => {
     // Fire device. No result as event has 10s delay.
-    cy.say("fire device", "You grab the strange device", "Nothing happens");
+    cy.say("fire device", "You grab the strange device");
+    cy.choose("Next", "Nothing happens");
     cy.doesNotShow("blinding white light");
 
     // Set timeouts to 0. Should get result immediately this time.

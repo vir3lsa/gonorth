@@ -1,4 +1,5 @@
 import gn from "../../gonorth";
+import { selectOptions } from "../../utils/selectors";
 import { Item } from "../items/item";
 import { Verb } from "../verbs/verb";
 import { AutoAction } from "./autoAction";
@@ -97,7 +98,11 @@ test("AutoAction performs several actions in sequence", async () => {
     .withCondition(true)
     .withInputs("take ball", "x ball", "put ball on floor")
     .build();
-  await autoAction.check(context);
+  const autoActionPromise = autoAction.check(context);
+  await selectOptions()[0].action();
+  await selectOptions()[0].action();
+  await selectOptions()[0].action();
+  autoActionPromise;
   expect(Parser).toHaveBeenCalledWith("take ball");
   expect(Parser).toHaveBeenCalledWith("x ball");
   expect(Parser).toHaveBeenCalledWith("put ball on floor");
@@ -107,6 +112,14 @@ test("AutoAction halts if an action isn't successful", async () => {
   mockParse.mockImplementationOnce(() => false); // Returning false indicates a failure.
   const autoAction = new AutoAction.Builder().withCondition(true).withInputs("contort face", "do starjumps").build();
   await autoAction.check(context);
+  expect(selectOptions.length).toBe(0);
   expect(Parser).toHaveBeenCalledWith("contort face");
   expect(Parser).not.toHaveBeenCalledWith("do starjumps");
+});
+
+test("AutoAction doesn't end with a Next button if it's unsuccessful", async () => {
+  mockParse.mockImplementationOnce(() => false); // Returning false indicates a failure.
+  const autoAction = new AutoAction.Builder().withCondition(true).withInputs("contort face").build();
+  await autoAction.check(context);
+  expect(selectOptions.length).toBe(0);
 });

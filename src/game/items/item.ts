@@ -393,14 +393,11 @@ export class Item {
           if (!this.verbs[verb.name] || !verb.remote) {
             const parentVerb = new Verb.Builder(verb.name)
               .withAliases(...verb.aliases)
-              .isRemote()
+              .isRemote(verb.remote)
               .onSuccess(
-                ({ item }) => {
-                  if (!verb.remote) {
-                    return item.try("take");
-                  }
-                },
-                (context) => verb.attemptWithContext({ ...context, item: config.producesSingular })
+                (context) => {
+                  return verb.attemptWithContext({ ...context, item: config.producesSingular });
+                }
               );
 
             if (verb.prepositional) {

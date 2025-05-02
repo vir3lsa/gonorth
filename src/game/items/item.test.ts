@@ -136,9 +136,14 @@ describe("basic item tests", () => {
       .isManyAndProduces(new Item.Builder("onion").isHoldable())
       .onTake("you take an onion")
       .build();
-    await onions.try("put", room);
-    expect(selectCurrentPage()).toInclude("you take an onion");
-    expect(selectCurrentPage()).toInclude("put the onion on the floor");
+    room.addItem(onions);
+    const putPromise = onions.try("put", room);
+    return deferAction(async () => {
+      expect(selectCurrentPage()).toInclude("you take an onion");
+      await selectOptions()[0].action();
+      await putPromise;
+      expect(selectCurrentPage()).toInclude("put the onion on the floor");
+    })
   });
 
   test("remote verbs on the child are deferred to without first taking the child", async () => {
@@ -351,7 +356,7 @@ describe("builder tests", () => {
   });
 
   test("Single verbs may be added", async () => {
-    const blah = new Item.Builder("blah").withVerb(new Verb.Builder("bleh").onSuccess("bleeeh").build()).build();
+    const blah = new Item.Builder("blah").withVerb(new Verb.Builder("bleh").isRemote().onSuccess("bleeeh").build()).build();
     await blah.try("bleh");
     expect(selectCurrentPage()).toInclude("bleeeh");
   });
@@ -403,7 +408,7 @@ describe("putting items", () => {
   beforeEach(() => {
     ball = new Item("ball", "red", true, 1);
     table = new Item("table", "mahogany", false);
-    flowers = new Item("flowers", "pretty", true);
+    flowers = new Item("flowers", "pretty", false);
     chest = new Container.Builder("chest").isOpen(false).build();
     drawers = new Container.Builder("drawers").isPlural().isOpen(false).build();
     greenbear = new Item.Builder("Greenbear").isProperNoun().build();
@@ -411,7 +416,8 @@ describe("putting items", () => {
     table.capacity = 10;
     table.preposition = "on";
 
-    room.addItems(ball, table, flowers);
+    room.addItems(table, flowers);
+    selectInventory().addItem(ball);
   });
 
   test("adds the item to the container", async () => {
@@ -419,14 +425,7 @@ describe("putting items", () => {
     expect(table.items[ball.name][0]).toBe(ball);
   });
 
-  test("removes the item from the room", async () => {
-    expect(room.items[ball.name]).not.toBeUndefined();
-    await ball.try("put", table);
-    expect(room.items[ball.name]).toBeUndefined();
-  });
-
   test("removes the item from the inventory", async () => {
-    await ball.try("take");
     expect(selectInventory().items[ball.name]).not.toBeUndefined();
     await ball.try("put", table);
     expect(selectInventory().items[ball.name]).toBeUndefined();
@@ -483,11 +482,15 @@ describe("putting items", () => {
     expect(items["black dog"].length).toBe(1);
   });
 
-  test("picks up the indirect item if it's holdable", async () => {
+  test("picks up the indirect item if it's holdable", () => {
     const bag = new Container.Builder("bag").isHoldable().build();
     room.addItem(bag);
-    await ball.try("put", bag);
-    expect(selectInventoryItems()).toInclude(bag);
+    const putPromise = ball.try("put", bag);
+    return deferAction(async () => {
+      await selectOptions()[0].action(); // Click Next.
+      await putPromise;
+      expect(selectInventoryItems()).toInclude(bag);
+    })
   });
 
   test("fails if the indirect item is holdable but can't be picked up", async () => {
