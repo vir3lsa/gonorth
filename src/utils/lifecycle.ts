@@ -1,6 +1,5 @@
 import { getPersistor, getStore } from "../redux/storeRegistry";
 import {
-  selectActionChainPromise,
   selectConfig,
   selectEvents,
   selectGame,

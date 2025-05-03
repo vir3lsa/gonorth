@@ -56,9 +56,12 @@ export default function (state = initialState, action: ReduxAction) {
       if (interaction instanceof Append && state.interaction.currentPage) {
         interaction.currentPage =
           state.interaction.currentPage + (interaction.currentPage ? "\n\n" + interaction.currentPage : "");
-        reverseInteraction.currentPage += state.reverseInteraction.currentPage
-          ? "\n\n" + state.reverseInteraction.currentPage
-          : "";
+
+        if (reverseInteraction.currentPage && state.reverseInteraction.currentPage) {
+          reverseInteraction.currentPage += "\n\n" + state.reverseInteraction.currentPage;
+        } else if (state.reverseInteraction.currentPage) {
+          reverseInteraction.currentPage = state.reverseInteraction.currentPage;
+        }
 
         if (!interaction.options && interaction.renderOptions && !state.interaction.nextButtonRendered) {
           // Copy concrete options (not 'Next') from previous interaction

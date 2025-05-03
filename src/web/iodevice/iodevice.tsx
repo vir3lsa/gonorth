@@ -20,6 +20,8 @@ const SCROLL_MARGIN_OF_ERROR = 5;
 const SCROLL_ELEMENT_ID = "scrollPane";
 const SCROLL_DISTANCE = 50;
 const H6_MARKDOWN = "######";
+const SCROLL_TIME = 1500;
+const MOBILE_SCROLL_TIME = 1000;
 
 let scrollIndex = 0;
 
@@ -27,14 +29,14 @@ const debouncedScroll = debounce((reverse = false) => {
   if (reverse) {
     animateScroll.scrollToTop({
       smooth: "easeInOutQuad",
-      duration: 1000,
+      duration: MOBILE_SCROLL_TIME,
       containerId: SCROLL_ELEMENT_ID,
       ignoreCancelEvents: true
     });
   } else if (scrollIndex) {
     scroller.scrollTo(`scrollPoint-${scrollIndex}`, {
       smooth: "easeInQuad",
-      duration: 1500,
+      duration: SCROLL_TIME,
       containerId: SCROLL_ELEMENT_ID,
       ignoreCancelEvents: true
     });
@@ -53,6 +55,11 @@ interface Props {
   mobileMode?: boolean;
 }
 
+function removeNewStyling() {
+  document.getElementById("sdf");
+  [...document.querySelectorAll<HTMLElement>(".new-content")].forEach((element) => element.style.color = "var(--gn-content)");
+}
+
 const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInteraction, mobileMode = false }) => {
   const interaction = mobileMode ? reverseInteraction : forwardInteraction;
 
@@ -69,6 +76,7 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
   const [atBottom, setAtBottom] = useState(true);
   const [atTop, setAtTop] = useState(true);
   const [previousScrollHeight, setPreviousScrollHeight] = useState(scrollPaneRef.current?.scrollHeight ?? 0);
+  const [newContentTimeout, setNewContentTimeout] = useState<NodeJS.Timeout>();
 
   // Misc
   const { previous, previousDifferent } = usePrevious(interaction.currentPage);
@@ -114,6 +122,9 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
       setAutoScrolling(true);
       debouncedScroll(mobileMode);
     }
+
+    clearTimeout(newContentTimeout);
+    setNewContentTimeout(setTimeout(removeNewStyling, mobileMode ? MOBILE_SCROLL_TIME : SCROLL_TIME));
   }, [interaction.currentPage]);
 
   // Check the scroll position when the scene image is hidden or revealed.
@@ -175,26 +186,24 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
     /* Function that renders a component, possibly adding a scroll point. */
     const renderComponent = (children: (ReactNode & ReactNode[]) | undefined, Tag: keyof JSX.IntrinsicElements) => {
       let addEventScrollPoint = false;
+      const firstString = children?.find((child) => typeof child === "string") as string | undefined;
+      const isNewContent = firstString && addition?.includes(firstString);
+      const element = isNewContent ? <Tag className="new-content">{children}</Tag> : <Tag>{children}</Tag>;
 
-      if (!isUserAction) {
+      if (
+        !isUserAction && isNewContent &&
+        (!eventScrollPointAddedToLine || firstString === eventScrollPointAddedToLine)
+      ) {
         // New text was added by an event, so we want to add a scroll point at the top of the new content.
-        const firstString = children?.find((child) => typeof child === "string") as string | undefined;
-
-        if (
-          firstString &&
-          (!eventScrollPointAddedToLine || firstString === eventScrollPointAddedToLine) &&
-          addition?.includes(firstString)
-        ) {
-          addEventScrollPoint = true;
-          eventScrollPointAddedToLine = firstString;
-          scrollIndex++;
-        }
+        addEventScrollPoint = true;
+        eventScrollPointAddedToLine = firstString;
+        scrollIndex++;
       }
 
       return (
         <>
           {addEventScrollPoint && <Element name={`scrollPoint-${scrollIndex}`} />}
-          <Tag>{children}</Tag>
+          {element}
         </>
       );
     };

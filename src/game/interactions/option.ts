@@ -29,8 +29,9 @@ export class Option {
     const actionChain = new ActionChain(...actionArray);
 
     this._action = async () => {
+      const output = this.label.toLowerCase() === "next" ? "" : this.label;
       // Record player decision
-      getStore().dispatch(changeInteraction(new AppendInput(this.label)) as AnyAction);
+      getStore().dispatch(changeInteraction(new AppendInput(output)) as AnyAction);
       getStore().dispatch(cyChoose(this.label) as AnyAction);
 
       // First perform the player actions

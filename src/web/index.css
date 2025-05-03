@@ -1,5 +1,10 @@
 :root {
   --gn-spacing: 8px;
+  --gn-background: #222;
+  --gn-blue: #7bb0ff;
+  --gn-input: #ffa57b;
+  --gn-content: #eed;
+  --gn-content-new: #ededb9;
 }
 
 /* Extra small devices (phones, 400px and down) */
@@ -21,4 +26,9 @@
   .gn-io-device {
     max-width: 48rem;
   }
+}
+
+.gonorth .new-content {
+  transition: color 1s ease-in-out;
+  color: var(--gn-content-new);
 }

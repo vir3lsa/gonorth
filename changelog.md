@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-# Unreleased
+# 15.1.0
 
+- 2025-05-03 Stopped displaying 'Next' inputs to avoid confusion, differentiated input colour from buttons, highlighted new content.
 - 2025-04-26 Made input bar fixed height, so it doesn't push text down when displaying buttons in mobile mode.
 - 2025-04-26 Removed unnecessary default must-be-holding tests for non-remote verbs (handled by auto-action).
 - 2025-04-26 Forced Next buttons to appear after auto-actions to indicate correct ordering in mobile mode.
