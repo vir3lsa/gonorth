@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+# Unreleased
+
+- 2025-05-17 Option buttons may be navigated with arrow keys and WASD.
+
 # 15.1.0
 
 - 2025-05-03 Stopped displaying 'Next' inputs to avoid confusion, differentiated input colour from buttons, highlighted new content.

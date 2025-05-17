@@ -1,8 +1,11 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, KeyboardEvent } from "react";
 import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import { reactionTimePassed } from "../utils/sharedFunctions";
 import { ButtonBaseActions } from "@mui/material";
+
+const LEFT_KEYS = ["ArrowLeft", "ArrowUp", "a", "w"];
+const RIGHT_KEYS = ["ArrowRight", "ArrowDown", "d", "s"];
 
 function selectOption(option: OptionT) {
   if (reactionTimePassed()) {
@@ -29,6 +32,17 @@ export const DecisionBar: React.FC<Props> = ({ options, mobileMode }) => {
     actionRefs.current = actionRefs.current.slice(0, options.length);
   }, [options]);
 
+  // Navigate with arrow keys.
+  const handleKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    const maxIndex = actionRefs.current.length - 1;
+
+    if (LEFT_KEYS.includes(event.key)) {
+      actionRefs.current[index > 0 ? index - 1 : maxIndex]?.focusVisible();
+    } else if (RIGHT_KEYS.includes(event.key)) {
+      actionRefs.current[index < maxIndex ? index + 1 : 0]?.focusVisible();
+    }
+  };
+
   return (
     <Grid container spacing={1}>
       {options.map((option, index) => (
@@ -39,6 +53,7 @@ export const DecisionBar: React.FC<Props> = ({ options, mobileMode }) => {
             onClick={() => selectOption(option)}
             action={(actionObj) => (actionRefs.current[index] = actionObj)}
             onFocus={() => setFocusedIndex(index)}
+            onKeyDown={(event) => handleKeyDown(event, index)}
             sx={{ marginTop: mobileMode ? 1 : 0, marginBottom: 1 }}
           >
             {option.label}
