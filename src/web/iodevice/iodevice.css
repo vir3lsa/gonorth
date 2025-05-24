@@ -5,6 +5,22 @@
   margin: var(--gn-spacing);
 }
 
+.gn-toast {
+  background-color: var(--gn-content-new);
+  color: var(--gn-background);
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.gn-toast:hover {
+  background-color: var(--gn-content);
+}
+
 .gn-content-area {
   flex: 2;
   position: relative;

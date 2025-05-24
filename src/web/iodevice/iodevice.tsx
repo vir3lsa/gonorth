@@ -9,7 +9,7 @@ import { ParserBar } from "../parserBar";
 import { Scene } from "../scene/scene";
 import { Box } from "@mui/system";
 import Feedback from "../Feedback";
-import { Fab, Fade } from "@mui/material";
+import { Fab, Fade, Slide, SlideProps, Snackbar } from "@mui/material";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import usePrevious from "../../hooks/usePrevious";
@@ -49,15 +49,19 @@ const debouncedScroll = debounce((reverse = false) => {
   }
 }, 10);
 
-interface Props {
-  interaction: InteractionT;
-  reverseInteraction: InteractionT;
-  mobileMode?: boolean;
+function SlideTransition(props: SlideProps) {
+  return <Slide {...props} direction="down" />;
 }
 
 function removeNewStyling() {
   document.getElementById("sdf");
   [...document.querySelectorAll<HTMLElement>(".new-content")].forEach((element) => element.style.color = "var(--gn-content)");
+}
+
+interface Props {
+  interaction: InteractionT;
+  reverseInteraction: InteractionT;
+  mobileMode?: boolean;
 }
 
 const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInteraction, mobileMode = false }) => {
@@ -77,6 +81,7 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
   const [atTop, setAtTop] = useState(true);
   const [previousScrollHeight, setPreviousScrollHeight] = useState(scrollPaneRef.current?.scrollHeight ?? 0);
   const [newContentTimeout, setNewContentTimeout] = useState<NodeJS.Timeout>();
+  const [showToast, setShowToast] = useState(false);
 
   // Misc
   const { previous, previousDifferent } = usePrevious(interaction.currentPage);
@@ -125,6 +130,15 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
 
     clearTimeout(newContentTimeout);
     setNewContentTimeout(setTimeout(removeNewStyling, mobileMode ? MOBILE_SCROLL_TIME : SCROLL_TIME));
+  }, [interaction.currentPage]);
+
+  // Show toast if a message appears off the screen.
+  useEffect(() => {
+    if (((mobileMode && !atTop) || (!mobileMode && !atBottom)) && !isUserAction && !autoScrolling) {
+      setShowToast(true);
+    } else if (showToast) {
+      setShowToast(false);
+    }
   }, [interaction.currentPage]);
 
   // Check the scroll position when the scene image is hidden or revealed.
@@ -264,6 +278,25 @@ const IODevice: React.FC<Props> = ({ interaction: forwardInteraction, reverseInt
 
   return (
     <div className="gn-io-device">
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={showToast}
+        onClose={() => setShowToast(false)}
+        key={addition}
+        message={addition}
+        TransitionComponent={SlideTransition}
+        onClick={() => {
+          setShowToast(false);
+          handleScrollClick();
+        }}
+      >
+        <div> {/* Outer div required to separate slide and hover transitions. */}
+          <div className="gn-toast">
+            <div>{addition}</div>
+            {mobileMode ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+          </div>
+        </div>
+      </Snackbar>
       <Scene />
       {mobileMode && createInputBar()}
       <Box className="gn-content-area">

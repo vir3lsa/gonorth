@@ -1,6 +1,5 @@
 import { OptionGraph, next, previous, okay } from "../game/interactions/optionGraph";
 import { getKeywords } from "../game/verbs/keywords";
-import { clearPage } from "./sharedFunctions";
 import { selectGame, selectRoom } from "./selectors";
 
 export const getKeywordsTable = () => {
@@ -15,8 +14,8 @@ export const getKeywordsTable = () => {
 const controlsTable = `Action | Controls
 :---|:---
 Submit command | \`[Enter]\` or \`[Space]\`
-Select next option | \`[Tab]\`
-Select previous option | \`[Shift + Tab]\`
+Select next option | \`[Tab]\` or \`[Right Arrow]\` or \`[d]\` or \`[s]\`
+Select previous option | \`[Shift + Tab]\` or \`[Left Arrow]\` or \`[a]\` or \`[w]\`
 Choose highlighted option | \`[Enter]\` or \`[Space]\`
 Scroll Down | \`[Enter] (with empty command box)\``;
 

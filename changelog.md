@@ -1,7 +1,8 @@
 # goNORTH Changelog
 
-# Unreleased
+# 15.2.0
 
+- 2025-05-24 Messages that appear off-screen are now displayed in a toast.
 - 2025-05-17 Option buttons may be navigated with arrow keys and WASD.
 
 # 15.1.0
