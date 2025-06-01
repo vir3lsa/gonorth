@@ -173,10 +173,8 @@ export class ActionChain {
       return this.dispatchAppend(`${value}${postScript}`, this.options, nextIfNoOptions, false);
     } else if (Array.isArray(value)) {
       return this.handleActionChain(new ActionChain(...value), context, nextIfNoOptions);
-    } else if (value instanceof SequentialText) {
-      return this.expandSequentialText(value, this.options, nextIfNoOptions, postScript, argsContext);
     } else if (value instanceof Text || value instanceof ManagedText) {
-      return this.dispatchAppend(`${value.next()}${postScript}`, this.options, nextIfNoOptions, (value as TextT).paged);
+      return this.handleText(value, nextIfNoOptions, postScript, argsContext);
     } else if (value instanceof Interaction) {
       return getStore().dispatch(changeInteraction(value) as unknown as AnyAction) as unknown as MaybePromise; // TODO
     } else if (value instanceof OptionGraph) {
@@ -223,11 +221,25 @@ export class ActionChain {
 
   getPostScript() {
     if (this.postScript instanceof Text) {
-      return this.postScript.next();
+      return this.postScript.next() as string;
     } else if (typeof this.postScript === "function") {
       return this.postScript();
     } else {
       return this.postScript;
+    }
+  }
+
+  async handleText(text: Text | ManagedText, nextIfNoOptions: boolean, postScript: string, context: AnyContext): Promise<any> {
+    if (text instanceof SequentialText) {
+      return this.expandSequentialText(text, this.options, nextIfNoOptions, postScript, context);
+    } else {
+      const value = text.next(context);
+
+      if (typeof value === "string") {
+        return this.dispatchAppend(`${value}${postScript}`, this.options, nextIfNoOptions, (text as TextT).paged);
+      } else {
+        return this.handleText(value, nextIfNoOptions, postScript, context);
+      }
     }
   }
 

@@ -138,6 +138,7 @@ type AnyText = TextT | ManagedTextT;
 type TextFunction = (...args: any[]) => string | AnyText | TextFunction;
 type TextPart = string | TextFunction | AnyText;
 type UnknownText = string | string[] | AnyText | TextFunction;
+type ResolvedText = string | AnyText;
 
 /*************/
 /* Functions */

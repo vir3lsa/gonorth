@@ -255,7 +255,7 @@ describe("ConcatText", () => {
     expect(text.next("mn")).toBe("mnmn\n\nb\n\nmnmn");
   });
 
-  test("conact text concatenates text texts", () => {
+  test("concat text concatenates text texts", () => {
     const text = new ConcatText("cat", new SequentialText("dog", "mouse"));
     expect(text.next()).toBe("cat\n\ndog");
     expect(text.next()).toBe("cat\n\nmouse");
@@ -276,8 +276,8 @@ describe("ConcatText", () => {
 
 test("Texts may have nested Texts", () => {
   const text = new SequentialText(new ConcatText("a", "b"), new SequentialText("c"));
-  expect(text.next()).toBe("a\n\nb");
-  expect(text.next()).toBe("c");
+  expect((text.next() as ConcatText).next()).toBe("a\n\nb");
+  expect((text.next() as ConcatText).next()).toBe("c");
 });
 
 test("SequentialText calls functions recursively", () => {
@@ -287,7 +287,7 @@ test("SequentialText calls functions recursively", () => {
 
 test("SequentialText calls functions recursively and invokes Text functions", () => {
   const text = new SequentialText(() => () => () => new SequentialText((x) => `a${x}b`));
-  expect(text.next("Z")).toBe("aZb");
+  expect((text.next() as SequentialText).next("Z")).toBe("aZb");
 });
 
 // TODO Test function like above but with nested ManagedText

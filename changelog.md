@@ -1,11 +1,15 @@
 # goNORTH Changelog
 
-# 15.2.0
+## Unreleased
+
+- 2025-06-01 Added better support for nested SequentialTexts.
+
+## 15.2.0
 
 - 2025-05-24 Messages that appear off-screen are now displayed in a toast.
 - 2025-05-17 Option buttons may be navigated with arrow keys and WASD.
 
-# 15.1.0
+## 15.1.0
 
 - 2025-05-03 Stopped displaying 'Next' inputs to avoid confusion, differentiated input colour from buttons, highlighted new content.
 - 2025-04-26 Made input bar fixed height, so it doesn't push text down when displaying buttons in mobile mode.
@@ -13,65 +17,65 @@
 - 2025-04-26 Forced Next buttons to appear after auto-actions to indicate correct ordering in mobile mode.
 - 2025-04-20 Fixed disambiguation buttons displaying Markdown syntax for items whose names contain it e.g. itallic names.
 
-# 15.0.2
+## 15.0.2
 
 - 2025-04-19 Fixed not scrolling back to top (from part way down) when command submitted in mobile mode.
 
-# 15.0.1
+## 15.0.1
 
 - 2025-04-19 Move back-top-top button to the top in mobile mode, so it's not obscured behind the keyboard.
 
-# 15.0.0
+## 15.0.0
 
 - 2025-04-19 Render output in reverse on smaller devices, with the input box at the top.
 - 2025-04-18 Breaking change: removed default max-width and adjusted styling into overridable CSS classes.
 
-# 14.4.0
+## 14.4.0
 
 - 2025-04-14 Added Object Discovery help page, and help page headings.
 - 2025-04-13 Resolved issue with tables sometimes rendering incorrectly.
 - 2025-04-12 moveItem function may maintain container listing, undefined persisted as null.
 
-# 14.3.0
+## 14.3.0
 
 - 2025-04-08 OptionGraph Nodes may be marked as non-resumable so they're not recorded as the current node.
 
-# 14.2.0
+## 14.2.0
 
 - 2025-04-05 Effects may have tests.
 - 2025-04-05 Fixed bug where failed nested ActionChains didn't cause the outer chain to fail.
 
-# 14.1.0
+## 14.1.0
 
 - 2025-03-29 Added the save keyword.
 
-# 14.0.1
+## 14.0.1
 
 - 2025-03-29 Minor tweak to controls help page.
 
-# 14.0.0
+## 14.0.0
 
 - 2025-03-16 Added help index and controls pages.
 - 2025-03-16 The help pages are no longer automatically shown after the game's intro.
 - 2025-03-13 Breaking change: renamed NodeBuilder.withOptions -> withOptionsObject and added varargs withOptions function.
 - 2025-03-12 May add hint notes as builders or nodes.
 
-# 13.1.0
+## 13.1.0
 
 - 2025-03-08 OptionGraphs may dynamically execute a function after they exit.
 - 2025-03-08 Fixed bug where the start screen image didn't replace the previous room's image after a game over.
 
-# 13.0.0
+## 13.0.0
 
 - 2025-02-22 Breaking change: Recurring Events and Schedules automatically restart their countdowns on completion.
 - 2025-02-08 IODevice scrolls when events occur, but only if currently scrolled to the bottom.
 - 2025-02-02 Breaking change: Events may have both time-based and turn-based countdowns, builder function names changed.
 
-# 12.0.0
+## 12.0.0
 
 - 2025-01-26 Breaking change: throws an error when items are created outside of the intial setup function to prevent save game corruption.
 
-# 11.0.0
+## 11.0.0
 
 - 2025-01-15 Breaking change: VerbBuilder.withSmartTest renamed to VerbBuilder.withTest.
 - 2025-01-11 Breaking change: newVerb function removed, verb constructor accepts a VerbBuilder only, onSuccess and withOnFailure become onSuccess and onFailure.
@@ -80,7 +84,7 @@
 - 2025-01-04 Items may be revealed selectively.
 - 2025-01-04 Item, Container, and Door actions (onOpen etc.) are all now varargs in their builders.
 
-# 10.0.0
+## 10.0.0
 
 - 2024-12-31 Resolved defect where generic container descriptions were being ignored.
 - 2024-12-28 Breaking change: Removed newItem, newContainer, and newDoor functions.
@@ -89,46 +93,46 @@
 - 2024-12-20 Breaking change: Various container texts are now Actions (and hence are not persisted in saved state).
 - 2024-12-19 Containers no longer allow items to be added to them when they're closed.
 
-# 9.1.0
+## 9.1.0
 
 - 2024-12-12 Added containerHasItem function, made playerHasItem and Item.removeItem functions more robust.
 - 2024-12-10 Scroll panel fades out at the bottom to indicate there's more to scroll through.
 - 2024-12-10 Very long lists are now displayed as tables.
 
-# 9.0.0
+## 9.0.0
 
 - 2024-11-15 Breaking change: improved Gonorth's initialisation mechanism, docs are now built when a version is published.
 - 2024-11-10 Added docs generation and first docs, including next, previous and okay functions in default export.
 
-# 8.4.1
+## 8.4.1
 
 - 2024-11-08 OptionGraph resets the scene at the correct time.
 
-# 8.4.0
+## 8.4.0
 
 - 2024-11-02 goToRoom function now accepts OptionGraph IDs.
 - 2024-10-29 Fixed bug where omitted aliases were still recorded in the store, can also now omit room aliases.
 
-# 8.3.0
+## 8.3.0
 
 - 2024-10-27 The GoNorth export now includes the clearPage function.
 
-# 8.2.0
+## 8.2.0
 
 - 2024-10-26 Room direction onFailures may be Actions.
 - 2024-10-26 Fixed bug where rooms with description functions did not cause a page change.
 
-# 8.1.0
+## 8.1.0
 
 - 2024-10-20 Checkpoint function available on the default exported object.
 
-# 8.0.0
+## 8.0.0
 
 - 2024-10-15 Fixed bug where triggered Events could carry over into new games.
 - 2024-10-15 Breaking change: Events may only be constructed with Builders, Events may have additional trigger conditions, OptionsGraphs indicate when they're running.
 - 2024-10-12 Keywords use builders, addKeyword accepts a builder, VerbBuilder has doNotList() method.
 
-# 7.0.0
+## 7.0.0
 
 - 2024-10-11 Fixed bug where option buttons lost focus when the number of buttons shrank.
 - 2024-10-02 Events and Schedules stored in save game state.
@@ -137,37 +141,37 @@
 - 2024-09-23 Schedule events may have their own conditions.
 - 2024-09-22 Breaking change - ScheduleBuilder uses Events directly, event onComplete actions now varargs.
 
-# 6.3.0
+## 6.3.0
 
 - 2024-09-10 Containers may define relinquish tests to dictate when items may be taken from them.
 - 2024-09-08 Verb smart tests onFailure arguments are now varargs.
 - 2024-09-07 Ensure we're exporting types.
 - 2024-09-07 Made containerListing able to be dynamic.
 
-# 6.2.1
+## 6.2.1
 
 - 2024-08-31 Fixed bug where door verbs didn't work.
 
-# 6.2.0
+## 6.2.0
 
 - 2024-08-26 Non-hidden items may be added via the builders.
 
-# 6.1.0
+## 6.1.0
 
 - 2024-08-24 NodeGraph Options may be built with a builder.
 - 2024-08-23 Made 'withVerbs' method of ItemBuilder additive rather than destructive.
 - 2024-08-22 Added 'withNode' method to OptionGraph NodeBuilder.
 - 2024-08-21 Updated Prettier config to remove trailing commas.
 
-# 6.0.0
+## 6.0.0
 
 - 2024-08-14 Breaking change - NPCs can only be constructed using a Builder.
 
-# 5.0.0
+## 5.0.0
 
 - 2024-08-13 Breaking change - verb addAliases method uses varargs rather than an array.
 
-# 4.0.0
+## 4.0.0
 
 - 2024-08-07 Breaking change - effects can take place before, instead of, or after the verb.
 - 2024-08-06 Prepositional verbs work when the subject and object are reversed.
@@ -178,7 +182,7 @@
 - 2024-08-04 Can override default peek behaviour, doors can be transparent.
 - 2024-08-03 Ability to peek through doors.
 
-# 3.4.0
+## 3.4.0
 
 - 2024-08-02 Items that produce singular items trigger a 'take' action and then defer verbs to their children.
 - 2024-07-31 Used correct item article in plural item smart test message.
@@ -387,7 +391,7 @@
 - 2022-10-10 Allowed items to be taken when they have no container.
 - 2022-10-08 Allowed containers to be given keys by name.
 
-# 0.4.0
+## 0.4.0
 
 - 2022-10-07 Made containers unlockable with or without keys.
 - 2022-10-03 Added 'withArticle' function to ItemBulder.

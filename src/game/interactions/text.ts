@@ -113,17 +113,33 @@ export class Text {
    * @returns
    */
   textPartToString(textPart: TextPart, ...args: unknown[]): string {
+    let resolved = this.resolveTextPart(textPart, ...args);
+
+    if (resolved instanceof Text || resolved instanceof ManagedText) {
+      const next = resolved.next(...args);
+      resolved = this.textPartToString(next, ...args);
+    }
+
+    return resolved;
+  }
+
+  /**
+   * Converts a TextPart to a ResolvedText by recursively invoking functions and
+   * calling Text#next until a ResolvedText is yielded.
+   * @param textPart The TextPart
+   * @param args Additional arguments to pass to functions
+   * @returns
+   */
+  resolveTextPart(textPart: TextPart, ...args: unknown[]): ResolvedText {
     if (typeof textPart === "function") {
       const newText = textPart(...args);
-      return this.textPartToString(newText, ...args);
-    } else if (textPart instanceof Text || textPart instanceof ManagedText) {
-      return textPart.next(...args);
+      return this.resolveTextPart(newText, ...args);
     }
 
     return textPart;
   }
 
-  next(...args: unknown[]): string {
+  next(...args: unknown[]): ResolvedText {
     const text = this.text;
     this.candidates = this.candidates.filter((c) => c !== this.index);
 
@@ -132,7 +148,7 @@ export class Text {
       this._resetCandidates();
     }
 
-    return this.textPartToString(text, ...args);
+    return this.resolveTextPart(text, ...args);
   }
 
   toJSON() {
