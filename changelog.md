@@ -1,6 +1,6 @@
 # goNORTH Changelog
 
-## Unreleased
+## 15.2.1
 
 - 2025-06-01 Added better support for nested SequentialTexts.
 
