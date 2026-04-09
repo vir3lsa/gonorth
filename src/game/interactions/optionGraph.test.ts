@@ -1,16 +1,6 @@
 import { unregisterStore } from "../../redux/storeRegistry";
-import gn, { addHintNodes, giveHint, goToRoom, setHintNodeId } from "../../gonorth";
-import {
-  next,
-  nextOption,
-  NodeBuilder,
-  okay,
-  okayOption,
-  OptionBuilder,
-  OptionGraph,
-  previous,
-  previousOption
-} from "./optionGraph";
+import gn from "../../gonorth";
+import { nextOption, NodeBuilder, okayOption, OptionBuilder, OptionGraph, previousOption } from "./optionGraph";
 import { selectCurrentPage, selectImage, selectOptions, selectRoomName } from "../../utils/testSelectors";
 import { selectRoom, selectTurn, selectInventory } from "../../utils/selectors";
 import { Verb } from "../verbs/verb";
@@ -522,7 +512,7 @@ test("can clear page", async () => {
 
 test("can change room name", async () => {
   setupRoomOptionNodes();
-  goToRoom(room);
+  gn.goToRoom(room);
   expect(selectRoomName()).toBe("room");
   const newGraph = new OptionGraph.Builder("123")
     .withNodes(...speechNodes)
@@ -606,9 +596,9 @@ const hintNodes = [
 
 describe("hints", () => {
   test("hint nodes may be constructed using builders", async () => {
-    addHintNodes(...hintNodes);
-    setHintNodeId("apoth1");
-    await giveHint().chain();
+    gn.addHintNodes(...hintNodes);
+    gn.setHintNodeId("apoth1");
+    await gn.giveHint().chain();
     const options = selectOptions();
     expect(options[0].label).toBe("okay");
     expect(options[1].label).toBe("next");

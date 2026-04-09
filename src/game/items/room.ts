@@ -5,7 +5,7 @@ import { Item, Builder as ItemBuilder, customiseVerbs } from "./item";
 import { itemsRevealed, changeImage, addRoom } from "../../redux/gameActions";
 import { preferPaged } from "../../utils/dynamicDescription";
 import { ActionChain } from "../../utils/actionChain";
-import { goToRoom } from "../../gonorth";
+import gn from "../../gonorth";
 import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
 import { debug } from "../../utils/consoleIO";
 import { checkpoint } from "../../utils/lifecycle";
@@ -43,6 +43,7 @@ export class Room extends Item {
   private __adjacentRooms!: AdjacentRooms;
   private __image?: string;
   private __checkpoint!: boolean;
+  private __actionChain!: ActionChain;
 
   constructor(
     name: string,
@@ -67,6 +68,21 @@ export class Room extends Item {
     this.addVerbs(new GoVerb.Builder("down").withAliases(...directionAliases["down"]).withCurrentRoom(this));
 
     this.customiseVerbs(Room.name);
+    this.prepareActionChain();
+  }
+
+  prepareActionChain() {
+    this.__actionChain = new ActionChain(
+      () => {
+        if (this.checkpoint) {
+          return checkpoint();
+        }
+      },
+      () => {
+        getStore().dispatch(changeImage(this.image));
+      },
+      this.description
+    );
   }
 
   set image(image) {
@@ -260,7 +276,7 @@ export class Room extends Item {
     const adjacent = this.adjacentRooms[direction].room;
 
     if (adjacent instanceof Room) {
-      return goToRoom(adjacent);
+      return gn.goToRoom(adjacent);
     } else if (typeof adjacent === "function") {
       return adjacent();
     }
@@ -270,23 +286,13 @@ export class Room extends Item {
    * Get the ActionChain associated with going to this room.
    */
   get actionChain() {
-    const chain = new ActionChain(
-      () => {
-        if (this.checkpoint) {
-          return checkpoint();
-        }
-      },
-      () => {
-        getStore().dispatch(changeImage(this.image));
-      },
-      this.description
-    );
+    const itemListings = this.itemListings;
 
-    if (this.itemListings) {
-      chain.postScript = this.itemListings;
+    if (itemListings) {
+      this.__actionChain.postScript = itemListings;
     }
 
-    return chain;
+    return this.__actionChain;
   }
 
   /**

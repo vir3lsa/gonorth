@@ -51,10 +51,6 @@ export class ScheduleBuilder {
   }
 }
 
-export const STATE_READY = "READY";
-export const STATE_RUNNING = "RUNNING";
-const STATE_COMPLETED = "COMPLETED";
-
 /**
  * Schedules represent sequences of Events that occur one after another.
  * 
@@ -64,6 +60,10 @@ const STATE_COMPLETED = "COMPLETED";
  * The Events within the Schedule may have their own conditions and delays.
  */
 export class Schedule {
+  public static STATE_READY = "READY";
+  public static STATE_RUNNING = "RUNNING";
+  public static STATE_COMPLETED = "COMPLETED";
+
   static get Builder() {
     return ScheduleBuilder;
   }
@@ -74,7 +74,7 @@ export class Schedule {
   stage: number;
   events: Event[];
   cancelled = false;
-  state = STATE_READY;
+  state = Schedule.STATE_READY;
 
   constructor(builder: ScheduleBuilder) {
     this.id = builder.id;
@@ -99,7 +99,7 @@ export class Schedule {
         });
       } else if (index === 0) {
         event.onComplete.addAction(() => {
-          this.state = STATE_COMPLETED;
+          this.state = Schedule.STATE_COMPLETED;
         });
       }
 
@@ -145,25 +145,25 @@ export class Schedule {
    * Trigger the first event in the chain if the sequence hasn't already begun.
    */
   async commence(force = false) {
-    if (this.state !== STATE_READY && force) {
+    if (this.state !== Schedule.STATE_READY && force) {
       this.reset();
     }
 
-    if (this.state === STATE_READY) {
-      this.state = STATE_RUNNING;
+    if (this.state === Schedule.STATE_READY) {
+      this.state = Schedule.STATE_RUNNING;
     }
   }
 
   cancel() {
     this.cancelled = true;
     this.currentEvent.cancel();
-    this.state = STATE_COMPLETED;
+    this.state = Schedule.STATE_COMPLETED;
   }
 
   reset() {
     this.cancelled = false;
     this.stage = 0;
     this.events.forEach((event) => event.reset());
-    this.state = STATE_READY;
+    this.state = Schedule.STATE_READY;
   }
 }

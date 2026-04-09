@@ -1,7 +1,7 @@
 import { Schedule, ScheduleBuilder } from "./schedule";
-import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
+import { Event } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
-import gn, { addSchedule } from "../../gonorth";
+import gn from "../../gonorth";
 import { unregisterStore } from "../../redux/storeRegistry";
 
 jest.mock("../../utils/consoleIO");
@@ -31,7 +31,7 @@ function addTimeEvent(builder: ScheduleBuilder, delayMillis: number, ...actions:
 
 function buildAndExecute(builder: ScheduleBuilder) {
   const schedule = builder.build();
-  addSchedule(schedule);
+  gn.addSchedule(schedule);
   return handleTurnEnd();
 }
 
@@ -83,7 +83,7 @@ test("schedule can be cancelled", async () => {
   addTurnsEvent(builder, 0, () => x++);
   addTurnsEvent(builder, 1, () => (x *= 3));
   const schedule = builder.build();
-  addSchedule(schedule);
+  gn.addSchedule(schedule);
   await handleTurnEnd();
   schedule.cancel();
   await handleTurnEnd();
@@ -95,7 +95,7 @@ test("schedules can recur", async () => {
   builder.recurring();
   addTurnsEvent(builder, 1, () => x++);
   addTurnsEvent(builder, 0, () => (x *= 2));
-  addSchedule(builder.build());
+  gn.addSchedule(builder.build());
   await handleTurnEnd();
   await handleTurnEnd();
   await handleTurnEnd();
@@ -115,7 +115,7 @@ test("schedules may be manually reset", async () => {
   const builder = createBuilder(true, false);
   addTurnsEvent(builder, 0, () => x++);
   const schedule = builder.build();
-  addSchedule(schedule);
+  gn.addSchedule(schedule);
   await handleTurnEnd();
   expect(x).toBe(2);
   schedule.reset();
@@ -127,7 +127,7 @@ test("schedules may triggered and reset manually", async () => {
   const builder = createBuilder(false, false);
   addTurnsEvent(builder, 0, () => x++);
   const schedule = builder.build();
-  addSchedule(schedule);
+  gn.addSchedule(schedule);
   await schedule.commence();
   await handleTurnEnd();
   expect(x).toBe(2);

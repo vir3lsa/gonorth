@@ -1,12 +1,4 @@
-import gn, {
-  play,
-  addEvent,
-  goToStartingRoom,
-  selectOptionGraph,
-  setStartingRoom,
-  setInventoryCapacity,
-  getItem
-} from "./gonorth";
+import gn from "./gonorth";
 import { unregisterStore } from "./redux/storeRegistry";
 import { Item } from "./game/items/item";
 import { Room } from "./game/items/room";
@@ -29,7 +21,7 @@ let x: number, y: number, room: Room;
 
 const eventTest = async (builder: EventBuilder, expectation: () => boolean) => {
   const event = builder.build();
-  addEvent(event);
+  gn.addEvent(event);
   await handleTurnEnd();
   expect(expectation()).toBeTruthy();
   event.cancel();
@@ -39,7 +31,7 @@ describe("Game class", () => {
   beforeEach(() => {
     gn.init({ title: "test", goToTitleScreen: false });
     room = new Room("stairs", "description");
-    setStartingRoom(room);
+    gn.setStartingRoom(room);
     x = y = 0;
   });
 
@@ -48,12 +40,12 @@ describe("Game class", () => {
   });
 
   it("goes to the starting room", () => {
-    goToStartingRoom();
+    gn.goToStartingRoom();
     expect(selectRoom()).toBe(room);
   });
 
   it("returns starting room action chain", () => {
-    const chain = goToStartingRoom();
+    const chain = gn.goToStartingRoom();
     expect(chain instanceof ActionChain).toBeTruthy();
   });
 
@@ -68,7 +60,7 @@ describe("Game class", () => {
    */
   it("increments the turn at the end of a chain", async () => {
     room.addVerb(new Verb.Builder("shimmy").onSuccess("one", "two", "three"));
-    goToStartingRoom();
+    gn.goToStartingRoom();
     expect(selectTurn()).toBe(1);
     setTimeout(async () => {
       await clickNext();
@@ -79,7 +71,7 @@ describe("Game class", () => {
   });
 
   it("updates the inventory capacity", () => {
-    setInventoryCapacity(7);
+    gn.setInventoryCapacity(7);
     expect(selectInventory().capacity).toBe(7);
     expect(selectInventory().free).toBe(7);
   });
@@ -108,25 +100,17 @@ describe("Game class", () => {
     });
 
     it("does not trigger timed events immediately", () => {
-      const event = new Event.Builder("4")
-        .withAction(() => x++)
-        .withDelayMillis(1000);
+      const event = new Event.Builder("4").withAction(() => x++).withDelayMillis(1000);
       eventTest(event, () => x === 0);
     });
 
     it("does not trigger count down events immediately", () => {
-      const event = new Event.Builder("5")
-        .withAction(() => x++)
-        .withDelayTurns(5);
+      const event = new Event.Builder("5").withAction(() => x++).withDelayTurns(5);
       eventTest(event, () => x === 0);
     });
 
     it("triggers timed events after the timeout has passed", () => {
-      addEvent(
-        new Event.Builder("6")
-          .withAction(() => x++)
-          .withDelayMillis(10)
-      );
+      gn.addEvent(new Event.Builder("6").withAction(() => x++).withDelayMillis(10));
       handleTurnEnd();
       return new Promise<void>((resolve) =>
         setTimeout(() => {
@@ -137,11 +121,7 @@ describe("Game class", () => {
     });
 
     it("triggers count down events after the required turns have passed", async () => {
-      addEvent(
-        new Event.Builder("7")
-          .withAction(() => x++)
-          .withDelayTurns(2)
-      );
+      gn.addEvent(new Event.Builder("7").withAction(() => x++).withDelayTurns(2));
       await handleTurnEnd();
       await handleTurnEnd();
       await handleTurnEnd();
@@ -195,7 +175,7 @@ describe("Game class", () => {
 
     it("calls onComplete when the event completes", async () => {
       const event = new Event.Builder("33").withAction(() => x++).withOnComplete(async () => x++);
-      addEvent(event);
+      gn.addEvent(event);
       await handleTurnEnd();
       expect(x).toBe(2);
     });
@@ -223,10 +203,10 @@ describe("goNORTH", () => {
 test("getItem can be used to retrieve items from the store", () => {
   gn.init({ title: "test", debugMode: false, goToTitleScreen: false });
   new Item.Builder("toolbox").withDescription("red and angular").build();
-  expect(getItem("toolbox")?.description).toBe("red and angular");
+  expect(gn.getItem("toolbox")?.description).toBe("red and angular");
 });
 
 test("selectOptionGraph can be used to retrieve option graphs from the store", () => {
   new OptionGraph.Builder("test").withNodes(new OptionGraph.NodeBuilder("root")).build();
-  expect(selectOptionGraph("test").nodes.length).toBe(1);
+  expect(gn.selectOptionGraph("test").nodes.length).toBe(1);
 });

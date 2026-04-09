@@ -267,7 +267,7 @@ describe("Room", () => {
     expect(largeRoom.clone().aliases).toEqual(["large", "room", "big", "space", "really big space", "floor"]);
   });
 
-  test("Non-hidden items may be added via the builder", () => {
+  test("non-hidden items may be added via the builder", () => {
     const nursery = new Room.Builder("nursery")
       .hasItem(new Item.Builder("bride"))
       .hasItem(new Item.Builder("groom"))
@@ -277,5 +277,17 @@ describe("Room", () => {
     expect(nursery.items.groom).toBeDefined();
     expect(nursery.items.icing).toBeDefined();
     expect(nursery.items.ribbon).toBeDefined();
+  });
+
+  test("room action chains are consistent", () => {
+    expect(hall.actionChain).toBe(hall.actionChain);
+  });
+
+  test("room action chain postscripts may change", () => {
+    const original = hall.actionChain.postScript;
+    hall.addItem(new Item.Builder("dog").isHoldable().build());
+    const newPostscript = hall.actionChain.postScript;
+    expect(newPostscript).not.toEqual(original);
+    expect(newPostscript?.toString().includes("dog")).toBe(true);
   });
 });

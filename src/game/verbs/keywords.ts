@@ -1,7 +1,7 @@
 import { Verb, VerbBuilder as VerbBuilder } from "./verb";
 import { selectInventory, selectKeywords, selectRoom } from "../../utils/selectors";
 import { RandomText } from "../interactions/text";
-import { getHelp, giveHint } from "../../gonorth";
+import gn from "../../gonorth";
 import { getKeywordsTable } from "../../utils/defaultHelp";
 import { getStore } from "../../redux/storeRegistry";
 import { addKeywords, removeKeywords, revealScene } from "../../redux/gameActions";
@@ -39,7 +39,7 @@ export function createKeywords() {
     .withDescription("Allow time to pass.");
 
   const help = new Verb.Builder("help")
-    .onSuccess(getHelp())
+    .onSuccess(gn.getHelp())
     .withAliases("assist", "h", "instructions", "instruct", "welcome")
     .isKeyword()
     .withDescription("Display help pages.");
@@ -51,7 +51,7 @@ export function createKeywords() {
     .withDescription("Display keywords list.");
 
   const hint = new Verb.Builder("hint")
-    .onSuccess(() => giveHint())
+    .onSuccess(() => gn.giveHint())
     .withAliases("hints", "clue", "clues")
     .isKeyword()
     .withDescription("Get a hint on how to proceed.");

@@ -1,23 +1,9 @@
-import gn, {
-  addEvent,
-  addSchedule,
-  Event,
-  goToRoom,
-  Item,
-  OptionGraph,
-  retrieve,
-  Room,
-  Schedule,
-  store,
-  TIMEOUT_MILLIS,
-  update
-} from "../gonorth";
+import gn, { Event, Item, OptionGraph, Room, Schedule } from "../gonorth";
 import { handleTurnEnd } from "../utils/lifecycle";
 import { moveItem } from "../utils/itemFunctions";
 import { changeRoom, loadSnapshot, recordChanges } from "./gameActions";
 import { getPersistor, getStore, unregisterStore } from "./storeRegistry";
 import { SequentialText, RandomText, ManagedText } from "../game/interactions/text";
-import { STATE_RUNNING } from "../game/events/schedule";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");
@@ -51,7 +37,7 @@ const setUpStoreTests = (additionalSetup?: () => void) => {
   testEvent = new Event.Builder("testEvent").build();
   testEvent.countdown = 7;
   testEvent.state = "TEST_STATE";
-  addEvent(testEvent);
+  gn.addEvent(testEvent);
 
   testSchedule = new Schedule.Builder("testSchedule")
     .addEvents(new Event.Builder(), new Event.Builder(), new Event.Builder(), new Event.Builder())
@@ -60,9 +46,9 @@ const setUpStoreTests = (additionalSetup?: () => void) => {
   testSchedule.state = "TEST_STATE";
   testSchedule.currentEvent.state = "TEST_STATE_2";
   testSchedule.currentEvent.countdown = 5;
-  addSchedule(testSchedule);
+  gn.addSchedule(testSchedule);
 
-  goToRoom(room);
+  gn.goToRoom(room);
 
   additionalSetup?.();
 };
@@ -89,7 +75,7 @@ describe("basic persistor tests", () => {
     persistor.persistSnapshot();
     const serialized = localStorage.getItem(persistor.key);
     result = JSON.parse(serialized || "");
-  }
+  };
 
   beforeEach(persist);
 
@@ -249,13 +235,13 @@ describe("deserializing snapshots", () => {
   });
 
   it("loads all items the player has seen", () => {
-    goToRoom(otherRoom);
+    gn.goToRoom(otherRoom);
     const snapshot = persistSnapshotAndLoad();
     expect(snapshot.itemNames).toEqual(new Set(["hydroponics", "floor", "room", "vase", "garden", "ornament"]));
   });
 
   it("loads the current room as an actual room", () => {
-    goToRoom(otherRoom);
+    gn.goToRoom(otherRoom);
     const snapshot = persistSnapshotAndLoad();
     expect(Object.is(snapshot.room, otherRoom)).toBe(true);
   });
@@ -321,18 +307,18 @@ describe("deserializing snapshots", () => {
   });
 
   const customStateTest = (propertyName: string, value: PersistentVariable) => {
-    store(propertyName, value);
+    gn.store(propertyName, value);
     const snapshot = persistSnapshotAndLoad();
     getStore().dispatch(loadSnapshot(snapshot));
-    expect(retrieve(propertyName)).toEqual(value);
+    expect(gn.retrieve(propertyName)).toEqual(value);
   };
 
   const updateCustomStateTest = (propertyName: string, value1: PersistentVariable, value2: PersistentVariable) => {
-    store(propertyName, value1);
-    update(propertyName, value2);
+    gn.store(propertyName, value1);
+    gn.update(propertyName, value2);
     const snapshot = persistSnapshotAndLoad();
     getStore().dispatch(loadSnapshot(snapshot));
-    expect(retrieve(propertyName)).toEqual(value2);
+    expect(gn.retrieve(propertyName)).toEqual(value2);
   };
 
   it("deserializes custom string properties", () => customStateTest("fruit", "apple"));
@@ -347,12 +333,12 @@ describe("deserializing snapshots", () => {
     updateCustomStateTest("thing", { cat: "dog", bat: 4 }, { bird: "goose" }));
 
   it("throws an error if the same property is stored twice", () => {
-    store("blood", "red");
-    expect(() => store("blood", "blue")).toThrow();
+    gn.store("blood", "red");
+    expect(() => gn.store("blood", "blue")).toThrow();
   });
 
   it("throws an error if a property that doesn't exist is updated", () => {
-    expect(() => update("cheese", "stilton")).toThrow();
+    expect(() => gn.update("cheese", "stilton")).toThrow();
   });
 
   it("moves moved items to their new containers, maintaining any containerListing", () => {
@@ -388,7 +374,7 @@ describe("deserializing snapshots", () => {
   it("revives undefined option graph current node to undefined", () => {
     const snapshot = persistSnapshotAndLoad();
     expect(snapshot.optionGraphs.test99.currentNode).toBeUndefined();
-  })
+  });
 
   it("doesn't persist a non-resumable OptionGraph's current node", () => {
     optionGraph.resumable = false;
@@ -446,7 +432,7 @@ describe("deserializing snapshots", () => {
     testSchedule.currentEvent.countdown = undefined;
     const snapshot = persistSnapshotAndLoad();
     expect(snapshot.schedules[0].countdown).toBeUndefined();
-  })
+  });
 
   describe("event timeouts", () => {
     let snapshot: RevivedSnapshot;
@@ -477,7 +463,7 @@ describe("deserializing snapshots", () => {
     });
 
     it("gives a revived schedule event a new timeout ID", async () => {
-      testSchedule.state = STATE_RUNNING;
+      testSchedule.state = Schedule.STATE_RUNNING;
       const event = testSchedule.currentEvent;
       event.delayMillis = () => 10000; // Long enough not to complete.
       event.startCountdown();

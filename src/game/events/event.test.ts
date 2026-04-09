@@ -1,6 +1,6 @@
 import { AWAITING_COUNTDOWN_AND_TIMER, AWAITING_TIMER, DORMANT, Event, SUCCEEDED, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
-import gn, { addEvent } from "../../gonorth";
+import gn from "../../gonorth";
 import { changeInteraction } from "../../redux/gameActions";
 import { Interaction } from "../interactions/interaction";
 import { Option } from "../interactions/option";
@@ -24,13 +24,13 @@ beforeEach(() => {
 });
 
 test("events execute at turn end when timeout is reached", async () => {
-  addEvent(new Event.Builder("test").withAction(() => x++));
+  gn.addEvent(new Event.Builder("test").withAction(() => x++));
   await handleTurnEnd();
   expect(x).toBe(2);
 });
 
 test("events may be built with a builder and multiple actions may be added", async () => {
-  addEvent(
+  gn.addEvent(
     new Event.Builder("test")
       .withAction(() => x++)
       .withAction(() => x++)
@@ -42,7 +42,7 @@ test("events may be built with a builder and multiple actions may be added", asy
 });
 
 test("builders may add multiple actions at once", async () => {
-  addEvent(
+  gn.addEvent(
     new Event.Builder("test")
       .withActions(
         () => x++,
@@ -58,7 +58,7 @@ test("builders may add multiple actions at once", async () => {
 test("options return after an event adds text", async () => {
   await getStore().dispatch(changeInteraction(new Interaction("some text", [new Option("one")])) as AnyAction);
   expect(selectOptions()[0].label).toBe("one");
-  addEvent(new Event.Builder("test").withAction("hello"));
+  gn.addEvent(new Event.Builder("test").withAction("hello"));
   await handleTurnEnd();
   expect(selectCurrentPage()).toInclude("hello");
   expect(selectOptions()[0].label).toBe("one");
@@ -67,7 +67,7 @@ test("options return after an event adds text", async () => {
 test("options return after an event adds a next button", async () => {
   await getStore().dispatch(changeInteraction(new Interaction("hello", [new Option("one")])) as AnyAction);
   expect(selectOptions()[0].label).toBe("one");
-  addEvent(new Event.Builder("test").withAction(new SequentialText("alpha", "beta")));
+  gn.addEvent(new Event.Builder("test").withAction(new SequentialText("alpha", "beta")));
   const turnEndPromise = handleTurnEnd();
   setTimeout(async () => await clickNextAndWait());
   await turnEndPromise;
@@ -81,7 +81,7 @@ test("events may be reset", async () => {
     .withAction(() => x++)
     .withDelayTurns(1)
     .build();
-  addEvent(event);
+  gn.addEvent(event);
   await handleTurnEnd();
   expect(x).toBe(1);
   event.reset();
@@ -96,7 +96,7 @@ test("events may be cancelled", async () => {
     .withAction(() => x++)
     .withDelayTurns(1)
     .build();
-  addEvent(event);
+  gn.addEvent(event);
   await handleTurnEnd();
   expect(x).toBe(1);
   event.cancel();
@@ -111,7 +111,7 @@ test("events may be reset after being cancelled", async () => {
     .withAction(() => x++)
     .withDelayTurns(1)
     .build();
-  addEvent(event);
+  gn.addEvent(event);
   await handleTurnEnd();
   expect(x).toBe(1);
   event.cancel();
@@ -124,7 +124,7 @@ test("events may be reset after being cancelled", async () => {
 
 test("events may perform additional actions after completing", async () => {
   let x = 0;
-  addEvent(
+  gn.addEvent(
     new Event.Builder("happen")
       .withActions(
         () => x++,
@@ -142,7 +142,7 @@ test("trigger conditions cause events to reset when not met", async () => {
   let z = 0;
   let y = 1;
   let triggered = false;
-  addEvent(
+  gn.addEvent(
     new Event.Builder("triggerCondition")
       .withAction(() => (triggered = true))
       .withCondition(() => z === 0)
@@ -168,7 +168,7 @@ test("trigger conditions cause timer-style events to reset when not met", async 
     .withTriggerCondition(() => y === 0)
     .withDelayMillis(250)
     .build();
-  addEvent(event);
+  gn.addEvent(event);
   await handleTurnEnd(); // Event commences but does not trigger.
   expect(triggered).toBe(false);
   expect(event.timeoutId).toBeDefined();
@@ -192,7 +192,7 @@ test("events with both delay types may trigger from a timer", async () => {
     .withDelayMillis(50)
     .withDelayTurns(1)
     .build();
-  addEvent(event);
+  gn.addEvent(event);
   await handleTurnEnd(); // Event commences but does not trigger'
   expect(x).toBe(0);
 
@@ -210,7 +210,7 @@ test("events with both delay types may trigger from a timer", async () => {
 
 test("events with both delay types may trigger from a countdown", async () => {
   let x = 0;
-  addEvent(
+  gn.addEvent(
     new Event.Builder("both2")
       .withAction(() => x++)
       .withDelayMillis(50)
@@ -229,7 +229,12 @@ test("events with both delay types may trigger from a countdown", async () => {
 });
 
 test("turn delays may be functions", async () => {
-  addEvent(new Event.Builder("funcTurns").withAction(() => x++).withDelayTurns(({ event }) => event.executionCount ? 5 : 1).isRecurring());
+  gn.addEvent(
+    new Event.Builder("funcTurns")
+      .withAction(() => x++)
+      .withDelayTurns(({ event }) => (event.executionCount ? 5 : 1))
+      .isRecurring()
+  );
   await handleTurnEnd(); // Event commences but does not trigger
   expect(x).toBe(1);
   await handleTurnEnd();
@@ -239,7 +244,12 @@ test("turn delays may be functions", async () => {
 });
 
 test("time delays may be functions", async () => {
-  addEvent(new Event.Builder("funcTime").withAction(() => x++).withDelayMillis(({ event }) => event.executionCount ? 500 : 1).isRecurring());
+  gn.addEvent(
+    new Event.Builder("funcTime")
+      .withAction(() => x++)
+      .withDelayMillis(({ event }) => (event.executionCount ? 500 : 1))
+      .isRecurring()
+  );
   await handleTurnEnd(); // Event commences but does not trigger
   expect(x).toBe(1);
   await new Promise((resolve) => setTimeout(resolve, 2));
@@ -250,7 +260,7 @@ test("time delays may be functions", async () => {
 
 test("events may be created with no actions", async () => {
   const noop = new Event.Builder("noop").build();
-  addEvent(noop);
+  gn.addEvent(noop);
   await handleTurnEnd();
   expect(noop.state).toBe(SUCCEEDED);
 });

@@ -296,7 +296,6 @@ export * from "./game/interactions/text";
 export { Schedule } from "./game/events/schedule";
 export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
-export { goToRoom, gameOver, theEnd, play, addAutoAction } from "./utils/lifecycle";
 export { OptionGraph, next, previous, okay } from "./game/interactions/optionGraph";
 export {
   selectEffects,
@@ -316,19 +315,3 @@ export { Effect, VerbRelation } from "./utils/effects";
 export * from "./utils/persistentVariableFunctions";
 export * from "./utils/textFunctions";
 export * from "./utils/itemFunctions";
-export {
-  setIntro,
-  setStartingRoom,
-  goToStartingRoom,
-  getRoom,
-  addEvent,
-  addSchedule,
-  setInventoryCapacity,
-  getHelp,
-  getItem,
-  setHelp,
-  giveHint,
-  addHintNodes,
-  setHintNodeId,
-  addEffect
-};

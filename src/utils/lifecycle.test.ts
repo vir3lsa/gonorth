@@ -1,6 +1,6 @@
 import { Item } from "../game/items/item";
 import { Room } from "../game/items/room";
-import gn, { OptionGraph, setStartingRoom } from "../gonorth";
+import gn, { OptionGraph } from "../gonorth";
 import { newGame, recordChanges } from "../redux/gameActions";
 import { getStore, unregisterStore } from "../redux/storeRegistry";
 import { moveItem } from "./itemFunctions";
@@ -47,7 +47,7 @@ beforeEach(() => {
     key: (index: number) => null
   };
   gn.init({ title: "Space Auctioneer", initialiser, goToTitleScreen: false });
-  setStartingRoom(playground);
+  gn.setStartingRoom(playground);
 });
 
 test("delete save resets items to initial state", () => {

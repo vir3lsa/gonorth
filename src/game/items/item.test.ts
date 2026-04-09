@@ -4,7 +4,7 @@ import { SequentialText } from "../interactions/text";
 import { recordChanges } from "../../redux/gameActions";
 import { selectInventory, selectInventoryItems, selectItem, selectItemNames } from "../../utils/selectors";
 import { Room } from "./room";
-import gn, { setInventoryCapacity, goToRoom, ActionClass } from "../../gonorth";
+import gn, { ActionClass } from "../../gonorth";
 import { selectCurrentPage, selectOptions } from "../../utils/testSelectors";
 import { Container } from "./container";
 import { Verb } from "../verbs/verb";
@@ -24,7 +24,7 @@ beforeEach(() => {
   // Pretend we're in the browser
   gn.init({ title: "Jolly Capers", goToTitleScreen: false, skipPersistence: true });
   room = new Room("red");
-  goToRoom(room);
+  gn.goToRoom(room);
 });
 
 describe("basic item tests", () => {
@@ -72,7 +72,7 @@ describe("basic item tests", () => {
   });
 
   test("items can't be picked up if they're bigger than the inventory", async () => {
-    setInventoryCapacity(5);
+    gn.setInventoryCapacity(5);
     const medicineBall = new Item("medicine ball", "big", true, 6);
     room.addItem(medicineBall);
     await medicineBall.try("take");
@@ -81,7 +81,7 @@ describe("basic item tests", () => {
   });
 
   test("items can't be picked up if they're much bigger than the inventory", async () => {
-    setInventoryCapacity(2);
+    gn.setInventoryCapacity(2);
     const medicineBall = new Item("medicine ball", "big", true, 6);
     room.addItem(medicineBall);
     await medicineBall.try("take");
@@ -90,7 +90,7 @@ describe("basic item tests", () => {
   });
 
   test("items can't be picked up if there's no room left", async () => {
-    setInventoryCapacity(10);
+    gn.setInventoryCapacity(10);
     const medicineBall = new Item("medicine ball", "big", true, 6);
     const panda = new Item("panda", "black and white", true, 6);
     room.addItem(medicineBall);
@@ -264,7 +264,7 @@ describe("basic item tests", () => {
   });
 
   test("correct plurality used when taking too large singular item", async () => {
-    setInventoryCapacity(10);
+    gn.setInventoryCapacity(10);
     const boulder = new Item.Builder("boulder").isHoldable().withSize(100).build();
     await boulder.try("take");
     expect(selectCurrentPage()).toInclude("The boulder is far too large");
@@ -275,7 +275,7 @@ describe("basic item tests", () => {
   });
 
   test("correct plurality used when taking too large plural item", async () => {
-    setInventoryCapacity(10);
+    gn.setInventoryCapacity(10);
     const boulders = new Item.Builder("boulders").isPlural().isHoldable().withSize(100).build();
     await boulders.try("take");
     expect(selectCurrentPage()).toInclude("The boulders are far too large");
@@ -494,7 +494,7 @@ describe("putting items", () => {
   });
 
   test("fails if the indirect item is holdable but can't be picked up", async () => {
-    setInventoryCapacity(10);
+    gn.setInventoryCapacity(10);
     const bag = new Container.Builder("bag").isHoldable().withSize(20).build();
     room.addItem(bag);
     await ball.try("put", bag);

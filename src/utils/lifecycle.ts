@@ -26,7 +26,7 @@ import { OptionGraph } from "../game/interactions/optionGraph";
 import { AutoAction } from "../game/input/autoAction";
 import { clearPage, playerHasItem } from "./sharedFunctions";
 import packageJson from "../../package.json";
-import { STATE_RUNNING } from "../game/events/schedule";
+import { Schedule } from "../game/events/schedule";
 
 export async function handleTurnEnd() {
   const events = selectEvents();
@@ -42,7 +42,7 @@ export async function handleTurnEnd() {
       schedule.commence();
     }
 
-    if (schedule.state === STATE_RUNNING) {
+    if (schedule.state === Schedule.STATE_RUNNING) {
       await schedule.currentEvent.lifecycle();
     }
   }

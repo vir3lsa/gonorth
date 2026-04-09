@@ -17,7 +17,7 @@ import {
 } from "../game/interactions/text";
 import type { Room } from "../game/items/room";
 import type { Item } from "../game/items/item";
-import { STATE_READY } from "../game/events/schedule";
+import { Schedule } from "../game/events/schedule";
 import { DORMANT } from "../game/events/event";
 
 const isSerializedItem = (arg?: Serialized): arg is SerializedItem => {
@@ -54,7 +54,7 @@ export const initStore = (name?: string) => {
         }, {} as SerializableOptionGraphDict),
       schedules: (schedules: ScheduleT[]) =>
         schedules.reduce((acc, schedule) => {
-          if (schedule.stage > 0 || schedule.state !== STATE_READY) {
+          if (schedule.stage > 0 || schedule.state !== Schedule.STATE_READY) {
             acc[schedule.id] = {
               stage: schedule.stage,
               state: schedule.state,

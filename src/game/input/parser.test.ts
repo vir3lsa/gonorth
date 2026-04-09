@@ -4,7 +4,7 @@ import { Parser } from "./parser";
 import { Door } from "../items/door";
 import { Item } from "../items/item";
 import { Verb } from "../verbs/verb";
-import gn, { addEffect, setInventoryCapacity } from "../../gonorth";
+import gn from "../../gonorth";
 import { goToRoom } from "../../utils/lifecycle";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { selectOptions, selectRoom } from "../../utils/selectors";
@@ -110,7 +110,7 @@ describe("parser", () => {
       blueBall.addVerb(
         new Verb.Builder("club").withAliases("put").onSuccess("You hit the ball into the hole.").build()
       );
-      addEffect(
+      gn.addEffect(
         new Effect.Builder()
           .withPrimaryItem(redBall)
           .withSecondaryItem(chairman)
@@ -119,7 +119,7 @@ describe("parser", () => {
           .withVerbRelation(VerbRelation.Instead)
           .withActions("The chair man catches the ball.")
       );
-      addEffect(
+      gn.addEffect(
         new Effect.Builder()
           .withAnyPrimaryItem()
           .withSecondaryItem(chairman)
@@ -128,7 +128,7 @@ describe("parser", () => {
           .withVerbRelation(VerbRelation.Instead)
           .withActions(({ item }) => `The chair man can't find the ${item.name}.`)
       );
-      addEffect(
+      gn.addEffect(
         new Effect.Builder()
           .withPrimaryItem(redBall)
           .withSecondaryItem(blueBall)
@@ -137,7 +137,7 @@ describe("parser", () => {
           .withVerbRelation(VerbRelation.Before)
           .withActions("You take careful aim.")
       );
-      addEffect(
+      gn.addEffect(
         new Effect.Builder()
           .withAnyPrimaryItem()
           .withSecondaryItem(blueBall)
@@ -295,7 +295,7 @@ describe("parser", () => {
     });
 
     it("fails if a holdable secondary item can't be picked up", async () => {
-      setInventoryCapacity(21);
+      gn.setInventoryCapacity(21);
       await regexTest("take cushion", /(take|grab|pick up) the cushion/);
       await inputTest("put cushion in blue box", "don't have enough room for the blue box");
       expect(selectCurrentPage()).not.toMatch(/(take|grab|pick up) the blue box/);

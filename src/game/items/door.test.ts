@@ -3,7 +3,7 @@ import { Door, Key } from "./door";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Room } from "./room";
 import { Interaction } from "../interactions/interaction";
-import gn, { ActionClass, goToRoom, selectRoom, Verb } from "../../gonorth";
+import gn, { ActionClass, Verb } from "../../gonorth";
 import { Item } from "./item";
 import { selectCurrentPage, selectInteraction } from "../../utils/testSelectors";
 import { AnyAction } from "redux";
@@ -27,7 +27,7 @@ beforeEach(() => {
   room.setWest(new Room.Builder("Cellar").build());
   door = new Door("heavy oak door", "", false, true);
   room.addItem(door);
-  goToRoom(room);
+  gn.goToRoom(room);
 });
 
 test("doors can be unlocked", async () => {
@@ -282,7 +282,7 @@ describe("traversals", () => {
     gate.getVerb("go through").attempt(gate);
     await deferAction(() => expect(selectCurrentPage()).toInclude("Well done"));
     await clickNextAndWait();
-    expect(selectRoom().name).toBe("Pantry");
+    expect(gn.selectRoom().name).toBe("Pantry");
   });
 
   test("multiple traversals can be added and the one whose activation condition matches will be chosen", async () => {
@@ -310,7 +310,7 @@ describe("traversals", () => {
     gate.getVerb("go through").attempt(gate);
     await deferAction(() => expect(selectCurrentPage()).toInclude("You did it"));
     await clickNextAndWait();
-    expect(selectRoom().name).toBe("Cellar");
+    expect(gn.selectRoom().name).toBe("Cellar");
   });
 
   test("activation conditions can be booleans", async () => {
@@ -480,11 +480,11 @@ describe("traversals", () => {
         new Door.TraversalBuilder()
           .withOrigin("Hall")
           .withDestination("Pantry")
-          .onSuccess(() => `From ${selectRoom().name}`),
+          .onSuccess(() => `From ${gn.selectRoom().name}`),
         true
       )
       .build();
-    goToRoom("Pantry");
+    gn.goToRoom("Pantry");
     swingDoor.try("traverse");
     return deferAction(() => expect(selectCurrentPage()).toInclude("From Pantry"));
   });
@@ -496,12 +496,12 @@ describe("traversals", () => {
         new Door.TraversalBuilder()
           .withOrigin("Hall")
           .withDestination("Pantry")
-          .withDoorOpenTest(() => `Stuck in ${selectRoom().name}`)
-          .onSuccess(() => `From ${selectRoom().name}`),
+          .withDoorOpenTest(() => `Stuck in ${gn.selectRoom().name}`)
+          .onSuccess(() => `From ${gn.selectRoom().name}`),
         true
       )
       .build();
-    goToRoom("Pantry");
+    gn.goToRoom("Pantry");
     swingDoor.try("traverse");
     return deferAction(() => expect(selectCurrentPage()).toInclude("Stuck in Pantry"));
   });
@@ -519,7 +519,7 @@ describe("traversals", () => {
         true
       )
       .build();
-    goToRoom("Pantry");
+    gn.goToRoom("Pantry");
     tunnel.try("crawl");
     return deferAction(() => {
       expect(selectCurrentPage()).toInclude("x is zero");

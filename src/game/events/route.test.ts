@@ -5,7 +5,7 @@ import { Npc } from "../items/npc";
 import { CyclicText } from "../interactions/text";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { changeRoom } from "../../redux/gameActions";
-import gn, { addSchedule } from "../../gonorth";
+import gn from "../../gonorth";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { selectCurrentPage } from "../../utils/testSelectors";
 
@@ -37,7 +37,7 @@ function createRoute(
   });
 
   const route = routeBuilder.build();
-  addSchedule(route);
+  gn.addSchedule(route);
   return route;
 }
 
