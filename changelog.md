@@ -1,5 +1,10 @@
 # goNORTH Changelog
 
+## 16.0.0
+
+- 2026-04-11 Removed direct function exports from gonorth - all are now part of the default export.
+- 2026-04-09 Made room action chains consistent, and schedule states static.
+
 ## 15.2.1
 
 - 2025-06-01 Added better support for nested SequentialTexts.

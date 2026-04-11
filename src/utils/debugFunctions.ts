@@ -13,7 +13,7 @@ import disambiguate from "./disambiguation";
 import { moveItem } from "./itemFunctions";
 import { getStore } from "../redux/storeRegistry";
 import { cyRecord, itemsRevealed, overrideEventTimeout } from "../redux/gameActions";
-import { forget, retrieve, store, update } from "../gonorth";
+import gn from "../gonorth";
 import packageJson from "../../package.json";
 
 const helpText = `Usage: \`debug operation [args]\`
@@ -333,15 +333,15 @@ function variable(args: string[]) {
     return variableHelp;
   } else if (args.length > 1) {
     if (["store", "set"].includes(args[0]) && args.length === 3) {
-      store(args[1], parseVariableValue(args[2]));
+      gn.store(args[1], parseVariableValue(args[2]));
       return "Variable stored.";
     } else if (args[0] === "update" && args.length === 3) {
-      update(args[1], parseVariableValue(args[2]));
+      gn.update(args[1], parseVariableValue(args[2]));
       return "Variable updated.";
     } else if (["retrieve", "get"].includes(args[0])) {
-      return `${args[1]}: ${retrieve(args[1])}`;
+      return `${args[1]}: ${gn.retrieve(args[1])}`;
     } else if (["forget", "erase"].includes(args[0])) {
-      forget(args[1]);
+      gn.forget(args[1]);
       return "Variable forgotten.";
     }
   }

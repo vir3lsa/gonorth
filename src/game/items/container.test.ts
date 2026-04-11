@@ -1,6 +1,6 @@
 import { Item } from "./item";
 import { Verb } from "../verbs/verb";
-import gn, { ActionClass, selectInventory } from "../../gonorth";
+import gn, { ActionClass } from "../../gonorth";
 import { recordChanges } from "../../redux/gameActions";
 import { getStore, unregisterStore } from "../../redux/storeRegistry";
 import { Container } from "./container";
@@ -8,6 +8,7 @@ import { selectCurrentPage } from "../../utils/testSelectors";
 import { Key } from "./door";
 import { clearPage } from "../../utils/sharedFunctions";
 import { selectItem } from "../../utils/selectors";
+import { selectInventory } from "../../utils/selectors";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");

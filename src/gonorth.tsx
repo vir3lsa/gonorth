@@ -296,22 +296,7 @@ export * from "./game/interactions/text";
 export { Schedule } from "./game/events/schedule";
 export { Route } from "./game/events/route";
 export { Npc } from "./game/items/npc";
-export { OptionGraph, next, previous, okay } from "./game/interactions/optionGraph";
-export {
-  selectEffects,
-  selectInventory,
-  selectInventoryItems,
-  selectOptionGraph,
-  selectRoom,
-  selectTurn,
-  selectPlayer
-} from "./utils/selectors";
+export { OptionGraph } from "./game/interactions/optionGraph";
 export { ActionChain, ActionClass } from "./utils/actionChain";
-export { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
-export { inSameRoomAs, playerCanCarry, playerHasItem } from "./utils/sharedFunctions";
-export { moveItem } from "./utils/itemFunctions";
 export { AutoAction } from "./game/input/autoAction";
 export { Effect, VerbRelation } from "./utils/effects";
-export * from "./utils/persistentVariableFunctions";
-export * from "./utils/textFunctions";
-export * from "./utils/itemFunctions";
