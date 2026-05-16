@@ -8,6 +8,7 @@ import gn, { Interaction, SequentialText } from "../gonorth";
 import { deferAction } from "./testFunctions";
 import { AnyAction } from "redux";
 import { clearPage } from "./sharedFunctions";
+import { Resolve } from "../types/types";
 
 // Prevent console logging
 jest.mock("../utils/consoleIO");

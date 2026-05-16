@@ -2,6 +2,7 @@ import React, { KeyboardEvent, useCallback, useEffect } from "react";
 import { Box } from "@mui/system";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { revealScene } from "../../redux/gameActions";
+import { StoreState } from "../../types/types";
 import "./scene.css";
 
 interface Props {

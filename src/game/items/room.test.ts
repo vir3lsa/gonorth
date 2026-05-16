@@ -10,6 +10,7 @@ import { clickNext, deferAction } from "../../utils/testFunctions";
 import { selectItem, selectRoom } from "../../utils/selectors";
 import { Door } from "./door";
 import { AnyAction } from "redux";
+import { RoomT } from "../../types/types";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");

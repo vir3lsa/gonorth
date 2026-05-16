@@ -1,4 +1,5 @@
 import { Store } from "redux";
+import { RevivedSnapshot, Serializable, Snapshot, SnapshotPersistorConfig } from "../types/types";
 
 /*
  * Utility class that saves snapshots of a store's state to local storage. It will also retrieve

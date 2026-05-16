@@ -8,6 +8,7 @@ import { changeRoom } from "../../redux/gameActions";
 import gn from "../../gonorth";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { selectCurrentPage } from "../../utils/testSelectors";
+import { Condition, RouteT, UnknownText } from "../../types/types";
 
 jest.mock("../../utils/consoleIO");
 

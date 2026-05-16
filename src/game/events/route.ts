@@ -1,5 +1,6 @@
 import { Schedule, ScheduleBuilder } from "./schedule";
 import { Event, TIMEOUT_MILLIS, TIMEOUT_TURNS } from "./event";
+import { Condition, NpcT, UnknownText } from "../../types/types";
 import { selectRoom } from "../../utils/selectors";
 
 export class RouteBuilder extends ScheduleBuilder {

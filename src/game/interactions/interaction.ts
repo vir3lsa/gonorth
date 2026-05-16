@@ -1,4 +1,5 @@
 import { Option } from "./option";
+import { MaybeOptions, OptionT } from "../../types/types";
 
 /**
  * Replaces the current screen contents and displays text and prompts for user input, whether

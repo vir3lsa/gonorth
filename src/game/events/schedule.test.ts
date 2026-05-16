@@ -3,6 +3,7 @@ import { Event } from "./event";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import gn from "../../gonorth";
 import { unregisterStore } from "../../redux/storeRegistry";
+import { Action, Condition, ScheduleT } from "../../types/types";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");

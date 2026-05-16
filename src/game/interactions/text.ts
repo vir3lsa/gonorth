@@ -1,4 +1,15 @@
 import { selectRecordChanges } from "../../utils/selectors";
+import {
+  AlteredProperties,
+  AnyText,
+  JsonDict,
+  ManagedTextPhase,
+  ManagedTextT,
+  ResolvedText,
+  SimpleAction,
+  TextFunction,
+  TextPart
+} from "../../types/types";
 
 export class Text {
   [propertyName: string]: unknown;

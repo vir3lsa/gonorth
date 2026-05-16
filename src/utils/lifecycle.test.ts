@@ -13,6 +13,8 @@ const consoleIO = require("./consoleIO");
 consoleIO.output = jest.fn();
 consoleIO.showOptions = jest.fn();
 
+import { ItemT, OptionGraphT, RoomT } from "../types/types";
+
 let mockStorage: Record<string, string>, ball: ItemT, playground: RoomT, house: RoomT, graph: OptionGraphT;
 
 const initialiser = () => {

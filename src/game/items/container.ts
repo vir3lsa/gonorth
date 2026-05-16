@@ -2,6 +2,7 @@ import { createDynamicText } from "../../utils/dynamicDescription";
 import { normaliseTest } from "../../utils/sharedFunctions";
 import { Verb } from "../verbs/verb";
 import { Item, Builder as ItemBuilder } from "./item";
+import { Action, ContainerConfig, ItemConfig, KeyT, SmartTest, Test, UnknownText, VerbT } from "../../types/types";
 
 export class Container extends Item {
   private __open: boolean = false;

@@ -12,6 +12,7 @@ import { Container } from "../items/container";
 import { clearPage } from "../../utils/sharedFunctions";
 import { Effect, VerbRelation } from "../../utils/effects";
 import { deferAction } from "../../utils/testFunctions";
+import { VerbT } from "../../types/types";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");

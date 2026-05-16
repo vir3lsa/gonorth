@@ -1,4 +1,5 @@
 import { selectInteraction } from "./testSelectors";
+import { Consumer, OptionT, SimpleAction } from "../types/types";
 
 export const clickNext = () => selectInteraction().options[0].action();
 

@@ -10,6 +10,7 @@ import { AnyAction } from "redux";
 import { clickNextAndWait, deferAction } from "../../utils/testFunctions";
 import { clearPage } from "../../utils/sharedFunctions";
 import { selectItem } from "../../utils/selectors";
+import { DoorT, RoomT } from "../../types/types";
 
 let room: RoomT, door: DoorT;
 

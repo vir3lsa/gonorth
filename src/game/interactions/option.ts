@@ -4,6 +4,7 @@ import { AppendInput } from "./interaction";
 import { ActionChain } from "../../utils/actionChain";
 import { handleTurnEnd } from "../../utils/lifecycle";
 import { selectActionChainPromise } from "../../utils/selectors";
+import { Action, OptionAction } from "../../types/types";
 import { AnyAction } from "redux";
 
 export class Option {

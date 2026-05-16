@@ -4,6 +4,24 @@ import { getStore } from "../redux/storeRegistry";
 import { Text, SequentialText, ManagedText } from "../game/interactions/text";
 import { OptionGraph } from "../game/interactions/optionGraph";
 import { selectOptions } from "./selectors";
+import {
+  Action,
+  ActionChainHelpers,
+  ActionClassT,
+  ActionFunction,
+  AnyContext,
+  ChainableFunction,
+  ChainContext,
+  MaybeAction,
+  MaybeChainContext,
+  MaybeOptions,
+  MaybePromise,
+  OptionGraphT,
+  OptionT,
+  PostScript,
+  Resolve,
+  TextT
+} from "../types/types";
 import { AnyAction } from "redux";
 
 /*

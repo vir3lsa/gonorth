@@ -1,4 +1,5 @@
 import { OptionGraph } from "../game/interactions/optionGraph";
+import { DisambiguationCallback, GraphNode, ItemT } from "../types/types";
 
 /* Presents an OptionGraph that asks the player which item they meant when they typed an ambiguous name.
  * @param name The ambiguous name

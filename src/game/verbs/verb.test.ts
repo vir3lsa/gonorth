@@ -14,6 +14,7 @@ import { checkAutoActions } from "../input/autoActionExecutor";
 import { ActionChain } from "../../utils/actionChain";
 import { AnyAction } from "redux";
 import { Effect, EffectBuilder, VerbRelation } from "../../utils/effects";
+import { VerbT } from "../../types/types";
 
 jest.mock("../input/autoActionExecutor", () => ({
   checkAutoActions: jest.fn(async () => true)

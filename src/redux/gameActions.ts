@@ -1,6 +1,23 @@
 import { Dispatch } from "redux";
 import * as type from "./gameActionTypes";
 import { output, getOptionsString } from "../utils/consoleIO";
+import {
+  AutoActionT,
+  EventT,
+  Game,
+  GetState,
+  InteractionT,
+  ItemT,
+  KeywordsDict,
+  OptionGraphT,
+  PersistentVariable,
+  RevivedSnapshot,
+  RoomT,
+  ScheduleT,
+  Serializable,
+  StoreState,
+  VerbNameDict
+} from "../types/types";
 import { Parser } from "../game/input/parser";
 import { AppendInput, Append } from "../game/interactions/interaction";
 

@@ -1,5 +1,6 @@
 import { addValue, forgetValue, updateValue } from "../redux/gameActions";
 import { getStore } from "../redux/storeRegistry";
+import { PersistentVariable } from "../types/types";
 
 export function store(propertyName: string, value: PersistentVariable, force = false) {
   getStore().dispatch(addValue(propertyName, value, force));

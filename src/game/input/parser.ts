@@ -13,6 +13,7 @@ import {
 } from "../../utils/selectors";
 import { toTitleCase } from "../../utils/textFunctions";
 import disambiguate from "../../utils/disambiguation";
+import { DecisionTree, ItemConstruction, ItemDetails, ItemItemsDict, ItemT, VerbConstruction } from "../../types/types";
 import { AnyAction } from "redux";
 
 export class Parser {

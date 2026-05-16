@@ -4,6 +4,7 @@ import { Item } from "../game/items/item";
 import { Effect, Effects, VerbRelation } from "./effects";
 import { selectCurrentPage } from "./testSelectors";
 import gn from "../gonorth";
+import { EffectsT } from "../types/types";
 
 let effects: EffectsT;
 

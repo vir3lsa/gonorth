@@ -3,6 +3,7 @@ import Button from "@mui/material/Button";
 import Grid from "@mui/material/Grid";
 import { reactionTimePassed } from "../utils/sharedFunctions";
 import { ButtonBaseActions } from "@mui/material";
+import { OptionT } from "../types/types";
 
 const LEFT_KEYS = ["ArrowLeft", "ArrowUp", "a", "w"];
 const RIGHT_KEYS = ["ArrowRight", "ArrowDown", "d", "s"];

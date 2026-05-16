@@ -1,5 +1,18 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
+import {
+  Config,
+  Game,
+  Initialiser,
+  Intro,
+  RoomT,
+  EventT,
+  ScheduleT,
+  OptionGraphT,
+  GraphNode,
+  EffectT,
+  EffectBuilderT
+} from "./types/types";
 import { initStore } from "./redux/store";
 import { getStore, unregisterStore } from "./redux/storeRegistry";
 import {
@@ -300,3 +313,5 @@ export { OptionGraph } from "./game/interactions/optionGraph";
 export { ActionChain, ActionClass } from "./utils/actionChain";
 export { AutoAction } from "./game/input/autoAction";
 export { Effect, VerbRelation } from "./utils/effects";
+
+export * from "./types/types";

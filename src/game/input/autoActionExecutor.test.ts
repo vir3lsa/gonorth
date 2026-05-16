@@ -1,6 +1,7 @@
 import gn, { Item } from "../../gonorth";
 import { Verb } from "../verbs/verb";
 import { checkAutoActions } from "./autoActionExecutor";
+import { Context } from "../../types/types";
 
 const mock1 = jest.fn();
 const mock2 = jest.fn();

@@ -9,6 +9,7 @@ import { handleDebugOperations } from "../../utils/debugFunctions";
 import { clearPage } from "../../utils/sharedFunctions";
 import createWaitGraph from "./waitGraph";
 import { checkpoint } from "../../utils/lifecycle";
+import { Keywords, VerbT } from "../../types/types";
 
 export function createKeywords() {
   const emptyInventoryText = new RandomText(

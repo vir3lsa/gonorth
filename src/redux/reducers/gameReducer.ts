@@ -1,6 +1,7 @@
 import * as type from "../gameActionTypes";
 import { Interaction, Append, AppendInput } from "../../game/interactions/interaction";
 import { Effects } from "../../utils/effects";
+import { CustomState, ItemAliasDict, KeywordsDict, LogOptions, OptionGraphDict, ReduxAction, RoomDict, StoreState } from "../../types/types";
 
 const outputSnippetLength = 30;
 const ROLLING_LOG_LENGTH = 10;

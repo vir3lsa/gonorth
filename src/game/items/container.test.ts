@@ -9,6 +9,7 @@ import { Key } from "./door";
 import { clearPage } from "../../utils/sharedFunctions";
 import { selectItem } from "../../utils/selectors";
 import { selectInventory } from "../../utils/selectors";
+import { ContainerT, ItemT, SmartTest } from "../../types/types";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");

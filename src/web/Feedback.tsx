@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { selectConfig, selectRollingLog } from "../utils/selectors";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleFeedback } from "../redux/gameActions";
+import { StoreState } from "../types/types";
 
 const Feedback = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement>();

@@ -10,6 +10,7 @@ import { Container } from "./container";
 import { Verb } from "../verbs/verb";
 import { clickNextAndWait, deferAction } from "../../utils/testFunctions";
 import { clearPage } from "../../utils/sharedFunctions";
+import { ContainerT, ItemT, RoomT } from "../../types/types";
 
 let room: RoomT;
 

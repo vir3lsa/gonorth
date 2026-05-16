@@ -27,6 +27,7 @@ import { AutoAction } from "../game/input/autoAction";
 import { clearPage, playerHasItem } from "./sharedFunctions";
 import packageJson from "../../package.json";
 import { Schedule } from "../game/events/schedule";
+import { AutoActionT, Context, EventT, RoomT } from "../types/types";
 
 export async function handleTurnEnd() {
   const events = selectEvents();

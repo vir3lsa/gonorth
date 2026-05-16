@@ -1,4 +1,26 @@
 import { ManagedText, RandomText, Text } from "../interactions/text";
+import {
+  VerbCustomisations,
+  VerbDict,
+  ItemT,
+  Action,
+  ItemItemsDict,
+  ItemProperties,
+  ItemConfig,
+  UnknownText,
+  VerbT,
+  VerbBuilderT,
+  ActionChainT,
+  PostScript,
+  Test,
+  Serializable,
+  JsonDict,
+  TextT,
+  ManagedTextT,
+  TextFunction,
+  ContextAction,
+  ContainerT
+} from "../../types/types";
 import { Verb } from "../verbs/verb";
 import { createDynamicText } from "../../utils/dynamicDescription";
 import {

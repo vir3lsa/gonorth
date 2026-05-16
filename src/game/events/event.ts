@@ -1,5 +1,6 @@
 import { ActionChain } from "../../utils/actionChain";
 import { debug } from "../../utils/consoleIO";
+import { Action, Condition, NumberFunction, NumberResolve } from "../../types/types";
 import {
   selectActionChainPromise,
   selectEventTimeoutOverride,

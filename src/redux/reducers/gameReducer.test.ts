@@ -1,5 +1,6 @@
 import { ADD_LOG_ENTRY } from "../gameActionTypes";
 import reducer from "./gameReducer";
+import { ReduxAction, StoreState } from "../../types/types";
 
 describe("add_log_entry", () => {
   test("creates a new entry for each player input", () => {

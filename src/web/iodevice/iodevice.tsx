@@ -14,6 +14,7 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
 import usePrevious from "../../hooks/usePrevious";
 import useAddedContent from "../../hooks/useAddedContent";
+import { InteractionT, StoreState } from "../../types/types";
 import "./iodevice.css";
 
 const SCROLL_MARGIN_OF_ERROR = 5;

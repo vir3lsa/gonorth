@@ -5,6 +5,19 @@ import { getStore } from "../../redux/storeRegistry";
 import { addOptionGraph, changeImage, changeRoomName } from "../../redux/gameActions";
 import { selectInventoryItems, selectRecordChanges, selectRoom } from "../../utils/selectors";
 import { clearPage } from "../../utils/sharedFunctions";
+import {
+  Action,
+  Condition,
+  GraphContext,
+  GraphNode,
+  GraphOption,
+  GraphOptions,
+  InventoryAction,
+  Resolve,
+  RoomT,
+  SomeGraphOption,
+  UnknownOptions
+} from "../../types/types";
 
 export const next = "OptionGraph_next";
 export const previous = "OptionGraph_previous";

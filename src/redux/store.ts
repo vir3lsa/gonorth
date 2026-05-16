@@ -19,6 +19,20 @@ import type { Room } from "../game/items/room";
 import type { Item } from "../game/items/item";
 import { Schedule } from "../game/events/schedule";
 import { DORMANT } from "../game/events/event";
+import {
+  AllItemsDict,
+  EventT,
+  ItemT,
+  OptionGraphDict,
+  ScheduleT,
+  SerializableEventDict,
+  SerializableOptionGraphDict,
+  SerializableScheduleDict,
+  Serialized,
+  SerializedItem,
+  SerializedItemsDict,
+  SerializedText
+} from "../types/types";
 
 const isSerializedItem = (arg?: Serialized): arg is SerializedItem => {
   return Boolean(arg?.hasOwnProperty("isItem"));

@@ -3,6 +3,7 @@ import TextField from "@mui/material/TextField";
 import { receiveInput } from "../game/input/inputReceiver";
 import { reactionTimePassed } from "../utils/sharedFunctions";
 import { useSelector } from "react-redux";
+import { StoreState } from "../types/types";
 
 const MAX_HISTORY = 500;
 

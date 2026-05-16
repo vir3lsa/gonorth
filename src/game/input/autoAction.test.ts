@@ -4,6 +4,7 @@ import { Item } from "../items/item";
 import { Verb } from "../verbs/verb";
 import { AutoAction } from "./autoAction";
 import { Parser } from "./parser";
+import { AutoActionT, Context } from "../../types/types";
 
 const mockParse = jest.fn(() => true);
 jest.mock("./parser", () => ({

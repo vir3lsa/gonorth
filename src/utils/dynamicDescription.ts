@@ -1,4 +1,5 @@
 import { Text, CyclicText, PagedText, ManagedText } from "../game/interactions/text";
+import { TextFunction, UnknownText } from "../types/types";
 
 export const preferPaged = (text: UnknownText) => {
   if (typeof text === "string" || typeof text === "function") {

@@ -1,4 +1,22 @@
 import { getStore } from "../redux/storeRegistry";
+import {
+  AutoActionT,
+  Config,
+  EffectsT,
+  EventT,
+  Game,
+  ItemAliasDict,
+  ItemT,
+  Keywords,
+  LogEntry,
+  OptionGraphDict,
+  OptionGraphT,
+  OptionT,
+  RoomDict,
+  RoomT,
+  ScheduleT,
+  VerbNameDict
+} from "../types/types";
 
 export const selectGame = (): Game => getStore().getState().game;
 export const selectInventory = (): ItemT => getStore().getState().player;

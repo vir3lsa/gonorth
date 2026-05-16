@@ -4,6 +4,18 @@ import { moveItem } from "../utils/itemFunctions";
 import { changeRoom, loadSnapshot, recordChanges } from "./gameActions";
 import { getPersistor, getStore, unregisterStore } from "./storeRegistry";
 import { SequentialText, RandomText, ManagedText } from "../game/interactions/text";
+import {
+  Dict,
+  ItemT,
+  ManagedTextT,
+  OptionGraphT,
+  PersistentVariable,
+  RandomTextT,
+  RevivedSnapshot,
+  RoomT,
+  SnaphotPersistorT,
+  Snapshot
+} from "../types/types";
 
 jest.mock("../utils/consoleIO");
 const consoleIO = require("../utils/consoleIO");

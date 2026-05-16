@@ -5,6 +5,7 @@ import { Parser } from "./parser";
 import { getStore } from "../../redux/storeRegistry";
 import { AnyAction } from "redux";
 import { changeInteraction } from "../../redux/gameActions";
+import { Context, Input, Test, TestFunction } from "../../types/types";
 
 export class AutoAction {
   condition;

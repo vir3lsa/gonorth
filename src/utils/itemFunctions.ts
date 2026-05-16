@@ -1,4 +1,5 @@
 import { selectItem } from "./selectors";
+import { ItemOrRoom, ItemOrString, ItemRoomOrString, ItemT } from "../types/types";
 
 /*
  * (Silently) moves an item to a new container.

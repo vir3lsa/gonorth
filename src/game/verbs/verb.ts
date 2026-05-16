@@ -5,6 +5,7 @@ import { selectEffects, selectRoom } from "../../utils/selectors";
 import { createChainableTest, normaliseTest, playerHasItem } from "../../utils/sharedFunctions";
 import { checkAutoActions } from "../input/autoActionExecutor";
 import { VerbRelation } from "../../utils/effects";
+import { Action, ActionChainT, Context, ContextAction, ItemT, RoomT, SmartTest, Test, VerbConfig } from "../../types/types";
 
 const { Before, Instead, After } = VerbRelation;
 

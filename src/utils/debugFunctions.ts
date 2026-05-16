@@ -14,6 +14,7 @@ import { moveItem } from "./itemFunctions";
 import { getStore } from "../redux/storeRegistry";
 import { cyRecord, itemsRevealed, overrideEventTimeout } from "../redux/gameActions";
 import gn from "../gonorth";
+import { GraphNode, ItemT } from "../types/types";
 import packageJson from "../../package.json";
 
 const helpText = `Usage: \`debug operation [args]\`

@@ -1,5 +1,16 @@
 import { ActionChain } from "./actionChain";
 import { createChainableTest, normaliseTest } from "./sharedFunctions";
+import {
+  Action,
+  Context,
+  ContextAction,
+  EffectConfig,
+  EffectsDict,
+  ItemOrString,
+  MaybeItemOrString,
+  SmartTest,
+  Test
+} from "../types/types";
 
 const WILDCARD = "__effects:wildcard__";
 

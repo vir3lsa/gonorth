@@ -1,4 +1,5 @@
 import { Event, SUCCEEDED, EventBuilder } from "./event";
+import { Condition } from "../../types/types";
 
 export class ScheduleBuilder {
   id: string;

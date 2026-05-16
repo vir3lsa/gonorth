@@ -7,6 +7,7 @@ import { Verb } from "../verbs/verb";
 import { Room } from "../items/room";
 import { Item } from "../items/item";
 import { clearPage } from "../../utils/sharedFunctions";
+import { Action, GraphNode, GraphOption, GraphOptions, ItemT, OptionGraphT, RoomT, VerbT } from "../../types/types";
 
 jest.mock("../../utils/consoleIO");
 const consoleIO = require("../../utils/consoleIO");

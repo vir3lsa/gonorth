@@ -5,6 +5,7 @@ import { getStore } from "../redux/storeRegistry";
 import { changeInteraction } from "../redux/gameActions";
 import { Interaction } from "../game/interactions/interaction";
 import { ActionChain } from "./actionChain";
+import { Action, Context, Test } from "../types/types";
 
 const REACTION_MILLIS = 350;
 

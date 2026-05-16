@@ -9,6 +9,21 @@ import gn from "../../gonorth";
 import { getBasicItemList, toTitleCase } from "../../utils/textFunctions";
 import { debug } from "../../utils/consoleIO";
 import { checkpoint } from "../../utils/lifecycle";
+import {
+  Action,
+  AdjacentRooms,
+  ContextAction,
+  DirectionName,
+  DirectionObject,
+  ItemConfig,
+  ItemT,
+  Navigable,
+  RoomConfig,
+  RoomT,
+  SimpleAction,
+  Test,
+  UnknownText
+} from "../../types/types";
 
 const directionAliases = {
   north: ["n", "forward", "straight on"],

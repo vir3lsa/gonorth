@@ -4,6 +4,7 @@ import { Event } from "../events/event";
 import { getStore } from "../../redux/storeRegistry";
 import { addEvent } from "../../redux/gameActions";
 import { selectRoom } from "../../utils/selectors";
+import { Action, Condition, DirectionName, EventT } from "../../types/types";
 
 export class Npc extends Item {
   encounters: Event[];

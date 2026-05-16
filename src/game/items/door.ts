@@ -3,6 +3,7 @@ import { Verb } from "../verbs/verb";
 import { inRoom, normaliseTest } from "../../utils/sharedFunctions";
 import { goToRoom } from "../../utils/lifecycle";
 import { CyclicText } from "../interactions/text";
+import { Action, DoorConfig, ItemConfig, ItemT, KeyT, SmartTest, Test, TestFunction, Traversal, TraversalConfig, UnknownText } from "../../types/types";
 
 /**
  * Doors are {@link game/items/item!Item | Items} that can open and close, and may be lockable, with or without
