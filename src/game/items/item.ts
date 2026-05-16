@@ -79,8 +79,8 @@ export class Item {
   private __verbCustomisations: VerbCustomisations = {};
   private __config?: ItemConfig;
   private __omitAliases: string[] = [];
-  protected uniqueItems: Set<ItemT>;
-  isRoom = false;
+  private __uniqueItems: Set<ItemT>;
+  private __isRoom = false;
 
   clone(typeConstructor = Item) {
     const builder = new Item.Builder();
@@ -140,7 +140,12 @@ export class Item {
     this.aliases = [];
     this.name = name ?? config?.name ?? "item";
 
-    if (!selectConfig()?.skipPersistence && selectRecordChanges() && !this.config?.notPersisted && !this.config?.__cloned) {
+    if (
+      !selectConfig()?.skipPersistence &&
+      selectRecordChanges() &&
+      !this.config?.notPersisted &&
+      !this.config?.__cloned
+    ) {
       throw Error(
         `Created item "${this.name}" after the game started. This will cause saved game corruption as the setup function doesn't create this item and the persistor therefore won't be able to find an item to modify when loading the save file. To resolve this, ensure the item "${this.name}" is created in the game's setup function - if it shouldn't be immediately accessible, don't add it to any room and then move it later.\n\nCheck also that the builder's 'build()' function has been called within the setup function.`
       );
@@ -155,7 +160,7 @@ export class Item {
     this.visible = true;
     this.container = undefined;
     this.items = {};
-    this.uniqueItems = new Set();
+    this.__uniqueItems = new Set();
     this.canHoldItems = false;
     this.capacity = -1;
     this.free = -1;
@@ -394,11 +399,9 @@ export class Item {
             const parentVerb = new Verb.Builder(verb.name)
               .withAliases(...verb.aliases)
               .isRemote(verb.remote)
-              .onSuccess(
-                (context) => {
-                  return verb.attemptWithContext({ ...context, item: config.producesSingular });
-                }
-              );
+              .onSuccess((context) => {
+                return verb.attemptWithContext({ ...context, item: config.producesSingular });
+              });
 
             if (verb.prepositional) {
               parentVerb.makePrepositional(verb.interrogative!, verb.prepositionOptional);
@@ -697,7 +700,7 @@ export class Item {
 
   set items(items) {
     this.__items = items;
-    this.uniqueItems = new Set(
+    this.__uniqueItems = new Set(
       Object.values(this.__items).reduce((acc, itemsWithName) => {
         itemsWithName.forEach((item) => acc.push(item));
         return acc;
@@ -1031,6 +1034,18 @@ export class Item {
 
   set omitAliases(value) {
     this.__omitAliases = value;
+  }
+
+  get uniqueItems() {
+    return this.__uniqueItems;
+  }
+
+  get isRoom() {
+    return this.__isRoom;
+  }
+
+  protected set isRoom(value) {
+    this.__isRoom = value;
   }
 
   get(property: string) {

@@ -1,5 +1,9 @@
 # goNORTH Changelog
 
+## 16.0.1
+
+- 2026-04-19 Item.uniqueItems is public.
+
 ## 16.0.0
 
 - 2026-04-11 Removed direct function exports from gonorth - all are now part of the default export.
