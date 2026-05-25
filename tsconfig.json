@@ -6,7 +6,8 @@
     "jsx": "react", // use typescript to transpile jsx to js
     "target": "es6", // specify ECMAScript target version
     "allowJs": true, // allow a partial TypeScript and JavaScript codebase
-    "moduleResolution": "node",
+    "moduleResolution": "nodenext",
+    "module": "NodeNext",
     "allowSyntheticDefaultImports": true,
     "lib": ["ES6", "DOM"],
     "resolveJsonModule": true,

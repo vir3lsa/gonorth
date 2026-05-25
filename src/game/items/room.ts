@@ -22,6 +22,7 @@ import {
   RoomT,
   SimpleAction,
   Test,
+  UnknownAction,
   UnknownText
 } from "../../types/types";
 
@@ -109,7 +110,7 @@ export class Room extends Item {
   }
 
   addAdjacentRoom(
-    room?: RoomT,
+    room?: RoomT | UnknownAction,
     directionName?: DirectionName,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
@@ -173,7 +174,7 @@ export class Room extends Item {
   }
 
   setNorth(
-    room?: RoomT,
+    room?: RoomT | UnknownAction,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
     onFailure?: Action,
@@ -192,7 +193,7 @@ export class Room extends Item {
   }
 
   setSouth(
-    room?: RoomT,
+    room?: RoomT | UnknownAction,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
     onFailure?: Action,
@@ -211,7 +212,7 @@ export class Room extends Item {
   }
 
   setEast(
-    room?: RoomT,
+    room?: RoomT | UnknownAction,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
     onFailure?: Action,
@@ -230,7 +231,7 @@ export class Room extends Item {
   }
 
   setWest(
-    room?: RoomT,
+    room?: RoomT | UnknownAction,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
     onFailure?: Action,
@@ -249,7 +250,7 @@ export class Room extends Item {
   }
 
   setUp(
-    room?: RoomT,
+    room?: RoomT | UnknownAction,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
     onFailure?: Action,
@@ -268,7 +269,7 @@ export class Room extends Item {
   }
 
   setDown(
-    room?: RoomT,
+    room?: RoomT | UnknownAction,
     navigable?: Navigable,
     onSuccess?: ContextAction | ContextAction[],
     onFailure?: Action,

@@ -1127,7 +1127,7 @@ export class Item {
   }
 
   // Records an altered property.
-  recordAlteredProperty(propertyName: string, newValue?: Serializable | TextFunction) {
+  recordAlteredProperty(propertyName: string, newValue?: Serializable | TextFunction | TextFunction[]) {
     if (this.__cloned || !this.__constructed || this.config?.notPersisted) {
       // We won't serialize cloned objects, or objects constructed after recording began, so won't record their changes.
       return;
@@ -1139,9 +1139,13 @@ export class Item {
     }
 
     const recordChanges = selectRecordChanges();
-    if (recordChanges && typeof newValue === "function") {
+    if (
+      recordChanges &&
+      (typeof newValue === "function" ||
+        (Array.isArray(newValue) && newValue.some((value) => typeof newValue === "function")))
+    ) {
       throw Error(
-        `Updated item property "${propertyName}" to a function. This is non-serializable and hence can't be recorded into the save file.`
+        `Updated item property "${propertyName}" to a function (or an array containing a function). This is non-serializable and hence can't be recorded into the save file.`
       );
     }
 

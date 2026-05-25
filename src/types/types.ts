@@ -137,7 +137,7 @@ export interface SerializedText {
 export type AnyText = TextT | ManagedTextT;
 export type TextFunction = (...args: any[]) => string | AnyText | TextFunction;
 export type TextPart = string | TextFunction | AnyText;
-export type UnknownText = string | string[] | AnyText | TextFunction;
+export type UnknownText = string | string[] | AnyText | TextFunction | TextFunction[];
 export type ResolvedText = string | AnyText;
 
 /*************/
@@ -146,6 +146,7 @@ export type ResolvedText = string | AnyText;
 
 export type Consumer = (value?: unknown) => void;
 export type SimpleAction = () => void;
+export type UnknownAction = () => ActionBase;
 
 /*************************/
 /* Persistent Properties */
@@ -387,6 +388,7 @@ export type ActionBase =
   | boolean
   | null
   | undefined
+  | void
   | Promise<any>;
 export type Action = ActionBase | Action[] | ActionFunction;
 export type ContextAction = ActionBase | ContextAction[] | ActionContextFunction;
@@ -505,7 +507,7 @@ export interface ItemDetails {
 /*****************/
 
 export type Condition = () => boolean;
-export type InventoryAction = (item: ItemT) => string;
+export type InventoryAction = (item: ItemT) => ActionBase;
 export type SomeGraphOption = string | GraphOption | Action;
 
 export interface GraphOption {
@@ -527,6 +529,7 @@ export type UnknownOptions = GraphOptions | (() => GraphOptions);
 
 export interface GraphNode {
   id: string;
+  name?: string;
   options?: UnknownOptions;
   visited?: boolean;
   actions?: Action;
@@ -591,7 +594,7 @@ export interface RoomConfig {
 }
 
 export interface DirectionObject {
-  room?: RoomT | SimpleAction;
+  room?: RoomT | UnknownAction;
   test?: () => boolean;
   onSuccess?: ContextAction | ContextAction[];
   onFailure?: Action;

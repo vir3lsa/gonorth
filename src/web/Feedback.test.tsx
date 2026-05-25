@@ -5,12 +5,13 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { UserEvent } from "@testing-library/user-event/dist/types/setup/setup";
 import "@testing-library/jest-dom";
 import Feedback from "./Feedback";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
 import gameReducer from "../redux/reducers/gameReducer";
+
+type UserEvent = ReturnType<typeof userEvent.setup>;
 
 describe("Feedback component", () => {
   let user: UserEvent;
