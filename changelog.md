@@ -2,6 +2,7 @@
 
 ## 16.0.1
 
+- 2026-06-27 Fixed various type issues.
 - 2026-05-16 Convert ambient type definitions to module style and export all types.
 - 2026-04-19 Item.uniqueItems is public.
 
