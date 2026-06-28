@@ -1,5 +1,10 @@
 # goNORTH Changelog
 
+# Unreleased
+
+- 2026-06-28 Fixed inventory free space being calculated incorrectly when it contains items with aliases and the capacity is changed.
+- 2026-06-27 Keywords and auto-actions created before the initialiser runs so the latter may refer to the former.
+
 ## 16.0.1
 
 - 2026-06-27 Fixed various type issues.

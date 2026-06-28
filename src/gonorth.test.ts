@@ -76,6 +76,14 @@ describe("Game class", () => {
     expect(selectInventory().free).toBe(7);
   });
 
+  it("sets the inventory free space correctly after altering the capacity, where the inventory has items with multiple aliases", () => {
+    gn.moveItem(new Item.Builder("padding").withAliases("foam", "stuffing").withSize(3).build(), selectInventory());
+    gn.moveItem(new Item.Builder("cheese").withAliases("brie", "fromage").withSize(2).build(), selectInventory());
+    gn.setInventoryCapacity(7);
+    expect(selectInventory().capacity).toBe(7);
+    expect(selectInventory().free).toBe(2);
+  });
+
   describe("events", () => {
     it("triggers events with no condition and no timeout immediately", () => {
       eventTest(

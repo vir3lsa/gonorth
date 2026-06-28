@@ -25,7 +25,7 @@ import {
 } from "./redux/gameActions";
 import { Room } from "./game/items/room";
 import { addKeyword, getKeyword, getKeywords, removeKeyword } from "./game/verbs/keywords";
-import { ActionChain, ActionClass } from "./utils/actionChain";
+import { ActionChain } from "./utils/actionChain";
 import {
   createPlayer,
   goToRoom,
@@ -104,13 +104,14 @@ function init(config: Config) {
 
   getStore().dispatch(setStartRoom(new Room("Empty Room", "The room is completely devoid of anything interesting.")));
 
+  createKeywords();
+  initAutoActions();
+
   // Set up the game's rooms and items etc.
   if (initialiser) {
     initialiser();
   }
 
-  createKeywords();
-  initAutoActions();
   getStore().dispatch(newGame(game, debugMode));
 
   if (typeof document !== "undefined" && elementSelector) {
@@ -183,7 +184,8 @@ function addSchedule(scheduleOrBuilder: ScheduleT | ScheduleBuilder) {
 
 function setInventoryCapacity(size: number) {
   selectPlayer().capacity = size;
-  const getTotalCarrying = () => selectInventoryItems().reduce((total, item) => total + item.size, 0);
+  const getTotalCarrying = () =>
+    [...selectInventory().uniqueItems].filter((item) => !item.doNotList).reduce((total, item) => total + item.size, 0);
   selectPlayer().free = size - getTotalCarrying();
 }
 
